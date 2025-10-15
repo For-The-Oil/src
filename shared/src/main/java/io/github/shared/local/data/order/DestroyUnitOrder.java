@@ -4,27 +4,21 @@ import io.github.shared.local.data.Order;
 import io.github.shared.local.data.gameobject.Unit;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.ArrayList;
+
 
 /**
  * Représente un ordre donné par le joueur pour tuer ou attaquer des unités ennemies.
  */
 public class DestroyUnitOrder extends Order implements Serializable {
 
-    private final List<Unit> targetUnits;
+    private final ArrayList<Unit> targetUnits;
 
-    public DestroyUnitOrder(List<Unit> targetUnits) {
+    public DestroyUnitOrder(ArrayList<Unit> targetUnits) {
         super();
         this.targetUnits = targetUnits;
     }
-
-    /** Retourne la liste des unités ciblées */
-    public List<Unit> getTargetUnits() {
+    public ArrayList<Unit> getTargetUnits() {
         return targetUnits;
-    }
-
-    /** Vérifie si l'ordre est vide */
-    public boolean isEmpty() {
-        return targetUnits.isEmpty();
     }
 }

@@ -9,7 +9,7 @@ import io.github.shared.local.data.gameobject.Building;
 public class ProduceUnitOrder extends Order implements Serializable {
     private final Building building;
     private final int quantity;
-    private String name;
+    private String name;//On ne va pas utiliser le nom mais Sûrement autre chose permettant de reconnaître Un type unit comme Soldat par exemple
 
     public ProduceUnitOrder(Building building, int quantity, String name) {
         super();
