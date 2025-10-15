@@ -1,4 +1,4 @@
-package io.github.some_example_name.server;
+package io.github.server;
 
 /** Launches the server application. */
 public class ServerLauncher {

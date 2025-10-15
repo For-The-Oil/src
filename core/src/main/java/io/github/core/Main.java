@@ -1,4 +1,4 @@
-package io.github.some_example_name;
+package io.github.core;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.Texture;

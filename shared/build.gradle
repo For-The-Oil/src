@@ -1,5 +1,13 @@
 eclipse.project.name = appName + '-shared'
 
-dependencies {
 
+
+dependencies {
+  api "com.esotericsoftware:kryo:$kryoVersion"
+  api "com.github.crykn:kryonet:$kryoNetVersion"
+  api "com.github.tommyettinger:kryo-libgdx:$kryoLibgdxVersion"
+
+  if(enableGraalNative == 'true') {
+    implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
+  }
 }
