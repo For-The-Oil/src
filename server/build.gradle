@@ -7,7 +7,7 @@ if (JavaVersion.current().isJava9Compatible()) {
         compileJava.options.release.set(8)
 }
 
-mainClassName = 'io.github.some_example_name.server.ServerLauncher'
+mainClassName = 'io.github.server.ServerLauncher'
 application.setMainClass(mainClassName)
 eclipse.project.name = appName + '-server'
 
