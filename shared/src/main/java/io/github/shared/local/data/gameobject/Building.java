@@ -2,23 +2,27 @@ package io.github.shared.local.data.gameobject;
 
 import io.github.shared.local.data.component.ShapeComponent;
 import io.github.shared.local.data.component.LifeComponent;
+import io.github.shared.local.data.component.WeaponComponent;
 
 public class Building {
-    private final String name;
-    private final int mapX, mapY; // Position sur la map case en haut à gauche
-    private final ShapeComponent shape; // La forme interne du bâtiment
+    private final String idBuilding;
+    private final int mapX, mapY;
+    private final ShapeComponent shape;
     private final LifeComponent life;
 
-    public Building(String name, int mapX, int mapY, ShapeComponent shape, LifeComponent life) {
-        this.name = name;
+    private final WeaponComponent weapon;
+
+    public Building(String idBuilding, int mapX, int mapY, ShapeComponent shape, LifeComponent life, WeaponComponent weapon) {
+        this.idBuilding = idBuilding;
         this.mapX = mapX;
         this.mapY = mapY;
         this.shape = shape;
         this.life = life;
+        this.weapon = weapon;
     }
 
-    public String getName() {
-        return name;
+    public String getIdBuilding() {
+        return idBuilding;
     }
 
     public int getMapX() {
@@ -35,5 +39,9 @@ public class Building {
 
     public LifeComponent getLife() {
         return life;
+    }
+
+    public WeaponComponent getWeapon() {
+        return weapon;
     }
 }

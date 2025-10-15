@@ -4,18 +4,10 @@ package io.github.shared.local.data.gameobject;
  * Classe servant à la représentation des armes.
  */
 public class Weapon {
-    private final float damage, range, penetration, cooldown;
+    private final float damage, range, cooldown;
+    private final int penetration;
     private final boolean aoe;
-
-    /**
-     * Une arme est constitué de plusieurs attributs :
-     * damage =
-     * @param damage
-     * @param range
-     * @param cooldown
-     * @param penetration
-     */
-    public Weapon(float damage, float range, float cooldown, float penetration, boolean aoe) {
+    public Weapon(float damage, float range, float cooldown, int penetration, boolean aoe) {
         this.damage = damage;
         this.range =  range;
         this.cooldown = cooldown;
@@ -35,7 +27,7 @@ public class Weapon {
         return damage;
     }
 
-    public float getPenetration() {
+    public int getPenetration() {
         return penetration;
     }
 

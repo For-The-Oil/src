@@ -7,7 +7,6 @@ import com.badlogic.gdx.math.Vector2;
  * Composant représentant la position d'une entité dans le monde (2D).
  */
 public class PositionComponent implements Component {
-    /** Position dans l'espace 2D. */
     public final Vector2 position = new Vector2();
 
     public PositionComponent() {
@@ -35,14 +34,5 @@ public class PositionComponent implements Component {
 
     public void setY(float y){
         this.position.y =y;
-    }
-
-
-    @Override
-    public String toString() {
-        return "PositionComponent{" +
-            "x=" + position.x +
-            ", y=" + position.y +
-            '}';
     }
 }

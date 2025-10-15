@@ -14,22 +14,11 @@ public class ShapeComponent {
     }
 
     public void setCell(int x, int y, Cell cell) {
-        if (x >= 0 && x < width && y >= 0 && y < height) {
-            cells[x][y] = cell;
-        }
-        else {
-            //LOG4J
-        }
+        cells[x][y] = cell;
     }
 
     public Cell getCell(int x, int y) {
-        if (x >= 0 && x < width && y >= 0 && y < height) {
-            return cells[x][y];
-        }
-        else {
-            //LOG4J
-            return null;
-        }
+        return cells[x][y];
     }
 
     public int getWidth() { return width; }

@@ -1,8 +1,6 @@
 package io.github.shared.local.data;
 
-import io.github.shared.local.data.gameobject.Building;
 import io.github.shared.local.data.gameobject.Deck;
-import io.github.shared.local.data.gameobject.Unit;
 
 import java.util.*;
 
@@ -13,40 +11,40 @@ public class Player {
 
     private final String name;
     private final Deck deck;
-    private final ArrayList<Building> buildings;
-    private final ArrayList<Unit> units;
+    private final ArrayList<Integer> buildingsKey;
+    private final ArrayList<Integer> unitsKey;
 
     public Player(String name) {
         this.name = name;
         this.deck = new Deck();
-        this.buildings = new ArrayList<>();
-        this.units = new ArrayList<>();
+        this.buildingsKey = new ArrayList<>();
+        this.unitsKey = new ArrayList<>();
     }
 
     public String getName() {
         return name;
     }
-    public void addBuilding(Building building) {
-        buildings.add(building);
+    public void addBuilding(int building) {
+        buildingsKey.add(building);
     }
 
-    public void removeBuilding(Building building) {
-        buildings.remove(building);
+    public void removeBuilding(int building) {
+        buildingsKey.remove(building);
     }
 
-    public List<Building> getBuildings() {
-        return buildings;
+    public List<Integer> getBuildingsKey() {
+        return buildingsKey;
     }
 
-    public void addUnit(Unit unit) {
-        units.add(unit);
+    public void addUnit(int unit) {
+        unitsKey.add(unit);
     }
 
-    public void removeUnit(Unit unit) {
-        units.remove(unit);
+    public void removeUnit(int unit) {
+        unitsKey.remove(unit);
     }
 
-    public List<Unit> getUnits() {
-        return units;
+    public List<Integer> getUnitsKey() {
+        return unitsKey;
     }
 }
