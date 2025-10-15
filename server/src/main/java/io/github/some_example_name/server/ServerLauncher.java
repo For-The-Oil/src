@@ -1,4 +1,4 @@
-package com.fortheoil.server;
+package io.github.some_example_name.server;
 
 /** Launches the server application. */
 public class ServerLauncher {

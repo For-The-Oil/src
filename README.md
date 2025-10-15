@@ -1,4 +1,4 @@
-# For The Oil
+# YourProjectName
 
 A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
 
@@ -7,6 +7,7 @@ This project was generated with a template including simple application launcher
 ## Platforms
 
 - `core`: Main module with the application logic shared by all platforms.
+- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
 - `android`: Android mobile platform. Needs Android SDK.
 - `server`: A separate application without access to the `core` module.
 - `shared`: A common module shared by `core` and `server` platforms.
@@ -28,6 +29,8 @@ Useful Gradle tasks and flags:
 - `clean`: removes `build` folders, which store compiled classes and built archives.
 - `eclipse`: generates Eclipse project data.
 - `idea`: generates IntelliJ project data.
+- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
+- `lwjgl3:run`: starts the application.
 - `server:run`: runs the server application.
 - `test`: runs unit tests (if any).
 

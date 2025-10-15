@@ -1,10 +1,10 @@
-package com.fortheoil.android;
+package io.github.some_example_name.android;
 
 import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.fortheoil.Main;
+import io.github.some_example_name.Main;
 
 /** Launches the Android application. */
 public class AndroidLauncher extends AndroidApplication {

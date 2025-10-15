@@ -1,4 +1,4 @@
-package com.fortheoil;
+package io.github.some_example_name;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.graphics.Texture;

@@ -7,7 +7,7 @@ if (JavaVersion.current().isJava9Compatible()) {
         compileJava.options.release.set(8)
 }
 
-mainClassName = 'com.fortheoil.server.ServerLauncher'
+mainClassName = 'io.github.some_example_name.server.ServerLauncher'
 application.setMainClass(mainClassName)
 eclipse.project.name = appName + '-server'
 
