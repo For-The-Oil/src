@@ -1,6 +1,8 @@
-package io.github.shared.local.data.component;
+package io.github.shared.local.ecs.component;
 
-public class MovementComponent {
+import com.badlogic.ashley.core.Component;
+
+public class MovementComponent implements Component {
     public final float base_speed = 0;
     public final float road_coef = 1;
     public final float debris_coef= 1;

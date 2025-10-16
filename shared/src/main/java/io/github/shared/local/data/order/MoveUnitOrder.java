@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import io.github.shared.local.data.Order;
-import io.github.shared.local.data.gameobject.Unit;
 
 /** Déplacement d'unités vers une position */
 public class MoveUnitOrder extends Order implements Serializable {

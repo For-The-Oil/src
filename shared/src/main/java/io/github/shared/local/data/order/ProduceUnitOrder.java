@@ -3,7 +3,6 @@ package io.github.shared.local.data.order;
 import java.io.Serializable;
 
 import io.github.shared.local.data.Order;
-import io.github.shared.local.data.gameobject.Building;
 
 /** Production d'unités depuis un bâtiment */
 public class ProduceUnitOrder extends Order implements Serializable {

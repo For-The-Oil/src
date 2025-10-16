@@ -3,7 +3,6 @@ package io.github.shared.local.data.order;
 import java.io.Serializable;
 
 import io.github.shared.local.data.Order;
-import io.github.shared.local.data.gameobject.Building;
 
 /** Construction de bâtiments à une position donnée */
 public class ProductionBuildingOrder extends Order implements Serializable {

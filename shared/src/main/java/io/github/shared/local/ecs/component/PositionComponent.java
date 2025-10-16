@@ -1,4 +1,4 @@
-package io.github.shared.local.data.component;
+package io.github.shared.local.ecs.component;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.math.Vector2;
@@ -16,23 +16,4 @@ public class PositionComponent implements Component {
         this.position.set(x, y);
     }
 
-    public void set(float x, float y) {
-        this.position.set(x, y);
-    }
-
-    public float getX(){
-        return this.position.x;
-    }
-
-    public float getY(){
-        return this.position.y;
-    }
-
-    public void setX(float x){
-        this.position.x =x;
-    }
-
-    public void setY(float y){
-        this.position.y =y;
-    }
 }

@@ -1,7 +1,6 @@
 package io.github.shared.local.data.order;
 
 import io.github.shared.local.data.Order;
-import io.github.shared.local.data.gameobject.Unit;
 
 import java.io.Serializable;
 import java.util.ArrayList;
