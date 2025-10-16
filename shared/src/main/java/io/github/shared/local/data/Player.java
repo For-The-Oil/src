@@ -14,9 +14,9 @@ public class Player {
     private final ArrayList<Integer> buildingsKey;
     private final ArrayList<Integer> unitsKey;
 
-    public Player(String name) {
+    public Player(String name,Deck deck) {
         this.name = name;
-        this.deck = new Deck();
+        this.deck = deck;
         this.buildingsKey = new ArrayList<>();
         this.unitsKey = new ArrayList<>();
     }

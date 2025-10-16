@@ -8,20 +8,15 @@ import io.github.shared.local.data.component.PositionComponent;
  * Projectile volant au-dessus d'une map 2D (effet 2.5D)
  */
 public class Projectile {
-    private final PositionComponent P;
-    private final Point2D point;
-    private final float maxHeight;
-    private final float speed;
-    private boolean active;
-    private float height;
+    private final PositionComponent position;
 
     public Projectile(PositionComponent startPos, Point2D point, float maxHeight, float speed) {
-        this.P = startPos;
+        this.position = startPos;
         this.point = point;
         this.maxHeight = maxHeight;
         this.speed = speed;
         this.active = true;
-        this.height = 0f; // départ depuis le sol
+        this.height = 0f;
     }
 
     public boolean isActive() {
