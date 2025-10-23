@@ -1,8 +1,11 @@
 package io.github.shared.local.ecs.component;
 
-import com.badlogic.ashley.core.Component;
+import com.artemis.Component;
 
-public class LifeComponent implements Component {
+import com.artemis.annotations.PooledWeaver;
+
+@PooledWeaver
+public class LifeComponent extends Component {
     private float health;
     private final float maxHealth;
     private final int armor;

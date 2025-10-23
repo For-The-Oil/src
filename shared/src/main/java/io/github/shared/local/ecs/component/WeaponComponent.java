@@ -1,10 +1,13 @@
 package io.github.shared.local.ecs.component;
 
-import com.badlogic.ashley.core.Component;
+import com.artemis.Component;
 
 import io.github.shared.local.data.gameobject.Weapon;
 
-public class WeaponComponent implements Component {
+import com.artemis.annotations.PooledWeaver;
+
+@PooledWeaver
+public class WeaponComponent extends Component {
     public Weapon data;
     public float currentCooldown;
 

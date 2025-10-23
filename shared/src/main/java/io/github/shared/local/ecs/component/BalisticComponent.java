@@ -1,8 +1,12 @@
 package io.github.shared.local.ecs.component;
 
-import com.badlogic.ashley.core.Component;
 
-public class BalisticComponent implements Component {
+import com.artemis.Component;
+
+import com.artemis.annotations.PooledWeaver;
+
+@PooledWeaver
+public class BalisticComponent extends Component {
     public float maxHeight;
     public boolean active;
 
