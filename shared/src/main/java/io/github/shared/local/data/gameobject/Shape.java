@@ -13,4 +13,20 @@ public class Shape {
         this.tab_cells = new Cell[width][height];
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public Cell[][] getTab_cells() {
+        return tab_cells;
+    }
+
+    public Cell getCells(int x, int y){
+        return tab_cells[x][y];
+    }
+
 }
