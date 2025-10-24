@@ -1,0 +1,9 @@
+package io.github.shared.local.ecs.component;
+
+import com.artemis.Component;
+public class NetComponent extends Component {
+
+    // Il faut voir si un Int sera suffisant pour notre jeu, peut être passer à long au besoin.
+    public int netId;
+
+}
