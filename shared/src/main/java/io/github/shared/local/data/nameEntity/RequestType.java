@@ -1,5 +1,5 @@
 package io.github.shared.local.data.nameEntity;
 
-public enum OrderType {
+public enum RequestType {
     Attack, Destroy, Move, Produce, Summon, Special
 }
