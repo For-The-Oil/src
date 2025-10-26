@@ -1,4 +1,4 @@
-package io.github.shared.local.data.nameEntity;
+package io.github.shared.local.data.EnumsTypes;
 
 public enum CellType {
     GRASS, ROAD, WATER, SHALLOW_WATER, GRAVEL

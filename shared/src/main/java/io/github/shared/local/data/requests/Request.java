@@ -1,15 +1,15 @@
-package io.github.shared.local.data;
+package io.github.shared.local.data.requests;
 
-import java.io.Serializable;
-import io.github.shared.local.data.nameEntity.RequestType;
+import io.github.shared.local.data.EnumsTypes.RequestType;
 
 /**
  * Représente un ordre donné par un joueur, avec des paramètres obligatoires selon le type.
  */
-public class Request implements Serializable {
+public class Request {
     private long timestamp;
-    private final RequestType request;
+    private RequestType request;
 
+    public Request(){}
     public Request(RequestType request) {
         this.request = request;
         this.timestamp= -1;
@@ -19,8 +19,6 @@ public class Request implements Serializable {
         return timestamp;
     }
 
-    public void setTimestamp(long x){
-        this.timestamp=x;
-    }
+    public void setTimestamp(long x){this.timestamp=x;}
 
 }

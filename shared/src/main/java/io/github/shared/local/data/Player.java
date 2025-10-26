@@ -1,7 +1,9 @@
 package io.github.shared.local.data;
 
+import io.github.shared.local.data.EnumsTypes.RessourcesType;
 import io.github.shared.local.data.gameobject.Deck;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -9,14 +11,19 @@ import java.util.*;
  */
 public class Player {
 
-    private final String name;
-    private final Deck deck;
-    private final ArrayList<Integer> buildingsKey;
-    private final ArrayList<Integer> unitsKey;
+    private String UUID;
+    private String name;
+    private Deck deck;
+    private ArrayList<Integer> buildingsKey;
+    private ArrayList<Integer> unitsKey;
+    private HashMap<RessourcesType, Integer> ressources;
 
-    public Player(String name,Deck deck) {
+    public Player(){}
+    public Player(String uuid, String name, Deck deck) {
+        this.UUID = uuid;
         this.name = name;
         this.deck = deck;
+        this.ressources = new HashMap<RessourcesType, Integer>();
         this.buildingsKey = new ArrayList<>();
         this.unitsKey = new ArrayList<>();
     }

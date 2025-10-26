@@ -1,8 +1,8 @@
 package io.github.shared.local.data.gameobject;
 
 import java.util.EnumMap;
-import io.github.shared.local.data.nameEntity.CellType;
-import io.github.shared.local.data.nameEntity.UnitType;
+import io.github.shared.local.data.EnumsTypes.CellType;
+import io.github.shared.local.data.EnumsTypes.UnitType;
 
 public final class  MovementModifiersPreset {
 
