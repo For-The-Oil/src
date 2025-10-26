@@ -1,4 +1,4 @@
-package io.github.shared.local.ecs.component;
+package io.github.shared.local.data.component;
 
 
 import com.artemis.Component;
