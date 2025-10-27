@@ -14,7 +14,9 @@ import com.esotericsoftware.kryonet.Listener;
 import java.io.IOException;
 import java.util.HashMap;
 
+import io.github.shared.local.data.EnumsTypes.KryoMessageType;
 import io.github.shared.local.data.EnumsTypes.RequestType;
+import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.network.KryoRegistry;
 import io.github.shared.local.data.requests.AuthRequest;
 import io.github.shared.local.data.EnumsTypes.AuthModeType;
@@ -67,13 +69,17 @@ public class Main extends ApplicationAdapter {
             @Override
             public void received(Connection connection, Object object) {
                 Gdx.app.postRunnable(() -> {
-                    if (object instanceof String) {
-                        statusMessage = "Got this : " + object;
-                        System.out.println(statusMessage);
-                    } else if (object instanceof AuthRequest) {
-                        AuthRequest auth = (AuthRequest) object;
-                        statusMessage = "Auth response: " + auth.getMode();
-                        System.out.println(statusMessage);
+                    if(object instanceof KryoMessage){
+                        KryoMessage kryoMessage = (KryoMessage) object;
+                        if (kryoMessage.getObj() instanceof String) {
+                            statusMessage = "Got this : " + kryoMessage.getObj();
+                            System.out.println(statusMessage);
+                        }
+                        else if (kryoMessage.getObj() instanceof AuthRequest) {
+                            AuthRequest auth = (AuthRequest) kryoMessage.getObj();
+                            statusMessage = "Auth response: " + auth.getMode();
+                            System.out.println(statusMessage);
+                        }
                     }
                 });
             }
@@ -141,7 +147,8 @@ public class Main extends ApplicationAdapter {
         keys.put("username", username);
         keys.put("password", password);
         AuthRequest request = new AuthRequest(AuthModeType.LOGIN, keys);
-        client.sendTCP(request);
+        KryoMessage kryoMessage = new KryoMessage(KryoMessageType.AUTH,null,request);
+        client.sendTCP(kryoMessage);
         System.out.println("Login send : " + username);
     }
 
@@ -150,7 +157,8 @@ public class Main extends ApplicationAdapter {
         keys.put("username", username);
         keys.put("password", password);
         AuthRequest request = new AuthRequest(AuthModeType.REGISTER, keys);
-        client.sendTCP(request);
+        KryoMessage kryoMessage = new KryoMessage(KryoMessageType.AUTH,null,request);
+        client.sendTCP(kryoMessage);
         System.out.println("Register send : " + username);
     }
 }
