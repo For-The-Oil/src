@@ -2,7 +2,7 @@ package io.github.shared.local.data.updates;
 
 import java.util.HashMap;
 
-public class ResultUpdate extends Update{
+public class ResultUpdate {
     private HashMap<String, String> result;
     private HashMap<String, Integer> stats;
 

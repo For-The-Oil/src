@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.github.server.data.ActionController.ActionController;
-import io.github.server.data.instructions.Instruction;
+import io.github.shared.local.data.instructions.Instruction;
 import io.github.shared.local.data.EnumsTypes.EventType;
 import io.github.shared.local.data.EnumsTypes.MapName;
 import io.github.shared.local.data.Player;
@@ -15,6 +15,8 @@ import io.github.shared.local.data.gameobject.Shape;
 
 public class Game {
     private long GAME_UUID;
+
+    private boolean endGame;
     private HashMap<String, ArrayList<Player> > playerTeam;
     private ArrayList<Player> playersList;
     private ArrayList<Entity> entities;

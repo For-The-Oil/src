@@ -1,4 +1,4 @@
-package io.github.server.data.instructions;
+package io.github.shared.local.data.instructions;
 
 public class SpecialRequestsInstruction extends Instruction{
 }
