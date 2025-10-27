@@ -50,7 +50,7 @@ public class Main extends ApplicationAdapter {
             public void connected(Connection connection) {
                 Gdx.app.postRunnable(() -> {
                     connected = true;
-                    statusMessage = "✅ Connecté au serveur !";
+                    statusMessage = "connected to the server !";
                     System.out.println(statusMessage);
                 });
             }
@@ -59,7 +59,7 @@ public class Main extends ApplicationAdapter {
             public void disconnected(Connection connection) {
                 Gdx.app.postRunnable(() -> {
                     connected = false;
-                    statusMessage = "❌ Déconnecté du serveur.";
+                    statusMessage = "disconnected from the server.";
                     System.out.println(statusMessage);
                 });
             }
@@ -68,11 +68,11 @@ public class Main extends ApplicationAdapter {
             public void received(Connection connection, Object object) {
                 Gdx.app.postRunnable(() -> {
                     if (object instanceof String) {
-                        statusMessage = "📩 Reçu : " + object;
+                        statusMessage = "Got this : " + object;
                         System.out.println(statusMessage);
                     } else if (object instanceof AuthRequest) {
                         AuthRequest auth = (AuthRequest) object;
-                        statusMessage = "📩 Auth response: " + auth.getMode();
+                        statusMessage = "Auth response: " + auth.getMode();
                         System.out.println(statusMessage);
                     }
                 });
@@ -87,7 +87,7 @@ public class Main extends ApplicationAdapter {
                 client.connect(5000, "127.0.0.1", 54555);
             } catch (IOException e) {
                 Gdx.app.postRunnable(() -> {
-                    statusMessage = "Erreur connexion : " + e.getMessage();
+                    statusMessage = "Error connexion : " + e.getMessage();
                     System.err.println(statusMessage);
                 });
             }
@@ -105,9 +105,9 @@ public class Main extends ApplicationAdapter {
 
         // Envoyer un message simple avec ESPACE
         if (connected && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            String msg = "Hello serveur depuis LibGDX !";
+            String msg = "Hello server from LibGDX !";
             client.sendTCP(msg);
-            System.out.println("📤 Envoyé : " + msg);
+            System.out.println("Send : " + msg);
         }
 
         // Exemple d’envoi d’une AuthRequest LOGIN avec L

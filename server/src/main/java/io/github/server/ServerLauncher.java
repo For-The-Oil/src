@@ -35,7 +35,6 @@ public class ServerLauncher {
     }
 
     private void init() {
-
         // console print of usefull informations when the server start
         System.out.println("=============================================");
         System.out.println("         🚀 Server Starting ...              ");

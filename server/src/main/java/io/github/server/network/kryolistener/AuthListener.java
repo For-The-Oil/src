@@ -2,11 +2,16 @@ package io.github.server.network.kryolistener;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-
-import io.github.server.data.network.ServerNetwork;
-import io.github.shared.local.data.network.ClientNetwork;
+import io.github.server.manager.ClientManager;
 import io.github.shared.local.data.requests.AuthRequest;
 
+/**
+ * Listener that manage the AuthRequest types.
+ *
+ * Cases like :
+ * - Login
+ * - Register
+ */
 public class AuthListener extends Listener {
 
     @Override
@@ -16,7 +21,7 @@ public class AuthListener extends Listener {
 
     @Override
     public void disconnected(Connection connection) {
-        System.out.println("Client déconnecté : " + connection.getRemoteAddressTCP());
+        System.out.println("Client disconnected : " + connection.getRemoteAddressTCP());
         // Supprimer le client de la liste auth si présent
         //ServerNetwork.getInstance().getAuthClientNetworkList().removeIf(c -> c.getConnection() == connection);
     }
@@ -46,15 +51,23 @@ public class AuthListener extends Listener {
     }
 
     public void loginClient(Connection connection, AuthRequest object){
-        System.out.println("Demande de login");
+        System.out.println("Client is asking for a login ...");
+
+        if (!checkCredentials()) {
+            System.out.println("Invalid credentials !");
+            return;
+        }
+
+        ClientManager.getInstance().addClient(connection, object);
+
     }
 
     public void loginByTokenClient(Connection connection, AuthRequest object){
-        System.out.println("Demande de login par token");
+        System.out.println("Client is asking for a login by token ...");
     }
 
     public void registerClient(Connection connection, AuthRequest object){
-        System.out.println("Demande de register");
+        System.out.println("Client is asking to register ...");
     }
 
 

@@ -10,8 +10,8 @@ import io.github.shared.local.data.EnumsTypes.DeckCardType;
 public class Deck implements Serializable {
     private HashMap<DeckCardType, ArrayList<BuildingType>> cardTabKey;
 
-    public Deck(HashMap<DeckCardType, ArrayList<BuildingType>> cardTabKey) {
-        this.cardTabKey = cardTabKey;
+    public Deck() {
+        this.cardTabKey = new HashMap<DeckCardType, ArrayList<BuildingType>>();
     }
 
     public HashMap<DeckCardType, ArrayList<BuildingType>> getCardTabKey() {
