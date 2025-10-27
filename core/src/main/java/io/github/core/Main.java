@@ -12,35 +12,46 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
+import java.util.HashMap;
 
-/** LibGDX main class that also connects to a KryoNet server and exchanges Strings. */
+import io.github.shared.local.data.EnumsTypes.RequestType;
+import io.github.shared.local.data.network.KryoRegistry;
+import io.github.shared.local.data.requests.AuthRequest;
+import io.github.shared.local.data.EnumsTypes.AuthModeType;
+
+/**
+ * Main LibGDX class avec client KryoNet intégré et AuthRequest support.
+ */
 public class Main extends ApplicationAdapter {
+
     private SpriteBatch batch;
-    private Texture image;
+    private Texture logo;
 
     private Client client;
     private boolean connected = false;
-
-    private String lastMessage = "";
+    private String statusMessage = "";
 
     @Override
     public void create() {
         batch = new SpriteBatch();
-        image = new Texture("libgdx.png");
+        logo = new Texture("libgdx.png");
 
-        // === Démarrage du client réseau ===
+        // === Initialisation du client KryoNet ===
         client = new Client();
         Kryo kryo = client.getKryo();
-        kryo.register(String.class); // important : même enregistrement que côté serveur
 
-        // Ajout d’un listener pour gérer les événements réseau
+        // 🔹 Enregistrer toutes les classes nécessaires pour Kryo
+        KryoRegistry.registerAll(kryo);
+
+        // Listener KryoNet
         client.addListener(new Listener() {
+
             @Override
             public void connected(Connection connection) {
                 Gdx.app.postRunnable(() -> {
                     connected = true;
-                    lastMessage = "Connecté au serveur !";
-                    System.out.println("✅ Connecté au serveur !");
+                    statusMessage = "✅ Connecté au serveur !";
+                    System.out.println(statusMessage);
                 });
             }
 
@@ -48,32 +59,36 @@ public class Main extends ApplicationAdapter {
             public void disconnected(Connection connection) {
                 Gdx.app.postRunnable(() -> {
                     connected = false;
-                    lastMessage = "Déconnecté du serveur.";
-                    System.out.println("❌ Déconnecté du serveur.");
+                    statusMessage = "❌ Déconnecté du serveur.";
+                    System.out.println(statusMessage);
                 });
             }
 
             @Override
             public void received(Connection connection, Object object) {
-                if (object instanceof String) {
-                    String msg = (String) object;
-                    Gdx.app.postRunnable(() -> {
-                        lastMessage = msg;
-                        System.out.println("📩 Reçu du serveur: " + msg);
-                    });
-                }
+                Gdx.app.postRunnable(() -> {
+                    if (object instanceof String) {
+                        statusMessage = "📩 Reçu : " + object;
+                        System.out.println(statusMessage);
+                    } else if (object instanceof AuthRequest) {
+                        AuthRequest auth = (AuthRequest) object;
+                        statusMessage = "📩 Auth response: " + auth.getMode();
+                        System.out.println(statusMessage);
+                    }
+                });
             }
         });
 
         client.start();
+
+        // Connexion dans un thread séparé
         new Thread(() -> {
             try {
-                // connexion au serveur local (localhost:54555)
                 client.connect(5000, "127.0.0.1", 54555);
             } catch (IOException e) {
                 Gdx.app.postRunnable(() -> {
-                    lastMessage = "Erreur connexion : " + e.getMessage();
-                    System.err.println("Erreur lors de la connexion : " + e.getMessage());
+                    statusMessage = "Erreur connexion : " + e.getMessage();
+                    System.err.println(statusMessage);
                 });
             }
         }, "KryoNet-ConnectThread").start();
@@ -81,19 +96,31 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void render() {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
+        // Nettoyage de l’écran
+        ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+
         batch.begin();
-        batch.draw(image, 140, 210);
+        batch.draw(logo, 140, 210);
         batch.end();
 
-        // Exemple : appuie sur ESPACE pour envoyer un message au serveur
+        // Envoyer un message simple avec ESPACE
         if (connected && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            String msg = "Hello serveur depuis le client LibGDX !";
+            String msg = "Hello serveur depuis LibGDX !";
             client.sendTCP(msg);
             System.out.println("📤 Envoyé : " + msg);
         }
 
-        // Appuie sur ÉCHAP pour envoyer "exit" et fermer
+        // Exemple d’envoi d’une AuthRequest LOGIN avec L
+        if (connected && Gdx.input.isKeyJustPressed(Input.Keys.L)) {
+            sendLogin("testUser", "1234");
+        }
+
+        // Exemple d’envoi d’une AuthRequest REGISTER avec R
+        if (connected && Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            sendRegister("newUser", "pass123");
+        }
+
+        // Quitter avec ESCAPE
         if (connected && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             client.sendTCP("exit");
             client.close();
@@ -104,9 +131,26 @@ public class Main extends ApplicationAdapter {
     @Override
     public void dispose() {
         batch.dispose();
-        image.dispose();
-        if (client != null) {
-            client.stop();
-        }
+        logo.dispose();
+        if (client != null) client.stop();
+    }
+
+    // 🔹 Méthodes utilitaires pour AuthRequest
+    private void sendLogin(String username, String password) {
+        HashMap<String, String> keys = new HashMap<>();
+        keys.put("username", username);
+        keys.put("password", password);
+        AuthRequest request = new AuthRequest(AuthModeType.LOGIN, keys);
+        client.sendTCP(request);
+        System.out.println("Login send : " + username);
+    }
+
+    private void sendRegister(String username, String password) {
+        HashMap<String, String> keys = new HashMap<>();
+        keys.put("username", username);
+        keys.put("password", password);
+        AuthRequest request = new AuthRequest(AuthModeType.REGISTER, keys);
+        client.sendTCP(request);
+        System.out.println("Register send : " + username);
     }
 }

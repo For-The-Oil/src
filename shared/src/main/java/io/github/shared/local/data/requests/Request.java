@@ -21,4 +21,7 @@ public class Request {
 
     public void setTimestamp(long x){this.timestamp=x;}
 
+    public RequestType getRequest() {
+        return request;
+    }
 }

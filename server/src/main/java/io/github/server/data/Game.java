@@ -5,6 +5,7 @@ import com.artemis.Entity;
 import java.util.Queue;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 import io.github.server.data.ActionController.ActionController;
 import io.github.shared.local.data.instructions.Instruction;
@@ -14,8 +15,7 @@ import io.github.shared.local.data.Player;
 import io.github.shared.local.data.gameobject.Shape;
 
 public class Game {
-    private long GAME_UUID;
-
+    private UUID GAME_UUID;
     private boolean endGame;
     private HashMap<String, ArrayList<Player> > playerTeam;
     private ArrayList<Player> playersList;
@@ -23,8 +23,9 @@ public class Game {
     private Shape map;
     private MapName mapName;
     private EventType currentEvent;
-    private Queue<Instruction> orderList;
-    private Queue<Instruction> historicList;
+    private Queue<Instruction> executionQueue;
+    private Queue<Instruction> historicQueue;
+    private Queue<Instruction> networkQueue;
     private ArrayList<ActionController> activeActions;
     private long time_left;  //seconds
 }

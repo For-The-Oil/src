@@ -2,34 +2,26 @@ package io.github.shared.local.data;
 
 import io.github.shared.local.data.EnumsTypes.RessourcesType;
 import io.github.shared.local.data.gameobject.Deck;
+import io.github.shared.local.data.network.ClientNetwork;
 
-import java.io.Serializable;
 import java.util.*;
 
 /**
  * Représente un joueur avec plusieurs Decks, bâtiments et unités.
  */
-public class Player {
-
-    private String UUID;
-    private String name;
-    private Deck deck;
+public class Player extends ClientNetwork {
     private ArrayList<Integer> buildingsKey;
     private ArrayList<Integer> unitsKey;
     private HashMap<RessourcesType, Integer> ressources;
 
-    public Player(){}
-    public Player(String uuid, String name, Deck deck) {
-        this.UUID = uuid;
-        this.name = name;
-        this.deck = deck;
+    public Player(){
+        super();
+    }
+    public Player(UUID uuid, String name, Deck deck, String token) {
+        super(uuid,name,deck, token);
         this.ressources = new HashMap<RessourcesType, Integer>();
         this.buildingsKey = new ArrayList<>();
         this.unitsKey = new ArrayList<>();
-    }
-
-    public String getName() {
-        return name;
     }
     public void addBuilding(int building) {
         buildingsKey.add(building);
