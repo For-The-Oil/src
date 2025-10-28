@@ -2,11 +2,11 @@ package io.github.core;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.utils.ScreenUtils;
-import com.esotericsoftware.kryo.Kryo;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
@@ -14,46 +14,71 @@ import com.esotericsoftware.kryonet.Listener;
 import java.io.IOException;
 import java.util.HashMap;
 
+import io.github.shared.local.data.EnumsTypes.AuthModeType;
 import io.github.shared.local.data.EnumsTypes.KryoMessageType;
-import io.github.shared.local.data.EnumsTypes.RequestType;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.network.KryoRegistry;
 import io.github.shared.local.data.requests.AuthRequest;
-import io.github.shared.local.data.EnumsTypes.AuthModeType;
 
-/**
- * Main LibGDX class avec client KryoNet intégré et AuthRequest support.
- */
 public class Main extends ApplicationAdapter {
 
-    private SpriteBatch batch;
-    private Texture logo;
+    private Stage stage;
+    private Skin skin;
 
+    private TextField emailField, passwordField, password2Field, usernameField;
+    private Label statusLabel;
     private Client client;
     private boolean connected = false;
-    private String statusMessage = "";
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-        logo = new Texture("libgdx.png");
+        stage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(stage);
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        // === Initialisation du client KryoNet ===
+        // UI Elements
+        Table table = new Table();
+        table.setFillParent(true);
+        stage.addActor(table);
+
+        emailField = new TextField("newUser@gmail.com", skin);
+        passwordField = new TextField("pass123", skin);
+        passwordField.setPasswordMode(true);
+        passwordField.setPasswordCharacter('*');
+        password2Field = new TextField("", skin);
+        password2Field.setPasswordMode(true);
+        password2Field.setPasswordCharacter('*');
+        usernameField = new TextField("", skin);
+
+        statusLabel = new Label("Not connected", skin);
+
+        TextButton loginButton = new TextButton("Login", skin);
+        TextButton registerButton = new TextButton("Register", skin);
+        TextButton reconnectButton = new TextButton("Reconnect", skin);
+
+        // Layout
+        table.add(new Label("Email:", skin)).left();
+        table.add(emailField).width(250).row();
+        table.add(new Label("Password:", skin)).left();
+        table.add(passwordField).width(250).row();
+        table.add(new Label("Password Confirm:", skin)).left();
+        table.add(password2Field).width(250).row();
+        table.add(new Label("Username:", skin)).left();
+        table.add(usernameField).width(250).row();
+        table.add(loginButton).padTop(10);
+        table.add(registerButton).padTop(10).row();
+        table.add(reconnectButton).colspan(2).padTop(10).row();
+        table.add(statusLabel).colspan(2).padTop(10).row();
+
+        // KryoNet client init
         client = new Client();
-        Kryo kryo = client.getKryo();
-
-        // 🔹 Enregistrer toutes les classes nécessaires pour Kryo
-        KryoRegistry.registerAll(kryo);
-
-        // Listener KryoNet
+        KryoRegistry.registerAll(client.getKryo());
         client.addListener(new Listener() {
-
             @Override
             public void connected(Connection connection) {
                 Gdx.app.postRunnable(() -> {
                     connected = true;
-                    statusMessage = "connected to the server !";
-                    System.out.println(statusMessage);
+                    statusLabel.setText("Connected to server!");
                 });
             }
 
@@ -61,100 +86,104 @@ public class Main extends ApplicationAdapter {
             public void disconnected(Connection connection) {
                 Gdx.app.postRunnable(() -> {
                     connected = false;
-                    statusMessage = "disconnected from the server.";
-                    System.out.println(statusMessage);
+                    statusLabel.setText("Disconnected from server.");
                 });
             }
 
             @Override
             public void received(Connection connection, Object object) {
                 Gdx.app.postRunnable(() -> {
-                    if(object instanceof KryoMessage){
-                        KryoMessage kryoMessage = (KryoMessage) object;
-                        if (kryoMessage.getObj() instanceof String) {
-                            statusMessage = "Got this : " + kryoMessage.getObj();
-                            System.out.println(statusMessage);
-                        }
-                        else if (kryoMessage.getObj() instanceof AuthRequest) {
-                            AuthRequest auth = (AuthRequest) kryoMessage.getObj();
-                            statusMessage = "Auth response: " + auth.getMode();
-                            System.out.println(statusMessage);
-                        }
+                    if (object instanceof KryoMessage) {
+                        KryoMessage msg = (KryoMessage) object;
+                        statusLabel.setText("Received: " + msg.getObj());
                     }
                 });
             }
         });
 
         client.start();
+        connectToServer();
 
-        // Connexion dans un thread séparé
+        // Button listeners
+        loginButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                if (connected) sendLogin(emailField.getText(), passwordField.getText());
+            }
+        });
+
+        registerButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                if (connected) sendRegister(emailField.getText(), passwordField.getText(), password2Field.getText(), usernameField.getText());
+            }
+        });
+
+        reconnectButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
+                if (!connected) {
+                    System.out.println("Reconnecting to the server ...");
+                    reconnectToServer();
+                }
+            }
+        });
+    }
+
+    private void connectToServer() {
         new Thread(() -> {
             try {
                 client.connect(5000, "127.0.0.1", 54555);
+                System.out.print("Connected to the server !");
             } catch (IOException e) {
-                Gdx.app.postRunnable(() -> {
-                    statusMessage = "Error connexion : " + e.getMessage();
-                    System.err.println(statusMessage);
-                });
+                Gdx.app.postRunnable(() -> statusLabel.setText("Connection failed: " + e.getMessage()));
             }
         }, "KryoNet-ConnectThread").start();
     }
 
-    @Override
-    public void render() {
-        // Nettoyage de l’écran
-        ScreenUtils.clear(0.1f, 0.1f, 0.15f, 1f);
+    private void reconnectToServer() {
+        if (client != null) {
+            client.stop();
+            client = new Client();
+            KryoRegistry.registerAll(client.getKryo());
+            client.addListener(new Listener() {
+                @Override
+                public void connected(Connection connection) {
+                    Gdx.app.postRunnable(() -> {
+                        connected = true;
+                        statusLabel.setText("Reconnected!");
+                    });
+                }
 
-        batch.begin();
-        batch.draw(logo, 140, 210);
-        batch.end();
+                @Override
+                public void disconnected(Connection connection) {
+                    Gdx.app.postRunnable(() -> {
+                        connected = false;
+                        statusLabel.setText("Disconnected.");
+                    });
+                }
 
-        // Envoyer un message simple avec ESPACE
-        if (connected && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            String msg = "Hello server from LibGDX !";
-            client.sendTCP(msg);
-            System.out.println("Send : " + msg);
-        }
-
-        // Exemple d’envoi d’une AuthRequest LOGIN avec L
-        if (connected && Gdx.input.isKeyJustPressed(Input.Keys.L)) {
-            sendLogin("newUser@gmail.com", "pass123");
-        }
-
-        // Exemple d’envoi d’une AuthRequest REGISTER avec R
-        if (connected && Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            sendRegister("newUser@gmail.com", "pass123", "pass123", "my_username");
-        }
-
-        // Exemple d’envoi d’une AuthRequest TOKEN avec T
-        if (connected && Gdx.input.isKeyJustPressed(Input.Keys.T)) {
-            sendToken("azrsfd-654561-sdfffgx", "561894523454");
-        }
-
-        // Quitter avec ESCAPE
-        if (connected && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            client.sendTCP("exit");
-            client.close();
-            connected = false;
+                @Override
+                public void received(Connection connection, Object object) {
+                    Gdx.app.postRunnable(() -> {
+                        if (object instanceof KryoMessage) {
+                            statusLabel.setText("Received: " + ((KryoMessage) object).getObj());
+                        }
+                    });
+                }
+            });
+            client.start();
+            connectToServer();
         }
     }
 
-    @Override
-    public void dispose() {
-        batch.dispose();
-        logo.dispose();
-        if (client != null) client.stop();
-    }
-
-    // 🔹 Méthodes utilitaires pour AuthRequest
     private void sendLogin(String email, String password) {
         HashMap<String, String> keys = new HashMap<>();
         keys.put("email", email);
         keys.put("password", password);
         AuthRequest request = new AuthRequest(AuthModeType.LOGIN, keys);
-        KryoMessage kryoMessage = new KryoMessage(KryoMessageType.AUTH,null,request);
-        client.sendTCP(kryoMessage);
-        System.out.println("Login send : " + email);
+        client.sendTCP(new KryoMessage(KryoMessageType.AUTH, null, request));
+        statusLabel.setText("Login request sent");
     }
 
     private void sendRegister(String email, String password, String password2, String username) {
@@ -164,25 +193,22 @@ public class Main extends ApplicationAdapter {
         keys.put("password2", password2);
         keys.put("username", username);
         AuthRequest request = new AuthRequest(AuthModeType.REGISTER, keys);
-        KryoMessage kryoMessage = new KryoMessage(KryoMessageType.AUTH,null,request);
-        client.sendTCP(kryoMessage);
-        System.out.println("Register send : " + email);
+        client.sendTCP(new KryoMessage(KryoMessageType.AUTH, null, request));
+        statusLabel.setText("Register request sent");
     }
 
-    private void sendToken(String uuid, String token){
-        HashMap<String, String> keys = new HashMap<>();
-        keys.put("UUID", uuid);
-        keys.put("token", token);
-        AuthRequest request = new AuthRequest(AuthModeType.TOKEN, keys);
-        KryoMessage kryoMessage = new KryoMessage(KryoMessageType.AUTH,token,request);
-        client.sendTCP(kryoMessage);
-        System.out.println("Login send : " + uuid);
+    @Override
+    public void render() {
+        Gdx.gl.glClearColor(0.1f, 0.1f, 0.15f, 1f);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
     }
 
-
-
-
-
-
-
+    @Override
+    public void dispose() {
+        stage.dispose();
+        skin.dispose();
+        if (client != null) client.stop();
+    }
 }

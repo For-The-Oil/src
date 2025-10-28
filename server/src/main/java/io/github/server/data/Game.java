@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-import io.github.server.data.ActionController.ActionController;
+import io.github.server.game_engine.ActionController.ActionController;
 import io.github.shared.local.data.instructions.Instruction;
 import io.github.shared.local.data.EnumsTypes.EventType;
 import io.github.shared.local.data.EnumsTypes.MapName;
-import io.github.shared.local.data.Player;
+import io.github.shared.local.data.network.Player;
 import io.github.shared.local.data.gameobject.Shape;
 
 public class Game {
