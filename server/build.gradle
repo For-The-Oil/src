@@ -7,6 +7,14 @@ if (JavaVersion.current().isJava9Compatible()) {
         compileJava.options.release.set(8)
 }
 
+dependencies {
+  implementation 'org.postgresql:postgresql:42.7.3'
+  implementation 'com.zaxxer:HikariCP:6.1.0'
+  implementation 'org.jdbi:jdbi3-core:3.46.0'
+  implementation 'org.mindrot:jbcrypt:0.4'
+}
+
+
 mainClassName = 'io.github.server.ServerLauncher'
 application.setMainClass(mainClassName)
 eclipse.project.name = appName + '-server'

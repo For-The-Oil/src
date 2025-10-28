@@ -20,7 +20,7 @@ public final class ClientManager {
     }
     public void loginClient(Connection connection, AuthRequest object){
         System.out.println("Client is asking for a login ...");
-
+        System.out.println(object.getKeys());
         if (!checkCredentials()) {
             System.out.println("Invalid credentials !");
             return;
@@ -32,10 +32,12 @@ public final class ClientManager {
 
     public void loginByTokenClient(Connection connection, AuthRequest object){
         System.out.println("Client is asking for a login by token ...");
+        System.out.println(object.getKeys());
     }
 
     public void registerClient(Connection connection, AuthRequest object){
         System.out.println("Client is asking to register ...");
+        System.out.println(object.getKeys());
     }
 
 

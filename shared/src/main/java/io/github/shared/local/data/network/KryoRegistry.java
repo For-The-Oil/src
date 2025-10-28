@@ -5,6 +5,7 @@ import com.esotericsoftware.kryo.Kryo;
 import java.util.HashMap;
 
 import io.github.shared.local.data.EnumsTypes.AuthModeType;
+import io.github.shared.local.data.EnumsTypes.KryoMessageType;
 import io.github.shared.local.data.EnumsTypes.RequestType;
 import io.github.shared.local.data.requests.AuthRequest;
 
@@ -16,5 +17,6 @@ public final class KryoRegistry {
         kryo.register(AuthRequest.class);
         kryo.register(AuthModeType.class);
         kryo.register(RequestType.class);
+        kryo.register(KryoMessageType.class);
     }
 }

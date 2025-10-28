@@ -118,12 +118,17 @@ public class Main extends ApplicationAdapter {
 
         // Exemple d’envoi d’une AuthRequest LOGIN avec L
         if (connected && Gdx.input.isKeyJustPressed(Input.Keys.L)) {
-            sendLogin("testUser", "1234");
+            sendLogin("newUser@gmail.com", "1234");
         }
 
         // Exemple d’envoi d’une AuthRequest REGISTER avec R
         if (connected && Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            sendRegister("newUser", "pass123");
+            sendRegister("newUser@gmail.com", "pass123", "pass123");
+        }
+
+        // Exemple d’envoi d’une AuthRequest TOKEN avec T
+        if (connected && Gdx.input.isKeyJustPressed(Input.Keys.T)) {
+            sendToken("azrsfd-654561-sdfffgx", "561894523454");
         }
 
         // Quitter avec ESCAPE
@@ -142,23 +147,41 @@ public class Main extends ApplicationAdapter {
     }
 
     // 🔹 Méthodes utilitaires pour AuthRequest
-    private void sendLogin(String username, String password) {
+    private void sendLogin(String email, String password) {
         HashMap<String, String> keys = new HashMap<>();
-        keys.put("username", username);
+        keys.put("email", email);
         keys.put("password", password);
         AuthRequest request = new AuthRequest(AuthModeType.LOGIN, keys);
         KryoMessage kryoMessage = new KryoMessage(KryoMessageType.AUTH,null,request);
         client.sendTCP(kryoMessage);
-        System.out.println("Login send : " + username);
+        System.out.println("Login send : " + email);
     }
 
-    private void sendRegister(String username, String password) {
+    private void sendRegister(String email, String password, String password2) {
         HashMap<String, String> keys = new HashMap<>();
-        keys.put("username", username);
+        keys.put("email", email);
         keys.put("password", password);
+        keys.put("password2", password2);
         AuthRequest request = new AuthRequest(AuthModeType.REGISTER, keys);
         KryoMessage kryoMessage = new KryoMessage(KryoMessageType.AUTH,null,request);
         client.sendTCP(kryoMessage);
-        System.out.println("Register send : " + username);
+        System.out.println("Register send : " + email);
     }
+
+    private void sendToken(String uuid, String token){
+        HashMap<String, String> keys = new HashMap<>();
+        keys.put("UUID", uuid);
+        keys.put("token", token);
+        AuthRequest request = new AuthRequest(AuthModeType.TOKEN, keys);
+        KryoMessage kryoMessage = new KryoMessage(KryoMessageType.AUTH,token,request);
+        client.sendTCP(kryoMessage);
+        System.out.println("Login send : " + uuid);
+    }
+
+
+
+
+
+
+
 }
