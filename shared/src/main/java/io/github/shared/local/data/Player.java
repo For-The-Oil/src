@@ -13,12 +13,14 @@ public class Player extends ClientNetwork {
     private ArrayList<Integer> buildingsKey;
     private ArrayList<Integer> unitsKey;
     private HashMap<RessourcesType, Integer> ressources;
+    private Deck gameDeck;
 
     public Player(){
         super();
     }
-    public Player(UUID uuid, String name, Deck deck, String token) {
-        super(uuid,name,deck, token);
+    public Player(UUID uuid, String name, HashMap<String, Deck> fullDeck, Deck deck, String token) {
+        super(uuid,name, fullDeck, token);
+        this.gameDeck = deck;
         this.ressources = new HashMap<RessourcesType, Integer>();
         this.buildingsKey = new ArrayList<>();
         this.unitsKey = new ArrayList<>();

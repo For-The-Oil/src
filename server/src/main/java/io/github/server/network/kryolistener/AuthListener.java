@@ -2,7 +2,8 @@ package io.github.server.network.kryolistener;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import io.github.server.engine.manager.ClientManager;
+
+import io.github.server.engine.manager.ClientAuthManager;
 import io.github.shared.local.data.EnumsTypes.KryoMessageType;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.AuthRequest;
@@ -41,15 +42,15 @@ public class AuthListener extends Listener {
                 // Gestion cas par cas de la demande de connexion
                 switch (request.getMode()) {
                     case REGISTER:
-                        ClientManager.getInstance().registerClient(connection, request);
+                        ClientAuthManager.getInstance().registerClient(connection, request);
                         break;
 
                     case LOGIN:
-                        ClientManager.getInstance().loginClient(connection, request);
+                        ClientAuthManager.getInstance().loginClient(connection, request);
                         break;
 
                     case TOKEN:
-                        ClientManager.getInstance().loginByTokenClient(connection, request);
+                        ClientAuthManager.getInstance().loginByTokenClient(connection, request);
                         break;
                 }
             }

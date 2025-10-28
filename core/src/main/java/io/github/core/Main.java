@@ -118,12 +118,12 @@ public class Main extends ApplicationAdapter {
 
         // Exemple d’envoi d’une AuthRequest LOGIN avec L
         if (connected && Gdx.input.isKeyJustPressed(Input.Keys.L)) {
-            sendLogin("newUser@gmail.com", "1234");
+            sendLogin("newUser@gmail.com", "pass123");
         }
 
         // Exemple d’envoi d’une AuthRequest REGISTER avec R
         if (connected && Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            sendRegister("newUser@gmail.com", "pass123", "pass123");
+            sendRegister("newUser@gmail.com", "pass123", "pass123", "my_username");
         }
 
         // Exemple d’envoi d’une AuthRequest TOKEN avec T
@@ -157,11 +157,12 @@ public class Main extends ApplicationAdapter {
         System.out.println("Login send : " + email);
     }
 
-    private void sendRegister(String email, String password, String password2) {
+    private void sendRegister(String email, String password, String password2, String username) {
         HashMap<String, String> keys = new HashMap<>();
         keys.put("email", email);
         keys.put("password", password);
         keys.put("password2", password2);
+        keys.put("username", username);
         AuthRequest request = new AuthRequest(AuthModeType.REGISTER, keys);
         KryoMessage kryoMessage = new KryoMessage(KryoMessageType.AUTH,null,request);
         client.sendTCP(kryoMessage);
