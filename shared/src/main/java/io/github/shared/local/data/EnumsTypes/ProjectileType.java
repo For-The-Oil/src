@@ -1,5 +1,5 @@
 package io.github.shared.local.data.EnumsTypes;
 
-public enum CastableType {
+public enum ProjectileType {
     Missile, Nuke, AirStrike
 }

@@ -11,13 +11,8 @@ import com.artemis.annotations.PooledWeaver;
 
 @PooledWeaver
 public class PositionComponent extends Component {
-    public final Vector2 position = new Vector2();
-
-    public PositionComponent() {
-    }
-
-    public PositionComponent(float x, float y) {
-        this.position.set(x, y);
-    }
-
+    public float x;
+    public float y;
+    public float Z;
+    public float rotation;
 }

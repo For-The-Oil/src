@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import io.github.shared.local.data.EnumsTypes.BuildingType;
 import io.github.shared.local.data.EnumsTypes.DeckCardType;
 
 public class Deck implements Serializable {

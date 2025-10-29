@@ -1,6 +1,0 @@
-package io.github.shared.local.data.EnumsTypes;
-
-public enum BuildingType {
-    Barrack, Factory, Garage
-}
-

@@ -5,5 +5,5 @@ import com.artemis.annotations.PooledWeaver;
 
 @PooledWeaver
 public class FreezeComponent extends Component {
-    public long freeze_time;
+    public float freeze_time = 0f;
 }
