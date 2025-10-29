@@ -1,9 +1,8 @@
-package io.github.core.network.Listener;
+package io.github.core.client_engine.kryolistener;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import io.github.shared.local.data.EnumsTypes.AuthModeType;
-import io.github.shared.local.data.EnumsTypes.KryoMessageType;
+
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.AuthRequest;
 import io.github.shared.local.data.network.ClientNetwork;

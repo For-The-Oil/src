@@ -1,6 +1,6 @@
 package io.github.core.config;
 
-public final class ServerConfig {
+public final class ServerDefaultConfig {
 
     // Adresse et port du serveur
     public static final String SERVER_HOST = "127.0.0.1";

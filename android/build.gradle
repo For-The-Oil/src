@@ -1,16 +1,16 @@
-
 buildscript {
   repositories {
     mavenCentral()
     google()
   }
 }
+
 apply plugin: 'com.android.application'
 
-
 android {
-  namespace "io.github.some_example_name"
+  namespace "io.github.fortheoil"
   compileSdk 35
+
   sourceSets {
     main {
       manifest.srcFile 'AndroidManifest.xml'
@@ -22,26 +22,42 @@ android {
       jniLibs.setSrcDirs(['libs'])
     }
   }
+
   packagingOptions {
-		resources {
-			excludes += ['META-INF/robovm/ios/robovm.xml', 'META-INF/DEPENDENCIES.txt', 'META-INF/DEPENDENCIES',
-                   'META-INF/dependencies.txt', '**/*.gwt.xml']
-			pickFirsts += ['META-INF/LICENSE.txt', 'META-INF/LICENSE', 'META-INF/license.txt', 'META-INF/LGPL2.1',
-                     'META-INF/NOTICE.txt', 'META-INF/NOTICE', 'META-INF/notice.txt']
-		}
+    resources {
+      excludes += [
+        'META-INF/robovm/ios/robovm.xml',
+        'META-INF/DEPENDENCIES.txt',
+        'META-INF/DEPENDENCIES',
+        'META-INF/dependencies.txt',
+        '**/*.gwt.xml'
+      ]
+      pickFirsts += [
+        'META-INF/LICENSE.txt',
+        'META-INF/LICENSE',
+        'META-INF/license.txt',
+        'META-INF/LGPL2.1',
+        'META-INF/NOTICE.txt',
+        'META-INF/NOTICE',
+        'META-INF/notice.txt'
+      ]
+    }
   }
+
   defaultConfig {
-    applicationId 'io.github.some_example_name'
+    applicationId 'io.github.foirtheoil'
     minSdkVersion 21
     targetSdkVersion 35
     versionCode 1
     versionName "1.0"
   }
+
   compileOptions {
-    sourceCompatibility "8"
-    targetCompatibility "8"
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
     coreLibraryDesugaringEnabled true
   }
+
   buildTypes {
     release {
       minifyEnabled true
@@ -51,35 +67,44 @@ android {
 }
 
 repositories {
-  // needed for AAPT2, may be needed for other tools
   google()
+  mavenCentral()
 }
 
 configurations { natives }
 
 dependencies {
+  // UI Android standard
+  implementation 'androidx.appcompat:appcompat:1.7.1'
   coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+
+  // LibGDX backend et cœur du projet
   implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
   implementation project(':core')
 
+  implementation 'androidx.viewpager2:viewpager2:1.1.0'
+  implementation 'androidx.core:core:1.13.1'
+  implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+
+
+  // Librairies natives LibGDX
   natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-arm64-v8a"
   natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi-v7a"
   natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86"
   natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"
+
   natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a"
   natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a"
   natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
   natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86_64"
+
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
   natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
-
 }
 
-// Called every time gradle gets executed, takes the native dependencies of
-// the natives configuration, and extracts them to the proper libs/ folders
-// so they get packed with the APK.
+// Copie les .so LibGDX dans les bons dossiers libs/
 tasks.register('copyAndroidNatives') {
   doFirst {
     file("libs/armeabi-v7a/").mkdirs()
@@ -89,11 +114,11 @@ tasks.register('copyAndroidNatives') {
 
     configurations.natives.copy().files.each { jar ->
       def outputDir = null
-      if(jar.name.endsWith("natives-armeabi-v7a.jar")) outputDir = file("libs/armeabi-v7a")
-      if(jar.name.endsWith("natives-arm64-v8a.jar")) outputDir = file("libs/arm64-v8a")
-      if(jar.name.endsWith("natives-x86_64.jar")) outputDir = file("libs/x86_64")
-      if(jar.name.endsWith("natives-x86.jar")) outputDir = file("libs/x86")
-      if(outputDir != null) {
+      if (jar.name.endsWith("natives-armeabi-v7a.jar")) outputDir = file("libs/armeabi-v7a")
+      if (jar.name.endsWith("natives-arm64-v8a.jar")) outputDir = file("libs/arm64-v8a")
+      if (jar.name.endsWith("natives-x86_64.jar")) outputDir = file("libs/x86_64")
+      if (jar.name.endsWith("natives-x86.jar")) outputDir = file("libs/x86")
+      if (outputDir != null) {
         copy {
           from zipTree(jar)
           into outputDir
@@ -108,6 +133,7 @@ tasks.matching { it.name.contains("merge") && it.name.contains("JniLibFolders") 
   packageTask.dependsOn 'copyAndroidNatives'
 }
 
+// Commande pour lancer l'appli via Gradle
 tasks.register('run', Exec) {
   def path
   def localProperties = project.file("../local.properties")
@@ -128,6 +154,16 @@ tasks.register('run', Exec) {
 
   def adb = path + "/platform-tools/adb"
   commandLine "$adb", 'shell', 'am', 'start', '-n', 'io.github.some_example_name/io.github.some_example_name.android.AndroidLauncher'
+}
+
+// Fix des conflits Kotlin transitoires (sans activer Kotlin)
+configurations.all {
+  resolutionStrategy.eachDependency { details ->
+    if (details.requested.group == "org.jetbrains.kotlin") {
+      details.useVersion "1.8.22"
+      details.because "Force unique Kotlin version for transitive dependencies"
+    }
+  }
 }
 
 eclipse.project.name = appName + "-android"

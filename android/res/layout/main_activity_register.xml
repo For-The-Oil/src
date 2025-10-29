@@ -1,0 +1,65 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/signupTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Inscription"
+        android:textColor="@android:color/black"
+        android:textSize="24sp"
+        android:layout_centerHorizontal="true"/>
+
+    <EditText
+        android:id="@+id/signupUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Pseudo"
+        android:layout_below="@id/signupTitle"
+        android:layout_marginTop="16dp"/>
+
+    <EditText
+        android:id="@+id/signupEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:layout_below="@id/signupUsername"
+        android:layout_marginTop="16dp"/>
+
+    <EditText
+        android:id="@+id/signupPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Mot de passe"
+        android:inputType="textPassword"
+        android:layout_below="@id/signupEmail"
+        android:layout_marginTop="16dp"/>
+
+    <EditText
+        android:id="@+id/signupConfirmPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Confirmer mot de passe"
+        android:inputType="textPassword"
+        android:layout_below="@id/signupPassword"
+        android:layout_marginTop="16dp"/>
+
+    <CheckBox
+        android:id="@+id/autoLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Se connecter automatiquement"
+        android:textColor="@android:color/black"
+        android:layout_below="@id/signupConfirmPassword"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/signupButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="S'inscrire"
+        android:layout_below="@id/autoLogin"
+        android:layout_marginTop="24dp"/>
+</RelativeLayout>
