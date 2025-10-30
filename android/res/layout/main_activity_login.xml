@@ -12,22 +12,52 @@
         android:textSize="24sp"
         android:layout_centerHorizontal="true"/>
 
+    <TextView
+        android:id="@+id/loginMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/holo_red_dark"
+        android:visibility="gone"
+        android:textSize="16sp"
+        android:layout_below="@id/loginTitle"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"/>
+
     <EditText
         android:id="@+id/loginEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/login_email_hint"
-        android:layout_below="@id/loginTitle"
+        android:layout_below="@id/loginMessage"
         android:layout_marginTop="16dp"/>
 
-    <EditText
-        android:id="@+id/loginPassword"
+    <RelativeLayout
+        android:id="@+id/password_box"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/login_password_hint"
-        android:inputType="textPassword"
         android:layout_below="@id/loginEmail"
-        android:layout_marginTop="16dp"/>
+        android:layout_marginTop="16dp">
+
+        <EditText
+            android:id="@+id/loginPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/login_password_hint"
+            android:inputType="textPassword"
+            android:paddingEnd="48dp" />
+
+        <ImageButton
+            android:id="@+id/togglePasswordVisibility"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/ic_menu_view"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/show_password"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:onClick="togglePasswordClicked"
+            android:padding="8dp" />
+    </RelativeLayout>
 
     <CheckBox
         android:id="@+id/autoLogin"
@@ -35,7 +65,7 @@
         android:layout_height="wrap_content"
         android:text="@string/auto_login_text"
         android:textColor="@android:color/black"
-        android:layout_below="@id/loginPassword"
+        android:layout_below="@id/password_box"
         android:layout_marginTop="16dp"/>
 
     <Button
@@ -44,5 +74,6 @@
         android:layout_height="wrap_content"
         android:text="@string/login_button_text"
         android:layout_below="@id/autoLogin"
+        android:onClick="login"
         android:layout_marginTop="24dp"/>
 </RelativeLayout>

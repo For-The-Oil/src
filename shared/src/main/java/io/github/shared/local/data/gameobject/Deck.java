@@ -5,26 +5,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.github.shared.local.data.EnumsTypes.DeckCardType;
+import io.github.shared.local.data.EnumsTypes.EntityType;
 
 public class Deck implements Serializable {
-    private HashMap<DeckCardType, ArrayList<BuildingType>> cardTabKey;
+    private HashMap<DeckCardType, ArrayList<EntityType>> cardTabKey;
 
     public Deck() {
-        this.cardTabKey = new HashMap<DeckCardType, ArrayList<BuildingType>>();
+        this.cardTabKey = new HashMap<DeckCardType, ArrayList<EntityType>>();
     }
 
-    public HashMap<DeckCardType, ArrayList<BuildingType>> getCardTabKey() {
+    public HashMap<DeckCardType, ArrayList<EntityType>> getCardTabKey() {
         return cardTabKey;
     }
 
-    public void setCardTabKey(HashMap<DeckCardType, ArrayList<BuildingType>> cardTabKey) {
+    public void setCardTabKey(HashMap<DeckCardType, ArrayList<EntityType>> cardTabKey) {
         this.cardTabKey = cardTabKey;
     }
-    public ArrayList<BuildingType> getCardArrayListKey(DeckCardType menu) {
+    public ArrayList<EntityType> getCardArrayListKey(DeckCardType menu) {
         return cardTabKey.get(menu);
     }
 
-    public BuildingType getCardKey(DeckCardType menu, int building) {
+    public EntityType getCardKey(DeckCardType menu, int building) {
         return cardTabKey.get(menu).get(building);
     }
 

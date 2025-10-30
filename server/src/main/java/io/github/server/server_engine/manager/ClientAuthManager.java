@@ -1,6 +1,8 @@
 package io.github.server.server_engine.manager;
 
 import com.esotericsoftware.kryonet.Connection;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -9,7 +11,10 @@ import io.github.server.data.network.UserData;
 import io.github.server.exception.BlankParameter;
 import io.github.server.exception.UserEmailAlreadyExist;
 import io.github.server.exception.IncorrectField;
+import io.github.shared.local.data.EnumsTypes.AuthModeType;
+import io.github.shared.local.data.EnumsTypes.KryoMessageType;
 import io.github.shared.local.data.network.ClientNetwork;
+import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.AuthRequest;
 
 /**
@@ -58,6 +63,34 @@ public final class ClientAuthManager {
     /**
      * Handles a login attempt from a client by validating credentials and
      * adding the user to the authenticated client list if successful.
+     * <p>
+     * Steps performed:
+     * <ol>
+     *     <li>Extracts login credentials (email and password) from the AuthRequest object.</li>
+     *     <li>Validates the credentials using validateLogin().</li>
+     *     <li>If credentials are invalid, sends an error message back to the client.</li>
+     *     <li>If login is successful:
+     *          <ul>
+     *              <li>Adds the user to the authenticated clients list (creates a session).</li>
+     *              <li>Generates a session token for auto-login / auto-connect functionality.</li>
+     *              <li>Serializes the user's decks to JSON for transfer to the client.</li>
+     *              <li>Prepares a response HashMap containing something like:
+     *                  <ul>
+     *                      <li>message: success / other</li>
+     *                      <li>username: for display on the client</li>
+     *                      <li>decks: JSON string of the user's decks</li>
+     *                      <li>token: session token for auto-login / auto-connect</li>
+     *                  </ul>
+     *              </li>
+     *          </ul>
+     *     </li>
+     *     <li>Sends the response back to the client using respondToClient().</li>
+     * </ol>
+     *
+     * <p>
+     * Important: The generated <b>token</b> allows the client to implement an <b>auto-connect</b> or
+     * persistent login mechanism. The client can store this token locally (e.g., SharedPreferences on Android)
+     * and use it for automatic re-authentication in future sessions without requiring the user to enter credentials again.
      *
      * @param connection the network connection of the client
      * @param object the {@link AuthRequest} containing login credentials
@@ -69,13 +102,33 @@ public final class ClientAuthManager {
         String email = object.getKeys().get("email");
         String password = object.getKeys().get("password");
 
+        HashMap<String, String> response = new HashMap<>();
+
         if (!validateLogin(email, password)) {
             System.out.println("Invalid credentials!");
+            response.put("message", "Invalid credentials!");
+            respondToClient(connection, false, response, AuthModeType.LOGIN_FAIL);
             return;
         }
 
         ClientNetwork client = addClient(email, connection);
         System.out.println("User logged in successfully: " + client);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String decksJson = "";
+        try {
+            decksJson = mapper.writeValueAsString(client.getDecks()); //
+        } catch (Exception e) {
+            e.printStackTrace();
+            decksJson = "{}";
+        }
+
+        response.put("message", "success");
+        response.put("username", client.getUsername());
+        response.put("deck", decksJson);
+        response.put("token", client.getToken());
+
+        respondToClient(connection, true, response, AuthModeType.LOGIN_SUCCESS);
     }
 
     /**
@@ -96,8 +149,28 @@ public final class ClientAuthManager {
     /**
      * Handles the registration process for a new user.
      * <p>
-     * This method validates the form data, creates a new entry in the database,
-     * and registers the client as an authenticated session.
+     * Steps performed:
+     * <ol>
+     *     <li>Extracts registration fields from the AuthRequest object (email, password, password2, username).</li>
+     *     <li>Validates the registration data using validateRegistration().</li>
+     *     <li>If validation passes, registers the user in the database.</li>
+     *     <li>Adds the newly registered user to the server's authenticated clients list (creates a session).</li>
+     *     <li>Generates a session token and serializes the user's decks to JSON for transfer to the client.</li>
+     *     <li>Prepares a response HashMap containing something like:
+     *          <ul>
+     *              <li>message: success / other</li>
+     *              <li>username: for display on the client</li>
+     *              <li>deck(s): JSON string of the user's decks</li>
+     *              <li>token: session token </li>
+     *          </ul>
+     *     </li>
+     *     <li>Sends the response back to the client using respondToClient().</li>
+     * </ol>
+     *
+     * <p>
+     * Important: The generated <b>token</b> allows the client to implement an <b>auto-connect</b> or
+     * persistent login mechanism. The client can store this token locally (e.g., SharedPreferences on Android)
+     * and use it for automatic re-authentication without requiring the user to enter credentials again.
      *
      * @param connection the client's network connection
      * @param object the {@link AuthRequest} containing registration fields
@@ -113,14 +186,43 @@ public final class ClientAuthManager {
         String password2 = mymap.get("password2");
         String username = mymap.get("username");
 
+        HashMap<String, String> response = new HashMap<>();
+
         try {
             validateRegistration(email, password, password2, username);
             myDatabase.registerUser(email, username, password);
             System.out.print("Client successfully registered...");
-            addClient(email, connection);
+
+
+
+
+            ClientNetwork client = addClient(email, connection);
+
+            ObjectMapper mapper = new ObjectMapper();
+            String decksJson = "";
+            try {
+                decksJson = mapper.writeValueAsString(client.getDecks()); //
+            } catch (Exception e) {
+                e.printStackTrace();
+                decksJson = "{}";
+            }
+
+            response.put("message", "success");
+            response.put("username", client.getUsername());
+            response.put("deck", decksJson);
+            response.put("token", client.getToken());
+
+            respondToClient(connection, true, response, AuthModeType.REGISTER_SUCCESS);
+
+
+
         } catch (BlankParameter | IncorrectField | UserEmailAlreadyExist e) {
             System.err.println(e);
+            response.put("message", e.toString());
+            respondToClient(connection, false, response, AuthModeType.REGISTER_FAIL);
         }
+
+
     }
 
     /**
@@ -270,6 +372,46 @@ public final class ClientAuthManager {
     public boolean isUserEmailValid(String email) { return true; }
     public boolean isUserUsernameValid(String username) { return true; }
 
+
+
+    /**
+     * Envoie une réponse d'authentification au client.
+     *
+     * @param connection Le client à notifier
+     * @param success    true si l'action a réussi, false sinon
+     * @param messages   Map contenant des clés/valeurs d'information à afficher côté client (ex: "message", "reason", "username", "token", etc.)
+     */
+    public void respondToClient(Connection connection, boolean success, HashMap<String, String> messages, AuthModeType type) {
+        if (connection == null) return;
+
+        // Assure que le dictionnaire existe
+        if (messages == null) messages = new HashMap<>();
+
+        // Ajoute un flag "success" systématiquement
+        messages.put("success", Boolean.toString(success));
+
+        AuthModeType mode = type;
+
+        // Crée l'AuthRequest contenant les informations à transmettre
+        AuthRequest authResponse = new AuthRequest(mode, messages);
+
+        // Emballe dans un KryoMessage pour KryoNet
+        KryoMessage kryoMessage = new KryoMessage(KryoMessageType.AUTH, null, authResponse);
+
+        // Envoie le message au client
+        connection.sendTCP(kryoMessage);
+    }
+
+
+
+
+
+
+
+
+
+
+
     /** Removes a connected client from the authenticated list (TODO: implementation pending). */
     public void removeClient() { /* TODO: implement client removal */ }
 
@@ -278,4 +420,5 @@ public final class ClientAuthManager {
 
     /** Deletes a user account by UUID (TODO: implementation pending). */
     public void deleteClient(UUID uuid) { /* TODO: implement client deletion from DB */ }
+
 }

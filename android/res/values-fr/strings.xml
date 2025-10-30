@@ -2,5 +2,26 @@
 <resources>
     <!-- ==== General ==== -->
     <string name="ok">OK</string>
-    <string name="cancel">Annulerl</string>
+    <string name="cancel">Annuler</string>
+
+
+    <!-- ==== Login Screen ==== -->
+    <string name="login_title">Connexion</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Mot de passe</string>
+    <string name="login_button">Se connecter</string>
+    <string name="login_button_text">Connection</string>
+    <string name="auto_login_text">Se connecter Automatiquement</string>
+
+
+    <!-- ==== Écran d'inscription ==== -->
+    <string name="register_title">Inscription</string>
+    <string name="register_username_hint">Pseudo</string>
+    <string name="register_email_hint">Email</string>
+    <string name="register_password_hint">Mot de passe</string>
+    <string name="register_confirm_password_hint">Confirmer le mot de passe</string>
+    <string name="register_auto_login">Se connecter automatiquement</string>
+    <string name="register_button">S\'inscrire</string>
+    <string name="show_password">Voir</string>
+
 </resources>

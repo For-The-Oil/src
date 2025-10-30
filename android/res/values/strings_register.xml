@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- ==== Registration Screen ==== -->
-    <string name="register_title">Sign up</string>
-    <string name="register_email_hint">Email</string>
-    <string name="register_password_hint">Password</string>
-    <string name="register_confirm_button">Confirm</string>
-</resources>
