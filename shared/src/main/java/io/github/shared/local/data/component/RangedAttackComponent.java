@@ -10,4 +10,11 @@ public class RangedAttackComponent extends Component {
     public float cooldown;
     public float currentCooldown = 0f;
     public float range;
+    public RangedAttackComponent(WeaponType weaponType) {
+        this.weaponType = weaponType;
+        this.damage = weaponType.getDamage();
+        this.cooldown = weaponType.getCooldown();
+        this.currentCooldown = 0f;
+        this.range = weaponType.getReach();
+    }
 }

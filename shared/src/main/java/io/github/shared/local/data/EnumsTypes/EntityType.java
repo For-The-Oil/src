@@ -3,7 +3,7 @@ package io.github.shared.local.data.EnumsTypes;
 import io.github.shared.local.data.gameobject.Shape;
 
 public enum EntityType {
-    test(Type.Building,1,1,1,1);
+    test(Type.Building,1,1,1,1,1);
     //Barrack(Type.Building), Factory(Type.Building), Garage(Type.Building),
     //INFANTRY(Type.Unit), HEAVE_INFANTRY(Type.Unit), TANK(Type.Unit), MOTORIZED(Type.Unit), WALKER(Type.Unit), AIRCRAFT(Type.Unit), NAVAL(Type.Unit);
     private final Type type;
@@ -12,22 +12,25 @@ public enum EntityType {
     private final int armor;
     private final float passiveHeal;
     private final float base_speed;
+    private final float freeze_time;
 
-    EntityType(Type type, Shape shape, float maxHealth, int armor, float passiveHeal) {
+    EntityType(Type type, Shape shape, float maxHealth, int armor, float passiveHeal, float freezeTime) {
         this.type = type;
         this.shape = shape;
         this.maxHealth = maxHealth;
         this.armor = armor;
         this.passiveHeal = passiveHeal;
+        this.freeze_time = freezeTime;
         this.base_speed = 0;
     }
 
-    EntityType(Type type, float maxHealth, int armor, float passiveHeal, float baseSpeed) {
+    EntityType(Type type, float maxHealth, int armor, float passiveHeal, float baseSpeed, float freezeTime) {
         this.type = type;
         this.maxHealth = maxHealth;
         this.armor = armor;
         this.passiveHeal = passiveHeal;
         this.base_speed = baseSpeed;
+        this.freeze_time = freezeTime;
         this.shape = null;
     }
 
@@ -52,6 +55,10 @@ public enum EntityType {
 
     public float getBase_speed() {
         return base_speed;
+    }
+
+    public float getFreeze_time() {
+        return freeze_time;
     }
 
     public enum Type{

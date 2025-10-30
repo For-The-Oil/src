@@ -13,4 +13,12 @@ public class MeleeAttaqueComponent extends Component {
     public float cooldown;
     public float currentCooldown = 0f;
     public float reach;
+
+    public MeleeAttaqueComponent(WeaponType weaponType) {
+        this.weaponType = weaponType;
+        this.damage = weaponType.getDamage();
+        this.cooldown = weaponType.getCooldown();
+        this.currentCooldown = 0f;
+        this.reach = weaponType.getReach();
+    }
 }
