@@ -13,4 +13,12 @@ public class ProjectileAttackComponent extends Component {
     public float currentCooldown = 0f;
     public float range;
     public ProjectileType projectileType; // le type de projectile À envoyer
+
+    public ProjectileAttackComponent(WeaponType weaponType,ProjectileType projectileType) {
+        this.weaponType = weaponType;
+        this.cooldown = weaponType.getCooldown();
+        this.currentCooldown = 0f;
+        this.range = weaponType.getReach();
+        this.projectileType = projectileType;
+    }
 }

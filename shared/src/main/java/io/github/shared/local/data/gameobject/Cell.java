@@ -9,24 +9,17 @@ import io.github.shared.local.data.EnumsTypes.CellType;
  * and some booleans that tell us how does it behave.
  */
 public class Cell {
-    private final CellType cellType;
-    private final float walkable;
-    private final float flyable;
-    private final float swimmable;
+    private CellType cellType;
 
     public Cell(CellType cellType, float walkable, float flyable, float swimmable) {
         this.cellType = cellType;
-        this.walkable = walkable;
-        this.flyable = flyable;
-        this.swimmable = swimmable;
     }
 
-    public CellType getCellType() { return cellType; }
-    public float isWalkable() { return walkable; }
+    public CellType getCellType() {
+        return cellType;
+    }
 
-    public float isFlyable() {return flyable; }
-
-    public float getSwimmable(){return swimmable;}
-
-
+    public void setCellType(CellType cellType) {
+        this.cellType = cellType;
+    }
 }

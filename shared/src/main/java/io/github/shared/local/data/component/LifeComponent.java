@@ -4,18 +4,20 @@ import com.artemis.Component;
 
 import com.artemis.annotations.PooledWeaver;
 
+import io.github.shared.local.data.EnumsTypes.EntityType;
+
 @PooledWeaver
 public class LifeComponent extends Component {
-    private float health;
-    private final float maxHealth;
-    private final int armor;
-    private float passiveHeal;
+    public float health;
+    public final float maxHealth;
+    public final int armor;
+    public float passiveHeal;
 
-    public LifeComponent(float maxHealth, int armor, float passiveHeal) {
-        this.maxHealth = maxHealth;
-        this.health = maxHealth;
-        this.armor = armor;
-        this.passiveHeal = passiveHeal;
+    public LifeComponent(EntityType entityType) {
+        this.maxHealth = entityType.getMaxHealth();
+        this.health = entityType.getMaxHealth();
+        this.armor = entityType.getArmor();
+        this.passiveHeal = entityType.getPassiveHeal();
     }
 
 }

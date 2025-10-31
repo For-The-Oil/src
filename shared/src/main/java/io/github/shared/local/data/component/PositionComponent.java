@@ -14,5 +14,6 @@ public class PositionComponent extends Component {
     public float x;
     public float y;
     public float Z;
-    public float rotation;
+    public float horizontalRotation;
+    public float verticalRotation;
 }
