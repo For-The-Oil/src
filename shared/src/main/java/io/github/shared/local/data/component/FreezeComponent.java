@@ -8,8 +8,4 @@ import io.github.shared.local.data.EnumsTypes.EntityType;
 @PooledWeaver
 public class FreezeComponent extends Component {
     public float freeze_time;
-
-    public FreezeComponent(EntityType entityType) {
-        freeze_time = entityType.getFreeze_time();
-    }
 }
