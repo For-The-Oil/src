@@ -5,7 +5,21 @@ import com.artemis.annotations.PooledWeaver;
 
 import io.github.shared.local.data.EnumsTypes.EntityType;
 
+
 @PooledWeaver
 public class FreezeComponent extends Component {
     public float freeze_time;
+
+    public void setFreeze(float duration) {
+        this.freeze_time = duration;
+    }
+
+    public boolean isFrozen() {
+        return freeze_time > 0f;
+    }
+
+    public void reset() {
+        freeze_time = 0f;
+    }
 }
+

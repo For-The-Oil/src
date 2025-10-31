@@ -2,19 +2,39 @@ package io.github.shared.local.data.component;
 
 import com.artemis.Component;
 import com.artemis.annotations.PooledWeaver;
-import com.artemis.utils.Bag;
+
+import java.util.ArrayList;
+
+import io.github.shared.local.data.gameobject.DamageEntry;
+
 
 @PooledWeaver
 public class DamageComponent extends Component {
-    public final Bag<DamageEntry> entries = new Bag<>();
+    public ArrayList<DamageEntry> entries = new ArrayList<>();
 
     // Ajouter une attaque
     public void addDamage(DamageEntry entry) {
         entries.add(entry);
     }
 
-    // Réinitialiser le composant après traitement
+    // Réinitialiser manuellement (ex. après traitement)
     public void clear() {
         entries.clear();
     }
+
+    // Appelée automatiquement par Artemis si pooling activé
+    public void reset() {
+        entries.clear();
+    }
+
+    // Vérifie s'il y a des dégâts à traiter
+    public boolean hasDamage() {
+        return !entries.isEmpty();
+    }
+
+    // Retourne le nombre d'attaques enregistrées
+    public int getCount() {
+        return entries.size();
+    }
 }
+

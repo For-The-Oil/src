@@ -13,7 +13,6 @@ public class ComponentRegistry {
     public static final List<Class<? extends Component>> registeredComponents = Arrays.asList(
         BuildingMapPositionComponent.class,
         DamageComponent.class,
-        DamageEntry.class,
         FreezeComponent.class,
         LifeComponent.class,
         MeleeAttackComponent.class,

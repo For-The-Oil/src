@@ -9,6 +9,10 @@ import com.badlogic.gdx.math.Vector2;
 
 import com.artemis.annotations.PooledWeaver;
 
+
+/**
+ * Composant représentant la position d'une entité dans le monde (2D).
+ */
 @PooledWeaver
 public class PositionComponent extends Component {
     public float x;
@@ -16,4 +20,27 @@ public class PositionComponent extends Component {
     public float Z;
     public float horizontalRotation;
     public float verticalRotation;
+
+    public void reset() {
+        x = y = Z = 0f;
+        horizontalRotation = verticalRotation = 0f;
+    }
+
+    public void set(float x, float y, float z) {
+        this.x = x;
+        this.y = y;
+        this.Z = z;
+    }
+
+    public void setRotation(float horizontal, float vertical) {
+        this.horizontalRotation = horizontal;
+        this.verticalRotation = vertical;
+    }
+
+    public void translate(float dx, float dy, float dz) {
+        this.x += dx;
+        this.y += dy;
+        this.Z += dz;
+    }
 }
+

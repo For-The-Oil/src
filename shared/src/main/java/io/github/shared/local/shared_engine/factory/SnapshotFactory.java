@@ -8,15 +8,21 @@ import com.artemis.World;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.github.shared.local.data.EnumsTypes.EntityType;
+import io.github.shared.local.data.EnumsTypes.RessourcesType;
+import io.github.shared.local.data.component.DamageComponent;
 import io.github.shared.local.data.component.NetComponent;
+import io.github.shared.local.data.component.RessourceComponent;
+import io.github.shared.local.data.gameobject.DamageEntry;
 import io.github.shared.local.data.registry.ComponentRegistry;
 import io.github.shared.local.data.snapshot.ComponentSnapshot;
 import io.github.shared.local.data.snapshot.EntitySnapshot;
 
 public final class SnapshotFactory {
+
 
     public static Entity toEntity(World world, EntitySnapshot snapshot) {
         Entity entity = world.createEntity();
@@ -28,58 +34,134 @@ public final class SnapshotFactory {
 
         for (ComponentSnapshot cs : snapshot.getComponentSnapshot()) {
             try {
-                Class<?> clazz = Class.forName("io.github.shared.local.data.component." + cs.getType());
+                String type = cs.getType();
+                Class<?> clazz = Class.forName("io.github.shared.local.data.component." + type);
                 Component component = (Component) clazz.getDeclaredConstructor().newInstance();
 
-                for (Map.Entry<String, Object> entry : cs.getFields().entrySet()) {
-                    Field field = clazz.getDeclaredField(entry.getKey());
-                    field.setAccessible(true);
-                    field.set(component, entry.getValue());
+                switch (type) {
+                    case "FreezeComponent":
+                    case "LifeComponent":
+                    case "MeleeAttackComponent":
+                    case "NetComponent":
+                    case "PositionComponent":
+                    case "ProjectileAttackComponent":
+                    case "ProjectileComponent":
+                    case "ProprietyComponent":
+                    case "RangedAttackComponent":
+                    case "SpeedComponent":
+                    case "TargetComponent":
+                    case "VelocityComponent":
+                    case "BuildingMapPositionComponent":
+                        for (Map.Entry<String, Object> entry : cs.getFields().entrySet()) {
+                            Field field = clazz.getDeclaredField(entry.getKey());
+                            field.setAccessible(true);
+                            field.set(component, entry.getValue());
+                        }
+                        break;
+
+
+                    case "RessourceComponent":
+                        RessourceComponent rc = new RessourceComponent();
+                        Object rawMap = cs.getFields().get("ressources");
+                        if (rawMap instanceof Map) {
+                            Map<?, ?> map = (Map<?, ?>) rawMap;
+                            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                                RessourcesType typeKey = RessourcesType.valueOf(entry.getKey().toString());
+                                int amount = (int) entry.getValue();
+                                rc.add(typeKey, amount);
+                            }
+                        }
+                        component = rc;
+                        break;
+
+                    case "DamageComponent":
+                        DamageComponent dc = new DamageComponent();
+                        Object rawList = cs.getFields().get("entries");
+                        if (rawList instanceof List) {
+                            List<?> list = (List<?>) rawList;
+                            for (Object obj : list) if (obj instanceof DamageEntry) dc.addDamage((DamageEntry) obj);
+                        }
+                        component = dc;
+                        break;
+
+                    default:
+                        throw new IllegalArgumentException("Composant non pris en charge : " + type);
                 }
+
                 entity.edit().add(component);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+
         return entity;
     }
 
 
+
+
+
     public static EntitySnapshot fromEntity(World world, Entity entity) {
-        // 1. Récupérer NetComponent
         NetComponent net = world.getMapper(NetComponent.class).get(entity);
         int netId = net.netId;
         EntityType entityType = net.entityType;
 
-        // 2. Préparer la liste des ComponentSnapshot
         ArrayList<ComponentSnapshot> componentSnapshots = new ArrayList<>();
 
         for (Class<? extends Component> clazz : ComponentRegistry.registeredComponents) {
-            // Ne pas inclure NetComponent dans le snapshot
             if (clazz == NetComponent.class) continue;
 
             ComponentMapper<?> mapper = world.getMapper(clazz);
             if (mapper.has(entity)) {
                 Component component = mapper.get(entity);
                 HashMap<String, Object> fields = new HashMap<>();
+                String type = clazz.getSimpleName();
 
-                for (Field field : clazz.getDeclaredFields()) {
-                    field.setAccessible(true);
-                    try {
-                        fields.put(field.getName(), field.get(component));
-                    } catch (IllegalAccessException e) {
-                        System.err.println("Erreur d'accès au champ " + field.getName() + " du composant " + clazz.getSimpleName());
-                        e.printStackTrace();
-                    }
+                switch (type) {
+                    case "FreezeComponent":
+                    case "LifeComponent":
+                    case "MeleeAttackComponent":
+                    case "NetComponent":
+                    case "PositionComponent":
+                    case "ProjectileAttackComponent":
+                    case "ProjectileComponent":
+                    case "ProprietyComponent":
+                    case "RangedAttackComponent":
+                    case "SpeedComponent":
+                    case "TargetComponent":
+                    case "VelocityComponent":
+                    case "BuildingMapPositionComponent":
+                        for (Field field : clazz.getDeclaredFields()) {
+                            field.setAccessible(true);
+                            try {
+                                fields.put(field.getName(), field.get(component));
+                            } catch (IllegalAccessException e) {
+                                System.err.println("Erreur d'accès au champ " + field.getName() + " du composant " + type);
+                                e.printStackTrace();
+                            }
+                        }
+                        break;
+                    case "RessourceComponent":
+                        RessourceComponent rc = (RessourceComponent) component;
+                        fields.put("ressources", new HashMap<>(rc.getAll()));
+                        break;
+
+                    case "DamageComponent":
+                        DamageComponent dc = (DamageComponent) component;
+                        fields.put("entries", new ArrayList<>(dc.entries));
+                        break;
+
+                    default:
+                        throw new IllegalArgumentException("Composant non pris en charge : " + type);
                 }
-                componentSnapshots.add(new ComponentSnapshot(clazz.getSimpleName(), fields));
+
+                componentSnapshots.add(new ComponentSnapshot(type, fields));
             }
         }
+
         return new EntitySnapshot(netId, entityType, componentSnapshots);
     }
-
-
 
 
 }
