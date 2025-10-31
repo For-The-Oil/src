@@ -1,171 +1,204 @@
 package io.github.core.client_engine.manager;
 
 import com.esotericsoftware.kryonet.Client;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import io.github.core.client_engine.kryolistener.ClientAuthListener;
-import io.github.shared.local.data.EnumsTypes.AuthModeType;
-import io.github.shared.local.data.EnumsTypes.KryoMessageType;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.network.KryoRegistry;
-import io.github.shared.local.data.requests.AuthRequest;
-import io.github.shared.local.data.gameobject.Deck;
+
+/**
+ * <h1>Class KryoClientManager</h1>
+ *
+ * <h2>Purpose</h2>
+ * <p>Small layer that help manage the connection between a client and the server.</p>
+ *
+ * <h2>Example of use</h2>
+ * <p>In this example we will add two listeners and connect ourself to the localhost at the port 54555.
+ * Also, we will give to our connection the CallBack MyConnectedCallback class.</p>
+ * <pre>
+ * {@code
+ * KryoClientManager kryoClient = new KryoClientManager();
+ *
+ * kryoClient.addListener(new MyFirstListener());
+ * kryoClient.addListener(new MyAwesomeListener());
+ *
+ * try {
+ *     kryoClient.start();
+ * }
+ * catch (IllegalStateException e){ ... }
+ *
+ * manager.connect("127.0.0.1", 54555, new MyConnectedCallback());
+ *
+ *
+ * manager.send( new KryoMessage( ... ) );
+ *
+ * ...
+ *
+ * manager.disconnect();
+ *
+ * }
+ * </pre>
+ *
+ *
+ * @see com.esotericsoftware.kryonet.Client
+ * @see KryoRegistry
+ *
+ */
 public class KryoClientManager {
 
-    private static KryoClientManager instance;
-
+    /** The KryoNet client instance responsible for network communication. */
     private final Client client;
+
+    /** Indicates whether the client is currently connected to the server. */
     private boolean connected = false;
-    private String savedToken;
-    private Map<String, Deck> decks;
-    private String username;
-    private Runnable onConnectedCallback;
 
-    private AuthEventListener authListener;
-
-    public void setConnected(boolean b) {
-        this.connected = b;
-    }
-
-    public interface AuthEventListener {
-        void onLoginSuccess(String username, Map<String, Deck> decks, String token);
-        void onLoginFailure(String message);
-        void onRegisterSuccess(String username, Map<String, Deck> decks, String token);
-        void onRegisterFailure(String message);
-    }
-
-    public void setConnectionCallback(Runnable callback) {
-        this.onConnectedCallback = callback;
-    }
-
-    private KryoClientManager() {
+    /**
+     * <h1>Constructor of the class</h1>
+     *
+     * <p>Init a Kryo Client and register into Kryo all the Serialized objects.</p>
+     */
+    public KryoClientManager() {
         client = new Client();
-
         KryoRegistry.registerAll(client.getKryo());
+    }
 
-        client.addListener(new ClientAuthListener(this));
-
+    /**
+     * <h1>Start function</h1>
+     *
+     * <p>Start the client if not already connected.</p>
+     */
+    public void start() throws IllegalStateException {
+        if (client.isConnected()) {
+            throw new IllegalStateException("Client is already started or connected.");
+        }
         client.start();
     }
 
-    public static KryoClientManager getInstance() {
-        if (instance == null) instance = new KryoClientManager();
-        return instance;
+
+    /**
+     * <h1>With Listener</h1>
+     *
+     * <p>Add a listener and return self.</p>
+     * <p>Allows code such as :</p>
+     * <pre>
+     *     {@code
+     *     myManager.withListener(new MyListener).start();
+     *     }
+     * </pre>
+     *
+     *
+     * @param listener the listener that will be added
+     * @throws IllegalArgumentException
+     */
+    public KryoClientManager withListener(Listener listener) throws IllegalArgumentException{
+        if (listener == null) {
+            throw new IllegalArgumentException("Listener cannot be null");
+        }
+        client.addListener(listener);
+        return this;
     }
 
-    public void setAuthEventListener(AuthEventListener listener) {
-        this.authListener = listener;
+    /**
+     * <h1>Add Listener</h1>
+     *
+     * <p>Same as the {@link #withListener(Listener)} but withtout the return self.</p>
+     *
+     * @param listener the listener that will be added
+     * @throws IllegalArgumentException
+     */
+    public void addListener(Listener listener) throws IllegalArgumentException{
+        if (listener == null) {
+            throw new IllegalArgumentException("Listener cannot be null");
+        }
+        client.addListener(listener);
     }
 
-    public boolean isConnected() {
-        return connected;
+    /**
+     * <h1>Remove Listener</h1>
+     *
+     * <p>Removes a previously added listener from the Kryo client.</p>
+     *
+     * @param listener the listener to remove
+     * @throws IllegalArgumentException if listener is null
+     */
+    public void removeListener(Listener listener) {
+        if (listener == null) throw new IllegalArgumentException("Listener cannot be null");
+        client.removeListener(listener);
     }
 
-    public void connect(String host, int port) {
+    /**
+     * <h1>Disconnect</h1>
+     * <p>Close the current connection and all of the sub process.</p>
+     */
+    public void stop() {
+        try {
+            if (client != null && connected) {
+                client.stop();
+                connected = false;
+                System.out.println("Client disconnected successfully.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * <h1>Connect</h1>
+     *
+     * <p>Try to open a new connection with the server.</p>
+     *
+     * @param host the IP
+     * @param port the Port
+     * @param onConnected the {@link Runnable} program to execute
+     */
+    public void connect(String host, int port, Runnable onConnected, Runnable ifNoConnect) {
         new Thread(() -> {
             try {
                 client.connect(5000, host, port);
                 connected = true;
-                System.out.println("Connected to server!");
 
-                // Appeler le callback si défini
-                if (onConnectedCallback != null) {
-                    onConnectedCallback.run();
-                    onConnectedCallback = null;
+                if (onConnected != null) {
+                    // Exécuter sur le thread principal si besoin
+                    onConnected.run();
                 }
+
+                System.out.println("Connected to server: " + host + ":" + port);
             } catch (IOException e) {
-                e.printStackTrace();
                 connected = false;
+                e.printStackTrace();
+
+                if (ifNoConnect != null) {
+                    // Exécuter sur le thread principal si besoin
+                    ifNoConnect.run();
+                }
             }
         }).start();
     }
 
-    // ----- LOGIN / REGISTER -----
-    public void sendLogin(String email, String password) {
-        if (!connected) return;
-        HashMap<String, String> keys = new HashMap<>();
-        keys.put("email", email);
-        keys.put("password", password);
-        AuthRequest request = new AuthRequest(AuthModeType.LOGIN, keys);
-        client.sendTCP(new KryoMessage(KryoMessageType.AUTH, null, request));
+
+    /**
+     * <h1>Send</h1>
+     *
+     * <p>Function that allows the sending of a {@link KryoMessage}.</p>
+     *
+     * @param message the {@link KryoMessage} object
+     */
+    public void send(KryoMessage message) {
+        if (connected) client.sendTCP(message);
     }
 
-    public void sendRegister(String email, String username, String password, String password2) {
-        if (!connected) return;
-        HashMap<String, String> keys = new HashMap<>();
-        keys.put("email", email);
-        keys.put("username", username);
-        keys.put("password", password);
-        keys.put("password2", password2);
-        AuthRequest request = new AuthRequest(AuthModeType.REGISTER, keys);
-        client.sendTCP(new KryoMessage(KryoMessageType.AUTH, null, request));
-    }
+    /**
+     * <h3>Checks whether the client is connected.</h3>
+     *
+     * @return true if the client is connected, false otherwise
+     */
+    public boolean isConnected() { return connected; }
 
-    public void sendLoginWithToken(String token) {
-        if (!connected || token == null) return;
-        HashMap<String, String> keys = new HashMap<>();
-        keys.put("token", token);
-        AuthRequest request = new AuthRequest(AuthModeType.LOGIN, keys);
-        client.sendTCP(new KryoMessage(KryoMessageType.AUTH, null, request));
-    }
-
-    // ----- RESPONSE HANDLER -----
-    public void handleAuthResponse(AuthRequest authRequest) {
-        HashMap<String, String> data = authRequest.getKeys();
-        boolean success = Boolean.parseBoolean(data.getOrDefault("success", "false"));
-        String message = data.getOrDefault("message", "");
-
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Deck> parsedDecks = null;
-
-        if (success) {
-            username = data.get("username");
-            savedToken = data.get("token");
-            String decksJson = data.getOrDefault("deck", "{}");
-
-            try {
-                parsedDecks = mapper.readValue(decksJson, new TypeReference<Map<String, Deck>>() {});
-            } catch (Exception e) {
-                e.printStackTrace();
-                parsedDecks = new HashMap<>();
-            }
-            decks = parsedDecks;
-
-            if (authListener != null) {
-                switch (authRequest.getMode()) {
-                    case LOGIN_SUCCESS: authListener.onLoginSuccess(username, decks, savedToken); break;
-                    case REGISTER_SUCCESS: authListener.onRegisterSuccess(username, decks, savedToken);break;
-                    default: System.out.println("Unknown success mode: " + authRequest.getMode());break;
-                }
-            }
-
-        } else {
-            if (authListener != null) {
-                switch (authRequest.getMode()) {
-                    case LOGIN_FAIL : authListener.onLoginFailure(message);break;
-                    case REGISTER_FAIL : authListener.onRegisterFailure(message);break;
-                    default: System.out.println("Unknown failure mode: " + authRequest.getMode());break;
-                }
-            }
-        }
-    }
-
-
-    // ----- GETTERS -----
-    public Map<String, Deck> getDecks() {
-        return decks;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getSavedToken() {
-        return savedToken;
-    }
+    /**
+     * <h3>Returns the internal KryoNet {@link Client} instance.</h3>
+     *
+     * @return the active Kryo client
+     */
+    public Client getClient() { return client; }
 }

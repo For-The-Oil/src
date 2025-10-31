@@ -108,10 +108,12 @@ public final class ClientAuthManager {
             System.out.println("Invalid credentials!");
             response.put("message", "Invalid credentials!");
             respondToClient(connection, false, response, AuthModeType.LOGIN_FAIL);
+            connection.close(); // We close the connection after sending why the client is rejected
             return;
         }
 
         ClientNetwork client = addClient(email, connection);
+        client.setIp(connection.getRemoteAddressTCP().toString());
         System.out.println("User logged in successfully: " + client);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -125,7 +127,7 @@ public final class ClientAuthManager {
 
         response.put("message", "success");
         response.put("username", client.getUsername());
-        response.put("deck", decksJson);
+        response.put("decks", decksJson);
         response.put("token", client.getToken());
 
         respondToClient(connection, true, response, AuthModeType.LOGIN_SUCCESS);
@@ -209,7 +211,7 @@ public final class ClientAuthManager {
 
             response.put("message", "success");
             response.put("username", client.getUsername());
-            response.put("deck", decksJson);
+            response.put("decks", decksJson);
             response.put("token", client.getToken());
 
             respondToClient(connection, true, response, AuthModeType.REGISTER_SUCCESS);
@@ -220,8 +222,8 @@ public final class ClientAuthManager {
             System.err.println(e);
             response.put("message", e.toString());
             respondToClient(connection, false, response, AuthModeType.REGISTER_FAIL);
+            connection.close(); // We close the connection after sending why the client is rejected
         }
-
 
     }
 

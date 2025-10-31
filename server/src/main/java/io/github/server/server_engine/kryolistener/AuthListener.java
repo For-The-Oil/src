@@ -3,8 +3,10 @@ package io.github.server.server_engine.kryolistener;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import io.github.server.data.network.ServerNetwork;
 import io.github.server.server_engine.manager.ClientAuthManager;
 import io.github.shared.local.data.EnumsTypes.KryoMessageType;
+import io.github.shared.local.data.network.ClientNetwork;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.AuthRequest;
 
@@ -52,6 +54,9 @@ public class AuthListener extends Listener {
     @Override
     public void connected(Connection connection) {
         System.out.println("New client connected: " + connection.getRemoteAddressTCP());
+
+        // TODO : Ajouter une vérification BAN-IP
+
     }
 
     /**
@@ -67,13 +72,33 @@ public class AuthListener extends Listener {
      */
     @Override
     public void disconnected(Connection connection) {
-        System.out.println("Client disconnected: " + connection.getRemoteAddressTCP());
+        int id = connection.getID();
 
-        // TODO: Implement cleanup if needed
-        // Example:
-        // ServerNetwork.getInstance().getAuthClientNetworkList()
-        //     .removeIf(c -> c.getConnection() == connection);
+        // Cherche le client correspondant
+        ClientNetwork disconnectedClient = ServerNetwork.getInstance()
+            .getAuthClientNetworkList()
+            .stream()
+            .filter(c -> c.getConnection() != null && c.getConnection().getID() == id)
+            .findFirst()
+            .orElse(null);
+
+        if (disconnectedClient != null) {
+            String ip = disconnectedClient.getIp();
+            if (ip != null) {
+                System.out.println("Client disconnected: " + ip);
+            } else {
+                System.out.println("Client disconnected, id=" + id);
+            }
+
+            // Supprime le client de la liste
+            ServerNetwork.getInstance().getAuthClientNetworkList().remove(disconnectedClient);
+        }
+
+        System.out.println("Remaining clients: " +
+            ServerNetwork.getInstance().getAuthClientNetworkList().size());
     }
+
+
 
     /**
      * Called whenever the server receives a new object from a connected client.

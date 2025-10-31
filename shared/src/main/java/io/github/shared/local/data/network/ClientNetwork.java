@@ -12,6 +12,7 @@ public class ClientNetwork {
     private String username;
     private long lastActivityTimestamp;
     private HashMap<String, Deck> decks;
+    private String ip;
     private transient Connection connection;
 
     public ClientNetwork() {
@@ -80,5 +81,13 @@ public class ClientNetwork {
 
     public void setLastActivityTimestamp(long lastActivityTimestamp) {
         this.lastActivityTimestamp = lastActivityTimestamp;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 }

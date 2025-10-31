@@ -1,0 +1,49 @@
+package io.github.core.client_engine.factory;
+
+import java.util.HashMap;
+import io.github.shared.local.data.EnumsTypes.AuthModeType;
+import io.github.shared.local.data.requests.AuthRequest;
+
+/**
+ * <h1>RequestFactory</h1>
+ * <p>
+ * Factory class to centralize the creation of network requests (AuthRequest, GameRequest, etc.).
+ * This helps keep the code clean, maintainable, and reduces duplication.
+ * </p>
+ */
+public class RequestFactory {
+
+    /**
+     * Creates an AuthRequest for login.
+     *
+     * @param email    user's email
+     * @param password user's password
+     * @return AuthRequest ready to be sent via KryoClientManager
+     */
+    public static AuthRequest createLoginRequest(String email, String password) {
+        HashMap<String, String> keys = new HashMap<>();
+        keys.put("email", email);
+        keys.put("password", password);
+        return new AuthRequest(AuthModeType.LOGIN, keys);
+    }
+
+    /**
+     * Creates an AuthRequest for registration.
+     *
+     * @param email      user's email
+     * @param username   chosen username
+     * @param password   password
+     * @param password2  password confirmation
+     * @return AuthRequest ready to be sent via KryoClientManager
+     */
+    public static AuthRequest createRegisterRequest(String email, String username, String password, String password2) {
+        HashMap<String, String> keys = new HashMap<>();
+        keys.put("email", email);
+        keys.put("username", username);
+        keys.put("password", password);
+        keys.put("password2", password2);
+        return new AuthRequest(AuthModeType.REGISTER, keys);
+    }
+
+    // Plus tard tu pourras ajouter d'autres méthodes pour GameRequest, DeckRequest, etc.
+}

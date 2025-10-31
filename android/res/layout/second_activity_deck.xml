@@ -146,6 +146,16 @@
             <include layout="@layout/card_deck_menu" />
             <include layout="@layout/card_deck_menu" />
             <include layout="@layout/card_deck_menu" />
+            <include layout="@layout/card_deck_menu" />
+            <include layout="@layout/card_deck_menu" />
+            <include layout="@layout/card_deck_menu" />
+            <include layout="@layout/card_deck_menu" />
+            <include layout="@layout/card_deck_menu" />
+            <include layout="@layout/card_deck_menu" />
+            <include layout="@layout/card_deck_menu" />
+            <include layout="@layout/card_deck_menu" />
+            <include layout="@layout/card_deck_menu" />
+            <include layout="@layout/card_deck_menu" />
 
         </GridLayout>
 

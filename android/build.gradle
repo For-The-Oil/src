@@ -91,6 +91,9 @@ dependencies {
   implementation 'com.fasterxml.jackson.core:jackson-core:2.17.2'
   implementation 'org.slf4j:slf4j-simple:2.0.9'
 
+  implementation "androidx.security:security-crypto:1.1.0-alpha06"
+
+
 
   // Librairies natives LibGDX
   natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-arm64-v8a"

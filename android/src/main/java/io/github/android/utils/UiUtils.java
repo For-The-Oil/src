@@ -3,6 +3,8 @@ package io.github.android.utils;
 import static android.view.View.VISIBLE;
 
 import android.app.Activity;
+import android.content.Context;
+import android.text.Html;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
@@ -11,6 +13,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import io.github.fortheoil.R;
 
@@ -63,16 +67,17 @@ public final class UiUtils {
         }
     }
 
-    public static void addBottomDots(Activity activity, LinearLayout dotsLayout, int currentPage, int[] layouts) {
-        ImageView[] dots = new ImageView[layouts.length];
+    public static void addBottomDots(Context context, LinearLayout dotsLayout, int currentPage, int pageCount) {
+        TextView[] dots = new TextView[pageCount];
         dotsLayout.removeAllViews();
 
-        for (int i = 0; i < layouts.length; i++) {
-            dots[i] = new ImageView(activity); // ici le contexte est passé
-            dots[i].setImageResource(i == currentPage ? android.R.drawable.presence_online : android.R.drawable.presence_invisible);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(30, 30);
-            params.setMargins(10,0,10,0);
-            dotsLayout.addView(dots[i], params);
+        for (int i = 0; i < pageCount; i++) {
+            dots[i] = new TextView(context);
+            dots[i].setText(Html.fromHtml("&#8226;")); // point
+            dots[i].setTextSize(35);
+            dots[i].setTextColor(ContextCompat.getColor(context,
+                (i == currentPage) ? R.color.dot_active : R.color.dot_inactive));
+            dotsLayout.addView(dots[i]);
         }
     }
 

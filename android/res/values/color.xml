@@ -2,4 +2,9 @@
 <resources>
     <color name="ic_background_color">#F5A623FF</color>
     <color name="background">#FFFFFFFF</color>
+
+
+    <color name="dot_active">#1976D2</color>     <!-- Bleu foncé -->
+    <color name="dot_inactive">#BDBDBD</color>   <!-- Gris clair -->
+
 </resources>

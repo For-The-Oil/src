@@ -1,19 +1,137 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@android:color/white"
+    android:padding="16dp">
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <LinearLayout
-        android:id="@+id/dotsLayout"
+    <!-- Titre en haut -->
+    <TextView
+        android:id="@+id/titleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
+        android:text="For The Oil"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="24dp"/>
+        android:layout_marginTop="16dp"/>
+
+    <!-- Menu de boutons sous le titre -->
+    <LinearLayout
+        android:id="@+id/menuLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_below="@id/titleText"
+        android:layout_marginTop="12dp"
+        android:weightSum="4">
+
+        <!-- Bouton About -->
+        <Button
+            android:id="@+id/btnAbout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="About"
+            android:textSize="12sp"
+            android:layout_margin="4dp"/>
+
+        <!-- Bouton Website -->
+        <Button
+            android:id="@+id/btnWebsite"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Website"
+            android:textSize="12sp"
+            android:layout_margin="4dp"/>
+
+        <!-- Bouton Settings -->
+        <Button
+            android:id="@+id/btnSettings"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Settings"
+            android:textSize="12sp"
+            android:layout_margin="4dp"/>
+
+        <!-- Bouton Disconnect -->
+        <Button
+            android:id="@+id/btnDisconnect"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Disconnect"
+            android:textSize="10sp"
+            android:onClick="disconnect"
+            android:layout_margin="4dp"/>
+    </LinearLayout>
+
+
+    <!-- Carrousel d'images au milieu -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/imageCarousel"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_below="@id/menuLayout"
+        android:layout_above="@id/playModeLayout"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:overScrollMode="never"
+        android:paddingStart="60dp"
+        android:paddingEnd="60dp"/>
+
+    <!-- Bouton Play en bas -->
+    <LinearLayout
+        android:id="@+id/playModeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="80dp"
+        android:weightSum="3">
+
+        <!-- Bouton Deck -->
+        <Button
+            android:id="@+id/btnDeck"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Deck"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_margin="4dp"/>
+
+        <!-- Bouton Play (mis en avant par couleur) -->
+        <Button
+            android:id="@+id/btnPlay"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Play"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:backgroundTint="@android:color/holo_green_dark"
+            android:textColor="@android:color/white"
+            android:layout_margin="4dp"/>
+
+        <!-- Bouton Mode -->
+        <Button
+            android:id="@+id/btnMode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Mode"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_margin="4dp"/>
+    </LinearLayout>
+
+
+
 </RelativeLayout>
