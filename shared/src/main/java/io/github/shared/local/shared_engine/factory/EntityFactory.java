@@ -1,4 +1,4 @@
-package io.github.shared.local.data.factory;
+package io.github.shared.local.shared_engine.factory;
 
 import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.EnumsTypes.ProjectileType;

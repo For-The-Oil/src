@@ -11,7 +11,7 @@ import io.github.shared.local.data.EnumsTypes.CellType;
 public class Cell {
     private CellType cellType;
 
-    public Cell(CellType cellType, float walkable, float flyable, float swimmable) {
+    public Cell(CellType cellType) {
         this.cellType = cellType;
     }
 

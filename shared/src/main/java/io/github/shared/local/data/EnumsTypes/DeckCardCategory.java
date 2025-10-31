@@ -1,5 +1,5 @@
 package io.github.shared.local.data.EnumsTypes;
 
-public enum DeckCardType {
+public enum DeckCardCategory {
     Industrial, Military, Defense, Other
 }

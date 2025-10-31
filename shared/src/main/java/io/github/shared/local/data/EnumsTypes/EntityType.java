@@ -7,16 +7,16 @@ public enum EntityType {
     //Barrack(Type.Building), Factory(Type.Building), Garage(Type.Building),
     //INFANTRY(Type.Unit), HEAVE_INFANTRY(Type.Unit), TANK(Type.Unit), MOTORIZED(Type.Unit), WALKER(Type.Unit), AIRCRAFT(Type.Unit), NAVAL(Type.Unit);
     private final Type type;
-    private final Shape shape;
+    private final ShapeType shapeType;
     private final float maxHealth;
     private final int armor;
     private final float passiveHeal;
     private final float base_speed;
     private final float freeze_time;
 
-    EntityType(Type type, Shape shape, float maxHealth, int armor, float passiveHeal, float freezeTime) {
+    EntityType(Type type, ShapeType shapeType, float maxHealth, int armor, float passiveHeal, float freezeTime) {
         this.type = type;
-        this.shape = shape;
+        this.shapeType = shapeType;
         this.maxHealth = maxHealth;
         this.armor = armor;
         this.passiveHeal = passiveHeal;
@@ -31,14 +31,14 @@ public enum EntityType {
         this.passiveHeal = passiveHeal;
         this.base_speed = baseSpeed;
         this.freeze_time = freezeTime;
-        this.shape = null;
+        this.shapeType = null;
     }
 
     public Type getType(){
         return type;
     }
-    public Shape getShape(){
-        return shape;
+    public ShapeType getShapeType(){
+        return shapeType;
     }
 
     public float getMaxHealth() {

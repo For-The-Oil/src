@@ -16,7 +16,7 @@ import java.util.Collections;
 import io.github.server.config.DatabaseConfig;
 import io.github.server.data.network.UserData;
 import io.github.server.server_engine.utils.JsonUtils;
-import io.github.shared.local.data.EnumsTypes.DeckCardType;
+import io.github.shared.local.data.EnumsTypes.DeckCardCategory;
 import io.github.shared.local.data.gameobject.Deck;
 
 
@@ -356,13 +356,13 @@ public class DatabaseManager {
 
 
     /**
-     * Retrieves all decks of a user (by UUID) as a map keyed by {@link DeckCardType}.
+     * Retrieves all decks of a user (by UUID) as a map keyed by {@link DeckCardCategory}.
      *
      * @param userId the user's UUID
      * @return a {@link HashMap} mapping deck types to {@link Deck} objects
      */
-    public HashMap<DeckCardType, Deck> getDecksMap(UUID userId) {
-        HashMap<DeckCardType, Deck> map = new HashMap<>();
+    public HashMap<DeckCardCategory, Deck> getDecksMap(UUID userId) {
+        HashMap<DeckCardCategory, Deck> map = new HashMap<>();
         List<String> jsons = jdbi.withHandle(handle ->
             handle.createQuery("SELECT data FROM deck WHERE user_id = :id")
                 .bind("id", userId)
@@ -375,7 +375,7 @@ public class DatabaseManager {
                 Deck deck = mapper.readValue(json, Deck.class);
                 // On prend le premier DeckCardType de la HashMap comme clé
                 if (!deck.getCardTabKey().isEmpty()) {
-                    DeckCardType key = deck.getCardTabKey().keySet().iterator().next();
+                    DeckCardCategory key = deck.getCardTabKey().keySet().iterator().next();
                     map.put(key, deck);
                 }
             } catch (Exception e) {
@@ -386,13 +386,13 @@ public class DatabaseManager {
     }
 
     /**
-     * Retrieves all decks of a user (by email) as a map keyed by {@link DeckCardType}.
+     * Retrieves all decks of a user (by email) as a map keyed by {@link DeckCardCategory}.
      *
      * @param email the user's email
      * @return a {@link HashMap} mapping deck types to {@link Deck} objects
      */
-    public HashMap<DeckCardType, Deck> getDecksMap(String email) {
-        HashMap<DeckCardType, Deck> map = new HashMap<>();
+    public HashMap<DeckCardCategory, Deck> getDecksMap(String email) {
+        HashMap<DeckCardCategory, Deck> map = new HashMap<>();
         List<String> jsons = jdbi.withHandle(handle ->
             handle.createQuery(
                     "SELECT d.data FROM deck d JOIN \"user\" u ON d.user_id = u.id WHERE u.email = :email"
@@ -406,7 +406,7 @@ public class DatabaseManager {
             try {
                 Deck deck = mapper.readValue(json, Deck.class);
                 if (!deck.getCardTabKey().isEmpty()) {
-                    DeckCardType key = deck.getCardTabKey().keySet().iterator().next();
+                    DeckCardCategory key = deck.getCardTabKey().keySet().iterator().next();
                     map.put(key, deck);
                 }
             } catch (Exception e) {

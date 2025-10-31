@@ -3,6 +3,7 @@ package io.github.shared.local.data.EnumsTypes;
 import java.util.HashMap;
 
 public enum CellType {
+    VOID(0f,0f,0f,new HashMap<>()),
     GRASS(1f,1f,0f,new HashMap<>()),
     ROAD(1f,1f,0f,new HashMap<>()),
     WATER(0f,0f,1f,new HashMap<>());

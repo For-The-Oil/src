@@ -7,10 +7,10 @@ public class Shape {
     private final int height;
     private final Cell[][] tab_cells;
 
-    public Shape(int width, int height) {
-        this.width = width;
-        this.height = height;
-        this.tab_cells = new Cell[width][height];
+    public Shape(Cell[][] tab_cells) {
+        this.tab_cells = tab_cells;
+        this.height = tab_cells.length;
+        this.width = tab_cells[0].length;
     }
 
     public int getWidth() {
