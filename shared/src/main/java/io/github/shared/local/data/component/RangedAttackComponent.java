@@ -8,6 +8,6 @@ public class RangedAttackComponent extends Component {
     public WeaponType weaponType;
     public int damage;
     public float cooldown;
-    public float currentCooldown = 0f;
+    public float currentCooldown;
     public float range;
 }

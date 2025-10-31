@@ -10,7 +10,7 @@ import io.github.shared.local.data.EnumsTypes.WeaponType;
 public class ProjectileAttackComponent extends Component {
     public WeaponType weaponType;
     public float cooldown;
-    public float currentCooldown = 0f;
+    public float currentCooldown;
     public float range;
     public ProjectileType projectileType; // le type de projectile À envoyer
 }
