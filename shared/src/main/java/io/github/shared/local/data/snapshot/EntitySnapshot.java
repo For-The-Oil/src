@@ -6,8 +6,39 @@ import java.util.ArrayList;
 import io.github.shared.local.data.EnumsTypes.EntityType;
 
 public class EntitySnapshot implements Serializable {
-    public int netId; // identifiant unique
+    private int netId; // identifiant unique
 
-    public EntityType entityType;
-    public ArrayList<ComponentSnapshot> components; // liste des composants sérialisés
+    private EntityType entityType;
+    private ArrayList<ComponentSnapshot> components; // liste des composants sérialisés
+
+    public EntitySnapshot() {}
+    public EntitySnapshot(int netId, EntityType entityType, ArrayList<ComponentSnapshot> components) {
+        this.netId = netId;
+        this.entityType = entityType;
+        this.components = components;
+    }
+
+    public int getNetId() {
+        return netId;
+    }
+
+    public void setNetId(int netId) {
+        this.netId = netId;
+    }
+
+    public EntityType getEntityType() {
+        return entityType;
+    }
+
+    public void setEntityType(EntityType entityType) {
+        this.entityType = entityType;
+    }
+
+    public ArrayList<ComponentSnapshot> getComponentSnapshot() {
+        return components;
+    }
+
+    public void setComponents(ArrayList<ComponentSnapshot> components) {
+        this.components = components;
+    }
 }

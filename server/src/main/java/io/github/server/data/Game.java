@@ -14,6 +14,7 @@ import io.github.shared.local.data.EnumsTypes.EventType;
 import io.github.shared.local.data.EnumsTypes.MapName;
 import io.github.shared.local.data.network.Player;
 import io.github.shared.local.data.gameobject.Shape;
+import io.github.server.game_engine.SnapshotTracker;
 
 public class Game {
     private final UUID GAME_UUID;
@@ -25,6 +26,7 @@ public class Game {
     private Shape map;
     private MapName mapName;
     private EventType currentEvent;
+    private SnapshotTracker snapshotTracker;
     private Queue<Instruction> executionQueue;
     private Queue<Instruction> historicQueue;
     private Queue<Instruction> networkQueue;

@@ -1,4 +1,4 @@
-package io.github.server.game_engine.system;
+package io.github.shared.local.shared_engine.system;
 
 /**
  * Détection des morts et events par rapport aux morts

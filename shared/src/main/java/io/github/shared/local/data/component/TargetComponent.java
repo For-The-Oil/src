@@ -1,6 +1,10 @@
 package io.github.shared.local.data.component;
 
-public class TargetComponent {
+import com.artemis.Component;
+import com.artemis.annotations.PooledWeaver;
+
+@PooledWeaver
+public class TargetComponent extends Component {
     public int TargetId;
     public boolean force = false;
 }
