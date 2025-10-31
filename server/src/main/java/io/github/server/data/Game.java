@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import io.github.server.game_engine.ActionController.ActionController;
+import io.github.shared.local.data.EnumsTypes.ShapeType;
 import io.github.shared.local.data.instructions.Instruction;
 import io.github.shared.local.data.EnumsTypes.EventType;
 import io.github.shared.local.data.EnumsTypes.MapName;
@@ -20,7 +21,7 @@ public class Game {
     private HashMap<String, ArrayList<Player> > playerTeam;
     private ArrayList<Player> playersList;
     private ArrayList<Entity> entities;
-    private final Shape initMap;
+    private final ShapeType mapType;
     private Shape map;
     private MapName mapName;
     private EventType currentEvent;
@@ -30,7 +31,7 @@ public class Game {
     private ArrayList<ActionController> activeActions;
     private long time_left;  //seconds
 
-    public Game(UUID gameUuid, HashMap<String, ArrayList<Player>> playerTeam, ArrayList<Player> playersList, Shape map, EventType currentEvent, long timeLeft) {
+    public Game(UUID gameUuid, HashMap<String, ArrayList<Player>> playerTeam, ArrayList<Player> playersList, ShapeType mapType, EventType currentEvent, long timeLeft) {
         GAME_UUID = gameUuid;
         this.playerTeam = playerTeam;
         this.playersList = playersList;
@@ -39,7 +40,7 @@ public class Game {
         this.activeActions = new ArrayList<>();
         this.entities = new ArrayList<>();
         this.endGame = false;
-        this.initMap = map;
-        this.map = map;
+        this.mapType = mapType;
+        this.map = new Shape(mapType.getShape().getTab_cells().clone());
     }
 }
