@@ -125,7 +125,7 @@ public final class ClientAuthManager {
             decksJson = "{}";
         }
 
-        response.put("message", "success");
+        response.put("message", "Success");
         response.put("username", client.getUsername());
         response.put("decks", decksJson);
         response.put("token", client.getToken());
@@ -209,7 +209,7 @@ public final class ClientAuthManager {
                 decksJson = "{}";
             }
 
-            response.put("message", "success");
+            response.put("message", "Success");
             response.put("username", client.getUsername());
             response.put("decks", decksJson);
             response.put("token", client.getToken());

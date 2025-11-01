@@ -15,7 +15,7 @@ import androidx.viewpager2.widget.ViewPager2;
 import java.util.Arrays;
 import java.util.List;
 
-import io.github.android.activity.SecondActivity;
+import io.github.android.activity.HomeActivity;
 import io.github.android.gui.adapter.CarouselAdapter;
 import io.github.android.manager.MatchMakingManager;
 import io.github.fortheoil.R;
@@ -23,7 +23,7 @@ import io.github.shared.local.data.EnumsTypes.GameModeType;
 
 public class MainPageFragment extends Fragment {
 
-    private SecondActivity activity;
+    private HomeActivity activity;
 
     @Nullable
     @Override
@@ -37,7 +37,7 @@ public class MainPageFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        activity = (SecondActivity) getActivity();
+        activity = (HomeActivity) getActivity();
         if (activity == null) return;
 
         ViewPager2 carousel = view.findViewById(R.id.imageCarousel);

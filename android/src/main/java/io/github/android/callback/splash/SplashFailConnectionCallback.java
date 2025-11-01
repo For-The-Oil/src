@@ -7,8 +7,8 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.ProgressBar;
 
-import io.github.android.activity.AndroidLauncher;
-import io.github.android.gui.AnimatorBar;
+import io.github.android.activity.LoginActivity;
+import io.github.android.gui.animation.AnimatorBar;
 
 public class SplashFailConnectionCallback implements Runnable {
 
@@ -51,7 +51,7 @@ public class SplashFailConnectionCallback implements Runnable {
                     () -> Log.e("Splash", "Connexion échouée : " + message),
                     () -> {
                         // Quand la deuxième animation est terminée → redirection
-                        Intent intent = new Intent(activity, AndroidLauncher.class);
+                        Intent intent = new Intent(activity, LoginActivity.class);
                         intent.putExtra("login_error", message);
                         activity.startActivity(intent);
                         activity.finish();

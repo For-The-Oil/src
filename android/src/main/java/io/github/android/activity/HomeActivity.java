@@ -8,15 +8,14 @@ import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
-import io.github.android.SplashActivity;
 import io.github.android.gui.adapter.MainAdapter;
-import io.github.android.listeners.AuthClientListener;
+import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.SessionManager;
 import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
 
-public class SecondActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity {
 
     private LinearLayout dotsLayout;
     private MainAdapter adapter;
@@ -30,10 +29,10 @@ public class SecondActivity extends AppCompatActivity {
         setContentView(R.layout.second_activity);
 
         this.clientManager = ClientManager.getInstance();
-        //this.clientManager.getKryoManager().addListener(new AuthClientListener());
+        //this.clientManager.getKryoManager().addListener(new ClientListener());
         this.clientManager.setCurrentContext(this);
 
-        AuthClientListener.getInstance(this, null).setCurrentActivity(this);
+        //ClientListener.getInstance(this, null).setCurrentActivity(this);
 
         setupViewPager();
     }
@@ -109,14 +108,14 @@ public class SecondActivity extends AppCompatActivity {
 
         // Affiche les dots dès le départ
         viewPager.post(() -> {
-            UiUtils.addBottomDots(SecondActivity.this, dotsLayout, viewPager.getCurrentItem(), pageCount);
+            UiUtils.addBottomDots(HomeActivity.this, dotsLayout, viewPager.getCurrentItem(), pageCount);
         });
 
         // Mets à jour les dots quand on change de page
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                UiUtils.addBottomDots(SecondActivity.this, dotsLayout, position, pageCount);
+                UiUtils.addBottomDots(HomeActivity.this, dotsLayout, position, pageCount);
             }
         });
     }

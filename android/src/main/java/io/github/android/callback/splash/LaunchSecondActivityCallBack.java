@@ -3,7 +3,7 @@ package io.github.android.callback.splash;
 import android.app.Activity;
 import android.content.Intent;
 
-import io.github.android.activity.SecondActivity;
+import io.github.android.activity.HomeActivity;
 
 public class LaunchSecondActivityCallBack implements Runnable{
 
@@ -14,7 +14,7 @@ public class LaunchSecondActivityCallBack implements Runnable{
 
     @Override
     public void run(){
-        Intent intent = new Intent(activity, SecondActivity.class);
+        Intent intent = new Intent(activity, HomeActivity.class);
         activity.startActivity(intent);
         activity.finish();
     }

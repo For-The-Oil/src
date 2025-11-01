@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.android.config.ServerDefaultConfig;
+import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
+import io.github.android.manager.SessionManager;
 
 public final class OtherUtils {
 
@@ -32,6 +34,10 @@ public final class OtherUtils {
 
         myClientManager.setIP(ip);
         myClientManager.setPort(port);
+
+        myClientManager.getKryoManager().addListener(ClientListener.getInstance());
+
+        SessionManager.getInstance().clearSession();
     }
 
 

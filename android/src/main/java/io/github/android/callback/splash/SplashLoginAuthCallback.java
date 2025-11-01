@@ -2,12 +2,10 @@ package io.github.android.callback.splash;
 
 
 import android.app.Activity;
-import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 
-import io.github.android.activity.SecondActivity;
-import io.github.android.gui.AnimatorBar;
+import io.github.android.gui.animation.AnimatorBar;
 import io.github.android.manager.ClientManager;
 
 public class SplashLoginAuthCallback implements Runnable {

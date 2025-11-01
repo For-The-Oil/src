@@ -1,15 +1,13 @@
 package io.github.android.manager;
 
-import static io.github.android.utils.UiUtils.showMessage;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import io.github.android.SplashActivity;
-import io.github.android.activity.SecondActivity;
+import io.github.android.activity.SplashActivity;
+import io.github.android.activity.HomeActivity;
 import io.github.android.gui.fragment.launcher.LoginFragment;
 import io.github.android.gui.fragment.launcher.RegisterFragment;
 import io.github.android.gui.fragment.launcher.ServerFragment;
@@ -134,7 +132,7 @@ public class ClientManager {
         if (currentContext instanceof Activity) {
             ((Activity) currentContext).runOnUiThread(() -> {
                 Log.d("Auth","Login Sucess !!!!!!B");
-                Intent intent = new Intent(currentContext, SecondActivity.class);
+                Intent intent = new Intent(currentContext, HomeActivity.class);
                 currentContext.startActivity(intent);
             });
         }
@@ -148,6 +146,26 @@ public class ClientManager {
                 currentContext.startActivity(intent);
             });
         }
+    }
+
+    /**
+     * Closes the current user session.
+     * <p>
+     * This method clears all session data, marks the session as inactive,
+     * and optionally closes the network connection.
+     */
+    public void closeSession() {
+        SessionManager sessionManager = SessionManager.getInstance();
+
+        // Clear all session data
+        sessionManager.clearSession();
+
+        // Optionally close Kryo connection
+        if (kryoManager != null && kryoManager.getClient() != null && kryoManager.getClient().isConnected()) {
+            kryoManager.getClient().close();
+        }
+
+        Log.d("ClientManager", "Session closed and connection terminated.");
     }
 
 

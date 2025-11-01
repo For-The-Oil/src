@@ -1,9 +1,13 @@
 package io.github.core.client_engine.manager;
 
+import static io.github.core.config.ServerDefaultConfig.CONNECT_TIMEOUT;
+
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
+
+import io.github.core.config.ClientDefaultConfig;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.network.KryoRegistry;
 
@@ -151,16 +155,25 @@ public class KryoClientManager {
      * @param host the IP
      * @param port the Port
      */
-    public boolean connect(String host, int port) {
-        try {
-            client.connect(5000, host, port);
-            connected = true;
-        } catch (IOException e) {
-            connected = false;
-            e.printStackTrace();
-        }
-        return connected;
+    public void connect(String host, int port, Runnable onSuccess, Runnable onFailure) {
+        new Thread(() -> {
+            try {
+                client.connect(CONNECT_TIMEOUT, host, port); // 5000 ms timeout
+                connected = true;
+                if (onSuccess != null) {
+                    onSuccess.run();
+                }
+            } catch (IOException e) {
+                connected = false;
+                e.printStackTrace();
+                if (onFailure != null) {
+                    onFailure.run();
+                }
+            }
+        }).start();
     }
+
+
 
 
     /**

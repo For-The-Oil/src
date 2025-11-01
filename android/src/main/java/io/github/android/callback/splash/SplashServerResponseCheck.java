@@ -5,7 +5,7 @@ import android.util.Log;
 import android.widget.ProgressBar;
 
 import io.github.android.callback.AuthCallBack;
-import io.github.android.gui.AnimatorBar;
+import io.github.android.gui.animation.AnimatorBar;
 import io.github.shared.local.data.requests.AuthRequest;
 
 public class SplashServerResponseCheck implements AuthCallBack {

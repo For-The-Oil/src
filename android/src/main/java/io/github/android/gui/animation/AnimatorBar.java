@@ -1,4 +1,4 @@
-package io.github.android.gui;
+package io.github.android.gui.animation;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

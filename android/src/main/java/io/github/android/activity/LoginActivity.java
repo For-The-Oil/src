@@ -14,7 +14,7 @@ import io.github.android.gui.adapter.LauncherAdapter;
 import io.github.android.gui.fragment.launcher.LoginFragment;
 import io.github.android.gui.fragment.launcher.RegisterFragment;
 import io.github.android.gui.fragment.launcher.ServerFragment;
-import io.github.android.listeners.AuthClientListener;
+import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.utils.PrefsUtils;
 import io.github.android.utils.UiUtils;
@@ -34,7 +34,7 @@ import android.util.Log;
 import java.util.HashMap;
 
 
-public class AndroidLauncher extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     private int[] layouts;
     private LinearLayout dotsLayout;
@@ -52,8 +52,6 @@ public class AndroidLauncher extends AppCompatActivity {
 
         this.clientManager = ClientManager.getInstance();
         this.clientManager.setCurrentContext(this);
-
-        AuthClientListener.getInstance(this, null).setCurrentActivity(this);
 
         // Vérifier si on a reçu un message d’erreur
         String loginError = getIntent().getStringExtra("login_error");
@@ -135,22 +133,22 @@ public class AndroidLauncher extends AppCompatActivity {
         }
 
         // Send to the server the Input
-        Log.d("AndroidLauncher", "Login requested: " + email);
+        Log.d("LoginActivity", "Login requested: " + email);
 
         ClientManager clientManager = ClientManager.getInstance();
         KryoClientManager kryoManager = clientManager.getKryoManager();
 
-        kryoManager.start();
-        new Thread(() -> {
-            boolean connected = kryoManager.connect(clientManager.getIP(), clientManager.getPort());
-            if(connected) {
-                Log.d("For The Oil", "Login AuthCallBack ...");
-                ClientManager.getInstance().login(email, password);
-            }
-            else {
-                UiUtils.showMessage(errorField, "Error server unreachable...");
-            }
-        }).start();
+//        kryoManager.start();
+//        new Thread(() -> {
+//            boolean connected = kryoManager.connect(clientManager.getIP(), clientManager.getPort());
+//            if(connected) {
+//                Log.d("For The Oil", "Login AuthCallBack ...");
+//                ClientManager.getInstance().login(email, password);
+//            }
+//            else {
+//                UiUtils.showMessage(errorField, "Error server unreachable...");
+//            }
+//        }).start();
 
 
     }
@@ -191,23 +189,23 @@ public class AndroidLauncher extends AppCompatActivity {
         }
 
         // Send to the server the Input
-        Log.d("AndroidLauncher", "Register requested: " + email);
+        Log.d("LoginActivity", "Register requested: " + email);
 
 
         ClientManager clientManager = ClientManager.getInstance();
         KryoClientManager kryoManager = clientManager.getKryoManager();
 
-        kryoManager.start();
-        new Thread(() -> {
-            boolean connected = kryoManager.connect(clientManager.getIP(), clientManager.getPort());
-            if(connected) {
-                Log.d("For The Oil", "Register AuthCallBack ...");
-                ClientManager.getInstance().register(email, username, password, confirmPassword);
-            }
-            else {
-                UiUtils.showMessage(errorField, "Error server is unreachable ...");
-            }
-        }).start();
+//        kryoManager.start();
+//        new Thread(() -> {
+//            boolean connected = kryoManager.connect(clientManager.getIP(), clientManager.getPort());
+//            if(connected) {
+//                Log.d("For The Oil", "Register AuthCallBack ...");
+//                ClientManager.getInstance().register(email, username, password, confirmPassword);
+//            }
+//            else {
+//                UiUtils.showMessage(errorField, "Error server is unreachable ...");
+//            }
+//        }).start();
 
     }
 
@@ -398,7 +396,7 @@ public class AndroidLauncher extends AppCompatActivity {
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                UiUtils.addBottomDots(AndroidLauncher.this, dotsLayout, position, pageCount);
+                UiUtils.addBottomDots(LoginActivity.this, dotsLayout, position, pageCount);
             }
         });
     }

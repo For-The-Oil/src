@@ -3,7 +3,7 @@ package io.github.android.callback.splash;
 import android.app.Activity;
 import android.content.Intent;
 
-import io.github.android.activity.AndroidLauncher;
+import io.github.android.activity.LoginActivity;
 
 public class LaunchLauncherActivityCallBack implements Runnable{
 
@@ -24,7 +24,7 @@ public class LaunchLauncherActivityCallBack implements Runnable{
 
     @Override
     public void run() {
-        Intent intent = new Intent(activity, AndroidLauncher.class);
+        Intent intent = new Intent(activity, LoginActivity.class);
 
         if (error != null && !error.isEmpty()) {
             intent.putExtra("login_error", error);
