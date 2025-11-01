@@ -110,6 +110,7 @@ public class SnapshotTracker {
             case "ProjectileAttackComponent":
             case "TargetComponent":
             case "BuildingMapPositionComponent":
+            case "RessourceComponent":
                 // Écrasement simple
                 previousSnapshot.setFields(newSnapshot.getFields());
                 break;
@@ -122,28 +123,6 @@ public class SnapshotTracker {
                 if (newEntries != null) merged.addAll(newEntries);
                 previousSnapshot.getFields().put("entries", merged);
                 break;
-
-            case "RessourceComponent":
-                // Additionner les ressources
-                Map<?, ?> previousMap = (Map<?, ?>) previousSnapshot.getFields().get("ressources");
-                Map<?, ?> newMap = (Map<?, ?>) newSnapshot.getFields().get("ressources");
-                Map<Object, Integer> result = new HashMap<>();
-                if (previousMap != null) {
-                    for (Map.Entry<?, ?> entry : previousMap.entrySet()) {
-                        result.put(entry.getKey(), (Integer) entry.getValue());
-                    }
-                }
-                if (newMap != null) {
-                    for (Map.Entry<?, ?> entry : newMap.entrySet()) {
-                        Object key = entry.getKey();
-                        int value = (Integer) entry.getValue();
-                        result.put(key, result.getOrDefault(key, 0) + value);
-                    }
-                }
-                previousSnapshot.getFields().put("ressources", result);
-                break;
-
-
             case "VelocityComponent":
                 Float prevX = (Float) previousSnapshot.getFields().get("x");
                 Float prevY = (Float) previousSnapshot.getFields().get("y");
