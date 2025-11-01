@@ -56,7 +56,7 @@ public class AndroidLauncher extends AppCompatActivity {
         this.clientManager = ClientManager.getInstance();
         this.clientManager.setCurrentContext(this);
 
-        AuthClientListener.getInstance().setCurrentActivity(this);
+        AuthClientListener.getInstance(this, null).setCurrentActivity(this);
 
         // Vérifier si on a reçu un message d’erreur
         String loginError = getIntent().getStringExtra("login_error");

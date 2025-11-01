@@ -33,7 +33,7 @@ public class SecondActivity extends AppCompatActivity {
         //this.clientManager.getKryoManager().addListener(new AuthClientListener());
         this.clientManager.setCurrentContext(this);
 
-        AuthClientListener.getInstance().setCurrentActivity(this);
+        AuthClientListener.getInstance(this, null).setCurrentActivity(this);
 
         setupViewPager();
     }
