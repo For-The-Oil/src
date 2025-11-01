@@ -1,5 +1,5 @@
 package io.github.shared.local.data.EnumsTypes;
 
 public enum KryoMessageType {
-    AUTH,JOIN_MATCHMAKING, SIGN_IN, SIGN_UP, DISCONNECT
+    AUTH, MATCHMAKING, SIGN_IN, SIGN_UP, DISCONNECT
 }

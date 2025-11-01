@@ -1,6 +1,9 @@
 package io.github.android.gui.adapter;
 
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
@@ -13,11 +16,20 @@ public class LauncherAdapter extends FragmentStateAdapter {
 
     private final Fragment[] fragments;
 
-    public LauncherAdapter(@NonNull FragmentActivity fragmentActivity) {
+    public LauncherAdapter(@NonNull FragmentActivity fragmentActivity, String loginError) {
         super(fragmentActivity);
+
+        LoginFragment loginFragment = new LoginFragment();
+        if (loginError != null) {
+            Bundle args = new Bundle();
+            args.putString("login_error", loginError);
+            loginFragment.setArguments(args);
+        }
+
+
         fragments = new Fragment[] {
             new RegisterFragment(),
-            new LoginFragment(),
+            loginFragment,
             new ServerFragment()
         };
     }

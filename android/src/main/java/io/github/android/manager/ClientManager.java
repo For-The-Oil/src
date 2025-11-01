@@ -8,6 +8,7 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import io.github.android.SplashActivity;
 import io.github.android.activity.SecondActivity;
 import io.github.android.gui.fragment.launcher.LoginFragment;
 import io.github.android.gui.fragment.launcher.RegisterFragment;
@@ -54,18 +55,19 @@ public class ClientManager {
     //---------
 
     public void loginSuccess(AuthRequest myRequest){
+        Log.d("Auth","Login Sucess !!!!!!");
         buildSession(myRequest);
-        launchSecondActivity();
+        launchSecondActivityAndPassBySplashScreen();
     }
 
     public void registerSuccess(AuthRequest myRequest){
         buildSession(myRequest);
-        launchSecondActivity();
+        launchSecondActivityAndPassBySplashScreen();
     }
 
     public void tokenSuccess(AuthRequest myRequest){
         buildSession(myRequest);
-        launchSecondActivity();
+        launchSecondActivityAndPassBySplashScreen();
     }
 
     public void loginFailure(AuthRequest myRequest) {
@@ -131,7 +133,18 @@ public class ClientManager {
     public void launchSecondActivity(){
         if (currentContext instanceof Activity) {
             ((Activity) currentContext).runOnUiThread(() -> {
+                Log.d("Auth","Login Sucess !!!!!!B");
                 Intent intent = new Intent(currentContext, SecondActivity.class);
+                currentContext.startActivity(intent);
+            });
+        }
+    }
+
+    public void launchSecondActivityAndPassBySplashScreen(){
+        if (currentContext instanceof Activity) {
+            ((Activity) currentContext).runOnUiThread(() -> {
+                Intent intent = new Intent(currentContext, SplashActivity.class);
+                intent.putExtra("redirect_home", true);
                 currentContext.startActivity(intent);
             });
         }

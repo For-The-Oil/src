@@ -1,11 +1,20 @@
 package io.github.android.listeners;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import io.github.android.SplashActivity;
+import io.github.android.callback.AuthCallBack;
 import io.github.android.manager.ClientManager;
+import io.github.android.manager.SessionManager;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.AuthRequest;
 
@@ -25,9 +34,38 @@ import io.github.shared.local.data.requests.AuthRequest;
  * de l'application.</p>
  */
 public class AuthClientListener extends Listener {
+    private AuthCallBack callbacks;
+    private Activity currentActivity;
+    private static AuthClientListener instance;
 
-    /** Tag utilisé pour identifier les logs dans Logcat. */
+    /**
+     * Tag utilisé pour identifier les logs dans Logcat.
+     */
     private static final String TAG = "AuthClientListener";
+
+
+    private AuthClientListener(Activity activity, AuthCallBack callbacks){
+        this.currentActivity = activity;
+        this.callbacks = callbacks;
+    }
+
+    public static AuthClientListener getInstance(Activity activity, AuthCallBack callbacks){
+        if (instance == null){
+            instance = new AuthClientListener(activity, callbacks);
+        }
+        return instance;
+    }
+
+    public static AuthClientListener getInstance(){
+        return instance;
+    }
+
+    public void setCurrentActivity(Activity activity){
+        this.currentActivity = activity;
+    }
+
+
+
 
     /**
      * Callback appelé lorsque le client établit une connexion avec le serveur.
@@ -47,7 +85,32 @@ public class AuthClientListener extends Listener {
     @Override
     public void disconnected(Connection connection) {
         Log.d(TAG, "Disconnected from server.");
+        SessionManager.getInstance().clearSession();
+        ClientManager.getInstance().getKryoManager().getClient().close();
+
+        // Poste sur le thread UI
+        new Handler(Looper.getMainLooper()).post(() -> {
+            Intent intent = new Intent(currentActivity, SplashActivity.class);
+            intent.putExtra("lost_connection", true);
+            currentActivity.startActivity(intent);
+            currentActivity.finish();
+        });
     }
+
+
+    public void setCallbacks(AuthCallBack callbacks) {
+        this.callbacks = callbacks;
+    }
+
+
+    private void postToMain(Runnable r) {
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (!currentActivity.isFinishing() && !currentActivity.isDestroyed()) {
+                r.run();
+            }
+        });
+    }
+
 
     /**
      * Callback appelé lorsqu'un objet est reçu depuis le serveur.
@@ -70,56 +133,49 @@ public class AuthClientListener extends Listener {
      */
     @Override
     public void received(Connection connection, Object object) {
-        if (!(object instanceof KryoMessage)) {
-            return;
-        }
-
+        if (!(object instanceof KryoMessage)) return;
         KryoMessage msg = (KryoMessage) object;
-
-        if (!(msg.getObj() instanceof AuthRequest)) {
-            return;
-        }
+        if (!(msg.getObj() instanceof AuthRequest)) return;
 
         AuthRequest myRequest = (AuthRequest) msg.getObj();
         ClientManager manager = ClientManager.getInstance();
 
-        Log.d(TAG, "Server response: " + msg.getType());
-        Log.d(TAG, "Server response: " + msg.getObj());
-
         switch (myRequest.getMode()) {
             case REGISTER_FAIL:
-                Log.w(TAG, "Registration refused by server, closing connection...");
                 connection.close();
                 manager.registerFailure(myRequest);
+                if (callbacks != null) postToMain(() -> callbacks.onRegisterFailure(myRequest));
                 break;
 
             case LOGIN_FAIL:
-                Log.w(TAG, "Login refused by server, closing connection...");
                 connection.close();
                 manager.loginFailure(myRequest);
+                if (callbacks != null) postToMain(() -> callbacks.onLoginFailure(myRequest));
                 break;
 
             case TOKEN_FAIL:
-                Log.w(TAG, "TOKEN Login refused by server, closing connection...");
                 connection.close();
                 manager.tokenFailure(myRequest);
+                if (callbacks != null) postToMain(() -> callbacks.onTokenFailure(myRequest));
                 break;
 
             case REGISTER_SUCCESS:
-                Log.i(TAG, "Register success !");
                 manager.registerSuccess(myRequest);
+                if (callbacks != null) postToMain(() -> callbacks.onRegisterSuccess(myRequest));
                 break;
 
             case LOGIN_SUCCESS:
-                Log.i(TAG, "Login success !");
                 manager.loginSuccess(myRequest);
+                if (callbacks != null) postToMain(() -> callbacks.onLoginSuccess(myRequest));
                 break;
 
             case TOKEN_SUCCESS:
-                Log.i(TAG, "Token success !");
                 manager.tokenSuccess(myRequest);
+                if (callbacks != null) postToMain(() -> callbacks.onTokenSuccess(myRequest));
                 break;
         }
     }
-}
 
+
+
+}

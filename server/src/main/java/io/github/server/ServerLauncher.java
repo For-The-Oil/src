@@ -69,8 +69,6 @@ public class ServerLauncher {
         // Must be done before starting the server !
         KryoRegistry.registerAll(kryo);
 
-        this.kryoMotherServer.start();
-
         /*
          * Adding of the listeners
          */
@@ -88,6 +86,8 @@ public class ServerLauncher {
         kryoMotherServer.addListener(new AdminListener());
 
 
+
+        this.kryoMotherServer.start();
 
     }
 

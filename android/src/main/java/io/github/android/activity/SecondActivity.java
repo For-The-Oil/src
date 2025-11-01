@@ -1,5 +1,6 @@
 package io.github.android.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -7,6 +8,7 @@ import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import io.github.android.SplashActivity;
 import io.github.android.gui.adapter.MainAdapter;
 import io.github.android.listeners.AuthClientListener;
 import io.github.android.manager.ClientManager;
@@ -20,6 +22,8 @@ public class SecondActivity extends AppCompatActivity {
     private MainAdapter adapter;
     private ClientManager clientManager; // déclaration manquante
 
+    private String gameMode;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,9 +33,9 @@ public class SecondActivity extends AppCompatActivity {
         //this.clientManager.getKryoManager().addListener(new AuthClientListener());
         this.clientManager.setCurrentContext(this);
 
-        setupViewPager();
+        AuthClientListener.getInstance().setCurrentActivity(this);
 
-        //initClientConfig(this);
+        setupViewPager();
     }
 
 
@@ -44,6 +48,9 @@ public class SecondActivity extends AppCompatActivity {
 
 
 
+    public void play(View view){
+
+    }
 
 
 
@@ -51,11 +58,19 @@ public class SecondActivity extends AppCompatActivity {
 
 
 
-    public void disconnect(View view){
+
+
+
+    public void disconnect(View view) {
         SessionManager.getInstance().clearSession();
         clientManager.getKryoManager().getClient().close();
+
+        Intent intent = new Intent(this, SplashActivity.class);
+        intent.putExtra("forceLogin", true);
+        startActivity(intent);
         finish();
     }
+
 
 
 
@@ -105,4 +120,24 @@ public class SecondActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
+
+
+
+
+
+
+
+    public void setGameMode(String mode){
+        this.gameMode = mode;
+    }
+
+    public String getGameMode(){
+        return this.gameMode;
+    }
+
+
+
 }

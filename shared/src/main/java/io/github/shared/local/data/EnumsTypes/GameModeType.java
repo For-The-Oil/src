@@ -1,5 +1,5 @@
 package io.github.shared.local.data.EnumsTypes;
 
 public enum GameModeType {
-    CLASSIC
+    CLASSIC, TEST, TEST1
 }

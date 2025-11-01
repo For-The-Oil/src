@@ -3,6 +3,7 @@ package io.github.core.client_engine.factory;
 import io.github.shared.local.data.EnumsTypes.KryoMessageType;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.AuthRequest;
+import io.github.shared.local.data.requests.MatchMakingRequest;
 
 /**
  * <h1>KryoMessagePackager</h1>
@@ -24,6 +25,13 @@ public class KryoMessagePackager {
             throw new IllegalArgumentException("AuthRequest cannot be null");
         }
         return new KryoMessage(KryoMessageType.AUTH, null, authRequest);
+    }
+
+    public static KryoMessage packAuthRequest(MatchMakingRequest matchRequest, String token) {
+        if (matchRequest == null) {
+            throw new IllegalArgumentException("MatchMakingRequest cannot be null");
+        }
+        return new KryoMessage(KryoMessageType.MATCHMAKING, null, matchRequest);
     }
 
     // TODO : Add even more way of packaging the Requests

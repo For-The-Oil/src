@@ -29,7 +29,7 @@ public final class PrefsUtils {
         Map<String, ?> allEntries = myPrefs.getAll();
         HashMap<String, String> prefs = new HashMap<>();
         for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            prefs.put(entry.getKey(), (String) entry.getValue());
+            prefs.put(entry.getKey(), String.valueOf(entry.getValue()));
         }
         return prefs;
     }
@@ -56,8 +56,8 @@ public final class PrefsUtils {
             SharedPreferences myPrefs = getEncryptedPrefs(file, context);
             SharedPreferences.Editor editor = myPrefs.edit();
 
-            for (String key : prefs.keySet()) {
-                editor.putString(key, prefs.get(key));
+            for (Map.Entry<String, String> entry : prefs.entrySet()) {
+                editor.putString(entry.getKey(), entry.getValue());
             }
             editor.apply();
         } catch (GeneralSecurityException | IOException e) {
@@ -70,9 +70,13 @@ public final class PrefsUtils {
         try {
             SharedPreferences myPrefs = getEncryptedPrefs(file, context);
             Map<String, ?> allEntries = myPrefs.getAll();
-
             for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-                prefs.put(entry.getKey(), (String) entry.getValue());
+                Object value = entry.getValue();
+                if (value instanceof String) {
+                    prefs.put(entry.getKey(), (String) value);
+                } else {
+                    prefs.put(entry.getKey(), String.valueOf(value));
+                }
             }
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();

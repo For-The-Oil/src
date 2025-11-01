@@ -1,20 +1,19 @@
-package io.github.android;
+package io.github.android.activity;
 
+import static io.github.android.config.ClientDefaultConfig.CLIENT_SECURE;
 import static io.github.android.config.ClientDefaultConfig.SERVER_PREFS;
 import static io.github.android.utils.FormatUtils.isValidHostname;
 import static io.github.android.utils.FormatUtils.isValidIPAddress;
-import static io.github.android.utils.OtherUtils.getIntOrDefault;
+import static io.github.android.utils.OtherUtils.initClientConfig;
 
-import android.content.Context;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
-import io.github.android.callback.FailConnectionCallback;
-import io.github.android.callback.LoginAuthCallback;
-import io.github.android.callback.RegisterAuthCallback;
+import io.github.android.callback.main.FailConnectionCallback;
+import io.github.android.callback.main.LoginAuthCallback;
+import io.github.android.callback.main.RegisterAuthCallback;
 import io.github.android.config.ServerDefaultConfig;
 import io.github.android.gui.adapter.LauncherAdapter;
-import io.github.android.gui.adapter.MainAdapter;
 import io.github.android.gui.fragment.launcher.LoginFragment;
 import io.github.android.gui.fragment.launcher.RegisterFragment;
 import io.github.android.gui.fragment.launcher.ServerFragment;
@@ -23,10 +22,11 @@ import io.github.android.manager.ClientManager;
 import io.github.android.utils.PrefsUtils;
 import io.github.android.utils.UiUtils;
 import io.github.core.client_engine.manager.KryoClientManager;
+import io.github.core.client_engine.utils.FormChecker;
 import io.github.fortheoil.R;
 
 import androidx.viewpager2.widget.ViewPager2;
-
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.view.View;
@@ -54,13 +54,20 @@ public class AndroidLauncher extends AppCompatActivity {
         setContentView(R.layout.main_activity);
 
         this.clientManager = ClientManager.getInstance();
-        this.clientManager.getKryoManager().addListener(new AuthClientListener());
         this.clientManager.setCurrentContext(this);
 
-        setupViewPager();
+        AuthClientListener.getInstance().setCurrentActivity(this);
+
+        // Vérifier si on a reçu un message d’erreur
+        String loginError = getIntent().getStringExtra("login_error");
+
+        setupViewPager(loginError);
         initClientConfig(this);
-        hideErrors();
+        //hideErrors();
+
+
     }
+
 
     @Override
     protected void onResume(){
@@ -98,6 +105,7 @@ public class AndroidLauncher extends AppCompatActivity {
     public void login(View view) {
         EditText emailField = findViewById(R.id.loginEmail);
         EditText passwordField = findViewById(R.id.loginPassword);
+        CheckBox checkField = findViewById(R.id.autoLogin);
         TextView errorField = findViewById(R.id.loginMessage);
 
         UiUtils.hideMessage(errorField);
@@ -105,12 +113,29 @@ public class AndroidLauncher extends AppCompatActivity {
         String email = emailField.getText().toString().trim();
         String password = passwordField.getText().toString().trim();
 
-        //TODO : Ajouter l'auto connexion
+        HashMap<String, String> myPrefs = new HashMap<>();
 
-//        if (!FormChecker.isValidEmail(email)) {
-//            UiUtils.showMessage(findViewById(R.id.loginMessage), "Email invalide !");
-//            return;
-//        }
+        if (checkField.isChecked()){
+            /// Si le user active l'auto Login
+            HashMap<String, String> myMap = new HashMap<>();
+            Log.d("AutoLogin","Saving the auto login settings");
+            myMap.put("email",email);
+            myMap.put("password",password);
+            myPrefs.put("auto_login","true");
+            PrefsUtils.saveEncryptedPrefs(CLIENT_SECURE, myMap, this);
+        } else {
+            /// Si le user ne l'active pas
+            Log.d("AutoLogin","Saving the default auto login settings");
+            myPrefs.put("auto_login","false");
+        }
+
+        PrefsUtils.savePrefs(SERVER_PREFS, myPrefs, this);
+
+
+        if (!FormChecker.isValidEmail(email)) {
+            UiUtils.showMessage(findViewById(R.id.loginMessage), "Email invalide !");
+            return;
+        }
 
         // Send to the server the Input
         Log.d("AndroidLauncher", "Login requested: " + email);
@@ -290,21 +315,21 @@ public class AndroidLauncher extends AppCompatActivity {
      * @return Null if all inputs are valid, otherwise returns the error message.
      */
     private String validateRegistrationInput(String username, String email, String password, String confirmPassword, ClientManager clientManager) {
-//        if (!FormChecker.isValidEmail(email)) {
-//            return "Email invalide !";
-//        }
-//        if (!FormChecker.isValidUsername(username)) {
-//            return "Pseudo invalide !";
-//        }
-//        if (!FormChecker.passwordsMatch(password, confirmPassword)) {
-//            return "Les mots de passe ne correspondent pas !";
-//        }
-//        if (!FormChecker.isValidPassword(password)) {
-//            return "Mot de passe invalide !";
-//        }
-//        if (!clientManager.isConnected()) {
-//            return "Connexion au serveur en cours...";
-//        }
+        if (!FormChecker.isValidEmail(email)) {
+            return "Email invalide !";
+        }
+        if (!FormChecker.isValidUsername(username)) {
+            return "Pseudo invalide !";
+        }
+        if (!FormChecker.passwordsMatch(password, confirmPassword)) {
+            return "Les mots de passe ne correspondent pas !";
+        }
+        if (!FormChecker.isValidPassword(password)) {
+            return "Mot de passe invalide !";
+        }
+        if (!clientManager.getKryoManager().isConnected()) {
+            return "Connexion au serveur en cours...";
+        }
         return null; // Everything is OK
     }
 
@@ -351,11 +376,11 @@ public class AndroidLauncher extends AppCompatActivity {
     /**
      * Function that define the little dots on the bottom page and start the View2 for horizontal views.
      */
-    private void setupViewPager() {
+    private void setupViewPager(String loginError) {
         ViewPager2 viewPager = findViewById(R.id.viewPager);
         dotsLayout = findViewById(R.id.dotsLayout);
 
-        this.adapter = new LauncherAdapter(this);
+        this.adapter = new LauncherAdapter(this, loginError);
         viewPager.setAdapter(adapter);
 
         int pageCount = adapter.getItemCount();
@@ -377,16 +402,6 @@ public class AndroidLauncher extends AppCompatActivity {
 
 
 
-    public void initClientConfig(Context context) {
-        ClientManager myClientManager = ClientManager.getInstance();
 
-        HashMap<String, String> saved = PrefsUtils.loadPrefs(SERVER_PREFS, context);
-
-        String ip = saved.getOrDefault("server_ip", ServerDefaultConfig.SERVER_HOST);
-        int port = getIntOrDefault(saved, "server_port", ServerDefaultConfig.SERVER_PORT);
-
-        myClientManager.setIP(ip);
-        myClientManager.setPort(port);
-    }
 
 }
