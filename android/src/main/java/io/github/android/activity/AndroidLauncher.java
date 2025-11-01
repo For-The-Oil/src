@@ -9,9 +9,6 @@ import static io.github.android.utils.OtherUtils.initClientConfig;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
-import io.github.android.callback.main.FailConnectionCallback;
-import io.github.android.callback.main.LoginAuthCallback;
-import io.github.android.callback.main.RegisterAuthCallback;
 import io.github.android.config.ServerDefaultConfig;
 import io.github.android.gui.adapter.LauncherAdapter;
 import io.github.android.gui.fragment.launcher.LoginFragment;
@@ -144,13 +141,17 @@ public class AndroidLauncher extends AppCompatActivity {
         KryoClientManager kryoManager = clientManager.getKryoManager();
 
         kryoManager.start();
-        kryoManager.connect(
-            clientManager.getIP(),
-            clientManager.getPort(),
-            // Here we create a callback that will be executed once we are connected
-            new LoginAuthCallback(email, password),
-            new FailConnectionCallback(errorField, "Error server unreachable...")
-        );
+        new Thread(() -> {
+            boolean connected = kryoManager.connect(clientManager.getIP(), clientManager.getPort());
+            if(connected) {
+                Log.d("For The Oil", "Login AuthCallBack ...");
+                ClientManager.getInstance().login(email, password);
+            }
+            else {
+                UiUtils.showMessage(errorField, "Error server unreachable...");
+            }
+        }).start();
+
 
     }
 
@@ -197,13 +198,16 @@ public class AndroidLauncher extends AppCompatActivity {
         KryoClientManager kryoManager = clientManager.getKryoManager();
 
         kryoManager.start();
-        kryoManager.connect(
-            clientManager.getIP(),
-            clientManager.getPort(),
-            // Here we create a callback that will be executed once we are connected
-            new RegisterAuthCallback(email, username, password, confirmPassword),
-            new FailConnectionCallback(errorField,"Error server is unreachable ...")
-        );
+        new Thread(() -> {
+            boolean connected = kryoManager.connect(clientManager.getIP(), clientManager.getPort());
+            if(connected) {
+                Log.d("For The Oil", "Register AuthCallBack ...");
+                ClientManager.getInstance().register(email, username, password, confirmPassword);
+            }
+            else {
+                UiUtils.showMessage(errorField, "Error server is unreachable ...");
+            }
+        }).start();
 
     }
 

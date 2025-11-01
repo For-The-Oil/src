@@ -150,30 +150,16 @@ public class KryoClientManager {
      *
      * @param host the IP
      * @param port the Port
-     * @param onConnected the {@link Runnable} program to execute
      */
-    public void connect(String host, int port, Runnable onConnected, Runnable ifNoConnect) {
-        new Thread(() -> {
-            try {
-                client.connect(5000, host, port);
-                connected = true;
-
-                if (onConnected != null) {
-                    // Exécuter sur le thread principal si besoin
-                    onConnected.run();
-                }
-
-                System.out.println("Connected to server: " + host + ":" + port);
-            } catch (IOException e) {
-                connected = false;
-                e.printStackTrace();
-
-                if (ifNoConnect != null) {
-                    // Exécuter sur le thread principal si besoin
-                    ifNoConnect.run();
-                }
-            }
-        }).start();
+    public boolean connect(String host, int port) {
+        try {
+            client.connect(5000, host, port);
+            connected = true;
+        } catch (IOException e) {
+            connected = false;
+            e.printStackTrace();
+        }
+        return connected;
     }
 
 

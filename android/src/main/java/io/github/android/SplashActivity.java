@@ -186,13 +186,15 @@ public class SplashActivity extends AppCompatActivity {
                 kryoManager.addListener(myListener);
 
                 kryoManager.start();
-
-                kryoManager.connect(
-                    clientManager.getIP(),
-                    clientManager.getPort(),
-                    new SplashLoginAuthCallback(email, password, bar, splashProgress, this),
-                    new SplashFailConnectionCallback(bar, splashProgress,"Error server unreachable...", this)
-                );
+                new Thread(() -> {
+                    boolean connected = kryoManager.connect(clientManager.getIP(), clientManager.getPort());
+                    if(connected) {
+                        new SplashLoginAuthCallback(email, password, bar, splashProgress, this).run();
+                    }
+                    else {
+                        new SplashFailConnectionCallback(bar, splashProgress, "Error server unreachable...", this).run();
+                    }
+                }).start();
                 return;
             }
 
