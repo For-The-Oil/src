@@ -1,15 +1,22 @@
 package io.github.android.listeners;
 
 import android.app.Activity;
+import android.app.LauncherActivity;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import io.github.android.activity.BaseActivity;
+import io.github.android.activity.HomeActivity;
+import io.github.android.activity.LoginActivity;
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.SessionManager;
+import io.github.android.utils.RedirectUtils;
 import io.github.shared.local.data.network.KryoMessage;
 
 import java.util.HashMap;
@@ -24,7 +31,7 @@ import java.util.function.Consumer;
  */
 public class ClientListener extends Listener {
 
-    private Activity currentActivity;
+    private BaseActivity currentActivity;
     private final Map<Class<?>, CallbackWrapper> messageHandlers = new HashMap<>();
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
     private static ClientListener instance;
@@ -69,10 +76,11 @@ public class ClientListener extends Listener {
         Log.d("For the Oil", "Disconnected from server.");
         SessionManager.getInstance().clearSession();
         ClientManager.getInstance().getKryoManager().getClient().close();
+        RedirectUtils.simpleRedirectAndClearStack(this.currentActivity, LoginActivity.class, "login_error", "Connection lost...");
     }
 
 
-    public void setCurrentActivity(Activity activity) {
+    public void setCurrentActivity(BaseActivity activity) {
         this.currentActivity = activity;
     }
 
