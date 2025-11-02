@@ -1,30 +1,34 @@
 package io.github.android.activity;
 
 import static io.github.android.config.ClientDefaultConfig.CLIENT_SECURE;
+import static io.github.android.config.ClientDefaultConfig.INIT_WAITING_TIME;
 import static io.github.android.config.ClientDefaultConfig.SERVER_PREFS;
 import static io.github.android.utils.FormatUtils.isValidHostname;
 import static io.github.android.utils.FormatUtils.isValidIPAddress;
-import static io.github.android.utils.OtherUtils.initClientConfig;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 
 import io.github.android.config.ServerDefaultConfig;
+import io.github.android.config.UiConfig;
 import io.github.android.gui.adapter.LauncherAdapter;
+import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.gui.fragment.launcher.LoginFragment;
 import io.github.android.gui.fragment.launcher.RegisterFragment;
 import io.github.android.gui.fragment.launcher.ServerFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.utils.PrefsUtils;
+import io.github.android.utils.RedirectUtils;
 import io.github.android.utils.UiUtils;
 import io.github.core.client_engine.manager.KryoClientManager;
 import io.github.core.client_engine.utils.FormChecker;
 import io.github.fortheoil.R;
+import io.github.shared.local.data.requests.AuthRequest;
 
 import androidx.viewpager2.widget.ViewPager2;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -34,16 +38,21 @@ import android.util.Log;
 import java.util.HashMap;
 
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
 
     private int[] layouts;
     private LinearLayout dotsLayout;
     private ClientManager clientManager;
     private LauncherAdapter adapter;
 
+    private LoadingFragment loadingFragment;
     private TextView registerMessage;
     private TextView loginMessage;
     private TextView serverMessage;
+    private String email;
+    private String password;
+    private String confirmPassword;
+    private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +64,17 @@ public class LoginActivity extends AppCompatActivity {
 
         // Vérifier si on a reçu un message d’erreur
         String loginError = getIntent().getStringExtra("login_error");
+        Log.d("For the oil", "Error to load ! " + loginError);
 
         setupViewPager(loginError);
-        initClientConfig(this);
-        //hideErrors();
+        setupLoadingFragment();
 
+        initListener();
+
+        Log.d("For the oil", "Are we connected ? " + ClientManager.getInstance().getKryoManager().getClient().isConnected());
+
+        //initClientConfig(this);
+        //hideErrors();
 
     }
 
@@ -68,16 +83,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
         hideErrors();
-    }
-
-    private void hideErrors(){
-        RegisterFragment registerFragment = (RegisterFragment) adapter.getFragment(0);
-        LoginFragment loginFragment = (LoginFragment) adapter.getFragment(1);
-        ServerFragment serverFragment = (ServerFragment) adapter.getFragment(2);
-
-        registerFragment.hideError();
-        loginFragment.hideError();
-        serverFragment.hideError();
     }
 
 
@@ -105,8 +110,8 @@ public class LoginActivity extends AppCompatActivity {
 
         UiUtils.hideMessage(errorField);
 
-        String email = emailField.getText().toString().trim();
-        String password = passwordField.getText().toString().trim();
+        email = emailField.getText().toString().trim();
+        password = passwordField.getText().toString().trim();
 
         HashMap<String, String> myPrefs = new HashMap<>();
 
@@ -138,18 +143,10 @@ public class LoginActivity extends AppCompatActivity {
         ClientManager clientManager = ClientManager.getInstance();
         KryoClientManager kryoManager = clientManager.getKryoManager();
 
-//        kryoManager.start();
-//        new Thread(() -> {
-//            boolean connected = kryoManager.connect(clientManager.getIP(), clientManager.getPort());
-//            if(connected) {
-//                Log.d("For The Oil", "Login AuthCallBack ...");
-//                ClientManager.getInstance().login(email, password);
-//            }
-//            else {
-//                UiUtils.showMessage(errorField, "Error server unreachable...");
-//            }
-//        }).start();
-
+        kryoManager.start();
+        loadingFragment.setDefaultGradient();
+        loadingFragment.show();
+        phaseConnectToServer();
 
     }
 
@@ -176,10 +173,10 @@ public class LoginActivity extends AppCompatActivity {
 
 
         // We stringify theses fields
-        String username = usernameField.getText().toString().trim();
-        String email = emailField.getText().toString().trim();
-        String password = passwordField.getText().toString().trim();
-        String confirmPassword = confirmPasswordField.getText().toString().trim();
+        username = usernameField.getText().toString().trim();
+        email = emailField.getText().toString().trim();
+        password = passwordField.getText().toString().trim();
+        confirmPassword = confirmPasswordField.getText().toString().trim();
 
         // Validate the inputs
         String errorMessage = validateRegistrationInput(username, email, password, confirmPassword, clientManager);
@@ -195,17 +192,11 @@ public class LoginActivity extends AppCompatActivity {
         ClientManager clientManager = ClientManager.getInstance();
         KryoClientManager kryoManager = clientManager.getKryoManager();
 
-//        kryoManager.start();
-//        new Thread(() -> {
-//            boolean connected = kryoManager.connect(clientManager.getIP(), clientManager.getPort());
-//            if(connected) {
-//                Log.d("For The Oil", "Register AuthCallBack ...");
-//                ClientManager.getInstance().register(email, username, password, confirmPassword);
-//            }
-//            else {
-//                UiUtils.showMessage(errorField, "Error server is unreachable ...");
-//            }
-//        }).start();
+        kryoManager.start();
+
+        loadingFragment.setDefaultGradient();
+        loadingFragment.show();
+        phaseConnectToServerForRegister();
 
     }
 
@@ -337,6 +328,152 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
+    // -------------------------
+    // Intern logic
+    // -------------------------
+    //
+    //
+    //
+
+
+
+    // -------------------------
+    // Login execution
+    // -------------------------
+    private void phaseConnectToServer() {
+        loadingFragment.animateProgress(0f, 25f, INIT_WAITING_TIME, "Connecting to the server...", null, () -> {
+            ClientManager.getInstance().getKryoManager().start();
+            ClientManager.getInstance().getKryoManager().connect(
+                clientManager.getIP(),
+                clientManager.getPort(),
+                () -> runOnUiThread(this::phaseConnectionSuccess),
+                () -> runOnUiThread(this::phaseConnectionFailure)
+            );
+        });
+    }
+
+    private void phaseConnectionSuccess() {
+        loadingFragment.animateProgress(25f, 50f, INIT_WAITING_TIME, "Connected !", null, this::phaseSendCredentials);
+    }
+
+    private void phaseConnectionFailure() {
+        //ClientManager.getInstance().closeSession();
+        loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
+        loadingFragment.animateProgress(50f, 100f, INIT_WAITING_TIME, "Server not found !", null,
+            () -> {
+                loadingFragment.hide();
+                UiUtils.showMessage(findViewById(R.id.loginMessage), "Server not found !");
+            }
+        );
+    }
+
+    private void phaseSendCredentials() {
+        loadingFragment.animateProgress(50f, 75f, INIT_WAITING_TIME, "Sending credentials !", null, () -> {
+            new Thread(() -> {ClientManager.getInstance().login(email, password);}).start();
+        });
+    }
+
+
+    // -------------------------
+    // register execution
+    // -------------------------
+    private void phaseConnectToServerForRegister() {
+        loadingFragment.animateProgress(0f, 25f, INIT_WAITING_TIME, "Connecting to the server...", null, () -> {
+            ClientManager.getInstance().getKryoManager().start();
+            ClientManager.getInstance().getKryoManager().connect(
+                clientManager.getIP(),
+                clientManager.getPort(),
+                () -> runOnUiThread(this::phaseConnectionSuccessForRegister),
+                () -> runOnUiThread(this::phaseConnectionFailureForRegister)
+            );
+        });
+    }
+
+    private void phaseConnectionSuccessForRegister() {
+        loadingFragment.animateProgress(25f, 50f, INIT_WAITING_TIME, "Connected !", null, this::phaseSendRegisterCredentials);
+    }
+
+    private void phaseConnectionFailureForRegister() {
+        //ClientManager.getInstance().closeSession();
+        loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
+        loadingFragment.animateProgress(50f, 100f, INIT_WAITING_TIME, "Server not found !", null,
+            () -> {
+                loadingFragment.hide();
+                UiUtils.showMessage(findViewById(R.id.loginMessage), "Server not found !");
+            }
+        );
+    }
+
+    // Ici on envoie les credentials pour l'inscription
+    private void phaseSendRegisterCredentials() {
+        loadingFragment.animateProgress(50f, 75f, INIT_WAITING_TIME, "Sending registration data...", null, () -> {
+            new Thread(() -> {
+                ClientManager.getInstance().register(email, username, password, confirmPassword);
+            }).start();
+        });
+    }
+
+
+
+    /**
+     * This function set the content of the ClientListener.
+     * We tell him what to do if we encounter a AuthRequest object.
+     */
+    public void initListener(){
+
+        // Init of the listenr / destroy artifacts from a possible previous use
+        ClientListener myListener = ClientListener.getInstance();
+        myListener.clearCallbacks();
+        myListener.setCurrentActivity(this); //Important, we init the current activity
+
+        // The content of the listener for the AuthRequest object
+        // Thoses behaviour are defined here because only used here
+        myListener.onMessage(AuthRequest.class, authRequest  -> {
+            String message = authRequest.getKeys().getOrDefault("message","Error");
+
+            switch (authRequest.getMode()){
+                case LOGIN_SUCCESS:
+                case REGISTER_SUCCESS:
+                    ClientManager.getInstance().buildSession(authRequest);
+                    loadingFragment.animateProgress(75f, 100f, INIT_WAITING_TIME, "Success !", null,
+                        () -> {
+                            ClientManager.getInstance().buildSession(authRequest);
+                            RedirectUtils.simpleRedirectAndClearStack(this, HomeActivity.class);
+                        }
+                    );
+                    return;
+                case REGISTER_FAIL:
+                    loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
+                    loadingFragment.animateProgress(75f, 100f, INIT_WAITING_TIME, "Error : " +message, null,
+                        () -> {
+                            //ClientManager.getInstance().closeSession();
+                            UiUtils.showMessage(findViewById(R.id.registerMessage), message);
+                            loadingFragment.hide();
+                        }
+                    );
+                    break;
+                case LOGIN_FAIL:
+                    loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
+                    loadingFragment.animateProgress(75f, 100f, INIT_WAITING_TIME, "Error : " + message, null,
+                        () -> {
+                            //ClientManager.getInstance().closeSession();
+                            UiUtils.showMessage(findViewById(R.id.loginMessage), message);
+                            loadingFragment.hide();
+                        }
+                    );
+                    break;
+
+                default:
+                    loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
+                    loadingFragment.animateProgress(75f, 100f, INIT_WAITING_TIME, "Unexpected responses !", null,
+                        () -> {
+                            //ClientManager.getInstance().closeSession();
+                            loadingFragment.hide();
+                        }
+                    );
+            }
+        }, true);
+    }
 
 
 
@@ -399,6 +536,25 @@ public class LoginActivity extends AppCompatActivity {
                 UiUtils.addBottomDots(LoginActivity.this, dotsLayout, position, pageCount);
             }
         });
+    }
+
+    private void setupLoadingFragment(){
+        loadingFragment = new LoadingFragment();
+        getSupportFragmentManager().beginTransaction()
+            .add(R.id.loadingOverlay, loadingFragment, "LOADING_FRAGMENT")
+            .commit();
+        FrameLayout overlay = findViewById(R.id.loadingOverlay);
+        overlay.setOnTouchListener((v, event) -> overlay.getVisibility() == View.VISIBLE);
+    }
+
+    private void hideErrors(){
+        RegisterFragment registerFragment = (RegisterFragment) adapter.getFragment(0);
+        LoginFragment loginFragment = (LoginFragment) adapter.getFragment(1);
+        ServerFragment serverFragment = (ServerFragment) adapter.getFragment(2);
+
+        registerFragment.hideError();
+        loginFragment.hideError();
+        serverFragment.hideError();
     }
 
 

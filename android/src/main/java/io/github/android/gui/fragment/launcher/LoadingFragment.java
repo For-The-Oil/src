@@ -1,14 +1,23 @@
 package io.github.android.gui.fragment.launcher;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import io.github.android.config.UiConfig;
 import io.github.fortheoil.R;
 import io.github.android.gui.animation.AnimatorBar;
 
@@ -66,20 +75,56 @@ public class LoadingFragment extends Fragment {
     }
 
     /**
-     * Affiche le fragment (overlay).
+     * Affiche le fragment en rendant visible son conteneur.
      */
-    public void show(View parent) {
-        if (getView() != null) {
-            getView().setVisibility(View.VISIBLE);
+    public void show() {
+        if (getActivity() != null) {
+            View container = getActivity().findViewById(R.id.loadingOverlay);
+            if (container != null) container.setVisibility(View.VISIBLE);
         }
     }
 
     /**
-     * Masque le fragment (overlay).
+     * Masque le fragment en rendant invisible son conteneur.
      */
     public void hide() {
-        if (getView() != null) {
-            getView().setVisibility(View.GONE);
+        if (getActivity() != null) {
+            View container = getActivity().findViewById(R.id.loadingOverlay);
+            if (container != null) container.setVisibility(View.GONE);
         }
     }
+
+    public void setColor(@ColorInt int color) {
+       splashProgress.setProgressTintList(ColorStateList.valueOf(color));
+    }
+
+    public void setGradient(int startColor, int endColor) {
+        Drawable drawable = splashProgress.getProgressDrawable();
+
+        if (drawable instanceof LayerDrawable) {
+            LayerDrawable layerDrawable = (LayerDrawable) drawable;
+
+            GradientDrawable gradient = new GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{startColor, endColor}
+            );
+            gradient.setCornerRadius(40f);
+
+            ClipDrawable clip = new ClipDrawable(gradient, Gravity.LEFT, ClipDrawable.HORIZONTAL);
+
+            layerDrawable.setDrawableByLayerId(android.R.id.progress, clip);
+        }
+    }
+
+
+
+    public void setDefaultGradient(){
+        setGradient(UiConfig.LIGHT_GREEN, UiConfig.DARK_GREEN);
+    }
+
+
+
+
+
+
 }

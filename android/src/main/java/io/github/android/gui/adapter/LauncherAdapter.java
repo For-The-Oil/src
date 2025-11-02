@@ -26,7 +26,6 @@ public class LauncherAdapter extends FragmentStateAdapter {
             loginFragment.setArguments(args);
         }
 
-
         fragments = new Fragment[] {
             new RegisterFragment(),
             loginFragment,

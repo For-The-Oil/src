@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import io.github.server.data.network.ServerNetwork;
 import io.github.server.data.network.UserData;
@@ -47,6 +50,8 @@ public final class ClientAuthManager {
 
     /** Database manager for interacting with the persistent user store. */
     private final DatabaseManager myDatabase = DatabaseManager.getInstance();
+
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     /**
      * Returns the singleton instance of the {@link ClientAuthManager}.
@@ -108,7 +113,7 @@ public final class ClientAuthManager {
             System.out.println("Invalid credentials!");
             response.put("message", "Invalid credentials!");
             respondToClient(connection, false, response, AuthModeType.LOGIN_FAIL);
-            connection.close(); // We close the connection after sending why the client is rejected
+            scheduler.schedule(connection::close, 200, TimeUnit.MILLISECONDS);
             return;
         }
 
@@ -222,7 +227,7 @@ public final class ClientAuthManager {
             System.err.println(e);
             response.put("message", e.toString());
             respondToClient(connection, false, response, AuthModeType.REGISTER_FAIL);
-            connection.close(); // We close the connection after sending why the client is rejected
+            scheduler.schedule(connection::close, 200, TimeUnit.MILLISECONDS);
         }
 
     }

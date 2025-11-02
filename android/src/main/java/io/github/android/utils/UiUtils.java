@@ -14,8 +14,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import io.github.android.activity.BaseActivity;
+import io.github.android.gui.animation.AnimatorBar;
 import io.github.fortheoil.R;
 
 /**
@@ -82,6 +85,9 @@ public final class UiUtils {
     }
 
 
+    public static void animateActivityChange(BaseActivity activity){
+        activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top);
+    }
 
 
     // -----------------------------

@@ -7,6 +7,8 @@ import static io.github.android.utils.OtherUtils.initClientConfig;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -14,7 +16,9 @@ import androidx.annotation.Nullable;
 
 import java.util.HashMap;
 
+import io.github.android.config.UiConfig;
 import io.github.android.gui.animation.AnimatorBar;
+import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.utils.PrefsUtils;
@@ -25,8 +29,7 @@ import io.github.shared.local.data.requests.AuthRequest;
 public class SplashActivity extends BaseActivity {
 
     private ClientManager clientManager;
-    private ProgressBar splashProgress;
-    private AnimatorBar bar;
+    private LoadingFragment loadingFragment;
 
     private String email;
     private String password;
@@ -35,30 +38,29 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.splash_screen);
+        setContentView(R.layout.splash_activity);
 
         clientManager = ClientManager.getInstance();
         this.clientManager.setCurrentContext(this);
 
         initClientConfig(this);
         initListener();
-        initUI();
-
-        handleClassicConnectionStep();
+        setupLoadingFragment();
     }
 
     public void handleClassicConnectionStep() {
+        loadingFragment.show();
         phaseInit();
     }
 
     private void phaseInit() {
-        animateProgress(0f, 12f, INIT_WAITING_TIME, "Initialisation", null, this::phaseCheckAutoLogin);
+        loadingFragment.animateProgress(0f, 12f, INIT_WAITING_TIME, "Initialisation", null, this::phaseCheckAutoLogin);
     }
 
     private void phaseCheckAutoLogin() {
         if (!isAutoLoginOn(getApplicationContext())) {
-            animateProgress(12f, 100f, INIT_WAITING_TIME, "Loading connection page", null, () -> {
-                RedirectUtils.withRedirectToLauncher(this, null).safeKill();
+            loadingFragment.animateProgress(12f, 100f, INIT_WAITING_TIME, "Loading connection page", null, () -> {
+                RedirectUtils.simpleRedirectAndClearStack(this, LoginActivity.class);
             });
         } else {
             phaseCheckSavedCredentials();
@@ -66,11 +68,12 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void phaseCheckSavedCredentials() {
-        animateProgress(12f, 25f, INIT_WAITING_TIME, "Checking saved credentials...", null, () -> {
+        loadingFragment.animateProgress(12f, 25f, INIT_WAITING_TIME, "Checking saved credentials...", null, () -> {
             if (!checkSavedCredentials(getApplicationContext())) {
-                animateProgress(25f, 100f, INIT_WAITING_TIME, "Loading connection page", null,
+                loadingFragment.animateProgress(25f, 100f, INIT_WAITING_TIME, "Loading connection page", null,
                     () -> {
-                        RedirectUtils.withRedirectToLauncher(this, "Invalid credentials").safeKill();}
+                        RedirectUtils.simpleRedirectAndClearStack(this, LoginActivity.class, "login_error", "Invalid Credentials");
+                }
                 );
             } else {
                 phaseConnectToServer();
@@ -79,7 +82,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void phaseConnectToServer() {
-        animateProgress(25f, 50f, INIT_WAITING_TIME, "Connecting to the server...", null, () -> {
+        loadingFragment.animateProgress(25f, 50f, INIT_WAITING_TIME, "Connecting to the server...", null, () -> {
             ClientManager.getInstance().getKryoManager().start();
             ClientManager.getInstance().getKryoManager().connect(
                 clientManager.getIP(),
@@ -91,27 +94,22 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void phaseConnectionSuccess() {
-        animateProgress(50f, 75f, INIT_WAITING_TIME, "Connected !", null, this::phaseSendCredentials);
+        loadingFragment.animateProgress(50f, 75f, INIT_WAITING_TIME, "Connected !", null, this::phaseSendCredentials);
     }
 
     private void phaseConnectionFailure() {
         ClientManager.getInstance().closeSession();
-        animateProgress(50f, 100f, INIT_WAITING_TIME, "Server not found !", null,
-            () -> RedirectUtils.withRedirectToLauncher(this, "Server not found...").safeKill()
+        loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
+        loadingFragment.animateProgress(50f, 100f, INIT_WAITING_TIME, "Server not found !", null,
+            () -> RedirectUtils.simpleRedirectAndClearStack(this, LoginActivity.class, "login_error", "Server not found")
         );
     }
 
     private void phaseSendCredentials() {
-        animateProgress(75f, 85f, INIT_WAITING_TIME, "Sending credentials !", null, () -> {
+        loadingFragment.animateProgress(75f, 85f, INIT_WAITING_TIME, "Sending credentials !", null, () -> {
             new Thread(() -> {ClientManager.getInstance().login(email, password);}).start();
         });
     }
-
-
-
-
-
-
 
 
 
@@ -151,20 +149,22 @@ public class SplashActivity extends BaseActivity {
 
             switch (authRequest.getMode()){
                 case LOGIN_FAIL:
+                    loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
                     ClientManager.getInstance().closeSession();
-                    animateProgress(85f, 100f, INIT_WAITING_TIME, "Bad credentials !", null,
-                        () -> RedirectUtils.withRedirectToLauncher(this, message).safeKill()
+                    loadingFragment.animateProgress(85f, 100f, INIT_WAITING_TIME, "Bad credentials !", null,
+                        () -> RedirectUtils.simpleRedirectAndClearStack(this, LoginActivity.class, "login_error", message)
                     );
                     break;
                 case LOGIN_SUCCESS:
                     ClientManager.getInstance().buildSession(authRequest);
-                    animateProgress(85f, 100f, INIT_WAITING_TIME, "Success !", null,
-                        () -> RedirectUtils.withRedirectToMainMenu(this).safeKill()
+                    loadingFragment.animateProgress(85f, 100f, INIT_WAITING_TIME, "Success !", null,
+                        () -> RedirectUtils.simpleRedirectAndClearStack(this, HomeActivity.class)
                     );
                     break;
                 default:
-                    animateProgress(85f, 100f, INIT_WAITING_TIME, "Unexpected responses !", null,
-                        () -> RedirectUtils.withRedirectToLauncher(this, message).safeKill()
+                    loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
+                    loadingFragment.animateProgress(85f, 100f, INIT_WAITING_TIME, "Unexpected responses !", null,
+                        () -> RedirectUtils.simpleRedirectAndClearStack(this, LoginActivity.class, "login_error", message)
                     );
             }
         }, true);
@@ -177,38 +177,15 @@ public class SplashActivity extends BaseActivity {
     // UI Intern Logic
     // -----------
 
-    /**
-     * Init the UI interface and save in the application all the usefull data.
-     */
-    private void initUI() {
-        TextView splashText = findViewById(R.id.splashText);
-        splashProgress = findViewById(R.id.splashProgress);
-        this.bar = new AnimatorBar(splashProgress, splashText);
+    private void setupLoadingFragment(){
+        loadingFragment = new LoadingFragment();
+        getSupportFragmentManager().beginTransaction()
+            .add(R.id.loadingOverlay, loadingFragment, "LOADING_FRAGMENT")
+            .commit();
+        FrameLayout overlay = findViewById(R.id.loadingOverlay);
+        overlay.setOnTouchListener((v, event) -> overlay.getVisibility() == View.VISIBLE);
+        overlay.post(this::handleClassicConnectionStep);
     }
-
-    /**
-     * Function that animate the progress of an animation bar.
-     * @param start
-     * @param end
-     * @param duration
-     * @param message
-     * @param onStart
-     * @param onEnd
-     */
-    public void animateProgress(float start, float end, long duration, String message, @Nullable Runnable onStart, @Nullable Runnable onEnd) {
-        bar.addStep(new AnimatorBar.Step(
-            splashProgress,
-            "progress",
-            new float[]{start, end},
-            duration,
-            message,
-            onStart,
-            onEnd,
-            null
-        )).run();
-    }
-
-
 
 }
 
