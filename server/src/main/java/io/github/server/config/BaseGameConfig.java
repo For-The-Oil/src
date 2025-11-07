@@ -19,6 +19,7 @@ public final class BaseGameConfig {
     public static float DAMAGE_COEF;
     public static float ARMOR_COEF;
     public static float BUILDING_COST_COEF;
+    public static final float FIXED_TIME_STEP = 16.666f;
 
     public static final ArrayList<GameModeType> ALLOWED_GAME_MOD = new ArrayList<>(Arrays.asList(
         CLASSIC, ALPHA_TEST

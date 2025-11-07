@@ -131,7 +131,7 @@ public final class CliHelpers {
         }
 
         System.out.println("Stopping game: " + gameUUID + " (Thread: " + launcher.getName() + ")");
-        launcher.stopGame();  // méthode à implémenter dans GameLauncher
+        launcher.stopGame();
 
         // Supprimer de la map pour ne plus la considérer active
         net.getGameMapByUUID().remove(gameUUID);
