@@ -98,10 +98,6 @@ public final class SnapshotFactory {
         return entity;
     }
 
-
-
-
-
     public static EntitySnapshot fromEntity(World world, Entity entity) {
         NetComponent net = world.getMapper(NetComponent.class).get(entity);
         int netId = net.netId;
@@ -159,7 +155,6 @@ public final class SnapshotFactory {
                 componentSnapshots.add(new ComponentSnapshot(type, fields));
             }
         }
-
         return new EntitySnapshot(netId, entityType, componentSnapshots);
     }
 

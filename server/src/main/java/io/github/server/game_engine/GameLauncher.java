@@ -7,6 +7,7 @@ import com.artemis.World;
 import io.github.server.config.BaseGameConfig;
 import io.github.server.data.Game;
 import io.github.shared.local.data.instructions.Instruction;
+import io.github.shared.local.shared_engine.manager.InstructionManager;
 
 public class GameLauncher extends Thread {
 
@@ -31,12 +32,14 @@ public class GameLauncher extends Thread {
 //          Exécuter les instructions en attente
                 while (!game.isEmptyExecutionQueue()) {
                     Instruction instruction = game.getExecutionQueue().poll();
-//                    executeInstruction(instruction);
+                    if(instruction == null)continue;
+                    InstructionManager.executeInstruction(instruction);
                 }
 
 //          Mise à jour ECS
                 game.getWorld().setDelta(FIXED_TIME_STEP / 1000f); // converti en secondes pour Artémis
                 game.getWorld().process();
+
                 game.setAccumulator(game.getAccumulator() - FIXED_TIME_STEP);
             }
 
@@ -46,7 +49,6 @@ public class GameLauncher extends Thread {
         System.out.println("Game loop stopped for game: " + game.getGAME_UUID());
     }
 
-
     private float getTimeSinceLastFrame() {
         long now = System.currentTimeMillis();
         float delta = now - game.getLastTime();
@@ -54,8 +56,6 @@ public class GameLauncher extends Thread {
         return delta;
     }
 
-
-    /** Méthode pour arrêter proprement la game */
     public void stopGame() {
         game.stopRunning();
     }
