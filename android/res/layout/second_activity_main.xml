@@ -114,6 +114,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Play"
+            android:onClick="play"
             android:textSize="20sp"
             android:textStyle="bold"
             android:backgroundTint="@android:color/holo_green_dark"

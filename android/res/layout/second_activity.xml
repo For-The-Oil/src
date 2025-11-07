@@ -33,4 +33,10 @@
         android:background="#80000000"
         android:visibility="gone" />
 
+    <FrameLayout
+        android:id="@+id/matchmakingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

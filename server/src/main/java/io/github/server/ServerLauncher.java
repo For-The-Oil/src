@@ -12,7 +12,10 @@ import io.github.server.server_engine.kryolistener.AdminListener;
 import io.github.server.server_engine.kryolistener.AuthListener;
 import io.github.server.server_engine.kryolistener.DeckListener;
 import io.github.server.server_engine.kryolistener.MatchMakingListener;
+import io.github.server.server_engine.utils.CliHelpers;
 import io.github.shared.local.data.network.KryoRegistry;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Main Class of the server
@@ -89,7 +92,77 @@ public class ServerLauncher {
 
         this.kryoMotherServer.start();
 
+        if (System.console() == null) {
+            System.out.println("Console input disabled because of a lack of console input.");
+        } else {
+            startConsole();
+        }
+
+
     }
+    private void startConsole() {
+        new Thread(() -> {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Console ready. Type 'help' for available commands.");
+
+            while (true) {
+                System.out.print("> ");
+                String line = scanner.nextLine().trim();
+
+                if (line.isEmpty()) continue;
+
+                String[] parts = line.split("\\s+");
+                String command = parts[0].toLowerCase();
+
+                try {
+                    switch (command) {
+                        case "help":
+                            CliHelpers.printHelp();
+                            break;
+                        case "stats":
+                            CliHelpers.printStats();
+                            break;
+                        case "clients":
+                            CliHelpers.printClients();
+                            break;
+                        case "games":
+                            CliHelpers.printGames();
+                            break;
+                        case "matchmaking":
+                            CliHelpers.printMatchmaking();
+                            break;
+                        case "uptime":
+                            CliHelpers.printUptime();
+                            break;
+                        case "stop":
+                            System.out.println("Stopping server...");
+                            kryoMotherServer.stop();
+                            System.exit(0);
+                            break;
+                        case "stopgame":
+                            if (parts.length < 2) {
+                                System.out.println("Usage: stopgame <UUID> !");
+                                break;
+                            }
+                            try {
+                                java.util.UUID gameUUID = java.util.UUID.fromString(parts[1]);
+                                CliHelpers.stopGameByUUID(gameUUID);
+                            } catch (IllegalArgumentException e) {
+                                System.out.println("Invalid UUID format: " + parts[1]);
+                            }
+                            break;
+                        default:
+                            System.out.println("Unknown command. Type 'help' for a list.");
+                    }
+                } catch (Exception e) {
+                    System.out.println("⚠ Error while executing command: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }, "ServerConsoleThread").start();
+    }
+
+
 
     public static void main(String[] args) {
 

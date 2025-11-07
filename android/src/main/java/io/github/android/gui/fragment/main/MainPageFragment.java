@@ -96,17 +96,22 @@ public class MainPageFragment extends Fragment {
 
             switch (currentMode) {
                 case "MODE_0":
-                    myMatchManager.askMatchmaking(GameModeType.CLASSIC);
+                    myMatchManager.askMatchmaking(GameModeType.ALPHA_TEST);
                     break;
                 case "MODE_1":
-                    myMatchManager.askMatchmaking(GameModeType.TEST);
+                    myMatchManager.askMatchmaking(GameModeType.CLASSIC);
                     break;
                 case "MODE_2":
-                    myMatchManager.askMatchmaking(GameModeType.TEST1);
+                    myMatchManager.askMatchmaking(GameModeType.CLASSIC);
                     break;
                 default:
                     myMatchManager.askMatchmaking(GameModeType.CLASSIC);
             }
         });
+
+
     }
+
+
+
 }

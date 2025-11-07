@@ -58,7 +58,7 @@ import io.github.shared.local.data.gameobject.Deck;
  * @version 1.0
  * @since 2025-10
  */
-public class DatabaseManager {
+public final class DatabaseManager {
 
     /** JSON serializer/deserializer for deck data. */
     private final ObjectMapper mapper = new ObjectMapper();

@@ -1,5 +1,5 @@
 package io.github.shared.local.data.EnumsTypes;
 
 public enum MatchModeType {
-    ASK, CANCEL, FOUND, ACTUALIZE
+    ASK, CANCEL, FOUND, ACTUALIZE, CONFIRM, LEAVE
 }

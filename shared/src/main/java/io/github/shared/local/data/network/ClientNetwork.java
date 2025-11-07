@@ -12,6 +12,7 @@ public class ClientNetwork {
     private String username;
     private long lastActivityTimestamp;
     private HashMap<String, Deck> decks;
+    private Deck current;
     private String ip;
     private transient Connection connection;
 
@@ -43,7 +44,7 @@ public class ClientNetwork {
     }
 
     // === Getters & Setters ===
-    public Map<String, Deck> getDecks() {
+    public HashMap<String, Deck> getDecks() {
         return decks;
     }
 
@@ -90,4 +91,14 @@ public class ClientNetwork {
     public void setIp(String ip) {
         this.ip = ip;
     }
+
+    public Deck getCurrentDeck() {
+        return current;
+    }
+
+    public void setCurrent(Deck current) {
+        this.current = current;
+    }
+
+
 }

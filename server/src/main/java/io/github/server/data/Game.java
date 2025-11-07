@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import io.github.server.game_engine.ActionController.ActionController;
+import io.github.shared.local.data.EnumsTypes.GameModeType;
 import io.github.shared.local.data.EnumsTypes.ShapeType;
 import io.github.shared.local.data.instructions.Instruction;
 import io.github.shared.local.data.EnumsTypes.EventType;
@@ -22,6 +23,7 @@ public class Game {
     private HashMap<String, ArrayList<Player> > playerTeam;
     private ArrayList<Player> playersList;
     private ArrayList<Entity> entities;
+    private final GameModeType gameMode;
     private final ShapeType mapType;
     private Shape map;
     private MapName mapName;
@@ -33,10 +35,11 @@ public class Game {
     private ArrayList<ActionController> activeActions;
     private long time_left;  //seconds
 
-    public Game(UUID gameUuid, HashMap<String, ArrayList<Player>> playerTeam, ArrayList<Player> playersList, ShapeType mapType, EventType currentEvent, long timeLeft) {
+    public Game(UUID gameUuid, HashMap<String, ArrayList<Player>> playerTeam, ArrayList<Player> playersList, GameModeType gameMode, ShapeType mapType, EventType currentEvent, long timeLeft) {
         GAME_UUID = gameUuid;
         this.playerTeam = playerTeam;
         this.playersList = playersList;
+        this.gameMode = gameMode;
         this.currentEvent = currentEvent;
         this.time_left = timeLeft;
         this.activeActions = new ArrayList<>();
@@ -44,5 +47,73 @@ public class Game {
         this.endGame = false;
         this.mapType = mapType;
         this.map = new Shape(mapType.getShape().getTab_cells().clone());
+    }
+
+    public UUID getGAME_UUID() {
+        return GAME_UUID;
+    }
+
+    public boolean isEndGame() {
+        return endGame;
+    }
+
+    public HashMap<String, ArrayList<Player>> getPlayerTeam() {
+        return playerTeam;
+    }
+
+    public ArrayList<Player> getPlayersList() {
+        return playersList;
+    }
+
+    public ArrayList<Entity> getEntities() {
+        return entities;
+    }
+
+    public ShapeType getMapType() {
+        return mapType;
+    }
+
+    public Shape getMap() {
+        return map;
+    }
+
+    public EventType getCurrentEvent() {
+        return currentEvent;
+    }
+
+    public MapName getMapName() {
+        return mapName;
+    }
+
+    public SnapshotTracker getSnapshotTracker() {
+        return snapshotTracker;
+    }
+
+    public Queue<Instruction> getExecutionQueue() {
+        return executionQueue;
+    }
+
+    public Queue<Instruction> getHistoricQueue() {
+        return historicQueue;
+    }
+
+    public Queue<Instruction> getNetworkQueue() {
+        return networkQueue;
+    }
+
+    public ArrayList<ActionController> getActiveActions() {
+        return activeActions;
+    }
+
+    public long getTime_left() {
+        return time_left;
+    }
+
+    public void setTime_left(long time_left) {
+        this.time_left = time_left;
+    }
+
+    public GameModeType getGameMode() {
+        return gameMode;
     }
 }

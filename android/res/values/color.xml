@@ -7,4 +7,8 @@
     <color name="dot_active">#1976D2</color>     <!-- Bleu foncé -->
     <color name="dot_inactive">#BDBDBD</color>   <!-- Gris clair -->
 
+    <color name="custom_red">#E53935</color> <!-- Rouge vif -->
+    <color name="custom_red_dark">#C62828</color>   <!-- Rouge foncé -->
+    <color name="custom_red_light">#FFCDD2</color>  <!-- Rouge clair -->
+
 </resources>

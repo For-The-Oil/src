@@ -3,12 +3,17 @@ package io.github.server.server_engine.kryolistener;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import io.github.server.data.network.ServerNetwork;
+import io.github.server.server_engine.manager.ClientAuthManager;
+import io.github.server.server_engine.manager.MatchmakingManager;
 import io.github.server.server_engine.utils.PlayerChecker;
 import io.github.shared.local.data.EnumsTypes.GameModeType;
 import io.github.shared.local.data.EnumsTypes.MatchModeType;
+import io.github.shared.local.data.network.ClientNetwork;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.MatchMakingRequest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MatchMakingListener extends Listener {
@@ -26,6 +31,8 @@ public class MatchMakingListener extends Listener {
         }
     }
 
+    
+
 
 
 
@@ -39,6 +46,10 @@ public class MatchMakingListener extends Listener {
 
         GameModeType mode = req.getGameMode();
         MatchModeType matchType = req.getCommand();
+
+        System.out.println(" " + connection.getRemoteAddressTCP().toString() + " "+ req.getCommand() + " "+ req.getGameMode());
+
+        //TODO : We must check if the mode given by the player is correct
 
         switch (matchType) {
             case ASK:
@@ -54,14 +65,12 @@ public class MatchMakingListener extends Listener {
         }
     }
 
-    private void addToQueue(Connection connection, GameModeType mode) {
-        // TODO : logique serveur pour stocker le joueur dans une file selon le mode
-        System.out.println("Ajout à la queue : " + connection.getID() + " Mode: " + mode);
+    public void addToQueue(Connection connection, GameModeType mode) {
+        MatchmakingManager.getInstance().addToQueue(connection, mode);
     }
 
     private void removeFromQueue(Connection connection, GameModeType mode) {
-        // TODO : logique serveur pour retirer le joueur de la file
-        System.out.println("Retiré de la queue : " + connection.getID() + " Mode: " + mode);
+        MatchmakingManager.getInstance().removeFromQueue(connection, mode);
     }
 
 

@@ -2,7 +2,10 @@ package io.github.core.client_engine.factory;
 
 import java.util.HashMap;
 import io.github.shared.local.data.EnumsTypes.AuthModeType;
+import io.github.shared.local.data.EnumsTypes.GameModeType;
+import io.github.shared.local.data.EnumsTypes.MatchModeType;
 import io.github.shared.local.data.requests.AuthRequest;
+import io.github.shared.local.data.requests.MatchMakingRequest;
 
 /**
  * <h1>RequestFactory</h1>
@@ -44,6 +47,23 @@ public class RequestFactory {
         keys.put("password2", password2);
         return new AuthRequest(AuthModeType.REGISTER, keys);
     }
+
+
+    public static MatchMakingRequest createAskMatchmakingRequest(GameModeType mode, HashMap<String, String> key){
+        return createMatchmakingRequest(mode, MatchModeType.ASK, key);
+    }
+
+    public static MatchMakingRequest createCancelMatchmakingRequest(GameModeType mode, HashMap<String, String> key){
+        return createMatchmakingRequest(mode, MatchModeType.CANCEL, key);
+    }
+
+    public static MatchMakingRequest createMatchmakingRequest(GameModeType mode, MatchModeType type, HashMap<String, String> key){
+        return new MatchMakingRequest(type,mode, key);
+    }
+
+
+
+
 
     // Plus tard tu pourras ajouter d'autres méthodes pour GameRequest, DeckRequest, etc.
 }

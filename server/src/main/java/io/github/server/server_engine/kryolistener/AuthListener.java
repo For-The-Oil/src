@@ -92,12 +92,19 @@ public class AuthListener extends Listener {
 
             // Supprime le client de la liste
             ServerNetwork.getInstance().getAuthClientNetworkList().remove(disconnectedClient);
+
+            // Supprime également le client de toutes les listes matchmaking
+            ServerNetwork.getInstance().getMatchmakingMap().forEach((mode, clients) -> {
+                if (clients.remove(disconnectedClient)) {
+
+                    System.out.println("Removed client from matchmaking for mode: " + mode);
+                }
+            });
         }
 
-        System.out.println("Remaining clients: " +
+        System.out.println("Remaining auth clients: " +
             ServerNetwork.getInstance().getAuthClientNetworkList().size());
     }
-
 
 
     /**

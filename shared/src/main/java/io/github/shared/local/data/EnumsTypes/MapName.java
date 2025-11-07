@@ -1,5 +1,20 @@
 package io.github.shared.local.data.EnumsTypes;
 
 public enum MapName {
-    BASIC, BEACH, VOLCAN, GLACIER, TRAINING_GROUND, WASTELAND, BETA_TEST
+    BASIC(ShapeType.test),
+    BEACH(ShapeType.test),
+    VOLCAN(ShapeType.test),
+    GLACIER(ShapeType.test),
+    TRAINING_GROUND(ShapeType.test),
+    WASTELAND(ShapeType.test),
+    BETA_TEST(ShapeType.test);
+
+    private final ShapeType shapeType;
+    MapName(ShapeType shapeType) {
+        this.shapeType = shapeType;
+    }
+
+    public ShapeType getShapeType() {
+        return shapeType;
+    }
 }

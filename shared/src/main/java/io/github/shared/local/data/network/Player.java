@@ -1,5 +1,7 @@
 package io.github.shared.local.data.network;
 
+import com.esotericsoftware.kryonet.Connection;
+
 import io.github.shared.local.data.EnumsTypes.RessourcesType;
 import io.github.shared.local.data.gameobject.Deck;
 

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Container LibGDX -->
+    <FrameLayout
+        android:id="@+id/libgdxContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <!-- Barre d'informations / autres éléments Android au-dessus ou en dessous -->
+    <LinearLayout
+        android:id="@+id/uiContainer"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:padding="16dp">
+
+        <!-- Exemple : score, boutons, etc. -->
+        <TextView
+            android:id="@+id/scoreText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Score: 0"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/actionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Action" />
+    </LinearLayout>
+
+    <!-- Overlay pour chargement / resynchro -->
+    <include
+        android:id="@+id/loadingOverlay"
+        layout="@layout/splash_screen"
+        android:visibility="gone" />
+</FrameLayout>

@@ -411,16 +411,47 @@ public final class ClientAuthManager {
 
 
 
-
-
-
-
-
-
-
-
     /** Removes a connected client from the authenticated list (TODO: implementation pending). */
-    public void removeClient() { /* TODO: implement client removal */ }
+    public void removeClient(Connection connection) {
+        if (connection == null) return;
+        ServerNetwork serverNetwork = ServerNetwork.getInstance();
+        ClientNetwork client = serverNetwork.getClientByConnection(connection);
+        removeClient(connection,client);
+    }
+
+    public void removeClient(String username) {
+        if (username == null || username.isEmpty()) return;
+        ServerNetwork serverNetwork = ServerNetwork.getInstance();
+        ClientNetwork client = serverNetwork.getClientByUsername(username);
+        removeClient(client.getConnection(), client);
+    }
+
+    public void removeClient(UUID uuid) {
+        if (uuid == null || uuid.toString().isEmpty()) return;
+        ServerNetwork serverNetwork = ServerNetwork.getInstance();
+        ClientNetwork client = serverNetwork.getClientByUUID(uuid);
+        removeClient(client.getConnection(), client);
+    }
+
+    private void removeClient(Connection connection,ClientNetwork client){
+        ServerNetwork serverNetwork = ServerNetwork.getInstance();
+        if (client != null) {
+            // Retire le client de la liste
+            serverNetwork.getAuthClientNetworkList().remove(client);
+
+            // Ferme la connexion TCP
+            try {
+                connection.close();
+            } catch (Exception e) {
+                System.err.println("Erreur lors de la fermeture de la connexion pour " + client.getUsername());
+                e.printStackTrace();
+            }
+
+            System.out.println("Client déconnecté : " + client.getUsername() + " (" + connection.getID() + ")");
+        }
+    }
+
+
 
     /** Deletes a user account by email (TODO: implementation pending). */
     public void deleteClient(String email) { /* TODO: implement client deletion from DB */ }
