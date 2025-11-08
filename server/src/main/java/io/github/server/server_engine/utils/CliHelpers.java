@@ -70,7 +70,7 @@ public final class CliHelpers {
             // Infos principales du jeu
             System.out.println(indentGame + "GameLauncher Thread: " + launcher.getName());
             System.out.println(indentGame + "Game UUID: " + game.getGAME_UUID());
-            System.out.println(indentGame + "Map: " + game.getMapType());
+            System.out.println(indentGame + "Map: " + game.getMapName());
             System.out.println(indentGame + "Current Event: " + game.getCurrentEvent());
             System.out.println(indentGame + "Time Left: " + game.getTime_left() + "s");
 

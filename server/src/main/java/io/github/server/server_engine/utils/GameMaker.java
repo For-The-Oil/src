@@ -48,9 +48,7 @@ public final class GameMaker {
         playerTeam.put("TEAM_DEFAULT", teamDefault);
 
         // Choix d'une map aléatoire pour ce GameMode
-        MapName mapName = mode.getAssociated_map()
-            .get(new Random().nextInt(mode.getAssociated_map().size()));
-        ShapeType mapType = mapName.getShapeType();
+        MapName mapName = mode.getAssociated_map().get(new Random().nextInt(mode.getAssociated_map().size()));
 
         // Événement initial
         EventType eventType = EventType.START;
@@ -59,7 +57,7 @@ public final class GameMaker {
         long timeLeft = mode.getMAX_GAME_TIME();
 
         // Création de la Game
-        Game game = new Game(UUID.randomUUID(), playerTeam, playerList, mode, mapType, eventType, timeLeft);
+        Game game = new Game(UUID.randomUUID(), playerTeam, playerList, mode, mapName, eventType, timeLeft);
 
         // Ajout de la Game dans le HashMap par GameModeType
         ServerNetwork.getInstance().getGameModeArrayListOfGames().computeIfAbsent(mode, k -> new ArrayList<Game>()).add(game);
