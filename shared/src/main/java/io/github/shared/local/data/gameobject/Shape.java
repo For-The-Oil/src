@@ -1,7 +1,5 @@
 package io.github.shared.local.data.gameobject;
 
-import com.artemis.Component;
-
 public class Shape {
     private final int width;
     private final int height;

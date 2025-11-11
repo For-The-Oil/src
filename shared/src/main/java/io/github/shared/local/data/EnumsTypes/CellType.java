@@ -40,7 +40,7 @@ public enum CellType {
     }
 
     public boolean isTraversable(EntityType entityType) {
-        return !(getWalkable(entityType) > 0) || !(getFlyable(entityType) > 0) || !(getSwimmable(entityType) > 0);
+        return (getWalkable(entityType) > 0) || (getFlyable(entityType) > 0) || (getSwimmable(entityType) > 0);
     }
 
     public float getMovementCost(EntityType entityType){

@@ -7,9 +7,9 @@ import io.github.shared.local.data.gameobject.Shape;
 
 public enum ShapeType {
     test(new Shape(new Cell[][]{
-        {new Cell(VOID),new Cell(VOID),new Cell(VOID)},
-        {new Cell(VOID),new Cell(VOID),new Cell(VOID)},
-        {new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
+        {new Cell(ROAD),new Cell(ROAD),new Cell(VOID)},
+        {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
     }));
     //MAP1, MAP2,
     //Barrack, Factory, Garage;
