@@ -109,18 +109,6 @@ public class MapGraph implements IndexedGraph<MapNode> {
         }
         return cost*costMux;
     }
-    private ArrayList<Integer> getBuildingDestroyNetID(MapNode fromNode, int x, int y) {
-        ArrayList<Integer> netIdlst = new ArrayList<>(fromNode.getLstNetId());
-        for (int dx = 0; dx < unitSize; dx++) {
-            for (int dy = 0; dy < unitSize; dy++) {
-                Cell cell = map.getCells(x + dx, y + dy);
-                if((cell != null)&&cell.getNetId()!=null){
-                    netIdlst.add(cell.getNetId());
-                }
-            }
-        }
-        return netIdlst;
-    }
     private float buildingDestroyCost(Cell cell, ArrayList<Integer> netIdlst) {
         int netId = cell.getNetId();
         if(netIdlst.contains(netId))return 0f;
