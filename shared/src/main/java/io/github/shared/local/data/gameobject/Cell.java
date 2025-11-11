@@ -2,6 +2,7 @@ package io.github.shared.local.data.gameobject;
 
 import io.github.shared.local.data.EnumsTypes.CellEffectType;
 import io.github.shared.local.data.EnumsTypes.CellType;
+import io.github.shared.local.data.EnumsTypes.EntityType;
 
 
 /**
@@ -12,10 +13,12 @@ import io.github.shared.local.data.EnumsTypes.CellType;
 public class Cell {
     private CellType cellType;
     private CellEffectType effectType;
+    private Integer netId;
 
     public Cell(CellType cellType) {
         this.cellType = cellType;
         this.effectType = CellEffectType.NONE;
+        this.netId = null;
     }
 
     // Copy constructor
@@ -23,13 +26,13 @@ public class Cell {
         if (other == null) {
             this.cellType = CellType.VOID;
             this.effectType = CellEffectType.NONE;
+            this.netId = null;
         } else {
             this.cellType = other.cellType;
             this.effectType = other.effectType;
+            this.netId = other.netId;
         }
     }
-
-
 
     public CellType getCellType() {
         return cellType;
@@ -45,5 +48,17 @@ public class Cell {
 
     public void setEffectType(CellEffectType effectType) {
         this.effectType = effectType;
+    }
+
+    public Integer getNetId() {
+        return netId;
+    }
+
+    public void setNetId(Integer netId) {
+        this.netId = netId;
+    }
+
+    public boolean isBreakable() {
+        return cellType.isBreakable()|| this.netId != null;
     }
 }

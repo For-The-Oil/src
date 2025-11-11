@@ -13,11 +13,12 @@ import io.github.shared.local.data.EnumsTypes.MapName;
 public final class BaseGameConfig {
 
     public static int MAX_TIME;
+    public static int DESTROY_PATH_COST = 5;
     public static float GAME_SPEED;
     public static float RESSOURCE_COEF;
     public static float SPEED_COEF;
     public static float DAMAGE_COEF;
-    public static float ARMOR_COEF;
+    public static float ARMOR_COEF = 0.5f;
     public static float BUILDING_COST_COEF;
     public static final float FIXED_TIME_STEP = 16.666f;
 

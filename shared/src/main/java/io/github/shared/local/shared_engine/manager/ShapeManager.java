@@ -49,6 +49,7 @@ public class ShapeManager {
                 // Copy only if both are non-VOID
                 if (srcType != CellType.VOID && dstType != CellType.VOID) {
                     dst.setCellType(srcType);
+                    dst.setNetId(src.getNetId());
                 }
             }
         }

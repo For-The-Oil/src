@@ -1,19 +1,23 @@
 package io.github.shared.local.data.EnumsTypes;
 
 public enum WeaponType {
-    test(Type.Melee,1,1,1);
+    test(Type.Melee,1,1,1,1);
     //RIFLE(Type.Range), SHOTGUN(Type.Range), BAZOOKA(Type.Range),
     //SWORD(Type.Melee), SPEAR(Type.Melee), CHAINSAW(Type.Melee);
     private final Type type;
     private final int damage;
+    private final int armorPenetration;
     private final float cooldown;
     private final float reach;
+    private final ProjectileType projectileType;
 
-    WeaponType(Type type, int damage, float cooldown, float reach) {
+    WeaponType(Type type, int damage, int armorPenetration, float cooldown, float reach) {
         this.type = type;
         this.damage = damage;
+        this.armorPenetration = armorPenetration;
         this.cooldown = cooldown;
         this.reach = reach;
+        this.projectileType = null;
     }
 
     public Type getType() {
@@ -30,6 +34,14 @@ public enum WeaponType {
 
     public float getReach() {
         return reach;
+    }
+
+    public ProjectileType getProjectileType() {
+        return projectileType;
+    }
+
+    public int getArmorPenetration() {
+        return armorPenetration;
     }
 
     public enum Type{

@@ -3,19 +3,22 @@ package io.github.shared.local.data.EnumsTypes;
 import java.util.HashMap;
 
 public enum CellType {
-    VOID(0f,0f,0f,new HashMap<>()),
-    GRASS(1f,1f,0f,new HashMap<>()),
-    ROAD(1f,1f,0f,new HashMap<>()),
-    WATER(0f,0f,1f,new HashMap<>());
+    VOID(0f,0f,0f,new HashMap<>(),false),
+    GRASS(1f,1f,0f,new HashMap<>(),false),
+    ROAD(1f,1f,0f,new HashMap<>(),false),
+    WATER(0f,0f,1f,new HashMap<>(),false);
     private final float walkable;
     private final float flyable;
     private final float swimmable;
     public final HashMap<EntityType, Float> cellStats;
-    CellType(float walkable, float flyable, float swimmable, HashMap<EntityType, Float> cellStats) {
+    private final boolean breakable;
+
+    CellType(float walkable, float flyable, float swimmable, HashMap<EntityType, Float> cellStats, boolean breakable) {
         this.walkable = walkable;
         this.flyable = flyable;
         this.swimmable = swimmable;
         this.cellStats = cellStats;
+        this.breakable = breakable;
     }
 
     public float getWalkable(EntityType entityType) {
@@ -36,15 +39,15 @@ public enum CellType {
         return swimmable;
     }
 
-    public boolean isWalkable() {
-        return this.walkable > 0;
+    public boolean isTraversable(EntityType entityType) {
+        return !(getWalkable(entityType) > 0) || !(getFlyable(entityType) > 0) || !(getSwimmable(entityType) > 0);
     }
 
-    public boolean isFlyable() {
-        return this.flyable > 0;
+    public float getMovementCost(EntityType entityType){
+        return Math.max(getWalkable(entityType),Math.max(getFlyable(entityType),getSwimmable(entityType)));
     }
 
-    public boolean isSwimmable(){
-        return this.swimmable > 0;
+    public boolean isBreakable() {
+        return breakable;
     }
 }

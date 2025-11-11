@@ -33,6 +33,9 @@ public class Shape {
         }
     }
 
+    public boolean isValidPosition(int x, int y) {
+        return x >= 0 && y >= 0 && x < width && y < height;
+    }
 
     public int getWidth() {
         return width;
