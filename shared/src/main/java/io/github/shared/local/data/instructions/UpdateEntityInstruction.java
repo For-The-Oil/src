@@ -11,10 +11,13 @@ public class UpdateEntityInstruction extends Instruction{
     public UpdateEntityInstruction(){}
     public UpdateEntityInstruction(long timestamp) {
         super(timestamp);
-        this.toUpdate = new ArrayList<EntitySnapshot>();
     }
 
     public ArrayList<EntitySnapshot> getToUpdate() {
         return toUpdate;
+    }
+
+    public void setToUpdate(ArrayList<EntitySnapshot> toUpdate) {
+        this.toUpdate = toUpdate;
     }
 }

@@ -22,7 +22,6 @@ import io.github.shared.local.data.snapshot.EntitySnapshot;
 public class SnapshotTracker {
     private final Map<Integer, EntitySnapshot> pendingSnapshots = new HashMap<>();
 
-
     public void markComponentModified(World world, Entity entity, Class<? extends Component> componentClass) {
         NetComponent net = world.getMapper(NetComponent.class).get(entity);
         int entityId = net.netId;

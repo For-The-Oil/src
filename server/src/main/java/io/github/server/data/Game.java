@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import io.github.server.game_engine.ActionController.ActionController;
 import io.github.server.game_engine.EcsServerEngine;
 import io.github.shared.local.data.EnumsTypes.GameModeType;
-import io.github.shared.local.data.EnumsTypes.ShapeType;
+import io.github.shared.local.data.IGame;
 import io.github.shared.local.data.instructions.Instruction;
 import io.github.shared.local.data.EnumsTypes.EventType;
 import io.github.shared.local.data.EnumsTypes.MapName;
@@ -20,7 +20,7 @@ import io.github.shared.local.data.network.Player;
 import io.github.shared.local.data.gameobject.Shape;
 import io.github.server.game_engine.SnapshotTracker;
 
-public class Game {
+public class Game implements IGame {
     private final UUID GAME_UUID;
     private boolean running;
     private final World world; // Artémis ECS
@@ -60,34 +60,42 @@ public class Game {
         this.map = new Shape(mapName.getShapeType().getShape()); // deep copy via constructeur
     }
 
+    @Override
     public UUID getGAME_UUID() {
         return GAME_UUID;
     }
 
+    @Override
     public HashMap<String, ArrayList<Player>> getPlayerTeam() {
         return playerTeam;
     }
 
+    @Override
     public ArrayList<Player> getPlayersList() {
         return playersList;
     }
 
+    @Override
     public ArrayList<Entity> getEntities() {
         return entities;
     }
 
+    @Override
     public Shape getMap() {
         return map;
     }
 
+    @Override
     public EventType getCurrentEvent() {
         return currentEvent;
     }
 
+    @Override
     public void setCurrentEvent(EventType currentEvent) {
         this.currentEvent = currentEvent;
     }
 
+    @Override
     public MapName getMapName() {
         return mapName;
     }
@@ -100,14 +108,17 @@ public class Game {
         return activeActions;
     }
 
+    @Override
     public long getTime_left() {
         return time_left;
     }
 
+    @Override
     public void setTime_left(long time_left) {
         this.time_left = time_left;
     }
 
+    @Override
     public GameModeType getGameMode() {
         return gameMode;
     }
@@ -138,14 +149,17 @@ public class Game {
         return networkQueue.isEmpty();
     }
 
+    @Override
     public boolean isRunning() {
         return running;
     }
 
+    @Override
     public void stopRunning() {
         this.running = false;
     }
 
+    @Override
     public World getWorld() {
         return world;
     }
@@ -158,10 +172,12 @@ public class Game {
         this.accumulator = accumulator;
     }
 
+    @Override
     public long getLastTime() {
         return lastTime;
     }
 
+    @Override
     public void setLastTime(long lastTime) {
         this.lastTime = lastTime;
     }

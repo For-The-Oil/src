@@ -49,4 +49,12 @@ public class Player extends ClientNetwork {
     public List<Integer> getUnitsKey() {
         return unitsKey;
     }
+
+    public HashMap<RessourcesType, Integer> getRessources() {
+        return ressources;
+    }
+
+    public void setRessources(HashMap<RessourcesType, Integer> ressources) {
+        this.ressources = ressources;
+    }
 }

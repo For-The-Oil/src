@@ -2,9 +2,6 @@ package io.github.server.game_engine;
 
 import static io.github.server.config.BaseGameConfig.FIXED_TIME_STEP;
 
-import com.artemis.World;
-
-import io.github.server.config.BaseGameConfig;
 import io.github.server.data.Game;
 import io.github.shared.local.data.instructions.Instruction;
 import io.github.shared.local.shared_engine.manager.InstructionManager;
@@ -33,7 +30,7 @@ public class GameLauncher extends Thread {
                 while (!game.isEmptyExecutionQueue()) {
                     Instruction instruction = game.getExecutionQueue().poll();
                     if(instruction == null)continue;
-                    InstructionManager.executeInstruction(instruction);
+                    InstructionManager.executeInstruction(instruction,game);
                 }
 
 //          Mise à jour ECS
