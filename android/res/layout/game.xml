@@ -36,8 +36,11 @@
     </LinearLayout>
 
     <!-- Overlay pour chargement / resynchro -->
-    <include
-        android:id="@+id/loadingOverlay"
-        layout="@layout/splash_screen"
-        android:visibility="gone" />
+    <FrameLayout
+        android:id="@+id/loadingContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible" />
+
+
 </FrameLayout>

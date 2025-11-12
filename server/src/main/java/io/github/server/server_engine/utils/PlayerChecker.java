@@ -3,15 +3,20 @@ package io.github.server.server_engine.utils;
 import com.esotericsoftware.kryonet.Connection;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
+import io.github.server.data.ServerGame;
 import io.github.server.data.network.ServerNetwork;
 import io.github.server.server_engine.manager.ClientAuthManager;
+import io.github.shared.local.data.EnumsTypes.GameModeType;
 import io.github.shared.local.data.network.ClientNetwork;
+import io.github.shared.local.data.network.Player;
 
 public final class PlayerChecker {
 
 
-    public static boolean isValidToken(Connection connection, String token) {
+    public static ClientNetwork isValidToken(Connection connection, String token) {
         // Récupère la liste des clients connectés/authentifiés
         ArrayList<ClientNetwork> clients = ServerNetwork.getInstance().getAuthClientNetworkList();
 
@@ -20,19 +25,34 @@ public final class PlayerChecker {
             if (client.getConnection().equals(connection)) {
                 // Vérifie que le token correspond
                 if (client.getToken() != null && client.getToken().equals(token)) {
-                    return true;
+                    return client;
                 }
-                return false; // connection ok mais token invalide
+                return null; // connection ok mais token invalide
             }
         }
         // pas trouvé => client non connecté
-        return false;
+        return null;
     }
 
 
+    public static ServerGame getGameOfClient(ClientNetwork client) {
+        if (client == null || client.getUuid() == null) return null;
 
-
-
+        UUID targetUUID = client.getUuid();
+        HashMap<GameModeType, ArrayList<ServerGame>> gameModeArrayListOfGames =  ServerNetwork.getInstance().getGameModeArrayListOfGames();
+        synchronized (gameModeArrayListOfGames) {
+            for (ArrayList<ServerGame> games : gameModeArrayListOfGames.values()) {
+                for (ServerGame game : games) {
+                    for (Player player : game.getPlayersList()) {
+                        if (player.getUuid().equals(targetUUID)) {
+                            return game;
+                        }
+                    }
+                }
+            }
+        }
+        return null; // pas trouvé
+    }
 
 
 

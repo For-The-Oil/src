@@ -2,9 +2,13 @@ package io.github.server.server_engine.factory;
 
 import java.util.HashMap;
 
+import io.github.server.data.ServerGame;
 import io.github.shared.local.data.EnumsTypes.GameModeType;
 import io.github.shared.local.data.EnumsTypes.MatchModeType;
+import io.github.shared.local.data.EnumsTypes.SyncType;
+import io.github.shared.local.data.network.ClientNetwork;
 import io.github.shared.local.data.requests.MatchMakingRequest;
+import io.github.shared.local.data.requests.SynchronizeRequest;
 
 /**
  * Factory côté serveur pour créer des MatchMakingRequest.
@@ -53,4 +57,16 @@ public class RequestFactory {
     public static MatchMakingRequest createCustomRequest(MatchModeType command, GameModeType mode, HashMap<String, String> keys) {
         return new MatchMakingRequest(command, mode, keys);
     }
+
+
+
+    public static SynchronizeRequest createSynchronizeRequest(ClientNetwork client, ServerGame game){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("game",game);
+        return new SynchronizeRequest(SyncType.FULL_RESYNC, map);
+    }
+
+
+
+
 }
