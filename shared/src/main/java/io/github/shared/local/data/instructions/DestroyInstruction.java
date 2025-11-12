@@ -5,7 +5,8 @@ import java.util.ArrayList;
 public class DestroyInstruction extends Instruction{
 
     //NetID indiquant quels entités à détruire
-    private final ArrayList<Integer> toKill;
+    private ArrayList<Integer> toKill;
+    public DestroyInstruction(){}
     public DestroyInstruction(long timestamp,ArrayList<Integer> toKill){
         super(timestamp);
         this.toKill = toKill;
