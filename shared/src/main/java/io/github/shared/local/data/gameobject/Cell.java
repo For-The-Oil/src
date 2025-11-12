@@ -34,6 +34,18 @@ public class Cell {
         }
     }
 
+    public Cell(Cell other,int netId) {
+        if (other == null) {
+            this.cellType = CellType.VOID;
+            this.effectType = CellEffectType.NONE;
+            this.netId = null;
+        } else {
+            this.cellType = other.cellType;
+            this.effectType = other.effectType;
+            this.netId = netId;
+        }
+    }
+
     public CellType getCellType() {
         return cellType;
     }

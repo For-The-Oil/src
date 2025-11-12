@@ -1,15 +1,24 @@
 package io.github.shared.local.shared_engine.factory;
 
+import java.util.UUID;
+
+import io.github.shared.local.data.EnumsTypes.Direction;
 import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.EnumsTypes.ProjectileType;
 import io.github.shared.local.data.EnumsTypes.WeaponType;
+import io.github.shared.local.data.component.BuildingMapPositionComponent;
 import io.github.shared.local.data.component.FreezeComponent;
 import io.github.shared.local.data.component.LifeComponent;
 import io.github.shared.local.data.component.MeleeAttackComponent;
+import io.github.shared.local.data.component.OnCreationComponent;
+import io.github.shared.local.data.component.PositionComponent;
 import io.github.shared.local.data.component.ProjectileAttackComponent;
 import io.github.shared.local.data.component.ProjectileComponent;
+import io.github.shared.local.data.component.ProprietyComponent;
 import io.github.shared.local.data.component.RangedAttackComponent;
 import io.github.shared.local.data.component.SpeedComponent;
+import io.github.shared.local.data.component.TargetComponent;
+import io.github.shared.local.data.component.VelocityComponent;
 
 public final class ComponentFactory {
 
@@ -72,4 +81,43 @@ public final class ComponentFactory {
         speedComponent.base_speed = entityType.getBase_speed();
         return speedComponent;
     }
+
+
+    public static PositionComponent positionComponent(float x, float y, float z) {
+        PositionComponent c = new PositionComponent();
+        c.set(x, y, z);
+        return c;
+    }
+
+    public static VelocityComponent velocityComponent(float vx, float vy) {
+        VelocityComponent c = new VelocityComponent();
+        c.set(vx, vy);
+        return c;
+    }
+
+    public static TargetComponent targetComponent(int targetId, boolean force) {
+        TargetComponent c = new TargetComponent();
+        c.set(targetId, force);
+        return c;
+    }
+
+    public static ProprietyComponent proprietyComponent(UUID player, String team) {
+        ProprietyComponent c = new ProprietyComponent();
+        c.set(player, team);
+        return c;
+    }
+
+    public static BuildingMapPositionComponent buildingMapPositionComponent(int x, int y, Direction direction) {
+        BuildingMapPositionComponent c = new BuildingMapPositionComponent();
+        c.set(x, y, direction);
+        return c;
+    }
+
+    public static OnCreationComponent onCreationComponent(int x, int y, int from, long timeMillis) {
+        OnCreationComponent c = new OnCreationComponent();
+        c.set(x, y, from,timeMillis);
+        return c;
+    }
+
+
 }

@@ -41,6 +41,7 @@ public final class EntityFactory {
 
         // 2. Si aucune entité trouvée, création d'une nouvelle
         if (entity == null) {
+            System.err.print("aucune entité NetId :"+snapshot.getNetId()+" EntityType :"+snapshot.getEntityType()+" trouvée, création d'une nouvelle");
             entity = world.createEntity();
             NetComponent nc = netMapper.create(entity);
             nc.set(snapshot.getNetId(), snapshot.getEntityType());
@@ -73,6 +74,7 @@ public final class EntityFactory {
                     case "TargetComponent":
                     case "VelocityComponent":
                     case "BuildingMapPositionComponent":
+                    case "OnCreationComponent":
                         for (Map.Entry<String, Object> entry : cs.getFields().entrySet()) {
                             Field field = clazz.getDeclaredField(entry.getKey());
                             field.setAccessible(true);

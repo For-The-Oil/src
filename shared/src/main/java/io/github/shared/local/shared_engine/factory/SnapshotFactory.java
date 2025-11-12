@@ -52,6 +52,7 @@ public final class SnapshotFactory {
                     case "TargetComponent":
                     case "VelocityComponent":
                     case "BuildingMapPositionComponent":
+                    case "OnCreationComponent":
                         for (Map.Entry<String, Object> entry : cs.getFields().entrySet()) {
                             Field field = clazz.getDeclaredField(entry.getKey());
                             field.setAccessible(true);
@@ -128,6 +129,7 @@ public final class SnapshotFactory {
                     case "TargetComponent":
                     case "VelocityComponent":
                     case "BuildingMapPositionComponent":
+                    case "OnCreationComponent":
                         for (Field field : clazz.getDeclaredFields()) {
                             field.setAccessible(true);
                             try {

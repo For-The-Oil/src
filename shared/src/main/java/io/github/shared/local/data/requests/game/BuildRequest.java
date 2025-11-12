@@ -1,13 +1,15 @@
-package io.github.shared.local.data.requests;
+package io.github.shared.local.data.requests.game;
 
 import com.badlogic.gdx.math.GridPoint2;
 
 import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.EnumsTypes.RequestType;
+import io.github.shared.local.data.requests.Request;
 
-public class BuildRequest extends Request{
+public class BuildRequest extends Request {
     private EntityType type;
-    private GridPoint2 pos;
+    private int posX;
+    private int posY;
 
     public BuildRequest(){}
     public BuildRequest(RequestType request) {

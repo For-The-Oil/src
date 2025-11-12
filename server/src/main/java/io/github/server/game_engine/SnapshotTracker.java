@@ -16,6 +16,7 @@ import java.util.Map;
 import io.github.shared.local.data.component.DamageComponent;
 import io.github.shared.local.data.component.NetComponent;
 import io.github.shared.local.data.component.RessourceComponent;
+import io.github.shared.local.data.instructions.UpdateEntityInstruction;
 import io.github.shared.local.data.snapshot.ComponentSnapshot;
 import io.github.shared.local.data.snapshot.EntitySnapshot;
 
@@ -47,6 +48,7 @@ public class SnapshotTracker {
             case "TargetComponent":
             case "VelocityComponent":
             case "BuildingMapPositionComponent":
+            case "OnCreationComponent":
                 for (Field field : componentClass.getDeclaredFields()) {
                     field.setAccessible(true);
                     try {
@@ -96,7 +98,6 @@ public class SnapshotTracker {
     private void handleDependentComponent(Class<? extends Component> componentClass, ComponentSnapshot previousSnapshot, ComponentSnapshot newSnapshot) {
         String typeName = componentClass.getSimpleName();
         switch (typeName) {
-
             case "LifeComponent":
             case "FreezeComponent":
             case "SpeedComponent":
@@ -110,6 +111,7 @@ public class SnapshotTracker {
             case "TargetComponent":
             case "BuildingMapPositionComponent":
             case "RessourceComponent":
+            case "OnCreationComponent":
                 // Écrasement simple
                 previousSnapshot.setFields(newSnapshot.getFields());
                 break;
@@ -145,6 +147,21 @@ public class SnapshotTracker {
         pendingSnapshots.clear();
         return result;
     }
+
+
+    public UpdateEntityInstruction createUpdateInstruction(long timestamp) {
+        // Consommer les snapshots existants
+        Collection<EntitySnapshot> snapshots = this.consumeSnapshots();
+
+        // Créer l'instruction avec le timestamp
+        UpdateEntityInstruction instruction = new UpdateEntityInstruction(timestamp);
+
+        // Convertir la collection en ArrayList et l'associer à l'instruction
+        instruction.setToUpdate(new ArrayList<>(snapshots));
+
+        return instruction;
+    }
+
 
 
 }

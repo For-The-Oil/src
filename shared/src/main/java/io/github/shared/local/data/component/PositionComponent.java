@@ -17,19 +17,19 @@ import com.artemis.annotations.PooledWeaver;
 public class PositionComponent extends Component {
     public float x;
     public float y;
-    public float Z;
+    public float z;
     public float horizontalRotation;
     public float verticalRotation;
 
     public void reset() {
-        x = y = Z = 0f;
+        x = y = z = 0f;
         horizontalRotation = verticalRotation = 0f;
     }
 
     public void set(float x, float y, float z) {
         this.x = x;
         this.y = y;
-        this.Z = z;
+        this.z = z;
     }
 
     public void setRotation(float horizontal, float vertical) {
@@ -40,7 +40,7 @@ public class PositionComponent extends Component {
     public void translate(float dx, float dy, float dz) {
         this.x += dx;
         this.y += dy;
-        this.Z += dz;
+        this.z += dz;
     }
 }
 

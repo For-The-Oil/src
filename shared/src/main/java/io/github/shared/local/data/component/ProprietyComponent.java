@@ -3,10 +3,12 @@ package io.github.shared.local.data.component;
 import com.artemis.Component;
 import com.artemis.annotations.PooledWeaver;
 
+import java.util.UUID;
+
 
 @PooledWeaver
 public class ProprietyComponent extends Component {
-    public String player;
+    public UUID player;
     public String team;
 
     public void reset() {
@@ -14,7 +16,7 @@ public class ProprietyComponent extends Component {
         team = null;
     }
 
-    public void set(String player, String team) {
+    public void set(UUID player, String team) {
         this.player = player;
         this.team = team;
     }

@@ -31,6 +31,24 @@ public class Shape {
         }
     }
 
+    public Shape(Shape other,int netId) {
+        if (other == null) {
+            this.width = 0;
+            this.height = 0;
+            this.tab_cells = new Cell[0][0];
+            return;
+        }
+        this.width  = other.getWidth();
+        this.height = other.getHeight();
+        this.tab_cells = new Cell[this.height][this.width];
+        for (int y = 0; y < this.height; y++) {
+            for (int x = 0; x < this.width; x++) {
+                Cell src = other.getCells(x, y);
+                this.tab_cells[y][x] = (src != null) ? new Cell(src,netId) : null;
+            }
+        }
+    }
+
     public boolean isValidPosition(int x, int y) {
         return x >= 0 && y >= 0 && x < width && y < height;
     }

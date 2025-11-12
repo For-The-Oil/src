@@ -17,6 +17,7 @@ public class ComponentRegistry {
         LifeComponent.class,
         MeleeAttackComponent.class,
         NetComponent.class,
+        OnCreationComponent.class,
         PositionComponent.class,
         ProjectileAttackComponent.class,
         ProjectileComponent.class,

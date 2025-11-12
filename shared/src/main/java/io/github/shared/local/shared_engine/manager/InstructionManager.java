@@ -1,6 +1,14 @@
 package io.github.shared.local.shared_engine.manager;
 
+import com.artemis.ComponentMapper;
+import com.artemis.Entity;
+
+import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.IGame;
+import io.github.shared.local.data.component.NetComponent;
+import io.github.shared.local.data.component.OnCreationComponent;
+import io.github.shared.local.data.gameobject.Shape;
+import io.github.shared.local.data.instructions.CreateInstruction;
 import io.github.shared.local.data.instructions.DestroyInstruction;
 import io.github.shared.local.data.instructions.EventsInstruction;
 import io.github.shared.local.data.instructions.Instruction;
@@ -14,6 +22,31 @@ public class InstructionManager {
     public static void executeInstruction(Instruction instruction, IGame game){
         String type = instruction.getClass().getSimpleName();
         switch (type) {
+            case "CreateInstruction":
+                CreateInstruction ci = (CreateInstruction) instruction;
+                ComponentMapper<NetComponent> netMapper = game.getWorld().getMapper(NetComponent.class);
+                ComponentMapper<OnCreationComponent> onCreateMapper = game.getWorld().getMapper(OnCreationComponent.class);
+                for (int i = 0; i < ci.getToSpawn().size(); i++) {
+                    int  x = ci.getPosX().get(i);
+                    int y = ci.getPosY().get(i);
+                    int netId = ci.getNetId().get(i);
+                    int from = ci.getFrom().get(i);
+                    EntityType entityType = ci.getToSpawn().get(i);
+
+                    if(entityType.getType().equals(EntityType.Type.Building)){
+                        ShapeManager.overlayShape(game.getMap(),new Shape(entityType.getShapeType().getShape(),netId),x,y);
+                    }
+
+                    Entity entity = game.getWorld().createEntity();
+
+                    NetComponent nc = netMapper.create(entity);
+                    nc.set(netId, entityType);
+
+                    OnCreationComponent occ = onCreateMapper.create(entity);
+                    occ.set(x, y, from,entityType.getCreate_time());
+                }
+                break;
+
             case "UpdateEntityInstruction":
                 for (EntitySnapshot snapshot : ((UpdateEntityInstruction)(instruction)).getToUpdate()){
                     EntityFactory.applySnapshotToEntity(game.getWorld(),snapshot);
@@ -44,3 +77,6 @@ public class InstructionManager {
         }
     }
 }
+
+
+
