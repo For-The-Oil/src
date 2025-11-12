@@ -11,8 +11,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import io.github.server.game_engine.ActionController.ActionController;
 import io.github.server.game_engine.EcsServerEngine;
+import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.EnumsTypes.GameModeType;
 import io.github.shared.local.data.IGame;
+import io.github.shared.local.data.instructions.CreateInstruction;
+import io.github.shared.local.data.instructions.DestroyInstruction;
 import io.github.shared.local.data.instructions.Instruction;
 import io.github.shared.local.data.EnumsTypes.EventType;
 import io.github.shared.local.data.EnumsTypes.MapName;
@@ -32,7 +35,9 @@ public class ServerGame implements IGame {
     private Shape map;
     private MapName mapName;
     private EventType currentEvent;
-    private final SnapshotTracker snapshotTracker;
+    private final SnapshotTracker updateTracker;
+    private CreateInstruction createTracker;
+    private DestroyInstruction destroyTracker;
     private final Queue<Request> requestQueue;
     private final Queue<Instruction> executionQueue;
     private final Queue<Instruction> historicQueue;
@@ -45,8 +50,9 @@ public class ServerGame implements IGame {
     public ServerGame(UUID gameUuid, HashMap<String, ArrayList<Player>> playerTeam, ArrayList<Player> playersList, GameModeType gameMode, MapName mapName, EventType currentEvent, long timeLeft) {
         GAME_UUID = gameUuid;
         this.mapName = mapName;
-        this.snapshotTracker = new SnapshotTracker();
-        this.world = new World(EcsServerEngine.serverWorldConfiguration());
+        this.updateTracker = new SnapshotTracker();
+        this.createTracker = new CreateInstruction();
+        this.destroyTracker = new DestroyInstruction();
         this.playerTeam = playerTeam;
         this.playersList = playersList;
         this.gameMode = gameMode;
@@ -61,6 +67,8 @@ public class ServerGame implements IGame {
         this.entities = new ArrayList<>();
         this.running = true;
         this.map = new Shape(mapName.getShapeType().getShape()); // deep copy via constructeur
+
+        this.world = new World(EcsServerEngine.serverWorldConfiguration(this));// Important this line after anything else because dangerous overwise
     }
 
     @Override
@@ -103,8 +111,8 @@ public class ServerGame implements IGame {
         return mapName;
     }
 
-    public SnapshotTracker getSnapshotTracker() {
-        return snapshotTracker;
+    public SnapshotTracker getUpdateTracker() {
+        return updateTracker;
     }
 
     public ArrayList<ActionController> getActiveActions() {
@@ -187,5 +195,27 @@ public class ServerGame implements IGame {
 
     public Queue<Request> getRequestQueue() {
         return requestQueue;
+    }
+
+    public CreateInstruction consumeCreateInstruction(long timestamp) {
+        CreateInstruction tmp = createTracker;
+        createTracker = new CreateInstruction();
+        tmp.setTimestamp(timestamp);
+        return tmp;
+    }
+
+    public void addCreateInstruction(EntityType type, int netId, int from, int posX, int posY, UUID player) {
+        createTracker.add(type,netId,from,posX,posY,player);
+    }
+
+    public DestroyInstruction consumeDestroyInstruction(long timestamp) {
+        DestroyInstruction tmp = destroyTracker;
+        destroyTracker = new DestroyInstruction();
+        tmp.setTimestamp(timestamp);
+        return tmp;
+    }
+
+    public void addDestroyInstruction(int netIdToKill) {
+        destroyTracker.getToKill().add(netIdToKill);
     }
 }

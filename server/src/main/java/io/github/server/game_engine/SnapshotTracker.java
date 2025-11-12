@@ -149,7 +149,7 @@ public class SnapshotTracker {
     }
 
 
-    public UpdateEntityInstruction createUpdateInstruction(long timestamp) {
+    public UpdateEntityInstruction consumeUpdateInstruction(long timestamp) {
         // Consommer les snapshots existants
         Collection<EntitySnapshot> snapshots = this.consumeSnapshots();
 

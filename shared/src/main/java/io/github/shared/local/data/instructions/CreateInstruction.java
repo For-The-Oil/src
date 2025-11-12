@@ -11,25 +11,22 @@ public class CreateInstruction extends Instruction{
     private ArrayList<Integer> from;
     private ArrayList<Integer> posX;
     private ArrayList<Integer> posY;
-    private UUID player;
+    private ArrayList<UUID> player;
     public CreateInstruction(){}
-    public CreateInstruction(long timestamp, ArrayList<Integer> netId, ArrayList<Integer> from, ArrayList<Integer> posX, ArrayList<Integer> posY, UUID player) {
+    public CreateInstruction(long timestamp) {
         super(timestamp);
-        this.netId = netId;
-        this.from = from;
-        this.posX = posX;
-        this.posY = posY;
-        this.player = player;
-        this.toSpawn = new ArrayList<EntityType>();
+        this.netId = new ArrayList<>();
+        this.from = new ArrayList<>();
+        this.posX = new ArrayList<>();
+        this.posY = new ArrayList<>();
+        this.player = new ArrayList<>();
+        this.toSpawn = new ArrayList<>();
     }
 
     public ArrayList<EntityType> getToSpawn() {
         return toSpawn;
     }
 
-    public UUID getPlayer() {
-        return player;
-    }
 
     public ArrayList<Integer> getFrom() {
         return from;
@@ -46,4 +43,19 @@ public class CreateInstruction extends Instruction{
     public ArrayList<Integer> getNetId() {
         return netId;
     }
+
+    public ArrayList<UUID> getPlayer() {
+        return player;
+    }
+
+    public void add(EntityType type, int netId, int from, int posX, int posY, UUID player) {
+        this.toSpawn.add(type);
+        this.netId.add(netId);
+        this.from.add(from);
+        this.posX.add(posX);
+        this.posY.add(posY);
+        this.player.add(player);
+    }
+
+
 }

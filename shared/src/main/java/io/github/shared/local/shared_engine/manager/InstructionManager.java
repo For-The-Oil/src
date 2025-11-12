@@ -27,8 +27,6 @@ public class InstructionManager {
             case "CreateInstruction":
                 CreateInstruction ci = (CreateInstruction) instruction;
 
-                Player player1 = Utility.findPlayerByUuid(game.getPlayersList(), ci.getPlayer());
-
                 ComponentMapper<NetComponent> netMapper = game.getWorld().getMapper(NetComponent.class);
                 ComponentMapper<OnCreationComponent> onCreateMapper = game.getWorld().getMapper(OnCreationComponent.class);
                 ComponentMapper<ProprietyComponent> proprietyMapper = game.getWorld().getMapper(ProprietyComponent.class);
@@ -40,10 +38,11 @@ public class InstructionManager {
                     EntityType entityType = ci.getToSpawn().get(i);
                     Entity entity = game.getWorld().createEntity();
 
-                    if(player1!=null){
-                        Utility.subtractResourcesInPlace(player1.getRessources(),entityType.getCost());
+                    Player player = Utility.findPlayerByUuid(game.getPlayersList(), ci.getPlayer().get(i));
+                    if(player !=null){
+                        Utility.subtractResourcesInPlace(player.getRessources(),entityType.getCost());
                         ProprietyComponent prc = proprietyMapper.create(entity);
-                        prc.set(player1.getUuid(), Utility.findTeamByPlayer(player1,game.getPlayerTeam()));
+                        prc.set(player.getUuid(), Utility.findTeamByPlayer(player,game.getPlayerTeam()));
                     }
 
                     if(entityType.getType().equals(EntityType.Type.Building)){
