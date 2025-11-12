@@ -15,6 +15,10 @@ import io.github.shared.local.data.EnumsTypes.MatchModeType;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.MatchMakingRequest;
 
+
+/**
+ * Manager that group usefull method for the matchmaking of the client
+ */
 public class MatchMakingManager {
 
     public static MatchMakingManager INSTANCE;

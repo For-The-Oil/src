@@ -6,6 +6,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Method that build the current user session.
+ * Save his connection token, username, decks...
+ */
 public class SessionManager {
 
     // Instance unique (singleton)

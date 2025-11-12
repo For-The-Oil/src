@@ -26,6 +26,18 @@ import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
 import io.github.shared.local.data.requests.MatchMakingRequest;
 
+
+/**
+ * <h1>Home Activity</h1>
+ *
+ * <p>This activity is representation of the main menu. It's composed of 3 fragments :</p>
+ * <ul>
+ *     <li>Main Fragment : Where the player can start a game, disconnect, select the game mode ...</li>
+ *     <li>Deck Fragment : Where we can select what card we want to bring to battle </li>
+ *     <li>Stats Fragment : A placeholder fragment that should be used in order to load multiple usefull stats for the player</li>
+ * </ul>
+ *
+ */
 public class HomeActivity extends BaseActivity {
 
     private LinearLayout dotsLayout;
@@ -55,16 +67,14 @@ public class HomeActivity extends BaseActivity {
     }
 
 
-
-
-
-
-
-
     // -------------------------
     // Direct Link execution
     // -------------------------
 
+    /**
+     * This method is called when the player press the disconnect button on the main menu
+     * @param view
+     */
     public void disconnect(View view) {
         loadingFragment.show();
         loadingFragment.animateProgress(0f, 100f, INIT_WAITING_TIME, "Disconnecting...", null,
@@ -76,32 +86,13 @@ public class HomeActivity extends BaseActivity {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // -------------------------
     // UI utils
     // -------------------------
 
+    /**
+     * This method allow the loading of the little dots at the bottom of the screen indicating on which fragment we are
+     */
     private void setupViewPager() {
         ViewPager2 viewPager = findViewById(R.id.secondViewPager);
         dotsLayout = findViewById(R.id.dotsLayout);
@@ -128,6 +119,9 @@ public class HomeActivity extends BaseActivity {
     }
 
 
+    /**
+     * This method init the loading fragment for short animation / changing menu
+     */
     private void setupLoadingFragment(){
         loadingFragment = new LoadingFragment();
         getSupportFragmentManager().beginTransaction()
@@ -137,6 +131,9 @@ public class HomeActivity extends BaseActivity {
         overlay.setOnTouchListener((v, event) -> overlay.getVisibility() == View.VISIBLE);
     }
 
+    /**
+     * This method setup the matchmaking fragment, where the player wait for the server to give him a game.
+     */
     private void setupMatchmakingFragment(){
         matchmakingFragment = new MatchMakingFragment();
         getSupportFragmentManager().beginTransaction()
@@ -144,15 +141,21 @@ public class HomeActivity extends BaseActivity {
             .commit();
     }
 
+    /**
+     * This method should be called in order to show the matchmaking overlay
+     */
     public void showMatchmakingOverlay() {
         MatchMakingFragment fragment = (MatchMakingFragment) getSupportFragmentManager()
             .findFragmentByTag("MATCHMAKING_FRAGMENT");
 
         if (fragment != null) {
-            fragment.show(); // démarre le timer et affiche l'overlay
+            fragment.show();
         }
     }
 
+    /**
+     * This method should be called in order to hide the matchmaking overlay
+     */
     public void hideMatchmakingOverlay() {
         MatchMakingFragment fragment = (MatchMakingFragment) getSupportFragmentManager()
             .findFragmentByTag("MATCHMAKING_FRAGMENT");
@@ -162,8 +165,10 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
-
-
+    /**
+     * This method is called when we need to start a new game
+     * @param gameInfo
+     */
     public void startNewGame(HashMap<String, String> gameInfo) {
         if (gameInfo == null || gameInfo.isEmpty()) return;
         RedirectUtils.simpleRedirect(this, GameActivity.class, gameInfo);
@@ -176,9 +181,18 @@ public class HomeActivity extends BaseActivity {
     // Listeners utils
     // -------------------------
 
+    /**
+     * This method init the listeners of the main menu.
+     */
     public void initListener(){
+        ClientListener.getInstance().clearCallbacks();
         ClientListener.getInstance().setCurrentActivity(this);
     }
+
+    /**
+     * This method is called when the client want to join the matchmaking.
+     * It checks if the server send a MatchMakingRequest to us.
+     */
     public void addMatchMakingListener(){
         ClientListener myListener = ClientListener.getInstance();
         myListener.onMessage(MatchMakingRequest.class, request -> {
@@ -206,11 +220,6 @@ public class HomeActivity extends BaseActivity {
         },
         true);
     }
-
-
-
-
-
 
 
     // -------------------------

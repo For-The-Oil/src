@@ -38,6 +38,16 @@ import android.util.Log;
 import java.util.HashMap;
 
 
+/**
+ * <h1>Login Activity</h1>
+ *
+ * <p>This activity is composed of 3 fragments : </p>
+ * <ul>
+ *     <li>Server Fragment : Where we can change what server / port we want to access.</li>
+ *     <li>Register Fragment : Where the client can try to register to </li>
+ *     <li>Login Fragment : A fragment where the user can input his credentials in order to connect. He can also activate the auto-connection.</li>
+ * </ul>
+ */
 public class LoginActivity extends BaseActivity {
 
     private int[] layouts;
@@ -340,6 +350,11 @@ public class LoginActivity extends BaseActivity {
     // -------------------------
     // Login execution
     // -------------------------
+
+    /**
+     * First phase when a user try to login.
+     * We firstly try to connect to the server.
+     */
     private void phaseConnectToServer() {
         loadingFragment.animateProgress(0f, 25f, INIT_WAITING_TIME, "Connecting to the server...", null, () -> {
             ClientManager.getInstance().getKryoManager().start();
@@ -352,10 +367,16 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
+    /**
+     * 2.a) if the client manage to connect
+     */
     private void phaseConnectionSuccess() {
         loadingFragment.animateProgress(25f, 50f, INIT_WAITING_TIME, "Connected !", null, this::phaseSendCredentials);
     }
 
+    /**
+     * 2.b) if the client can't connect to the server
+     */
     private void phaseConnectionFailure() {
         //ClientManager.getInstance().closeSession();
         loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
@@ -367,6 +388,10 @@ public class LoginActivity extends BaseActivity {
         );
     }
 
+    /**
+     * 3) Here we send the clients credentials.
+     * The listeners will react and act accordingly to the server answer.
+     */
     private void phaseSendCredentials() {
         loadingFragment.animateProgress(50f, 75f, INIT_WAITING_TIME, "Sending credentials !", null, () -> {
             new Thread(() -> {ClientManager.getInstance().login(email, password);}).start();
@@ -377,6 +402,10 @@ public class LoginActivity extends BaseActivity {
     // -------------------------
     // register execution
     // -------------------------
+
+    /**
+     * 1) We try to connect to the server in case of register
+     */
     private void phaseConnectToServerForRegister() {
         loadingFragment.animateProgress(0f, 25f, INIT_WAITING_TIME, "Connecting to the server...", null, () -> {
             ClientManager.getInstance().getKryoManager().start();
@@ -389,10 +418,16 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
+    /**
+     * 2.a) If we manage to connect to the server
+     */
     private void phaseConnectionSuccessForRegister() {
         loadingFragment.animateProgress(25f, 50f, INIT_WAITING_TIME, "Connected !", null, this::phaseSendRegisterCredentials);
     }
 
+    /**
+     * 2.b) If we can't connect to the server
+     */
     private void phaseConnectionFailureForRegister() {
         //ClientManager.getInstance().closeSession();
         loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
@@ -404,7 +439,9 @@ public class LoginActivity extends BaseActivity {
         );
     }
 
-    // Ici on envoie les credentials pour l'inscription
+    /**
+     * 3) Sending the register credentials
+     */
     private void phaseSendRegisterCredentials() {
         loadingFragment.animateProgress(50f, 75f, INIT_WAITING_TIME, "Sending registration data...", null, () -> {
             new Thread(() -> {
@@ -538,6 +575,9 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
+    /**
+     * This method init the loading fragment for the transitions animations
+     */
     private void setupLoadingFragment(){
         loadingFragment = new LoadingFragment();
         getSupportFragmentManager().beginTransaction()
@@ -547,6 +587,9 @@ public class LoginActivity extends BaseActivity {
         overlay.setOnTouchListener((v, event) -> overlay.getVisibility() == View.VISIBLE);
     }
 
+    /**
+     * This method is purely for UI, it's purpose is to hide the previously showed errors.
+     */
     private void hideErrors(){
         RegisterFragment registerFragment = (RegisterFragment) adapter.getFragment(0);
         LoginFragment loginFragment = (LoginFragment) adapter.getFragment(1);

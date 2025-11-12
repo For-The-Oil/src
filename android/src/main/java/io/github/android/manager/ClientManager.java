@@ -17,6 +17,9 @@ import io.github.core.client_engine.manager.KryoClientManager;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.AuthRequest;
 
+/**
+ * Manager that manage the connection of the client
+ */
 public class ClientManager {
     private static ClientManager INSTANCE;
     private Activity currentContext;

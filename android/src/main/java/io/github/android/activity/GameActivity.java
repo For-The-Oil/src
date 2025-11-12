@@ -10,6 +10,13 @@ import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import io.github.android.gui.GameRenderer;
 import io.github.fortheoil.R;
 
+
+/**
+ * <h1>Game Activity</h1>
+ *
+ * Activity that starts when the client join a game.
+ *
+ */
 public class GameActivity extends AndroidApplication {
 
     private View loadingOverlay;

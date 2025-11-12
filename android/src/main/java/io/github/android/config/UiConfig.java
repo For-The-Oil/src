@@ -4,6 +4,8 @@ import android.graphics.Color;
 
 public final class UiConfig {
 
+    // Color constants for UI
+
     // Verts
     public static final int LIGHT_GREEN  = Color.parseColor("#81C784"); // vert tendre
     public static final int MEDIUM_GREEN = Color.parseColor("#4CAF50"); // vert classique Material

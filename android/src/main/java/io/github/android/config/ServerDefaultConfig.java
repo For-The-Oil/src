@@ -3,8 +3,8 @@ package io.github.android.config;
 public final class ServerDefaultConfig {
 
     // Adresse et port du serveur
-    public static final String SERVER_HOST = "10.0.2.2";
-    public static final int SERVER_PORT = 54555;
+    public static final String SERVER_HOST = "10.0.2.2"; //The default IP
+    public static final int SERVER_PORT = 54555; // The default PORT
 
 
     // Timeout de connexion (ms)
