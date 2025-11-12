@@ -7,6 +7,7 @@ import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.IGame;
 import io.github.shared.local.data.component.NetComponent;
 import io.github.shared.local.data.component.OnCreationComponent;
+import io.github.shared.local.data.component.ProprietyComponent;
 import io.github.shared.local.data.gameobject.Shape;
 import io.github.shared.local.data.instructions.CreateInstruction;
 import io.github.shared.local.data.instructions.DestroyInstruction;
@@ -16,6 +17,7 @@ import io.github.shared.local.data.instructions.ResourcesInstruction;
 import io.github.shared.local.data.instructions.UpdateEntityInstruction;
 import io.github.shared.local.data.network.Player;
 import io.github.shared.local.data.snapshot.EntitySnapshot;
+import io.github.shared.local.shared_engine.Utility;
 import io.github.shared.local.shared_engine.factory.EntityFactory;
 
 public class InstructionManager {
@@ -24,20 +26,30 @@ public class InstructionManager {
         switch (type) {
             case "CreateInstruction":
                 CreateInstruction ci = (CreateInstruction) instruction;
+
+                Player player1 = Utility.findPlayerByUuid(game.getPlayersList(), ci.getPlayer());
+
                 ComponentMapper<NetComponent> netMapper = game.getWorld().getMapper(NetComponent.class);
                 ComponentMapper<OnCreationComponent> onCreateMapper = game.getWorld().getMapper(OnCreationComponent.class);
+                ComponentMapper<ProprietyComponent> proprietyMapper = game.getWorld().getMapper(ProprietyComponent.class);
                 for (int i = 0; i < ci.getToSpawn().size(); i++) {
                     int  x = ci.getPosX().get(i);
                     int y = ci.getPosY().get(i);
                     int netId = ci.getNetId().get(i);
                     int from = ci.getFrom().get(i);
                     EntityType entityType = ci.getToSpawn().get(i);
+                    Entity entity = game.getWorld().createEntity();
+
+                    if(player1!=null){
+                        Utility.subtractResourcesInPlace(player1.getRessources(),entityType.getCost());
+                        ProprietyComponent prc = proprietyMapper.create(entity);
+                        prc.set(player1.getUuid(), Utility.findTeamByPlayer(player1,game.getPlayerTeam()));
+                    }
 
                     if(entityType.getType().equals(EntityType.Type.Building)){
                         ShapeManager.overlayShape(game.getMap(),new Shape(entityType.getShapeType().getShape(),netId),x,y);
                     }
 
-                    Entity entity = game.getWorld().createEntity();
 
                     NetComponent nc = netMapper.create(entity);
                     nc.set(netId, entityType);

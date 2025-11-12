@@ -35,6 +35,18 @@ public class Utility {
         return null; // Aucun client trouvé
     }
 
+
+    public static String findTeamByPlayer(Player player, HashMap<String, ArrayList<Player>> playerTeam) {
+        for (Map.Entry<String, ArrayList<Player>> entry : playerTeam.entrySet()) {
+            if (entry.getValue().contains(player)) {
+                return entry.getKey();
+            }
+        }
+        System.err.print("Aucune équipe trouvée"+player.toString());
+        return null;
+    }
+
+
     public static void subtractResourcesInPlace(HashMap<RessourcesType, Integer> base, HashMap<RessourcesType, Integer> toSubtract) {
         for (Map.Entry<RessourcesType, Integer> entry : toSubtract.entrySet()) {
             RessourcesType type = entry.getKey();
