@@ -15,6 +15,7 @@ public class GameLauncher extends Thread {
         init();
     }
     private void init(){
+        //ici start kryo avec this.serverGame.getRequestQueue(); en Paramètres pour récupérer les requests
     }
 
 
@@ -40,7 +41,8 @@ public class GameLauncher extends Thread {
                 serverGame.setAccumulator(serverGame.getAccumulator() - FIXED_TIME_STEP);
             }
 
-//       Envoi des snapshots ici
+//       Envoi des instructions ici
+//       Traiter les requests  ici
         }
 
         System.out.println("Game loop stopped for game: " + serverGame.getGAME_UUID());

@@ -19,6 +19,7 @@ import io.github.shared.local.data.EnumsTypes.MapName;
 import io.github.shared.local.data.network.Player;
 import io.github.shared.local.data.gameobject.Shape;
 import io.github.server.game_engine.SnapshotTracker;
+import io.github.shared.local.data.requests.Request;
 
 public class ServerGame implements IGame {
     private final UUID GAME_UUID;
@@ -32,6 +33,7 @@ public class ServerGame implements IGame {
     private MapName mapName;
     private EventType currentEvent;
     private final SnapshotTracker snapshotTracker;
+    private final Queue<Request> requestQueue;
     private final Queue<Instruction> executionQueue;
     private final Queue<Instruction> historicQueue;
     private final Queue<Instruction> networkQueue;
@@ -49,6 +51,7 @@ public class ServerGame implements IGame {
         this.playersList = playersList;
         this.gameMode = gameMode;
         this.currentEvent = currentEvent;
+        this.requestQueue = new ConcurrentLinkedQueue<>();
         this.executionQueue = new ConcurrentLinkedQueue<>();
         this.historicQueue = new ConcurrentLinkedQueue<>();
         this.networkQueue = new ConcurrentLinkedQueue<>();
@@ -180,5 +183,9 @@ public class ServerGame implements IGame {
     @Override
     public void setLastTime(long lastTime) {
         this.lastTime = lastTime;
+    }
+
+    public Queue<Request> getRequestQueue() {
+        return requestQueue;
     }
 }
