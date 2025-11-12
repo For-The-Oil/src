@@ -7,7 +7,7 @@ import com.esotericsoftware.kryonet.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import io.github.server.data.Game;
+import io.github.server.data.ServerGame;
 import io.github.server.data.network.ServerNetwork;
 import io.github.server.game_engine.GameLauncher;
 import io.github.server.server_engine.factory.KryoMessagePackager;
@@ -175,26 +175,26 @@ public final class MatchmakingManager {
                 playersForGame.add(queue.remove(0));
             }
 
-            Game game = createGame(playersForGame, mode);
-            startGame(game);
+            ServerGame serverGame = createGame(playersForGame, mode);
+            startGame(serverGame);
         }
     }
 
-    public Game createGame(ArrayList<ClientNetwork> playersForGame, GameModeType mode) {
+    public ServerGame createGame(ArrayList<ClientNetwork> playersForGame, GameModeType mode) {
         System.out.println("Trying to create a game in "+mode+" and the is "+playersForGame.size()+" players.");
         return GameMaker.createGame(playersForGame, mode);
     }
 
 
-    public void startGame(Game game) {
-        if (game == null) return;
+    public void startGame(ServerGame serverGame) {
+        if (serverGame == null) return;
 
         // Crée un thread pour la game
-        GameLauncher gameLauncher = new GameLauncher(game);
-        ServerNetwork.getInstance().getGameMapByUUID().put(game.getGAME_UUID(), gameLauncher);
+        GameLauncher gameLauncher = new GameLauncher(serverGame);
+        ServerNetwork.getInstance().getGameMapByUUID().put(serverGame.getGAME_UUID(), gameLauncher);
         gameLauncher.start();
 
-        System.out.println("Game thread started: " + game.getGAME_UUID() + " on thread " + gameLauncher.getName());
+        System.out.println("Game thread started: " + serverGame.getGAME_UUID() + " on thread " + gameLauncher.getName());
 
         // -----------------------------
         // Planifier la notification avec un délai (via ScheduledExecutor)
@@ -204,7 +204,7 @@ public final class MatchmakingManager {
         scheduler.schedule(() -> {
             HashMap<String, String> myMap = new HashMap<>();
 
-            for (Player p : game.getPlayersList()) {
+            for (Player p : serverGame.getPlayersList()) {
                 ClientNetwork activeClient = ServerNetwork.getInstance().getActiveClientByUUID(p.getUuid());
                 if (activeClient == null) {
                     System.out.println("?? Player " + p.getUsername() + " is no longer connected ? skipping.");
@@ -212,10 +212,10 @@ public final class MatchmakingManager {
                 }
 
                 sendMatchmakingNotification(activeClient, "Game started !",
-                    game.getGameMode(), MatchModeType.FOUND, myMap);
+                    serverGame.getGameMode(), MatchModeType.FOUND, myMap);
             }
 
-            System.out.println("? All connected players notified for game: " + game.getGAME_UUID());
+            System.out.println("? All connected players notified for game: " + serverGame.getGAME_UUID());
             scheduler.shutdown();
         }, 2000, TimeUnit.MILLISECONDS);
 

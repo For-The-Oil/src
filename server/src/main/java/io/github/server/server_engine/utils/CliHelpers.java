@@ -2,7 +2,7 @@ package io.github.server.server_engine.utils;
 
 import java.util.concurrent.TimeUnit;
 
-import io.github.server.data.Game;
+import io.github.server.data.ServerGame;
 import io.github.server.data.network.ServerNetwork;
 import io.github.server.game_engine.GameLauncher;
 import io.github.shared.local.data.network.Player;
@@ -63,20 +63,20 @@ public final class CliHelpers {
 
         System.out.println("=== Active Games ===");
         net.getGameMapByUUID().forEach((uuid, launcher) -> {
-            Game game = launcher.getGame(); // récupérer la game depuis le launcher
+            ServerGame serverGame = launcher.getGame(); // récupérer la game depuis le launcher
             String indentGame = "  ";   // indent pour le jeu
             String indentPlayer = "    "; // indent pour les joueurs
 
             // Infos principales du jeu
             System.out.println(indentGame + "GameLauncher Thread: " + launcher.getName());
-            System.out.println(indentGame + "Game UUID: " + game.getGAME_UUID());
-            System.out.println(indentGame + "Map: " + game.getMapName());
-            System.out.println(indentGame + "Current Event: " + game.getCurrentEvent());
-            System.out.println(indentGame + "Time Left: " + game.getTime_left() + "s");
+            System.out.println(indentGame + "Game UUID: " + serverGame.getGAME_UUID());
+            System.out.println(indentGame + "Map: " + serverGame.getMapName());
+            System.out.println(indentGame + "Current Event: " + serverGame.getCurrentEvent());
+            System.out.println(indentGame + "Time Left: " + serverGame.getTime_left() + "s");
 
             // Liste des joueurs
             System.out.println(indentGame + "Players in game:");
-            for (Player p : game.getPlayersList()) {
+            for (Player p : serverGame.getPlayersList()) {
                 System.out.println(indentPlayer + "- " + p.getUsername() + " (UUID: " + p.getUuid() + ")");
             }
 

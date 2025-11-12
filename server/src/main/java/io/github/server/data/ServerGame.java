@@ -20,7 +20,7 @@ import io.github.shared.local.data.network.Player;
 import io.github.shared.local.data.gameobject.Shape;
 import io.github.server.game_engine.SnapshotTracker;
 
-public class Game implements IGame {
+public class ServerGame implements IGame {
     private final UUID GAME_UUID;
     private boolean running;
     private final World world; // Artémis ECS
@@ -40,7 +40,7 @@ public class Game implements IGame {
     private long lastTime;
     private long time_left;  //seconds
 
-    public Game(UUID gameUuid, HashMap<String, ArrayList<Player>> playerTeam, ArrayList<Player> playersList, GameModeType gameMode, MapName mapName, EventType currentEvent, long timeLeft) {
+    public ServerGame(UUID gameUuid, HashMap<String, ArrayList<Player>> playerTeam, ArrayList<Player> playersList, GameModeType gameMode, MapName mapName, EventType currentEvent, long timeLeft) {
         GAME_UUID = gameUuid;
         this.mapName = mapName;
         this.snapshotTracker = new SnapshotTracker();

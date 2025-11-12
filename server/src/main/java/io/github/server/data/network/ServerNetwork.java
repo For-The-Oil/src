@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-import io.github.server.data.Game;
+import io.github.server.data.ServerGame;
 import io.github.server.game_engine.GameLauncher;
 import io.github.shared.local.data.EnumsTypes.GameModeType;
 import io.github.shared.local.data.network.ClientNetwork;
@@ -16,7 +16,7 @@ public class ServerNetwork {
     private HashMap<GameModeType, ArrayList<ClientNetwork>> matchmakingMap;
     private ArrayList<ClientNetwork> authClientNetworkList;
     private ConcurrentHashMap<UUID, GameLauncher> gameMapByUUID;
-    private HashMap<GameModeType, ArrayList<Game>> gameModeArrayListOfGames;
+    private HashMap<GameModeType, ArrayList<ServerGame>> gameModeArrayListOfGames;
 
     public static ServerNetwork getInstance() {
         return INSTANCE;
@@ -98,7 +98,7 @@ public class ServerNetwork {
         }
     }
 
-    public HashMap<GameModeType, ArrayList<Game>> getGameModeArrayListOfGames() {
+    public HashMap<GameModeType, ArrayList<ServerGame>> getGameModeArrayListOfGames() {
         return gameModeArrayListOfGames;
     }
 

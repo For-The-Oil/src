@@ -5,11 +5,10 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
 
-import io.github.server.data.Game;
+import io.github.server.data.ServerGame;
 import io.github.server.data.network.ServerNetwork;
 import io.github.shared.local.data.EnumsTypes.GameModeType;
 import io.github.shared.local.data.EnumsTypes.MapName;
-import io.github.shared.local.data.EnumsTypes.ShapeType;
 import io.github.shared.local.data.EnumsTypes.EventType;
 import io.github.shared.local.data.network.ClientNetwork;
 import io.github.shared.local.data.network.Player;
@@ -22,7 +21,7 @@ public final class GameMaker {
      * @param mode GameMode
      * @return l'objet Game créé
      */
-    public static Game createGame(ArrayList<ClientNetwork> playersForGame, GameModeType mode) {
+    public static ServerGame createGame(ArrayList<ClientNetwork> playersForGame, GameModeType mode) {
 
         // Conversion des ClientNetwork en Player
         ArrayList<Player> playerList = new ArrayList<>();
@@ -57,14 +56,14 @@ public final class GameMaker {
         long timeLeft = mode.getMAX_GAME_TIME();
 
         // Création de la Game
-        Game game = new Game(UUID.randomUUID(), playerTeam, playerList, mode, mapName, eventType, timeLeft);
+        ServerGame serverGame = new ServerGame(UUID.randomUUID(), playerTeam, playerList, mode, mapName, eventType, timeLeft);
 
         // Ajout de la Game dans le HashMap par GameModeType
-        ServerNetwork.getInstance().getGameModeArrayListOfGames().computeIfAbsent(mode, k -> new ArrayList<Game>()).add(game);
+        ServerNetwork.getInstance().getGameModeArrayListOfGames().computeIfAbsent(mode, k -> new ArrayList<ServerGame>()).add(serverGame);
 
         System.out.println("Game created: " + playersForGame.size() + " players in mode " + mode);
 
-        return game;
+        return serverGame;
     }
 
 }
