@@ -20,7 +20,15 @@ public class ResourcesInstruction extends Instruction{
         return ressources;
     }
 
+    public void setRessources(HashMap<RessourcesType, Integer> ressources) {
+        this.ressources = ressources;
+    }
+
     public UUID getPlayer() {
         return player;
+    }
+
+    public void setPlayer(UUID player) {
+        this.player = player;
     }
 }

@@ -83,7 +83,6 @@ public final class KryoRegistry {
         kryo.register(Direction.class);
         kryo.register(EntityType.class);
         kryo.register(EventType.class);
-        kryo.register(EventType.class);
         kryo.register(GameModeType.class);
         kryo.register(InstructionType.class);
         kryo.register(KryoMessageType.class);

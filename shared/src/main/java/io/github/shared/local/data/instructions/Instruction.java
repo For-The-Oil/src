@@ -18,4 +18,12 @@ public class Instruction {
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
+
+    public InstructionType getUpdate() {
+        return update;
+    }
+
+    public void setUpdate(InstructionType update) {
+        this.update = update;
+    }
 }

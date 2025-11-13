@@ -14,6 +14,7 @@ public class Cell {
     private CellEffectType effectType;
     private Integer netId;
 
+    public Cell(){}
     public Cell(CellType cellType) {
         this.cellType = cellType;
         this.effectType = CellEffectType.NONE;

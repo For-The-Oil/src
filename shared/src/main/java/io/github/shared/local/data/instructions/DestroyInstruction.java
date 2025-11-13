@@ -19,4 +19,8 @@ public class DestroyInstruction extends Instruction{
     public void add(int netId){
         this.toKill.add(netId);
     }
+
+    public void setToKill(ArrayList<Integer> toKill) {
+        this.toKill = toKill;
+    }
 }

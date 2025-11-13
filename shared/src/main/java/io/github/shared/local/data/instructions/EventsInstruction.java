@@ -14,4 +14,8 @@ public class EventsInstruction extends Instruction{
     public EventType getEventType() {
         return type;
     }
+
+    public void setType(EventType type) {
+        this.type = type;
+    }
 }

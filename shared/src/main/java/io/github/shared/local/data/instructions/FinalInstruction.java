@@ -8,4 +8,20 @@ public class FinalInstruction extends Instruction{
     public FinalInstruction() {
         super();
     }
+
+    public HashMap<String, String> getResult() {
+        return result;
+    }
+
+    public void setResult(HashMap<String, String> result) {
+        this.result = result;
+    }
+
+    public HashMap<String, Integer> getStats() {
+        return stats;
+    }
+
+    public void setStats(HashMap<String, Integer> stats) {
+        this.stats = stats;
+    }
 }
