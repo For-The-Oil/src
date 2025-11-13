@@ -33,43 +33,46 @@ public class SnapshotTracker {
         HashMap<String, Object> fields = new HashMap<>();
 
         String type = componentClass.getSimpleName();
-
-        switch (type) {
-            case "FreezeComponent":
-            case "LifeComponent":
-            case "MeleeAttackComponent":
-            case "NetComponent":
-            case "PositionComponent":
-            case "ProjectileAttackComponent":
-            case "ProjectileComponent":
-            case "ProprietyComponent":
-            case "RangedAttackComponent":
-            case "SpeedComponent":
-            case "TargetComponent":
-            case "VelocityComponent":
-            case "BuildingMapPositionComponent":
-            case "OnCreationComponent":
-                for (Field field : componentClass.getDeclaredFields()) {
-                    field.setAccessible(true);
-                    try {
-                        fields.put(field.getName(), field.get(component));
-                    } catch (IllegalAccessException e) {
-                        System.err.println("Erreur d'accès au champ " + field.getName() + " du composant " + type);
-                        e.printStackTrace();
+        try{
+            switch (type) {
+                case "FreezeComponent":
+                case "LifeComponent":
+                case "MeleeAttackComponent":
+                case "NetComponent":
+                case "PositionComponent":
+                case "ProjectileAttackComponent":
+                case "ProjectileComponent":
+                case "ProprietyComponent":
+                case "RangedAttackComponent":
+                case "SpeedComponent":
+                case "TargetComponent":
+                case "VelocityComponent":
+                case "BuildingMapPositionComponent":
+                case "OnCreationComponent":
+                    for (Field field : componentClass.getDeclaredFields()) {
+                        field.setAccessible(true);
+                        try {
+                            fields.put(field.getName(), field.get(component));
+                        } catch (IllegalAccessException e) {
+                            System.err.println("Erreur d'accès au champ " + field.getName() + " du composant " + type);
+                            e.printStackTrace();
+                        }
                     }
-                }
-                break;
-            case "RessourceComponent":
-                RessourceComponent rc = (RessourceComponent) component;
-                fields.put("ressources", new HashMap<>(rc.getAll())); // clone pour éviter les effets de bord
-                break;
-            case "DamageComponent":
-                DamageComponent dc = (DamageComponent) component;
-                fields.put("entries", new ArrayList<>(dc.entries)); // clone pour éviter les effets de bord
-                break;
+                    break;
+                case "RessourceComponent":
+                    RessourceComponent rc = (RessourceComponent) component;
+                    fields.put("ressources", new HashMap<>(rc.getAll())); // clone pour éviter les effets de bord
+                    break;
+                case "DamageComponent":
+                    DamageComponent dc = (DamageComponent) component;
+                    fields.put("entries", new ArrayList<>(dc.entries)); // clone pour éviter les effets de bord
+                    break;
 
-            default:
-                throw new IllegalArgumentException("Composant non pris en charge : " + type);
+                default:
+                    throw new IllegalArgumentException("Composant non pris en charge : " + type);
+            }
+        } catch (Exception e) {
+            System.out.print("markComponentModified err "+e);
         }
 
 
@@ -97,47 +100,51 @@ public class SnapshotTracker {
 
     private void handleDependentComponent(Class<? extends Component> componentClass, ComponentSnapshot previousSnapshot, ComponentSnapshot newSnapshot) {
         String typeName = componentClass.getSimpleName();
-        switch (typeName) {
-            case "LifeComponent":
-            case "FreezeComponent":
-            case "SpeedComponent":
-            case "MeleeAttackComponent":
-            case "RangedAttackComponent":
-            case "ProprietyComponent":
-            case "NetComponent":
-            case "PositionComponent":
-            case "ProjectileComponent":
-            case "ProjectileAttackComponent":
-            case "TargetComponent":
-            case "BuildingMapPositionComponent":
-            case "RessourceComponent":
-            case "OnCreationComponent":
-                // Écrasement simple
-                previousSnapshot.setFields(newSnapshot.getFields());
-                break;
-            case "DamageComponent":
-                // Fusionner les dégâts
-                List<?> previousEntries = (List<?>) previousSnapshot.getFields().get("entries");
-                List<?> newEntries = (List<?>) newSnapshot.getFields().get("entries");
-                List<Object> merged = new ArrayList<>();
-                if (previousEntries != null) merged.addAll(previousEntries);
-                if (newEntries != null) merged.addAll(newEntries);
-                previousSnapshot.getFields().put("entries", merged);
-                break;
-            case "VelocityComponent":
-                Float prevX = (Float) previousSnapshot.getFields().get("x");
-                Float prevY = (Float) previousSnapshot.getFields().get("y");
-                Float newX = (Float) newSnapshot.getFields().get("x");
-                Float newY = (Float) newSnapshot.getFields().get("y");
+        try {
+            switch (typeName) {
+                case "LifeComponent":
+                case "FreezeComponent":
+                case "SpeedComponent":
+                case "MeleeAttackComponent":
+                case "RangedAttackComponent":
+                case "ProprietyComponent":
+                case "NetComponent":
+                case "PositionComponent":
+                case "ProjectileComponent":
+                case "ProjectileAttackComponent":
+                case "TargetComponent":
+                case "BuildingMapPositionComponent":
+                case "RessourceComponent":
+                case "OnCreationComponent":
+                    // Écrasement simple
+                    previousSnapshot.setFields(newSnapshot.getFields());
+                    break;
+                case "DamageComponent":
+                    // Fusionner les dégâts
+                    List<?> previousEntries = (List<?>) previousSnapshot.getFields().get("entries");
+                    List<?> newEntries = (List<?>) newSnapshot.getFields().get("entries");
+                    List<Object> merged = new ArrayList<>();
+                    if (previousEntries != null) merged.addAll(previousEntries);
+                    if (newEntries != null) merged.addAll(newEntries);
+                    previousSnapshot.getFields().put("entries", merged);
+                    break;
+                case "VelocityComponent":
+                    Float prevX = (Float) previousSnapshot.getFields().get("x");
+                    Float prevY = (Float) previousSnapshot.getFields().get("y");
+                    Float newX = (Float) newSnapshot.getFields().get("x");
+                    Float newY = (Float) newSnapshot.getFields().get("y");
 
-                float mergedX = (prevX != null ? prevX : 0f) + (newX != null ? newX : 0f);
-                float mergedY = (prevY != null ? prevY : 0f) + (newY != null ? newY : 0f);
+                    float mergedX = (prevX != null ? prevX : 0f) + (newX != null ? newX : 0f);
+                    float mergedY = (prevY != null ? prevY : 0f) + (newY != null ? newY : 0f);
 
-                previousSnapshot.getFields().put("x", mergedX);
-                previousSnapshot.getFields().put("y", mergedY);
-                break;
-            default:
-                throw new IllegalArgumentException("Composant inconnu : " + typeName);
+                    previousSnapshot.getFields().put("x", mergedX);
+                    previousSnapshot.getFields().put("y", mergedY);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Composant inconnu : " + typeName);
+            }
+        } catch (Exception e) {
+            System.out.print("handleDependentComponent err "+e);
         }
     }
 

@@ -92,7 +92,7 @@ public final class SnapshotFactory {
                 entity.edit().add(component);
 
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.print("toEntity err "+e);
             }
         }
 
@@ -108,52 +108,55 @@ public final class SnapshotFactory {
 
         for (Class<? extends Component> clazz : ComponentRegistry.registeredComponents) {
             if (clazz == NetComponent.class) continue;
+            try {
+                ComponentMapper<?> mapper = world.getMapper(clazz);
+                if (mapper.has(entity)) {
+                    Component component = mapper.get(entity);
+                    HashMap<String, Object> fields = new HashMap<>();
+                    String type = clazz.getSimpleName();
 
-            ComponentMapper<?> mapper = world.getMapper(clazz);
-            if (mapper.has(entity)) {
-                Component component = mapper.get(entity);
-                HashMap<String, Object> fields = new HashMap<>();
-                String type = clazz.getSimpleName();
-
-                switch (type) {
-                    case "FreezeComponent":
-                    case "LifeComponent":
-                    case "MeleeAttackComponent":
-                    case "NetComponent":
-                    case "PositionComponent":
-                    case "ProjectileAttackComponent":
-                    case "ProjectileComponent":
-                    case "ProprietyComponent":
-                    case "RangedAttackComponent":
-                    case "SpeedComponent":
-                    case "TargetComponent":
-                    case "VelocityComponent":
-                    case "BuildingMapPositionComponent":
-                    case "OnCreationComponent":
-                        for (Field field : clazz.getDeclaredFields()) {
-                            field.setAccessible(true);
-                            try {
-                                fields.put(field.getName(), field.get(component));
-                            } catch (IllegalAccessException e) {
-                                System.err.println("Erreur d'accès au champ " + field.getName() + " du composant " + type);
+                    switch (type) {
+                        case "FreezeComponent":
+                        case "LifeComponent":
+                        case "MeleeAttackComponent":
+                        case "NetComponent":
+                        case "PositionComponent":
+                        case "ProjectileAttackComponent":
+                        case "ProjectileComponent":
+                        case "ProprietyComponent":
+                        case "RangedAttackComponent":
+                        case "SpeedComponent":
+                        case "TargetComponent":
+                        case "VelocityComponent":
+                        case "BuildingMapPositionComponent":
+                        case "OnCreationComponent":
+                            for (Field field : clazz.getDeclaredFields()) {
+                                field.setAccessible(true);
+                                try {
+                                    fields.put(field.getName(), field.get(component));
+                                } catch (IllegalAccessException e) {
+                                    System.err.println("Erreur d'accès au champ " + field.getName() + " du composant " + type);
+                                }
                             }
-                        }
-                        break;
-                    case "RessourceComponent":
-                        RessourceComponent rc = (RessourceComponent) component;
-                        fields.put("ressources", new HashMap<>(rc.getAll()));
-                        break;
+                            break;
+                        case "RessourceComponent":
+                            RessourceComponent rc = (RessourceComponent) component;
+                            fields.put("ressources", new HashMap<>(rc.getAll()));
+                            break;
 
-                    case "DamageComponent":
-                        DamageComponent dc = (DamageComponent) component;
-                        fields.put("entries", new ArrayList<>(dc.entries));
-                        break;
+                        case "DamageComponent":
+                            DamageComponent dc = (DamageComponent) component;
+                            fields.put("entries", new ArrayList<>(dc.entries));
+                            break;
 
-                    default:
-                        throw new IllegalArgumentException("Composant non pris en charge : " + type);
+                        default:
+                            throw new IllegalArgumentException("Composant non pris en charge : " + type);
+                    }
+
+                    componentSnapshots.add(new ComponentSnapshot(type, fields));
                 }
-
-                componentSnapshots.add(new ComponentSnapshot(type, fields));
+            } catch (Exception e) {
+                System.out.print("toEntity err "+e);
             }
         }
         return new EntitySnapshot(netId, entityType, componentSnapshots);
