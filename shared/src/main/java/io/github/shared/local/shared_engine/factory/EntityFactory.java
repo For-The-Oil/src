@@ -41,7 +41,7 @@ public final class EntityFactory {
 
         // 2. Si aucune entité trouvée, création d'une nouvelle
         if (entity == null) {
-            System.err.print("aucune entité NetId :"+snapshot.getNetId()+" EntityType :"+snapshot.getEntityType()+" trouvée, création d'une nouvelle");
+            System.out.print("aucune entité NetId :"+snapshot.getNetId()+" EntityType :"+snapshot.getEntityType()+" trouvée, création d'une nouvelle");
             return SnapshotFactory.toEntity(world,snapshot);
         }
 

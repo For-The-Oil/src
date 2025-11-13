@@ -30,15 +30,9 @@ public class MatchMakingListener extends Listener {
             }
         }
     }
-
-    
-
-
-
-
     private void handleMatchMaking(Connection connection, MatchMakingRequest req, String token) {
 
-//        if(!PlayerChecker.isValidToken(connection, token)){
+//        if(PlayerChecker.isValidToken(connection, token)==null){
 //            connection.close();
 //            return;
 //        }

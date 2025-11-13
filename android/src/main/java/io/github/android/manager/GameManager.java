@@ -25,13 +25,14 @@ public class GameManager {
     }
 
     public static void TheBigReplacement(NetGame netGame,ClientGame clientgame) {
-            if(clientgame == null || !netGame.getGameMode().equals(clientgame.getGameMode()) || !netGame.getMapName().equals(clientgame.getMapName()) || !netGame.getMap().equals(clientgame.getMap())){
+            if(clientgame == null || !netGame.getGameMode().equals(clientgame.getGameMode()) || !netGame.getMapName().equals(clientgame.getMapName())){
                 clientgame = new ClientGame(netGame.getGameMode(), netGame.getMapName(), netGame.getMap());
             }
             EcsManager.filterEntitiesByNetId(clientgame.getWorld(),Utility.extractNetIds(netGame.getEntities()));
             for(EntitySnapshot es : netGame.getEntities()){
             EntityFactory.applySnapshotToEntity(clientgame.getWorld(),es);
             }
+            clientgame.setMap(netGame.getMap());
             clientgame.setCurrentEvent(netGame.getCurrentEvent());
             clientgame.setPlayersList(netGame.getPlayersList());
             clientgame.setPlayerTeam(netGame.getPlayerTeam());
