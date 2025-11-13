@@ -28,15 +28,7 @@ public class GameRenderer implements ApplicationListener {
     private final float rotationSpeedX = 30f; // degrés/seconde
     private final float rotationSpeedY = 45f; // degrés/seconde
 
-    private final String gameUUID;
-    private final String mapName;
-    private final int maxPlayers;
-
-    public GameRenderer(String gameUUID, String mapName, int maxPlayers) {
-        this.gameUUID = gameUUID;
-        this.mapName = mapName;
-        this.maxPlayers = maxPlayers;
-    }
+    public GameRenderer() {}
 
     @Override
     public void create() {

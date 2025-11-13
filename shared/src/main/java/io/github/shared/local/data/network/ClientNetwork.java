@@ -7,13 +7,13 @@ import java.util.UUID;
 import io.github.shared.local.data.gameobject.Deck;
 
 public class ClientNetwork {
-    private String token;
-    private UUID uuid;
+    private transient String token;
+    private transient UUID uuid;
     private String username;
     private long lastActivityTimestamp;
     private HashMap<String, Deck> decks;
     private Deck current;
-    private String ip;
+    private transient String ip;
     private transient Connection connection;
 
     public ClientNetwork() {

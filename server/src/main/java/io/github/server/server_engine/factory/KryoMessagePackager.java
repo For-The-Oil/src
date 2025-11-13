@@ -4,6 +4,7 @@ import io.github.shared.local.data.EnumsTypes.KryoMessageType;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.AuthRequest;
 import io.github.shared.local.data.requests.MatchMakingRequest;
+import io.github.shared.local.data.requests.SynchronizeRequest;
 
 /**
  * Packager pour créer des KryoMessage côté serveur.
@@ -30,6 +31,12 @@ public class KryoMessagePackager {
     public static KryoMessage packMatchMakingRequest(MatchMakingRequest request) {
         return new KryoMessage(KryoMessageType.MATCHMAKING, null, request);
     }
+
+    public static KryoMessage packageSyncRequest(SynchronizeRequest request){
+        return new KryoMessage(KryoMessageType.SYNC, null, request);
+    }
+
+
 
     // Plus tard, tu pourras ajouter d'autres méthodes pour GameRequest, DeckRequest, etc.
 }

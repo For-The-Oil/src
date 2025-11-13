@@ -11,6 +11,7 @@ public enum ShapeType {
         {new Cell(ROAD),new Cell(ROAD),new Cell(VOID)},
         {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
     }));
+
     //MAP1, MAP2,
     //Barrack, Factory, Garage;
 

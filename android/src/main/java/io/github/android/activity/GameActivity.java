@@ -1,13 +1,20 @@
 package io.github.android.activity;
 
+import static io.github.android.config.ClientDefaultConfig.INIT_WAITING_TIME;
+
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 
 import io.github.android.gui.GameRenderer;
+import io.github.android.gui.animation.AnimatorBar;
+import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.fortheoil.R;
 
 
@@ -17,27 +24,115 @@ import io.github.fortheoil.R;
  * Activity that starts when the client join a game.
  *
  */
-public class GameActivity extends AndroidApplication {
+public class GameActivity extends BaseActivity {
 
-    private View loadingOverlay;
+    private View loadingContainer;
+    private FrameLayout libgdxContainer;
+    private LoadingFragment loadingFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Charge ton layout XML qui contient libgdxContainer + overlay
         setContentView(R.layout.game);
+        libgdxContainer = findViewById(R.id.libgdxContainer);
+        loadingContainer = findViewById(R.id.loadingContainer);
 
-        // Récupération du container LibGDX défini dans le XML
-        FrameLayout libgdxContainer = findViewById(R.id.libgdxContainer);
-        loadingOverlay = findViewById(R.id.loadingOverlay);
+        setupLoadingFragment();
 
         // Récupérer les infos de la game depuis l'Intent
         Bundle extras = getIntent().getExtras();
-        String gameUUID = extras != null ? extras.getString("game_uuid") : null;
-        String mapName = extras != null ? extras.getString("map_name") : null;
-        int maxPlayers = extras != null ? extras.getInt("max_players", 0) : 0;
 
+        Log.d("For The Oil", "Game started with :");
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // ----------
+    // Launch Game
+    // ----------
+
+    private void beginGameStart(){
+        loadingFragment.animateProgress(0,25,INIT_WAITING_TIME,"Initialisation",null,() -> {loadTexture();});
+    }
+
+
+
+
+
+    // ----------
+    // Textures & assets loadings
+    // ----------
+
+    private void loadTexture(){
+        loadingFragment.animateProgress(25,50,INIT_WAITING_TIME,"Loading assets",null,() -> {fullSync();});
+    }
+
+
+
+    // ----------
+    // Full-Resync animations
+    // ----------
+
+
+    private void fullSync(){
+        loadingFragment.animateProgress(50,75,INIT_WAITING_TIME,"Synchronizing",null, null);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * Affiche l’overlay de chargement (XML)
+     */
+    public void showloadingContainer() {
+        if (loadingContainer != null) loadingContainer.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Masque l’overlay de chargement (XML)
+     */
+    public void hideloadingContainer() {
+        if (loadingContainer != null) loadingContainer.setVisibility(View.GONE);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public void libGdxInit(){
         // Configurer LibGDX
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
         config.useAccelerometer = false;
@@ -47,21 +142,22 @@ public class GameActivity extends AndroidApplication {
         config.depth = 16;       // active le depth buffer
 
         // Créer la vue LibGDX
-        View libgdxView = initializeForView(new GameRenderer(gameUUID, mapName, maxPlayers), config);
+        AndroidApplication app = new AndroidApplication();
+        View libgdxView = app.initializeForView(new GameRenderer(), config);
         libgdxContainer.addView(libgdxView);
     }
 
-    /**
-     * Affiche l’overlay de chargement (XML)
-     */
-    public void showLoadingOverlay() {
-        if (loadingOverlay != null) loadingOverlay.setVisibility(View.VISIBLE);
+    private void setupLoadingFragment(){
+        loadingFragment = new LoadingFragment();
+        getSupportFragmentManager().beginTransaction()
+            .add(R.id.loadingContainer, loadingFragment, "LOADING_FRAGMENT")
+            .commit();
+        FrameLayout overlay = findViewById(R.id.loadingContainer);
+        overlay.setOnTouchListener((v, event) -> overlay.getVisibility() == View.VISIBLE);
+        overlay.post(this::beginGameStart);
     }
 
-    /**
-     * Masque l’overlay de chargement (XML)
-     */
-    public void hideLoadingOverlay() {
-        if (loadingOverlay != null) loadingOverlay.setVisibility(View.GONE);
-    }
+
+
+
 }
