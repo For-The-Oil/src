@@ -3,18 +3,11 @@ package io.github.server.server_engine.kryolistener;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
-import io.github.server.data.network.ServerNetwork;
-import io.github.server.server_engine.manager.ClientAuthManager;
 import io.github.server.server_engine.manager.MatchmakingManager;
-import io.github.server.server_engine.utils.PlayerChecker;
 import io.github.shared.local.data.EnumsTypes.GameModeType;
 import io.github.shared.local.data.EnumsTypes.MatchModeType;
-import io.github.shared.local.data.network.ClientNetwork;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.MatchMakingRequest;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class MatchMakingListener extends Listener {
 

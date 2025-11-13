@@ -1,7 +1,5 @@
 package io.github.shared.local.data.requests.game;
 
-import com.badlogic.gdx.math.Vector2;
-
 import java.util.ArrayList;
 
 import io.github.shared.local.data.EnumsTypes.RequestType;

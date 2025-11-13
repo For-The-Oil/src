@@ -2,13 +2,11 @@ package io.github.server.config;
 
 import static io.github.shared.local.data.EnumsTypes.GameModeType.ALPHA_TEST;
 import static io.github.shared.local.data.EnumsTypes.GameModeType.CLASSIC;
-import static io.github.shared.local.data.EnumsTypes.MapName.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import io.github.shared.local.data.EnumsTypes.GameModeType;
-import io.github.shared.local.data.EnumsTypes.MapName;
 
 public final class BaseGameConfig {
 

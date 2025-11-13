@@ -9,7 +9,7 @@ import io.github.shared.local.shared_engine.factory.EntityFactory;
 import io.github.shared.local.shared_engine.manager.EcsManager;
 
 public class GameManager {
-    public static void TheBigReplacement(NetGame netGame,ClientGame clientgame) {
+    public static void fullGameResync(NetGame netGame,ClientGame clientgame) {
             if(clientgame == null || !netGame.getGameMode().equals(clientgame.getGameMode()) || !netGame.getMapName().equals(clientgame.getMapName())){
                 clientgame = new ClientGame(netGame.getGameMode(), netGame.getMapName(), netGame.getMap());
             }
@@ -24,10 +24,6 @@ public class GameManager {
             clientgame.setTime_left(netGame.getTime_left());
             clientgame.setRunning(netGame.isRunning());
     }
-//    public static void askForFullGameSync() {
-//        Log.d("For The Oil", "Asking for full game sync");
-//        SynchronizeRequest request = new SynchronizeRequest(SyncType.FULL_RESYNC, new HashMap<>());
-//        KryoMessage kryo = new KryoMessage(KryoMessageType.SYNC, SessionManager.getInstance().getToken(), request);
-//        ClientManager.getInstance().getKryoManager().send(kryo);
-//    }
+
+
 }

@@ -2,7 +2,6 @@ package io.github.shared.local.data.requests;
 
 import java.util.HashMap;
 
-import io.github.shared.local.data.EnumsTypes.AuthModeType;
 import io.github.shared.local.data.EnumsTypes.GameModeType;
 import io.github.shared.local.data.EnumsTypes.MatchModeType;
 import io.github.shared.local.data.EnumsTypes.RequestType;

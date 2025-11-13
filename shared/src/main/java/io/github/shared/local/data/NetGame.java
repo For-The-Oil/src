@@ -1,7 +1,6 @@
 package io.github.shared.local.data;
 
 import com.artemis.Aspect;
-import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.utils.IntBag;
 

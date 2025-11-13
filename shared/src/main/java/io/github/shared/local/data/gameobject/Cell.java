@@ -2,7 +2,6 @@ package io.github.shared.local.data.gameobject;
 
 import io.github.shared.local.data.EnumsTypes.CellEffectType;
 import io.github.shared.local.data.EnumsTypes.CellType;
-import io.github.shared.local.data.EnumsTypes.EntityType;
 
 
 /**

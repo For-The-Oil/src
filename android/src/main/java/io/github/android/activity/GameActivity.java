@@ -6,16 +6,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 
 import io.github.android.gui.GameRenderer;
-import io.github.android.gui.animation.AnimatorBar;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
+import io.github.android.listeners.ClientListener;
+import io.github.android.utils.NetworkUtils;
+import io.github.core.game_engine.ClientLauncher;
 import io.github.fortheoil.R;
+import io.github.shared.local.data.requests.SynchronizeRequest;
 
 
 /**
@@ -29,6 +30,7 @@ public class GameActivity extends BaseActivity {
     private View loadingContainer;
     private FrameLayout libgdxContainer;
     private LoadingFragment loadingFragment;
+    private ClientLauncher gameLogic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,12 +39,13 @@ public class GameActivity extends BaseActivity {
         libgdxContainer = findViewById(R.id.libgdxContainer);
         loadingContainer = findViewById(R.id.loadingContainer);
 
-        setupLoadingFragment();
-
         // Récupérer les infos de la game depuis l'Intent
         Bundle extras = getIntent().getExtras();
 
-        Log.d("For The Oil", "Game started with :");
+        Log.d("For The Oil", "Game started");
+
+        initListener();
+        setupLoadingFragment();
 
     }
 
@@ -69,19 +72,9 @@ public class GameActivity extends BaseActivity {
     // ----------
 
     private void beginGameStart(){
-        loadingFragment.animateProgress(0,25,INIT_WAITING_TIME,"Initialisation",null,() -> {loadTexture();});
-    }
-
-
-
-
-
-    // ----------
-    // Textures & assets loadings
-    // ----------
-
-    private void loadTexture(){
-        loadingFragment.animateProgress(25,50,INIT_WAITING_TIME,"Loading assets",null,() -> {fullSync();});
+        loadingFragment.animateProgress(0,25,INIT_WAITING_TIME,"Initialisation",null,() -> {
+            fullSyncAnimated();
+        });
     }
 
 
@@ -91,9 +84,29 @@ public class GameActivity extends BaseActivity {
     // ----------
 
 
-    private void fullSync(){
-        loadingFragment.animateProgress(50,75,INIT_WAITING_TIME,"Synchronizing",null, null);
+    private void fullSyncAnimated(){
+        loadingFragment.animateProgress(50,75,INIT_WAITING_TIME,"Synchronizing", null, this::actualSync);
     }
+
+    private void actualSync(){
+        Log.d("For The Oil", "We are asking the server for synchronization !");
+        NetworkUtils.askForFullGameSync();
+
+
+        //on finish
+        loadTexture();
+    }
+
+
+
+    // ----------
+    // Textures & assets loadings
+    // ----------
+
+    private void loadTexture(){
+        loadingFragment.animateProgress(25,50,INIT_WAITING_TIME,"Loading assets",null, null);
+    }
+
 
 
 
@@ -157,6 +170,39 @@ public class GameActivity extends BaseActivity {
         overlay.post(this::beginGameStart);
     }
 
+
+    private void initListener(){
+        ClientListener.getInstance().clearCallbacks();
+        ClientListener.getInstance().setCurrentActivity(this);
+        ClientListener.getInstance().onMessage(SynchronizeRequest.class, (request -> {
+
+
+
+        }), true);
+    }
+
+
+
+
+
+
+
+
+
+
+
+    // -----
+    // Getters & setters
+    // -----
+
+
+    public ClientLauncher getGameLogic() {
+        return gameLogic;
+    }
+
+    public void setGameLogic(ClientLauncher gameLogic) {
+        this.gameLogic = gameLogic;
+    }
 
 
 

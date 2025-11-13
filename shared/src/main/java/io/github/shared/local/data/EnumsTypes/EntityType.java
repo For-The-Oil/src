@@ -2,8 +2,6 @@ package io.github.shared.local.data.EnumsTypes;
 
 import java.util.HashMap;
 
-import io.github.shared.local.data.gameobject.Shape;
-
 public enum EntityType {
     test(Type.Building,WeaponType.test,1,1,1,1,1,1000,new HashMap<>());
     //Barrack(Type.Building), Factory(Type.Building), Garage(Type.Building),
