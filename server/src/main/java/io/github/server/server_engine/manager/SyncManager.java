@@ -3,6 +3,8 @@ package io.github.server.server_engine.manager;
 import com.esotericsoftware.kryonet.Connection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import io.github.server.data.ServerGame;
 import io.github.server.data.network.ServerNetwork;
@@ -17,8 +19,8 @@ import io.github.shared.local.data.requests.SynchronizeRequest;
 
 public final class SyncManager {
 
-    private ExecutorService executor = Executors.newFixedThreadPool(2);
     private static final SyncManager INSTANCE = new SyncManager();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     public static SyncManager getInstance() {
         return INSTANCE;
@@ -48,17 +50,31 @@ public final class SyncManager {
 
     public void syncPlayer(ClientNetwork client){
         ServerGame sgame = PlayerChecker.getGameOfClient(client);
-        if(sgame==null) { System.out.println("Player asking for Sync not found in any game !"); return;}
+        if (sgame == null) {
+            System.out.println("Player asking for Sync not found in any game !");
+            return;
+        }
+
+        System.out.println("Player found game = " + sgame);
+
         NetGame netGame = new NetGame(sgame);
 
-        executor.submit( ()-> {
-            // Crée la request avec le type correct
-            SynchronizeRequest request = RequestFactory.createSynchronizeRequest(client, netGame);
+        // Envoie dans 2 secondes
+        scheduler.schedule(() -> {
+            try {
+                System.out.println("Scheduled task started !");
 
-            // Pack et envoie
-            KryoMessage kryoMessage = KryoMessagePackager.packageSyncRequest(request);
-
+                SynchronizeRequest request = RequestFactory.createSynchronizeRequest(client, netGame);
+                KryoMessage kryoMessage = KryoMessagePackager.packageSyncRequest(request);
                 client.getConnection().sendTCP(kryoMessage);
-        });
+
+                System.out.println("Sync request sent after 2s delay.");
+            } catch (Exception e) {
+                e.printStackTrace(); // ← Si ça s’affiche, tu as trouvé la cause !!!
+            }
+        }, 2, TimeUnit.SECONDS);
+
     }
+
+
 }

@@ -49,7 +49,6 @@ public class GameActivity extends BaseActivity {
 
         initListener();
         setupLoadingFragment();
-
     }
 
 

@@ -15,17 +15,19 @@ import io.github.shared.local.shared_engine.factory.SnapshotFactory;
 import java.util.*;
 
 public class NetGame implements IGame {
-    private final UUID gameUuid;
-    private final boolean running;
-    private final long timeLeft;
-    private final GameModeType gameMode;
-    private final MapName mapName;
-    private final Shape map;
-    private final EventType currentEvent;
-    private final HashMap<String, ArrayList<Player>> playerTeam;
-    private final ArrayList<Player> playersList;
-    private final ArrayList<EntitySnapshot> entities;
-    private final long lastTime;
+    private UUID gameUuid;
+    private boolean running;
+    private long timeLeft;
+    private GameModeType gameMode;
+    private MapName mapName;
+    private Shape map;
+    private EventType currentEvent;
+    private HashMap<String, ArrayList<Player>> playerTeam;
+    private ArrayList<Player> playersList;
+    private ArrayList<EntitySnapshot> entities;
+    private long lastTime;
+
+    public NetGame(){};
 
     public NetGame(UUID gameUuid, boolean running, long timeLeft, GameModeType gameMode, MapName mapName, Shape map, EventType currentEvent, HashMap<String, ArrayList<Player>> playerTeam, ArrayList<Player> playersList, World world, long lastTime) {
         this.gameUuid = gameUuid;
@@ -69,4 +71,43 @@ public class NetGame implements IGame {
     public ArrayList<EntitySnapshot> getEntities() {
         return entities;
     }
+
+
+    public void setGameUuid(UUID gameUuid) {
+        this.gameUuid = gameUuid;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+
+    public void setTimeLeft(long timeLeft) {
+        this.timeLeft = timeLeft;
+    }
+
+    public void setGameMode(GameModeType gameMode) {
+        this.gameMode = gameMode;
+    }
+
+    public void setMapName(MapName mapName) {
+        this.mapName = mapName;
+    }
+
+    public void setMap(Shape map) {
+        this.map = map;
+    }
+
+    public void setPlayerTeam(HashMap<String, ArrayList<Player>> playerTeam) {
+        this.playerTeam = playerTeam;
+    }
+
+    public void setPlayersList(ArrayList<Player> playersList) {
+        this.playersList = playersList;
+    }
+
+    public void setEntities(ArrayList<EntitySnapshot> entities) {
+        this.entities = entities;
+    }
+
+
 }
