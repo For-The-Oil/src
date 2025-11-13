@@ -10,6 +10,7 @@ import io.github.shared.local.data.EnumsTypes.InstructionType;
 import io.github.shared.local.data.EnumsTypes.KryoMessageType;
 import io.github.shared.local.data.EnumsTypes.MatchModeType;
 import io.github.shared.local.data.EnumsTypes.RequestType;
+import io.github.shared.local.data.EnumsTypes.SyncType;
 import io.github.shared.local.data.IGame;
 import io.github.shared.local.data.NetGame;
 import io.github.shared.local.data.instructions.CreateInstruction;
@@ -22,6 +23,7 @@ import io.github.shared.local.data.instructions.SpecialRequestsInstruction;
 import io.github.shared.local.data.instructions.UpdateEntityInstruction;
 import io.github.shared.local.data.requests.AuthRequest;
 import io.github.shared.local.data.requests.MatchMakingRequest;
+import io.github.shared.local.data.requests.SynchronizeRequest;
 
 public final class KryoRegistry {
     public static void registerAll(Kryo kryo) {
@@ -47,5 +49,7 @@ public final class KryoRegistry {
         kryo.register(IGame.class);
         kryo.register(NetGame.class);
         kryo.register(NetGame.class);
+        kryo.register(SynchronizeRequest.class);
+        kryo.register(SyncType.class);
     }
 }

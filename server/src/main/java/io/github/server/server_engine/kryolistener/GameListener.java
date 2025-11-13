@@ -28,6 +28,8 @@ public class GameListener extends Listener {
 
         if(! (kryo.getObj() instanceof SynchronizeRequest)) return;
 
+        System.out.println("SynchronizeRequest Received !");
+
         SynchronizeRequest request = (SynchronizeRequest) kryo.getObj();
 
         SyncManager.getInstance().handleSyncRequest(connection, request);

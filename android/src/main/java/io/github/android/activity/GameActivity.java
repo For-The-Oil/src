@@ -13,6 +13,7 @@ import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import io.github.android.gui.GameRenderer;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
+import io.github.android.manager.ClientManager;
 import io.github.android.utils.NetworkUtils;
 import io.github.core.game_engine.ClientLauncher;
 import io.github.fortheoil.R;
@@ -31,11 +32,13 @@ public class GameActivity extends BaseActivity {
     private FrameLayout libgdxContainer;
     private LoadingFragment loadingFragment;
     private ClientLauncher gameLogic;
+    private ClientManager clientManager = ClientManager.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game);
+        clientManager.setCurrentContext(this);
         libgdxContainer = findViewById(R.id.libgdxContainer);
         loadingContainer = findViewById(R.id.loadingContainer);
 
@@ -90,11 +93,9 @@ public class GameActivity extends BaseActivity {
 
     private void actualSync(){
         Log.d("For The Oil", "We are asking the server for synchronization !");
-        NetworkUtils.askForFullGameSync();
-
-
-        //on finish
-        loadTexture();
+        new Thread(() -> {
+            NetworkUtils.askForFullGameSync();
+        }).start();
     }
 
 
@@ -175,8 +176,7 @@ public class GameActivity extends BaseActivity {
         ClientListener.getInstance().clearCallbacks();
         ClientListener.getInstance().setCurrentActivity(this);
         ClientListener.getInstance().onMessage(SynchronizeRequest.class, (request -> {
-
-
+            Log.d("For The Oil","SynchronizeRequest received :"+request.getType().toString());
 
         }), true);
     }

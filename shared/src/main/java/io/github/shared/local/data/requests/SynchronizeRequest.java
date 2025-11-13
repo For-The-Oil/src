@@ -5,8 +5,9 @@ import java.util.HashMap;
 import io.github.shared.local.data.EnumsTypes.SyncType;
 
 public class SynchronizeRequest extends Request{
-    private final SyncType  type;
-    private final HashMap<String, Object> map;
+    private SyncType  type;
+    private HashMap<String, Object> map;
+    public SynchronizeRequest() {}
     public SynchronizeRequest(SyncType type, HashMap<String, Object> map){
         this.type = type;
         this.map = map;

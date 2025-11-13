@@ -11,6 +11,7 @@ import io.github.server.data.network.ServerNetwork;
 import io.github.server.server_engine.kryolistener.AdminListener;
 import io.github.server.server_engine.kryolistener.AuthListener;
 import io.github.server.server_engine.kryolistener.DeckListener;
+import io.github.server.server_engine.kryolistener.GameListener;
 import io.github.server.server_engine.kryolistener.MatchMakingListener;
 import io.github.server.server_engine.utils.CliHelpers;
 import io.github.shared.local.data.network.KryoRegistry;
@@ -87,6 +88,8 @@ public class ServerLauncher {
 
         // Listener for the Admin Commands
         kryoMotherServer.addListener(new AdminListener());
+
+        kryoMotherServer.addListener(new GameListener());
 
 
 
