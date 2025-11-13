@@ -34,7 +34,6 @@ public interface IGame {
     // Players and entities
     HashMap<String, ArrayList<Player>> getPlayerTeam();
     ArrayList<Player> getPlayersList();
-    ArrayList<com.artemis.Entity> getEntities();
 
     // ECS world
     World getWorld();

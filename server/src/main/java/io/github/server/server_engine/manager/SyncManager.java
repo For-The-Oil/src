@@ -10,6 +10,7 @@ import io.github.server.server_engine.factory.KryoMessagePackager;
 import io.github.server.server_engine.factory.RequestFactory;
 import io.github.server.server_engine.utils.PlayerChecker;
 import io.github.shared.local.data.EnumsTypes.SyncType;
+import io.github.shared.local.data.NetGame;
 import io.github.shared.local.data.network.ClientNetwork;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.SynchronizeRequest;
@@ -48,10 +49,11 @@ public class SyncManager {
     public void syncPlayer(ClientNetwork client){
         ServerGame sgame = PlayerChecker.getGameOfClient(client);
         if(sgame==null) { System.out.println("Player asking for Sync not found in any game !"); return;}
+        NetGame netGame = new NetGame(sgame);
 
         executor.submit( ()-> {
             // Crée la request avec le type correct
-            SynchronizeRequest request = RequestFactory.createSynchronizeRequest(client, sgame);
+            SynchronizeRequest request = RequestFactory.createSynchronizeRequest(client, netGame);
 
             // Pack et envoie
             KryoMessage kryoMessage = KryoMessagePackager.packageSyncRequest(request);

@@ -15,13 +15,11 @@ import io.github.shared.local.data.gameobject.Shape;
 import io.github.shared.local.data.network.Player;
 
 public class ClientGame implements IGame {
-
     private final UUID GAME_UUID;
     private boolean running;
     private final World world;
     private final HashMap<String, ArrayList<Player>> playerTeam;
     private final ArrayList<Player> playersList;
-    private final ArrayList<Entity> entities;
     private final GameModeType gameMode;
     private Shape map;
     private MapName mapName;
@@ -29,15 +27,14 @@ public class ClientGame implements IGame {
     private long lastTime;
     private long timeLeft;  // seconds
 
-    public ClientGame(World world, GameModeType gameMode, MapName mapName, Shape map) {
+    public ClientGame(GameModeType gameMode, MapName mapName, Shape map) {
         this.GAME_UUID = UUID.randomUUID();
-        this.world = world;
+        this.world = new World();System.err.print("Attention à changer new World();");//Attention à changer
         this.gameMode = gameMode;
         this.mapName = mapName;
         this.map = map;
         this.playerTeam = new HashMap<>();
         this.playersList = new ArrayList<>();
-        this.entities = new ArrayList<>();
         this.running = true;
         this.timeLeft = 0;
         this.lastTime = System.currentTimeMillis();
@@ -132,19 +129,6 @@ public class ClientGame implements IGame {
         this.playersList.clear();
         if (playersList != null) {
             this.playersList.addAll(playersList);
-        }
-    }
-
-    @Override
-    public ArrayList<Entity> getEntities() {
-        return entities;
-    }
-
-    // Setter ajouté pour entities
-    public void setEntities(ArrayList<Entity> entities) {
-        this.entities.clear();
-        if (entities != null) {
-            this.entities.addAll(entities);
         }
     }
 

@@ -30,13 +30,7 @@ public final class GameMaker {
 
         for (ClientNetwork cn : playersForGame) {
             // Crée un Player à partir du ClientNetwork
-            Player p = new Player(
-                cn.getUuid(),
-                cn.getUsername(),
-                cn.getDecks(),      // HashMap<String, Deck>
-                cn.getCurrentDeck(),   // Deck actuel
-                cn.getToken()
-            );
+            Player p = new Player(cn);
             playerList.add(p);
             teamDefault.add(p);
         }

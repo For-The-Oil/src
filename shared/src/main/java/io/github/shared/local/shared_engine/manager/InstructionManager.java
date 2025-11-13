@@ -40,7 +40,7 @@ public class InstructionManager {
 
                     Player player = Utility.findPlayerByUuid(game.getPlayersList(), ci.getPlayer().get(i));
                     if(player !=null){
-                        Utility.subtractResourcesInPlace(player.getRessources(),entityType.getCost());
+                        Utility.subtractResourcesInPlace(player.getResources(),entityType.getCost());
                         ProprietyComponent prc = proprietyMapper.create(entity);
                         prc.set(player.getUuid(), Utility.findTeamByPlayer(player,game.getPlayerTeam()));
                     }
@@ -72,7 +72,7 @@ public class InstructionManager {
                 ResourcesInstruction resourcesInstruction = (ResourcesInstruction) instruction;
                 for (Player player : game.getPlayersList()){
                     if(player.getUuid().equals(resourcesInstruction.getPlayer())){
-                        player.setRessources(resourcesInstruction.getRessources());
+                        player.setResources(resourcesInstruction.getRessources());
                     }
                 }
                 break;

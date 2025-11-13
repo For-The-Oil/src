@@ -28,9 +28,8 @@ public class ServerGame implements IGame {
     private final UUID GAME_UUID;
     private boolean running;
     private final World world; // Artémis ECS
-    private HashMap<String, ArrayList<Player> > playerTeam;
+    private HashMap<String,ArrayList<Player>> playerTeam;
     private ArrayList<Player> playersList;
-    private ArrayList<Entity> entities;
     private final GameModeType gameMode;
     private Shape map;
     private MapName mapName;
@@ -64,7 +63,6 @@ public class ServerGame implements IGame {
         this.accumulator = 0f;
         this.time_left = timeLeft;
         this.activeActions = new ArrayList<>();
-        this.entities = new ArrayList<>();
         this.running = true;
         this.map = new Shape(mapName.getShapeType().getShape()); // deep copy via constructeur
 
@@ -86,10 +84,6 @@ public class ServerGame implements IGame {
         return playersList;
     }
 
-    @Override
-    public ArrayList<Entity> getEntities() {
-        return entities;
-    }
 
     @Override
     public Shape getMap() {

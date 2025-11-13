@@ -9,9 +9,7 @@ import java.util.*;
  * Représente un joueur avec plusieurs Decks, bâtiments et unités.
  */
 public class Player extends ClientNetwork {
-    private ArrayList<Integer> buildingsNetId;
-    private ArrayList<Integer> unitsNetId;
-    private HashMap<RessourcesType, Integer> ressources;
+    private HashMap<RessourcesType, Integer> resources;
     private Deck gameDeck;
 
     public Player(){
@@ -20,39 +18,24 @@ public class Player extends ClientNetwork {
     public Player(UUID uuid, String name, HashMap<String, Deck> fullDeck, Deck deck, String token) {
         super(uuid,name, fullDeck, token);
         this.gameDeck = deck;
-        this.ressources = new HashMap<RessourcesType, Integer>();
-        this.buildingsNetId = new ArrayList<>();
-        this.unitsNetId = new ArrayList<>();
+        this.resources = new HashMap<>();
     }
-    public void addBuilding(int building) {
-        buildingsNetId.add(building);
+    public Player(ClientNetwork cn){
+        this(cn.getUuid(), cn.getUsername(), cn.getDecks(), cn.getCurrentDeck(), cn.getToken());
     }
-
-    public void removeBuilding(int building) {
-        buildingsNetId.remove(building);
+    public HashMap<RessourcesType, Integer> getResources() {
+        return resources;
     }
 
-    public List<Integer> getBuildingsNetId() {
-        return buildingsNetId;
+    public void setResources(HashMap<RessourcesType, Integer> resources) {
+        this.resources = resources;
     }
 
-    public void addUnit(int unit) {
-        unitsNetId.add(unit);
+    public Deck getGameDeck() {
+        return gameDeck;
     }
 
-    public void removeUnit(int unit) {
-        unitsNetId.remove(unit);
-    }
-
-    public List<Integer> getUnitsNetId() {
-        return unitsNetId;
-    }
-
-    public HashMap<RessourcesType, Integer> getRessources() {
-        return ressources;
-    }
-
-    public void setRessources(HashMap<RessourcesType, Integer> ressources) {
-        this.ressources = ressources;
+    public void setGameDeck(Deck gameDeck) {
+        this.gameDeck = gameDeck;
     }
 }

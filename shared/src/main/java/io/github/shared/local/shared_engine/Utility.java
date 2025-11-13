@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.github.shared.local.data.EnumsTypes.RessourcesType;
 import io.github.shared.local.data.network.Player;
+import io.github.shared.local.data.snapshot.EntitySnapshot;
 
 public class Utility {
     private static final AtomicInteger COUNTER = new AtomicInteger((int) System.currentTimeMillis());
@@ -62,4 +63,17 @@ public class Utility {
             base.put(type, Math.max(newValue, 0));
         }
     }
+    public static ArrayList<Integer> extractNetIds(ArrayList<EntitySnapshot> snapshots) {
+        ArrayList<Integer> netIds = new ArrayList<>();
+        if (snapshots == null) return netIds;
+
+        for (EntitySnapshot snapshot : snapshots) {
+            if (snapshot != null) {
+                netIds.add(snapshot.getNetId());
+            }
+        }
+        return netIds;
+    }
+
+
 }

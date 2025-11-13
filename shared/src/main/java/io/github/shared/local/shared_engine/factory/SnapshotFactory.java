@@ -136,7 +136,6 @@ public final class SnapshotFactory {
                                 fields.put(field.getName(), field.get(component));
                             } catch (IllegalAccessException e) {
                                 System.err.println("Erreur d'accès au champ " + field.getName() + " du composant " + type);
-                                e.printStackTrace();
                             }
                         }
                         break;

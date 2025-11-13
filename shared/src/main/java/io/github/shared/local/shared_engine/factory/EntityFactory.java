@@ -23,7 +23,7 @@ import io.github.shared.local.data.snapshot.EntitySnapshot;
 public final class EntityFactory {
 
 
-    public static void applySnapshotToEntity(World world, EntitySnapshot snapshot) {
+    public static Entity applySnapshotToEntity(World world, EntitySnapshot snapshot) {
         Entity entity = null;
         ComponentMapper<NetComponent> netMapper = world.getMapper(NetComponent.class);
         EntitySubscription subscription = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class));
@@ -42,9 +42,7 @@ public final class EntityFactory {
         // 2. Si aucune entité trouvée, création d'une nouvelle
         if (entity == null) {
             System.err.print("aucune entité NetId :"+snapshot.getNetId()+" EntityType :"+snapshot.getEntityType()+" trouvée, création d'une nouvelle");
-            entity = world.createEntity();
-            NetComponent nc = netMapper.create(entity);
-            nc.set(snapshot.getNetId(), snapshot.getEntityType());
+            return SnapshotFactory.toEntity(world,snapshot);
         }
 
         for (ComponentSnapshot cs : snapshot.getComponentSnapshot()) {
@@ -115,6 +113,7 @@ public final class EntityFactory {
                 System.err.println("Erreur lors de l'application du snapshot pour le composant : " + cs.getType());
             }
         }
+        return entity;
     }
 
     public static void destroyEntityByNetId(World world, int netId) {
