@@ -49,8 +49,8 @@ public class ServerGame implements IGame {
         GAME_UUID = gameUuid;
         this.mapName = mapName;
         this.updateTracker = new SnapshotTracker();
-        this.createTracker = new CreateInstruction();
-        this.destroyTracker = new DestroyInstruction();
+        this.createTracker = new CreateInstruction(System.currentTimeMillis());
+        this.destroyTracker = new DestroyInstruction(System.currentTimeMillis());
         this.playerTeam = playerTeam;
         this.playersList = playersList;
         this.gameMode = gameMode;
