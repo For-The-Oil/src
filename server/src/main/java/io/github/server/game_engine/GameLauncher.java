@@ -32,9 +32,9 @@ public class GameLauncher extends Thread {
                 serverGame.getWorld().process();
 
                 //addInstruction
-                serverGame.addQueueInstruction(serverGame.getUpdateTracker().consumeUpdateInstruction(System.currentTimeMillis()));
-                serverGame.addQueueInstruction(serverGame.consumeDestroyInstruction(System.currentTimeMillis()));
-                serverGame.addQueueInstruction(serverGame.consumeCreateInstruction(System.currentTimeMillis()));
+                if(!serverGame.getUpdateTracker().snapshotsIsEmpty()) serverGame.addQueueInstruction(serverGame.getUpdateTracker().consumeUpdateInstruction(System.currentTimeMillis()));
+                if(!serverGame.destroyInstructionIsEmpty()) serverGame.addQueueInstruction(serverGame.consumeDestroyInstruction(System.currentTimeMillis()));
+                if(!serverGame.createInstructionIsEmpty()) serverGame.addQueueInstruction(serverGame.consumeCreateInstruction(System.currentTimeMillis()));
 
                 // Exécuter les instructions en attente
                 while (!serverGame.isEmptyExecutionQueue()) {

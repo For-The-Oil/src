@@ -192,7 +192,7 @@ public class ServerGame implements IGame {
 
     public CreateInstruction consumeCreateInstruction(long timestamp) {
         CreateInstruction tmp = createTracker;
-        createTracker = new CreateInstruction();
+        createTracker = new CreateInstruction(timestamp);
         tmp.setTimestamp(timestamp);
         return tmp;
     }
@@ -203,12 +203,20 @@ public class ServerGame implements IGame {
 
     public DestroyInstruction consumeDestroyInstruction(long timestamp) {
         DestroyInstruction tmp = destroyTracker;
-        destroyTracker = new DestroyInstruction();
+        destroyTracker = new DestroyInstruction(timestamp);
         tmp.setTimestamp(timestamp);
         return tmp;
     }
 
+    public boolean destroyInstructionIsEmpty() {
+        return destroyTracker.getToKill().isEmpty();
+    }
+
     public void addDestroyInstruction(int netIdToKill) {
-        destroyTracker.getToKill().add(netIdToKill);
+        destroyTracker.add(netIdToKill);
+    }
+
+    public boolean createInstructionIsEmpty() {
+        return createTracker.getToSpawn().isEmpty();
     }
 }

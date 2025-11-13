@@ -148,6 +148,10 @@ public class SnapshotTracker {
         return result;
     }
 
+    public boolean snapshotsIsEmpty() {
+        return pendingSnapshots.isEmpty();
+    }
+
 
     public UpdateEntityInstruction consumeUpdateInstruction(long timestamp) {
         // Consommer les snapshots existants
