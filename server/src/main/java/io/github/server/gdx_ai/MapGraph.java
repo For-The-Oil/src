@@ -286,13 +286,12 @@ public class MapGraph implements IndexedGraph<MapNode> {
         }
 
         // Cost formula:
-        // DESTROY_PATH_COST * (HP / (damage * max(1, ARMOR_COEF^(armorPen - armor))))
         return (float) (
             BaseGameConfig.DESTROY_PATH_COST *
                 (lifeComponent.health / (
-                    damage * Math.max(1, Math.pow(BaseGameConfig.ARMOR_COEF,
-                        (armorPenetration - lifeComponent.armor)))
-                ))
+                    damage * Math.pow(BaseGameConfig.ARMOR_COEF,
+                        (armorPenetration >= lifeComponent.armor ? 0 : (lifeComponent.armor - armorPenetration)))))
+
         );
     }
 }

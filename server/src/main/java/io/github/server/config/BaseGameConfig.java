@@ -13,7 +13,7 @@ import io.github.shared.local.data.EnumsTypes.MapName;
 public final class BaseGameConfig {
 
     public static int MAX_TIME;
-    public static int DESTROY_PATH_COST = 5;
+    public static float DESTROY_PATH_COST = 1.5f;
     public static float GAME_SPEED;
     public static float RESSOURCE_COEF;
     public static float SPEED_COEF;
