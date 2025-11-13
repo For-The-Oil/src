@@ -1,9 +1,11 @@
 package io.github.shared.local.data.gameobject;
 
 public class Shape {
-    private final int width;
-    private final int height;
-    private final Cell[][] tab_cells;
+    private int width;
+    private int height;
+    private Cell[][] tab_cells;
+
+    public Shape() {}
 
     public Shape(Cell[][] tab_cells) {
         this.tab_cells = tab_cells;
@@ -57,12 +59,24 @@ public class Shape {
         return width;
     }
 
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
     public int getHeight() {
         return height;
     }
 
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
     public Cell[][] getTab_cells() {
         return tab_cells;
+    }
+
+    public void setTab_cells(Cell[][] tab_cells) {
+        this.tab_cells = tab_cells;
     }
 
     public Cell getCells(int x, int y){

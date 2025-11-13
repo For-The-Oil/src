@@ -62,12 +62,12 @@ public class NetGame implements IGame {
     public MapName getMapName() { return mapName; }
     public Shape getMap() { return map; }
     public EventType getCurrentEvent() { return currentEvent; }
-    public void setCurrentEvent(EventType currentEvent) {}
+    public void setCurrentEvent(EventType currentEvent) { this.currentEvent = currentEvent ;}
     public HashMap<String, ArrayList<Player>> getPlayerTeam() { return playerTeam; }
     public ArrayList<Player> getPlayersList() { return playersList; }
     public World getWorld() { return null; }
     public long getLastTime() { return lastTime; }
-    public void setLastTime(long lastTime) {}
+    public void setLastTime(long lastTime) { this.lastTime = lastTime;}
     public ArrayList<EntitySnapshot> getEntities() {
         return entities;
     }
