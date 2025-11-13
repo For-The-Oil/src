@@ -1,13 +1,8 @@
 package io.github.core.game_engine.manager;
 
-import java.util.HashMap;
 
 import io.github.core.game_engine.ClientGame;
-import io.github.shared.local.data.EnumsTypes.KryoMessageType;
-import io.github.shared.local.data.EnumsTypes.SyncType;
 import io.github.shared.local.data.NetGame;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.SynchronizeRequest;
 import io.github.shared.local.data.snapshot.EntitySnapshot;
 import io.github.shared.local.shared_engine.Utility;
 import io.github.shared.local.shared_engine.factory.EntityFactory;
