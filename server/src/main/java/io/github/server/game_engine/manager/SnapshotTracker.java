@@ -1,4 +1,4 @@
-package io.github.server.game_engine;
+package io.github.server.game_engine.manager;
 
 
 import com.artemis.Component;

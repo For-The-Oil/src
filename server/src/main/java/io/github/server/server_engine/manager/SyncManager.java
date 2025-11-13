@@ -15,7 +15,7 @@ import io.github.shared.local.data.network.ClientNetwork;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.SynchronizeRequest;
 
-public class SyncManager {
+public final class SyncManager {
 
     private ExecutorService executor = Executors.newFixedThreadPool(2);
     private static final SyncManager INSTANCE = new SyncManager();

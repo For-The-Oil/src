@@ -1,6 +1,5 @@
 package io.github.server.data;
 
-import com.artemis.Entity;
 import com.artemis.World;
 
 import java.util.Queue;
@@ -21,7 +20,7 @@ import io.github.shared.local.data.EnumsTypes.EventType;
 import io.github.shared.local.data.EnumsTypes.MapName;
 import io.github.shared.local.data.network.Player;
 import io.github.shared.local.data.gameobject.Shape;
-import io.github.server.game_engine.SnapshotTracker;
+import io.github.server.game_engine.manager.SnapshotTracker;
 import io.github.shared.local.data.requests.Request;
 
 public class ServerGame implements IGame {
