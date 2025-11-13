@@ -1,6 +1,5 @@
-package io.github.core.data.gameobject;
+package io.github.core.game_engine;
 
-import com.artemis.Entity;
 import com.artemis.World;
 
 import java.util.ArrayList;
@@ -29,7 +28,6 @@ public class ClientGame implements IGame {
 
     public ClientGame(GameModeType gameMode, MapName mapName, Shape map) {
         this.GAME_UUID = UUID.randomUUID();
-        this.world = new World();System.err.print("Attention à changer new World();");//Attention à changer
         this.gameMode = gameMode;
         this.mapName = mapName;
         this.map = map;
@@ -39,6 +37,8 @@ public class ClientGame implements IGame {
         this.timeLeft = 0;
         this.lastTime = System.currentTimeMillis();
         this.currentEvent = EventType.START;
+
+        this.world = new World(EcsClientGame.serverWorldConfiguration(this));// Important this line after anything else because dangerous overwise
     }
 
     @Override
