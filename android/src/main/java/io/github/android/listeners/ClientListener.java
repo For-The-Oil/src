@@ -75,7 +75,7 @@ public class ClientListener extends Listener {
     public void disconnected(Connection connection) {
         Log.d("For the Oil", "Disconnected from server.");
         SessionManager.getInstance().clearSession();
-        ClientManager.getInstance().getKryoManager().getClient().close();
+        ClientManager.getInstance().getKryoManager().closeClient();
         RedirectUtils.simpleRedirectAndClearStack(this.currentActivity, LoginActivity.class, "login_error", "Connection lost...");
     }
 

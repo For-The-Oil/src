@@ -165,7 +165,7 @@ public class ClientManager {
 
         // Optionally close Kryo connection
         if (kryoManager != null && kryoManager.getClient() != null && kryoManager.getClient().isConnected()) {
-            kryoManager.getClient().close();
+            kryoManager.closeClient();
         }
 
         Log.d("ClientManager", "Session closed and connection terminated.");

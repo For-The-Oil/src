@@ -200,4 +200,11 @@ public class KryoClientManager {
      * @return the active Kryo client
      */
     public Client getClient() { return client; }
+
+    /**
+     * <h1>Close the Client</h1>
+     */
+    public void closeClient() {
+        client.close();
+    }
 }

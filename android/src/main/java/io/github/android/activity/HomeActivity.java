@@ -80,7 +80,7 @@ public class HomeActivity extends BaseActivity {
         loadingFragment.animateProgress(0f, 100f, INIT_WAITING_TIME, "Disconnecting...", null,
             () -> {
                 SessionManager.getInstance().clearSession();
-                clientManager.getKryoManager().getClient().close();
+                clientManager.getKryoManager().closeClient();
                 RedirectUtils.simpleRedirectAndClearStack(this, LoginActivity.class);
             });
     }
