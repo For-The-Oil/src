@@ -11,7 +11,7 @@ import io.github.shared.local.shared_engine.manager.EcsManager;
 public class GameManager {
     public static void fullGameResync(NetGame netGame,ClientGame clientgame) {
             if(clientgame == null || !netGame.getGameMode().equals(clientgame.getGameMode()) || !netGame.getMapName().equals(clientgame.getMapName())){
-                clientgame = new ClientGame(netGame.getGameMode(), netGame.getMapName(), netGame.getMap());
+                clientgame = new ClientGame(netGame.getGameMode(), netGame.getMapName(), netGame.getMap(), netGame.getGAME_UUID());
             }
             EcsManager.filterEntitiesByNetId(clientgame.getWorld(),Utility.extractNetIds(netGame.getEntities()));
             for(EntitySnapshot es : netGame.getEntities()){

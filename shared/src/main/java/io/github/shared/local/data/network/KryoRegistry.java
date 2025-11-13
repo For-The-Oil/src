@@ -4,7 +4,9 @@ import com.artemis.Aspect;
 import com.artemis.World;
 import com.artemis.utils.IntBag;
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -53,7 +55,9 @@ public final class KryoRegistry {
         //basics
         kryo.register(String.class);
         kryo.register(HashMap.class);
-        kryo.register(UUID.class);
+        kryo.register(ArrayList.class);
+        //kryo.register(Queue.class);
+        kryo.register(UUID.class, new DefaultSerializers.UUIDSerializer());
 
 
         //requests
@@ -100,6 +104,8 @@ public final class KryoRegistry {
         kryo.register(IGame.class);
         kryo.register(NetGame.class);
         kryo.register(Cell.class);
+        kryo.register(Cell[].class);
+        kryo.register(Cell[][].class);
         kryo.register(DamageEntry.class);
         kryo.register(Deck.class);
         kryo.register(Shape.class);

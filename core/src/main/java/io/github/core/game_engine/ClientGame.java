@@ -26,8 +26,8 @@ public class ClientGame implements IGame {
     private long lastTime;
     private long timeLeft;  // seconds
 
-    public ClientGame(GameModeType gameMode, MapName mapName, Shape map) {
-        this.GAME_UUID = UUID.randomUUID();
+    public ClientGame(GameModeType gameMode, MapName mapName, Shape map, UUID uuid) {
+        this.GAME_UUID = uuid;
         this.gameMode = gameMode;
         this.mapName = mapName;
         this.map = map;
@@ -40,6 +40,7 @@ public class ClientGame implements IGame {
 
         this.world = new World(EcsClientGame.serverWorldConfiguration(this));// Important this line after anything else because dangerous overwise
     }
+
 
     @Override
     public UUID getGAME_UUID() {

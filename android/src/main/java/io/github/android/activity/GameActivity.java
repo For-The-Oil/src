@@ -15,8 +15,11 @@ import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.utils.NetworkUtils;
+import io.github.core.game_engine.ClientGame;
 import io.github.core.game_engine.ClientLauncher;
+import io.github.core.game_engine.manager.GameManager;
 import io.github.fortheoil.R;
+import io.github.shared.local.data.NetGame;
 import io.github.shared.local.data.requests.SynchronizeRequest;
 
 
@@ -32,6 +35,7 @@ public class GameActivity extends BaseActivity {
     private FrameLayout libgdxContainer;
     private LoadingFragment loadingFragment;
     private ClientLauncher gameLogic;
+    private ClientGame clientGame;
     private ClientManager clientManager = ClientManager.getInstance();
 
     @Override
@@ -175,7 +179,40 @@ public class GameActivity extends BaseActivity {
         ClientListener.getInstance().clearCallbacks();
         ClientListener.getInstance().setCurrentActivity(this);
         ClientListener.getInstance().onMessage(SynchronizeRequest.class, (request -> {
+
             Log.d("For The Oil","SynchronizeRequest received :"+request.getType().toString());
+
+            NetGame netGame = (NetGame) request.getMap().get("game");
+
+            Log.d("For The Oil", netGame.getGAME_UUID().toString());
+            Log.d("For The Oil", netGame.getEntities().toString());
+            Log.d("For The Oil", netGame.getMapName().toString());
+            Log.d("For The Oil", "Time left : " + netGame.getTime_left());
+
+            GameManager.fullGameResync(netGame, clientGame);
+
+            Log.d("For The Oil", clientGame.getGAME_UUID().toString());
+            Log.d("For The Oil", clientGame.getGameMode().toString());
+            Log.d("For The Oil", clientGame.getWorld().toString());
+            Log.d("For The Oil", clientGame.getMapName().toString());
+            Log.d("For The Oil", "Time left : " + clientGame.getTime_left());
+
+            switch (request.getType()) {
+
+                case PARTIAL_RESYNC:
+                    break;
+
+                case FULL_RESYNC:
+                    break;
+
+                default:
+                    break;
+            }
+
+
+
+
+
 
         }), true);
     }
