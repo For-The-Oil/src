@@ -68,11 +68,11 @@ public final class SyncManager {
                 KryoMessage kryoMessage = KryoMessagePackager.packageSyncRequest(request);
                 client.getConnection().sendTCP(kryoMessage);
 
-                System.out.println("Sync request sent after 2s delay.");
+                System.out.println("Sync request sent.");
             } catch (Exception e) {
                 e.printStackTrace(); // ← Si ça s’affiche, tu as trouvé la cause !!!
             }
-        }, 2, TimeUnit.SECONDS);
+        }, 500, TimeUnit.MILLISECONDS);
 
     }
 
