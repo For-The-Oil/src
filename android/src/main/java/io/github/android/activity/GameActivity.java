@@ -189,7 +189,8 @@ public class GameActivity extends BaseActivity {
             Log.d("For The Oil", netGame.getMapName().toString());
             Log.d("For The Oil", "Time left : " + netGame.getTime_left());
 
-            GameManager.fullGameResync(netGame, clientGame);
+            ClientGame tmp = GameManager.fullGameResync(netGame, clientGame);
+            if(tmp != null)clientGame = tmp;
 
             Log.d("For The Oil", clientGame.getGAME_UUID().toString());
             Log.d("For The Oil", clientGame.getGameMode().toString());
