@@ -3,8 +3,66 @@ package io.github.shared.local.data.EnumsTypes;
 import java.util.HashMap;
 
 public enum EntityType {
-    test(Type.Building,WeaponType.test,1,1,1,1,1,1000,new HashMap<>());
-    //Barrack(Type.Building), Factory(Type.Building), Garage(Type.Building),
+    test(Type.Building,WeaponType.test,1,1,1,1,1,1000,new HashMap<>()),
+
+    BASE(
+        Type.Building,
+        ShapeType.Base,
+        null,
+        2000f,
+        2,
+        0f,
+        5f,
+        20,
+        new HashMap<RessourcesType, Integer>() {{
+            put(RessourcesType.Oil, 100);
+            put(RessourcesType.Steel, 500);
+        }}
+    ),
+    BARRACK(
+        Type.Building,
+        ShapeType.Barrack,
+        null,
+        1500f,
+        3,
+        0f,
+        4f,
+        15,
+        new HashMap<RessourcesType, Integer>() {{
+            put(RessourcesType.Oil, 50);
+            put(RessourcesType.Steel, 300);
+        }}
+    ),
+    FACTORY(
+        Type.Building,
+        ShapeType.Factory,
+        null,
+        2500f,
+        2,
+        0f,
+        6f,
+        25,
+        new HashMap<RessourcesType, Integer>() {{
+            put(RessourcesType.Oil, 200);
+            put(RessourcesType.Steel, 700);
+        }}
+    ),
+    GARAGE(
+        Type.Building,
+        ShapeType.Garage,
+        null,
+        1800f,
+        2,
+        0f,
+        5f,
+        18,
+        new HashMap<RessourcesType, Integer>() {{
+            put(RessourcesType.Oil, 120);
+            put(RessourcesType.Steel, 400);
+        }}
+    );
+
+
     //INFANTRY(Type.Unit), HEAVE_INFANTRY(Type.Unit), TANK(Type.Unit), MOTORIZED(Type.Unit), WALKER(Type.Unit), AIRCRAFT(Type.Unit), NAVAL(Type.Unit);
     private final Type type;
     private final ShapeType shapeType;

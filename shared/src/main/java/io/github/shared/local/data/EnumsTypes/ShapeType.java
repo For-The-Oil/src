@@ -10,11 +10,41 @@ public enum ShapeType {
         {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
         {new Cell(ROAD),new Cell(ROAD),new Cell(VOID)},
         {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
-    }));
+    })),
 
     //MAP1, MAP2,
-    //Barrack, Factory, Garage;
 
+
+
+
+    Base( new Shape(new Cell[][]{
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        })),
+    Barrack(new Shape(new Cell[][]{
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)}
+    })),
+    Factory(new Shape(new Cell[][]{
+            {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+            {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+            {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+            {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+            {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)}
+        })),
+    Garage(new Shape(new Cell[][]{
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)}
+    }));
     private final Shape shape;
 
     ShapeType(Shape shape) {

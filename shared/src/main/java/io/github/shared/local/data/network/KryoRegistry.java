@@ -43,6 +43,7 @@ import io.github.shared.local.data.instructions.ResourcesInstruction;
 import io.github.shared.local.data.instructions.SpecialRequestsInstruction;
 import io.github.shared.local.data.instructions.UpdateEntityInstruction;
 import io.github.shared.local.data.requests.AuthRequest;
+import io.github.shared.local.data.requests.DeckRequest;
 import io.github.shared.local.data.requests.MatchMakingRequest;
 import io.github.shared.local.data.requests.SynchronizeRequest;
 import io.github.shared.local.data.snapshot.ComponentSnapshot;
@@ -65,6 +66,7 @@ public final class KryoRegistry {
         kryo.register(AuthRequest.class);
         kryo.register(MatchMakingRequest.class);
         kryo.register(SynchronizeRequest.class);
+        kryo.register(DeckRequest.class);
 
 
         //instructions
@@ -98,6 +100,7 @@ public final class KryoRegistry {
         kryo.register(ShapeType.class);
         kryo.register(SyncType.class);
         kryo.register(WeaponType.class);
+
 
 
         //Objects

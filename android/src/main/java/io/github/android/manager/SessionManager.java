@@ -3,8 +3,11 @@ package io.github.android.manager;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.github.shared.local.data.EnumsTypes.EntityType;
 
 /**
  * Method that build the current user session.
@@ -19,6 +22,7 @@ public class SessionManager {
     private String token;
     private String username;
     private Map<String, Object> decks;
+    private ArrayList<EntityType> unlockedCards;
     private Boolean isActive=false;
 
     // Constructeur privé pour empêcher l’instanciation directe

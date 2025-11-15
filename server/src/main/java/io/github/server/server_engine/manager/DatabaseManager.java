@@ -1,83 +1,54 @@
 package io.github.server.server_engine.manager;
 
-import static io.github.server.server_engine.utils.JsonUtils.parseDecksJson;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.jdbi.v3.core.Jdbi;
-import org.mindrot.jbcrypt.BCrypt;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.Collections;
-
 import io.github.server.config.DatabaseConfig;
 import io.github.server.data.network.UserData;
+import io.github.server.server_engine.utils.DefaultDeckGenerator;
 import io.github.server.server_engine.utils.JsonUtils;
 import io.github.shared.local.data.EnumsTypes.DeckCardCategory;
+import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.gameobject.Deck;
+import org.mindrot.jbcrypt.BCrypt;
+import org.jdbi.v3.core.Jdbi;
 
+import java.util.*;
 
 /**
- * The {@code DatabaseManager} class serves as the central data access layer
- * for all user and deck operations within the application.
- * <p>
- * It uses:
- * <ul>
- *   <li>{@link com.zaxxer.hikari.HikariCP} for efficient database connection pooling,</li>
- *   <li>{@link org.jdbi.v3.core.Jdbi} for simplified SQL operations,</li>
- *   <li>{@link com.fasterxml.jackson.databind.ObjectMapper} for JSON serialization/deserialization,</li>
- *   <li>{@link org.mindrot.jbcrypt.BCrypt} for secure password hashing.</li>
- * </ul>
- * <p>
- * The class implements a <b>singleton pattern</b> to ensure that all database operations
- * use the same connection pool instance.
- * </p>
- *
- * <h2>Responsibilities</h2>
- * <ul>
- *   <li>Initialize and manage the PostgreSQL connection pool</li>
- *   <li>Register and authenticate users</li>
- *   <li>Manage deck data (CRUD operations via JSONB)</li>
- *   <li>Retrieve structured {@link io.github.core.user.UserData} objects for authenticated users</li>
- * </ul>
- *
- * <h2>Database Tables</h2>
- * <ul>
- *   <li><b>user</b> — stores UUID, email, username, and password hash</li>
- *   <li><b>deck</b> — stores user_id, deck name, and deck data (as JSONB)</li>
- * </ul>
- *
- * <p>
- * All JSON serialization is handled using Jackson.
- * </p>
- *
- * @author
- * @version 1.0
- * @since 2025-10
+ * Simplified database manager for users, collections, battles and stats.
  */
 public final class DatabaseManager {
 
-    /** JSON serializer/deserializer for deck data. */
+    // -------------------------
+    // Table & Column Constants
+    // -------------------------
+    private static final String TABLE_USERS = "users";
+    private static final String TABLE_USER_COLLECTIONS = "user_collections";
+    private static final String TABLE_BATTLES = "battles";
+    private static final String TABLE_USER_BATTLES = "user_battles";
+    private static final String TABLE_USER_STATS = "user_stats";
+
+    private static final String COL_ID = "id";
+    private static final String COL_EMAIL = "email";
+    private static final String COL_USERNAME = "username";
+    private static final String COL_PASSWORD = "password";
+    private static final String COL_USER_ID = "user_id";
+    private static final String COL_UNLOCKED_CARDS = "unlocked_cards";
+    private static final String COL_DECKS = "decks";
+    private static final String COL_LAST_UPDATE = "last_update";
+    private static final String COL_BATTLE_ID = "battle_id";
+    private static final String COL_WINS = "wins";
+    private static final String COL_LOSSES = "losses";
+
+    // -------------------------
+    // Singleton / JDBI / Mapper
+    // -------------------------
     private final ObjectMapper mapper = new ObjectMapper();
-
-    /** Singleton instance of DatabaseManager. */
     private static DatabaseManager INSTANCE;
-
-    /** JDBI handle for SQL operations. */
     private final Jdbi jdbi;
 
-    /**
-     * Private constructor initializing the database connection pool and JDBI instance.
-     * <p>
-     * Uses {@link com.zaxxer.hikari.HikariConfig} and {@link com.zaxxer.hikari.HikariDataSource}
-     * to configure the PostgreSQL database connection.
-     * </p>
-     */
     private DatabaseManager() {
-        // === HikariCP Configuration ===
         HikariConfig config = new HikariConfig();
         String jdbcUrl = String.format(
             "jdbc:postgresql://%s:%s/%s",
@@ -85,70 +56,94 @@ public final class DatabaseManager {
             DatabaseConfig.PORT,
             DatabaseConfig.uri
         );
-
         config.setJdbcUrl(jdbcUrl);
         config.setUsername(DatabaseConfig.user);
         config.setPassword(DatabaseConfig.password);
-        config.setMaximumPoolSize(5); // Maximum number of simultaneous connections
+        config.setMaximumPoolSize(5);
         config.setDriverClassName("org.postgresql.Driver");
-
         HikariDataSource dataSource = new HikariDataSource(config);
-
-        // === Initialize JDBI ===
         this.jdbi = Jdbi.create(dataSource);
     }
 
-    /**
-     * Returns the singleton instance of {@link DatabaseManager}.
-     *
-     * @return the global DatabaseManager instance
-     */
     public static DatabaseManager getInstance() {
         if (INSTANCE == null) INSTANCE = new DatabaseManager();
         return INSTANCE;
     }
 
-    // -----------------------
-    // User methods (existing)
-    // -----------------------
-
-    /**
-     * Registers a new user in the database.
-     * <p>
-     * Hashes the password with BCrypt and inserts a new record into the {@code user} table.
-     * </p>
-     *
-     * @param email    the email of the new user (must be unique)
-     * @param username the username of the new user
-     * @param password the plain text password of the new user
-     * @return {@code true} if the user was successfully registered, {@code false} if the email already exists
-     */
+    // ==========================
+    // USERS
+    // ==========================
     public boolean registerUser(String email, String username, String password) {
         if (userExists(email)) return false;
 
         String hash = BCrypt.hashpw(password, BCrypt.gensalt());
-        UUID id = UUID.randomUUID();
+        UUID userId = UUID.randomUUID();
 
-        jdbi.useHandle(handle ->
+        // -------------------------
+        // Deck par défaut
+        // -------------------------
+        Map<String, Deck> defaultDeckMap = DefaultDeckGenerator.generateDefaultDeck();
+
+        // -------------------------
+        // Cartes débloquées initiales
+        // -------------------------
+        List<EntityType> unlockedCards = new ArrayList<>();
+        for (Deck deck : defaultDeckMap.values()) {
+            for (ArrayList<EntityType> list : deck.getCardTabKey().values()) {
+                for (EntityType entity : list) {
+                    if (!unlockedCards.contains(entity)) {
+                        unlockedCards.add(entity);
+                    }
+                }
+            }
+        }
+
+        // -------------------------
+        // Sérialisation JSON
+        // -------------------------
+        String unlockedCardsJson;
+        String decksJson;
+        try {
+            unlockedCardsJson = mapper.writeValueAsString(unlockedCards);
+            decksJson = mapper.writeValueAsString(defaultDeckMap);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        // -------------------------
+        // Transaction DB
+        // -------------------------
+        jdbi.useTransaction(handle -> {
+            // Création de l'utilisateur
             handle.execute(
-                "INSERT INTO \"user\" (id, email, username, password_hash) VALUES (?, ?, ?, ?)",
-                id, email, username, hash
-            )
-        );
+                "INSERT INTO " + TABLE_USERS + " (" + COL_ID + ", " + COL_EMAIL + ", " + COL_USERNAME + ", " + COL_PASSWORD + ") VALUES (?, ?, ?, ?)",
+                userId, email, username, hash
+            );
+
+            // Création des collections de l'utilisateur
+            handle.execute(
+                "INSERT INTO " + TABLE_USER_COLLECTIONS + " (" + COL_USER_ID + ", " + COL_UNLOCKED_CARDS + ", " + COL_DECKS + ") " +
+                    "VALUES (?, CAST(? AS JSONB), CAST(? AS JSONB))",
+                userId, unlockedCardsJson, decksJson
+            );
+
+            // Initialisation des stats utilisateur
+            handle.execute(
+                "INSERT INTO " + TABLE_USER_STATS + " (" + COL_USER_ID + ", " + COL_WINS + ", " + COL_LOSSES + ") VALUES (?, 0, 0)",
+                userId
+            );
+        });
+
         return true;
     }
 
-    /**
-     * Authenticates a user by email and password.
-     *
-     * @param email    the user's email
-     * @param password the user's plain text password
-     * @return {@code true} if credentials match, {@code false} otherwise
-     */
+
+
     public boolean login(String email, String password) {
         return jdbi.withHandle(handle ->
-            handle.createQuery("SELECT password_hash FROM \"user\" WHERE email = :e")
-                .bind("e", email)
+            handle.createQuery("SELECT " + COL_PASSWORD + " FROM " + TABLE_USERS + " WHERE " + COL_EMAIL + " = :email")
+                .bind("email", email)
                 .mapTo(String.class)
                 .findOne()
                 .map(hash -> BCrypt.checkpw(password, hash))
@@ -156,17 +151,10 @@ public final class DatabaseManager {
         );
     }
 
-    /**
-     * Authenticates a user by UUID and password.
-     *
-     * @param id       the UUID of the user
-     * @param password the user's plain text password
-     * @return {@code true} if credentials match, {@code false} otherwise
-     */
     public boolean login(UUID id, String password) {
         return jdbi.withHandle(handle ->
-            handle.createQuery("SELECT password_hash FROM \"user\" WHERE id = :i")
-                .bind("i", id)
+            handle.createQuery("SELECT " + COL_PASSWORD + " FROM " + TABLE_USERS + " WHERE " + COL_ID + " = :id")
+                .bind("id", id)
                 .mapTo(String.class)
                 .findOne()
                 .map(hash -> BCrypt.checkpw(password, hash))
@@ -174,300 +162,212 @@ public final class DatabaseManager {
         );
     }
 
-    /**
-     * Checks whether a user with the given email exists.
-     *
-     * @param email the email to check
-     * @return {@code true} if the user exists, {@code false} otherwise
-     */
     public boolean userExists(String email) {
         return jdbi.withHandle(handle ->
-            handle.createQuery("SELECT COUNT(*) FROM \"user\" WHERE email = :e")
-                .bind("e", email)
+            handle.createQuery("SELECT COUNT(*) FROM " + TABLE_USERS + " WHERE " + COL_EMAIL + " = :email")
+                .bind("email", email)
                 .mapTo(Integer.class)
                 .one()
         ) > 0;
     }
 
-    /**
-     * Checks whether a user with the given UUID exists.
-     *
-     * @param id the UUID to check
-     * @return {@code true} if the user exists, {@code false} otherwise
-     */
     public boolean userExists(UUID id) {
         return jdbi.withHandle(handle ->
-            handle.createQuery("SELECT COUNT(*) FROM \"user\" WHERE id = :i")
-                .bind("i", id)
+            handle.createQuery("SELECT COUNT(*) FROM " + TABLE_USERS + " WHERE " + COL_ID + " = :id")
+                .bind("id", id)
                 .mapTo(Integer.class)
                 .one()
         ) > 0;
     }
 
-    // -----------------------
-    // Deck methods (new)
-    // -----------------------
-
-    /**
-     * Retrieves the UUID of a user by email.
-     *
-     * @param email the user's email
-     * @return an {@link Optional} containing the UUID, or empty if not found
-     */
     private Optional<UUID> getUserIdByEmail(String email) {
         return jdbi.withHandle(handle ->
-            handle.createQuery("SELECT id FROM \"user\" WHERE email = :e")
-                .bind("e", email)
+            handle.createQuery("SELECT " + COL_ID + " FROM " + TABLE_USERS + " WHERE " + COL_EMAIL + " = :email")
+                .bind("email", email)
                 .mapTo(UUID.class)
                 .findOne()
         );
     }
 
-    /**
-     * Retrieves all decks (as JSON) associated with the user identified by email.
-     *
-     * @param email the user's email
-     * @return a list of JSON strings (may be empty)
-     */
-    public List<String> getDecksJsonByEmail(String email) {
-        Optional<UUID> maybeId = getUserIdByEmail(email);
-        if (!maybeId.isPresent()) return Collections.emptyList();
-        return getDecksJsonByUserId(maybeId.get());
-    }
-
-    /**
-     * Retrieves all decks (as JSON) associated with the user identified by UUID.
-     *
-     * @param userId the user's UUID
-     * @return a list of JSON strings (may be empty)
-     */
-    public List<String> getDecksJsonByUserId(UUID userId) {
+    // ==========================
+    // USER COLLECTIONS
+    // ==========================
+    public Optional<String> getUnlockedCardsJson(UUID userId) {
         return jdbi.withHandle(handle ->
-            handle.createQuery("SELECT data::text FROM deck WHERE user_id = :uid")
+            handle.createQuery("SELECT " + COL_UNLOCKED_CARDS + "::text FROM " + TABLE_USER_COLLECTIONS + " WHERE " + COL_USER_ID + " = :uid")
                 .bind("uid", userId)
-                .mapTo(String.class)
-                .list()
-        );
-    }
-
-    /**
-     * Retrieves a specific deck by email and deck name.
-     *
-     * @param email    the user's email
-     * @param deckName the name of the deck
-     * @return an {@link Optional} containing the deck JSON, or empty if not found
-     */
-    public Optional<String> getDeckJsonByEmailAndName(String email, String deckName) {
-        Optional<UUID> maybeId = getUserIdByEmail(email);
-        if (!maybeId.isPresent()) return Optional.empty();
-        return getDeckJsonByUserIdAndName(maybeId.get(), deckName);
-    }
-
-    /**
-     * Retrieves a specific deck by user ID and deck name.
-     *
-     * @param userId   the user's UUID
-     * @param deckName the name of the deck
-     * @return an {@link Optional} containing the deck JSON, or empty if not found
-     */
-    public Optional<String> getDeckJsonByUserIdAndName(UUID userId, String deckName) {
-        return jdbi.withHandle(handle ->
-            handle.createQuery("SELECT data::text FROM deck WHERE user_id = :uid AND name = :name")
-                .bind("uid", userId)
-                .bind("name", deckName)
                 .mapTo(String.class)
                 .findOne()
         );
     }
 
-    /**
-     * Inserts or updates a deck (upsert) for the specified user by email.
-     *
-     * @param email    the user's email
-     * @param deckName the name of the deck
-     * @param jsonData the deck data in JSON format
-     * @return {@code true} if the operation succeeded, {@code false} if the user was not found
-     */
-    public boolean setDeckJsonByEmail(String email, String deckName, String jsonData) {
-        Optional<UUID> maybeId = getUserIdByEmail(email);
-        if (!maybeId.isPresent()) return false;
-        return setDeckJsonByUserId(maybeId.get(), deckName, jsonData);
-    }
-
-    /**
-     * Inserts or updates a deck (upsert) for the specified user by UUID.
-     *
-     * @param userId   the user's UUID
-     * @param deckName the name of the deck
-     * @param jsonData the deck data in JSON format
-     * @return {@code true} if the operation succeeded, {@code false} otherwise
-     */
-    public boolean setDeckJsonByUserId(UUID userId, String deckName, String jsonData) {
-        return jdbi.withHandle(handle -> {
-            // Try update first
-            int updated = handle.createUpdate("UPDATE deck SET data = CAST(:data AS JSONB) WHERE user_id = :uid AND name = :name")
-                .bind("data", jsonData)
-                .bind("uid", userId)
-                .bind("name", deckName)
-                .execute();
-
-            if (updated > 0) {
-                return true;
-            }
-
-            // If no row updated, insert new deck
-            int inserted = handle.createUpdate("INSERT INTO deck (user_id, name, data) VALUES (:uid, :name, CAST(:data AS JSONB))")
-                .bind("uid", userId)
-                .bind("name", deckName)
-                .bind("data", jsonData)
-                .execute();
-
-            return inserted > 0;
-        });
-    }
-
-    /**
-     * Returns the number of decks owned by a user identified by email.
-     *
-     * @param email the user's email
-     * @return the number of decks, or 0 if the user was not found
-     */
-    public int getDeckCountByEmail(String email) {
-        Optional<UUID> maybeId = getUserIdByEmail(email);
-        if (!maybeId.isPresent()) return 0;
-        return getDeckCountByUserId(maybeId.get());
-    }
-
-    /**
-     * Returns the number of decks owned by a user identified by UUID.
-     *
-     * @param userId the user's UUID
-     * @return the number of decks
-     */
-    public int getDeckCountByUserId(UUID userId) {
+    public Optional<String> getDecksJson(UUID userId) {
         return jdbi.withHandle(handle ->
-            handle.createQuery("SELECT COUNT(*) FROM deck WHERE user_id = :uid")
+            handle.createQuery("SELECT " + COL_DECKS + "::text FROM " + TABLE_USER_COLLECTIONS + " WHERE " + COL_USER_ID + " = :uid")
                 .bind("uid", userId)
+                .mapTo(String.class)
+                .findOne()
+        );
+    }
+
+    public boolean updateUnlockedCards(UUID userId, String jsonData) {
+        return jdbi.withHandle(handle ->
+            handle.createUpdate("UPDATE " + TABLE_USER_COLLECTIONS + " SET " + COL_UNLOCKED_CARDS + " = CAST(:data AS JSONB), " + COL_LAST_UPDATE + " = NOW() WHERE " + COL_USER_ID + " = :uid")
+                .bind("data", jsonData)
+                .bind("uid", userId)
+                .execute() > 0
+        );
+    }
+
+    public boolean updateDecks(UUID userId, String jsonData) {
+        return jdbi.withHandle(handle ->
+            handle.createUpdate("UPDATE " + TABLE_USER_COLLECTIONS + " SET " + COL_DECKS + " = CAST(:data AS JSONB), " + COL_LAST_UPDATE + " = NOW() WHERE " + COL_USER_ID + " = :uid")
+                .bind("data", jsonData)
+                .bind("uid", userId)
+                .execute() > 0
+        );
+    }
+
+    // ==========================
+    // BATTLES
+    // ==========================
+    public int createBattle(Date startTime, Date endTime) {
+        return jdbi.withHandle(handle ->
+            handle.createUpdate(
+                    "INSERT INTO " + TABLE_BATTLES + " (start_time, end_time) VALUES (:start, :end) RETURNING " + COL_BATTLE_ID)
+                .bind("start", startTime)
+                .bind("end", endTime)
+                .executeAndReturnGeneratedKeys(COL_BATTLE_ID)
                 .mapTo(Integer.class)
                 .one()
         );
     }
 
-
-
-    /**
-     * Retrieves all decks of a user (by UUID) as a map keyed by {@link DeckCardCategory}.
-     *
-     * @param userId the user's UUID
-     * @return a {@link HashMap} mapping deck types to {@link Deck} objects
-     */
-    public HashMap<DeckCardCategory, Deck> getDecksMap(UUID userId) {
-        HashMap<DeckCardCategory, Deck> map = new HashMap<>();
-        List<String> jsons = jdbi.withHandle(handle ->
-            handle.createQuery("SELECT data FROM deck WHERE user_id = :id")
-                .bind("id", userId)
-                .mapTo(String.class)
+    public List<Map<String, Object>> getBattles() {
+        return jdbi.withHandle(handle ->
+            handle.createQuery("SELECT * FROM " + TABLE_BATTLES)
+                .mapToMap()
                 .list()
         );
-
-        for (String json : jsons) {
-            try {
-                Deck deck = mapper.readValue(json, Deck.class);
-                // On prend le premier DeckCardType de la HashMap comme clé
-                if (!deck.getCardTabKey().isEmpty()) {
-                    DeckCardCategory key = deck.getCardTabKey().keySet().iterator().next();
-                    map.put(key, deck);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return map;
     }
 
-    /**
-     * Retrieves all decks of a user (by email) as a map keyed by {@link DeckCardCategory}.
-     *
-     * @param email the user's email
-     * @return a {@link HashMap} mapping deck types to {@link Deck} objects
-     */
-    public HashMap<DeckCardCategory, Deck> getDecksMap(String email) {
-        HashMap<DeckCardCategory, Deck> map = new HashMap<>();
-        List<String> jsons = jdbi.withHandle(handle ->
-            handle.createQuery(
-                    "SELECT d.data FROM deck d JOIN \"user\" u ON d.user_id = u.id WHERE u.email = :email"
-                )
-                .bind("email", email)
-                .mapTo(String.class)
-                .list()
-        );
-
-        for (String json : jsons) {
-            try {
-                Deck deck = mapper.readValue(json, Deck.class);
-                if (!deck.getCardTabKey().isEmpty()) {
-                    DeckCardCategory key = deck.getCardTabKey().keySet().iterator().next();
-                    map.put(key, deck);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return map;
-    }
-
-    /**
-     * Retrieves a {@link UserData} object for the specified email, including
-     * the user's UUID, username, and all deck data.
-     *
-     * @param email the user's email
-     * @return the populated {@link UserData} object
-     */
-    public UserData getUserDataByEmail(String email) {
+    public boolean addUserToBattle(UUID userId, int battleId) {
         return jdbi.withHandle(handle -> {
-            String sql = "SELECT \"user\".id, username, data " +
-                "FROM \"user\" " +
-                "LEFT JOIN deck ON \"user\".id = deck.user_id " +
-                "WHERE \"user\".email = :email";
-
-            return handle.createQuery(sql)
-                .bind("email", email)
-                .map((rs, ctx) -> {
-                    UUID uuid = (UUID) rs.getObject("id");
-                    String username = rs.getString("username");
-                    String decksJson = rs.getString("data");
-                    HashMap<String, Deck> decks = JsonUtils.parseDecksJson(decksJson);
-                    return new UserData(uuid, username, decks);
-                })
-                .one();
+            int inserted = handle.createUpdate(
+                    "INSERT INTO " + TABLE_USER_BATTLES + " (" + COL_USER_ID + ", " + COL_BATTLE_ID + ") VALUES (:uid, :bid) ON CONFLICT DO NOTHING")
+                .bind("uid", userId)
+                .bind("bid", battleId)
+                .execute();
+            return inserted > 0;
         });
     }
 
-    /**
-     * Retrieves a {@link UserData} object for the specified UUID, including
-     * the user's username and all deck data.
-     *
-     * @param uuid the user's UUID
-     * @return the populated {@link UserData} object
-     */
+    public List<Integer> getBattlesByUser(UUID userId) {
+        return jdbi.withHandle(handle ->
+            handle.createQuery("SELECT " + COL_BATTLE_ID + " FROM " + TABLE_USER_BATTLES + " WHERE " + COL_USER_ID + " = :uid")
+                .bind("uid", userId)
+                .mapTo(Integer.class)
+                .list()
+        );
+    }
+
+    public List<UUID> getUsersByBattle(int battleId) {
+        return jdbi.withHandle(handle ->
+            handle.createQuery("SELECT " + COL_USER_ID + " FROM " + TABLE_USER_BATTLES + " WHERE " + COL_BATTLE_ID + " = :bid")
+                .bind("bid", battleId)
+                .mapTo(UUID.class)
+                .list()
+        );
+    }
+
+    // ==========================
+    // USER STATS
+    // ==========================
+    public Map<String, Object> getUserStats(UUID userId) {
+        return jdbi.withHandle(handle ->
+            handle.createQuery("SELECT " + COL_WINS + ", " + COL_LOSSES + " FROM " + TABLE_USER_STATS + " WHERE " + COL_USER_ID + " = :uid")
+                .bind("uid", userId)
+                .mapToMap()
+                .findOne()
+                .orElseGet(() -> {
+                    Map<String, Object> defaultMap = new HashMap<>();
+                    defaultMap.put(COL_WINS, 0);
+                    defaultMap.put(COL_LOSSES, 0);
+                    return defaultMap;
+                })
+        );
+    }
+
+    public boolean updateUserStats(UUID userId, int wins, int losses) {
+        return jdbi.withHandle(handle -> {
+            int updated = handle.createUpdate(
+                    "UPDATE " + TABLE_USER_STATS + " SET " + COL_WINS + " = :wins, " + COL_LOSSES + " = :losses WHERE " + COL_USER_ID + " = :uid")
+                .bind("wins", wins)
+                .bind("losses", losses)
+                .bind("uid", userId)
+                .execute();
+            if (updated > 0) return true;
+
+            int inserted = handle.createUpdate(
+                    "INSERT INTO " + TABLE_USER_STATS + " (" + COL_USER_ID + ", " + COL_WINS + ", " + COL_LOSSES + ") VALUES (:uid, :wins, :losses)")
+                .bind("uid", userId)
+                .bind("wins", wins)
+                .bind("losses", losses)
+                .execute();
+            return inserted > 0;
+        });
+    }
+
+    // ==========================
+    // USER DATA
+    // ==========================
     public UserData getUserDataByUUID(UUID uuid) {
         return jdbi.withHandle(handle -> {
-            // Requête unique pour récupérer username et decks JSON
-            String sql = "SELECT username, data " +
-                "FROM \"user\" " +
-                "LEFT JOIN deck ON \"user\".id = deck.user_id " +
-                "WHERE \"user\".id = :uuid";
+            // On récupère le username et les collections JSON (décks + cartes)
+            String sql = "SELECT u." + COL_USERNAME + ", c." + COL_DECKS +
+                " FROM " + TABLE_USERS + " u " +
+                "LEFT JOIN " + TABLE_USER_COLLECTIONS + " c ON u." + COL_ID + " = c." + COL_USER_ID +
+                " WHERE u." + COL_ID + " = :uuid";
 
             return handle.createQuery(sql)
                 .bind("uuid", uuid)
                 .map((rs, ctx) -> {
-                    String username = rs.getString("username");
-                    // Supposons que data est stocké comme JSONB et que tu peux le parser en HashMap
-                    String decksJson = rs.getString("data");
-                    HashMap<String, Deck> decks = parseDecksJson(decksJson);
+                    String username = rs.getString(COL_USERNAME);
+                    String decksJson = rs.getString(COL_DECKS);
+
+                    // Convertir le JSON en HashMap<String, Deck>
+                    HashMap<String, Deck> decks = JsonUtils.parseDecksJson(decksJson);
+
                     return new UserData(uuid, username, decks);
                 })
-                .one();
+                .findOne()
+                .orElse(null); // Retourne null si l'utilisateur n'existe pas
+        });
+    }
+
+
+    // ==========================
+    // USER DATA by Email
+    // ==========================
+    public UserData getUserDataByEmail(String email) {
+        return jdbi.withHandle(handle -> {
+            String sql = "SELECT u." + COL_ID + ", u." + COL_USERNAME + ", c." + COL_DECKS +
+                " FROM " + TABLE_USERS + " u " +
+                "LEFT JOIN " + TABLE_USER_COLLECTIONS + " c ON u." + COL_ID + " = c." + COL_USER_ID +
+                " WHERE u." + COL_EMAIL + " = :email";
+
+            return handle.createQuery(sql)
+                .bind("email", email)
+                .map((rs, ctx) -> {
+                    UUID uuid = (UUID) rs.getObject(COL_ID);
+                    String username = rs.getString(COL_USERNAME);
+                    String decksJson = rs.getString(COL_DECKS);
+
+                    HashMap<String, Deck> decks = JsonUtils.parseDecksJson(decksJson);
+                    return new UserData(uuid, username, decks);
+                })
+                .findOne()
+                .orElse(null);
         });
     }
 

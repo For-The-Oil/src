@@ -64,6 +64,13 @@ public class HomeActivity extends BaseActivity {
 
         initListener();
         addMatchMakingListener();
+
+        Log.d("For The Oil", SessionManager.getInstance().getDecks().toString());
+        Log.d("For The Oil", SessionManager.getInstance().getDecks().get("Default Deck").toString());
+        Log.d("For The Oil", SessionManager.getInstance().getDecks().get("Default Deck").getClass().toString());
+        HashMap<String, Object> map = (HashMap<String, Object>) SessionManager.getInstance().getDecks().get("Default Deck");
+        Log.d("For The Oil", SessionManager.getInstance().getToken().toString());
+        Log.d("For The Oil", SessionManager.getInstance().getUsername().toString());
     }
 
 
