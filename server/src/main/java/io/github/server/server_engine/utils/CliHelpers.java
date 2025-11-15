@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 import io.github.server.data.ServerGame;
 import io.github.server.data.network.ServerNetwork;
 import io.github.server.game_engine.GameLauncher;
-import io.github.shared.local.data.network.Player;
+import io.github.shared.data.network.Player;
 
 /**
  * Utility class providing static CLI helper methods

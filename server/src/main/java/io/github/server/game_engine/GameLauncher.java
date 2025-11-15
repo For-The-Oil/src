@@ -1,10 +1,11 @@
 package io.github.server.game_engine;
 
-import static io.github.server.config.BaseGameConfig.FIXED_TIME_STEP;
+import static io.github.shared.config.BaseGameConfig.FIXED_TIME_STEP;
 
 import io.github.server.data.ServerGame;
-import io.github.shared.local.data.instructions.Instruction;
-import io.github.shared.local.shared_engine.manager.InstructionManager;
+import io.github.shared.data.instructions.Instruction;
+import io.github.shared.data.requests.Request;
+import io.github.shared.shared_engine.manager.InstructionManager;
 
 public class GameLauncher extends Thread {
 
@@ -46,7 +47,13 @@ public class GameLauncher extends Thread {
             }
 
 //       Envoi des instructions ici
-//       Traiter les requests  ici
+
+            //Traiter les requests
+            while (!serverGame.isEmptyRequestQueue()) {
+                Request request = serverGame.getRequestQueue().poll();
+                if(request == null)continue;
+                InstructionManager.executeGameRequest(request, serverGame);
+            }
         }
 
         System.out.println("Game loop stopped for game: " + serverGame.getGAME_UUID());

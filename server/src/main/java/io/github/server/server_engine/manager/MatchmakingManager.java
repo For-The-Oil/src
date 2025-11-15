@@ -1,7 +1,7 @@
 package io.github.server.server_engine.manager;
 
-import static io.github.shared.local.data.EnumsTypes.MatchModeType.CONFIRM;
-import static io.github.shared.local.data.EnumsTypes.MatchModeType.LEAVE;
+import static io.github.shared.data.EnumsTypes.MatchModeType.CONFIRM;
+import static io.github.shared.data.EnumsTypes.MatchModeType.LEAVE;
 
 import com.esotericsoftware.kryonet.Connection;
 import java.util.ArrayList;
@@ -13,12 +13,12 @@ import io.github.server.game_engine.GameLauncher;
 import io.github.server.server_engine.factory.KryoMessagePackager;
 import io.github.server.server_engine.factory.RequestFactory;
 import io.github.server.server_engine.utils.GameMaker;
-import io.github.shared.local.data.EnumsTypes.GameModeType;
-import io.github.shared.local.data.EnumsTypes.MatchModeType;
-import io.github.shared.local.data.network.ClientNetwork;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.network.Player;
-import io.github.shared.local.data.requests.MatchMakingRequest;
+import io.github.shared.data.EnumsTypes.GameModeType;
+import io.github.shared.data.EnumsTypes.MatchModeType;
+import io.github.shared.data.network.ClientNetwork;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.network.Player;
+import io.github.shared.data.requests.MatchMakingRequest;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;

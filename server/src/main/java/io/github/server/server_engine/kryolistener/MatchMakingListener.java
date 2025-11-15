@@ -4,10 +4,10 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import io.github.server.server_engine.manager.MatchmakingManager;
-import io.github.shared.local.data.EnumsTypes.GameModeType;
-import io.github.shared.local.data.EnumsTypes.MatchModeType;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.MatchMakingRequest;
+import io.github.shared.data.EnumsTypes.GameModeType;
+import io.github.shared.data.EnumsTypes.MatchModeType;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.requests.MatchMakingRequest;
 
 public class MatchMakingListener extends Listener {
 

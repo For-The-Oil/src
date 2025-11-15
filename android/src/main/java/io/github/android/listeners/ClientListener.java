@@ -1,23 +1,18 @@
 package io.github.android.listeners;
 
-import android.app.Activity;
-import android.app.LauncherActivity;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-
-import androidx.appcompat.app.AlertDialog;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import io.github.android.activity.BaseActivity;
-import io.github.android.activity.HomeActivity;
 import io.github.android.activity.LoginActivity;
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.SessionManager;
 import io.github.android.utils.RedirectUtils;
-import io.github.shared.local.data.network.KryoMessage;
+import io.github.shared.data.network.KryoMessage;
 
 import java.util.HashMap;
 import java.util.Map;

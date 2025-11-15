@@ -16,8 +16,8 @@ import java.util.Collections;
 import io.github.server.config.DatabaseConfig;
 import io.github.server.data.network.UserData;
 import io.github.server.server_engine.utils.JsonUtils;
-import io.github.shared.local.data.EnumsTypes.DeckCardCategory;
-import io.github.shared.local.data.gameobject.Deck;
+import io.github.shared.data.EnumsTypes.DeckCardCategory;
+import io.github.shared.data.gameobject.Deck;
 
 
 /**

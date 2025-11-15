@@ -9,10 +9,10 @@ import java.util.concurrent.Executors;
 import io.github.android.activity.HomeActivity;
 import io.github.android.gui.fragment.main.MatchMakingFragment;
 import io.github.core.client_engine.factory.KryoMessagePackager;
-import io.github.shared.local.data.EnumsTypes.GameModeType;
-import io.github.shared.local.data.EnumsTypes.MatchModeType;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.MatchMakingRequest;
+import io.github.shared.data.EnumsTypes.GameModeType;
+import io.github.shared.data.EnumsTypes.MatchModeType;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.requests.MatchMakingRequest;
 
 
 /**

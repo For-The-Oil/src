@@ -1,6 +1,6 @@
 package io.github.android.callback;
 
-import io.github.shared.local.data.requests.AuthRequest;
+import io.github.shared.data.requests.AuthRequest;
 
 public interface AuthCallBack {
     default void onRegisterSuccess(AuthRequest req) {}

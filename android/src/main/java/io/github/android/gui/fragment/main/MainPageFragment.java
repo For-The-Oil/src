@@ -19,7 +19,7 @@ import io.github.android.activity.HomeActivity;
 import io.github.android.gui.adapter.CarouselAdapter;
 import io.github.android.manager.MatchMakingManager;
 import io.github.fortheoil.R;
-import io.github.shared.local.data.EnumsTypes.GameModeType;
+import io.github.shared.data.EnumsTypes.GameModeType;
 
 public class MainPageFragment extends Fragment {
 

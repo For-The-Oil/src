@@ -14,11 +14,11 @@ import com.esotericsoftware.kryonet.Listener;
 import java.io.IOException;
 import java.util.HashMap;
 
-import io.github.shared.local.data.EnumsTypes.AuthModeType;
-import io.github.shared.local.data.EnumsTypes.KryoMessageType;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.network.KryoRegistry;
-import io.github.shared.local.data.requests.AuthRequest;
+import io.github.shared.data.EnumsTypes.AuthModeType;
+import io.github.shared.data.EnumsTypes.KryoMessageType;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.network.KryoRegistry;
+import io.github.shared.data.requests.AuthRequest;
 
 public class Main extends ApplicationAdapter {
 

@@ -4,8 +4,8 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import io.github.server.server_engine.manager.SyncManager;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.SynchronizeRequest;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.requests.SynchronizeRequest;
 
 public class GameListener extends Listener {
 

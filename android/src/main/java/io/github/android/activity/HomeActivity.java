@@ -2,7 +2,6 @@ package io.github.android.activity;
 
 import static io.github.android.config.ClientDefaultConfig.INIT_WAITING_TIME;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +11,6 @@ import android.widget.LinearLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import io.github.android.gui.adapter.MainAdapter;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
@@ -24,7 +22,7 @@ import io.github.android.manager.SessionManager;
 import io.github.android.utils.RedirectUtils;
 import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
-import io.github.shared.local.data.requests.MatchMakingRequest;
+import io.github.shared.data.requests.MatchMakingRequest;
 
 
 /**

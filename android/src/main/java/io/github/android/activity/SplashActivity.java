@@ -19,7 +19,7 @@ import io.github.android.manager.ClientManager;
 import io.github.android.utils.PrefsUtils;
 import io.github.android.utils.RedirectUtils;
 import io.github.fortheoil.R;
-import io.github.shared.local.data.requests.AuthRequest;
+import io.github.shared.data.requests.AuthRequest;
 
 /**
  * <h1>Splash Activity</h1>

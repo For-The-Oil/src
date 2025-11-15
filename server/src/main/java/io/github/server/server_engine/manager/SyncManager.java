@@ -1,7 +1,7 @@
 package io.github.server.server_engine.manager;
 
 import com.esotericsoftware.kryonet.Connection;
-import java.util.concurrent.ExecutorService;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -11,11 +11,11 @@ import io.github.server.data.network.ServerNetwork;
 import io.github.server.server_engine.factory.KryoMessagePackager;
 import io.github.server.server_engine.factory.RequestFactory;
 import io.github.server.server_engine.utils.PlayerChecker;
-import io.github.shared.local.data.EnumsTypes.SyncType;
-import io.github.shared.local.data.NetGame;
-import io.github.shared.local.data.network.ClientNetwork;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.SynchronizeRequest;
+import io.github.shared.data.EnumsTypes.SyncType;
+import io.github.shared.data.NetGame;
+import io.github.shared.data.network.ClientNetwork;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.requests.SynchronizeRequest;
 
 public final class SyncManager {
 
@@ -39,7 +39,7 @@ public final class SyncManager {
                 this.syncPlayer(client);
                 break;
 
-            case PARTIAL_RESYNC:
+            case INSTRUCTION_SYNC:
                 break;
 
             default:

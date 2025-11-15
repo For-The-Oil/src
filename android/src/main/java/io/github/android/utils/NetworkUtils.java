@@ -6,10 +6,10 @@ import java.util.HashMap;
 
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.SessionManager;
-import io.github.shared.local.data.EnumsTypes.KryoMessageType;
-import io.github.shared.local.data.EnumsTypes.SyncType;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.SynchronizeRequest;
+import io.github.shared.data.EnumsTypes.KryoMessageType;
+import io.github.shared.data.EnumsTypes.SyncType;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.requests.SynchronizeRequest;
 
 public  final class NetworkUtils {
 

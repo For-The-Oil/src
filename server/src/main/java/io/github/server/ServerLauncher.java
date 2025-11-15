@@ -14,9 +14,8 @@ import io.github.server.server_engine.kryolistener.DeckListener;
 import io.github.server.server_engine.kryolistener.GameListener;
 import io.github.server.server_engine.kryolistener.MatchMakingListener;
 import io.github.server.server_engine.utils.CliHelpers;
-import io.github.shared.local.data.network.KryoRegistry;
+import io.github.shared.data.network.KryoRegistry;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Main Class of the server

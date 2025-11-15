@@ -3,15 +3,19 @@ package io.github.core.game_engine;
 import com.artemis.World;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-import io.github.shared.local.data.EnumsTypes.EventType;
-import io.github.shared.local.data.EnumsTypes.GameModeType;
-import io.github.shared.local.data.EnumsTypes.MapName;
-import io.github.shared.local.data.IGame;
-import io.github.shared.local.data.gameobject.Shape;
-import io.github.shared.local.data.network.Player;
+import io.github.shared.data.EnumsTypes.EventType;
+import io.github.shared.data.EnumsTypes.GameModeType;
+import io.github.shared.data.EnumsTypes.MapName;
+import io.github.shared.data.IGame;
+import io.github.shared.data.gameobject.Shape;
+import io.github.shared.data.instructions.Instruction;
+import io.github.shared.data.network.Player;
 
 public class ClientGame implements IGame {
     private final UUID GAME_UUID;
@@ -23,10 +27,12 @@ public class ClientGame implements IGame {
     private Shape map;
     private MapName mapName;
     private EventType currentEvent;
+    private final Queue<Instruction> executionQueue;
+    private float accumulator;
     private long lastTime;
     private long timeLeft;  // seconds
 
-    public ClientGame(GameModeType gameMode, MapName mapName, Shape map, UUID uuid) {
+    public ClientGame(GameModeType gameMode, MapName mapName, Shape map, UUID uuid,long timeLeft) {
         this.GAME_UUID = uuid;
         this.gameMode = gameMode;
         this.mapName = mapName;
@@ -34,7 +40,9 @@ public class ClientGame implements IGame {
         this.playerTeam = new HashMap<>();
         this.playersList = new ArrayList<>();
         this.running = true;
-        this.timeLeft = 0;
+        this.executionQueue = new ConcurrentLinkedQueue<>();
+        this.accumulator = 0f;
+        this.timeLeft = timeLeft;
         this.lastTime = System.currentTimeMillis();
         this.currentEvent = EventType.START;
 
@@ -149,5 +157,23 @@ public class ClientGame implements IGame {
     }
 
 
+    public float getAccumulator() {
+        return accumulator;
+    }
 
+    public void setAccumulator(float accumulator) {
+        this.accumulator = accumulator;
+    }
+
+    public Queue<Instruction> getExecutionQueue() {
+        return executionQueue;
+    }
+
+    public boolean isEmptyExecutionQueue() {
+        return executionQueue.isEmpty();
+    }
+
+    public void addQueueInstruction(Collection<Instruction> instruction){
+        executionQueue.addAll(instruction);
+    }
 }

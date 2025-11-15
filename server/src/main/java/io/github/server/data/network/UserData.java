@@ -3,7 +3,7 @@ package io.github.server.data.network;
 import java.util.HashMap;
 import java.util.UUID;
 
-import io.github.shared.local.data.gameobject.Deck;
+import io.github.shared.data.gameobject.Deck;
 
 // Classe DTO pour regrouper toutes les infos
 public class UserData {
