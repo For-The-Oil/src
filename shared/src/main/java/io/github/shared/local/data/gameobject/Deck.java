@@ -3,6 +3,7 @@ package io.github.shared.local.data.gameobject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.github.shared.local.data.EnumsTypes.DeckCardCategory;
@@ -31,6 +32,20 @@ public class Deck implements Serializable {
     }
 
 
+
+    public List<EntityType> getCardsByCategory(Deck deck, DeckCardCategory category) {
+        List<EntityType> list = new ArrayList<>();
+        if (deck == null) return list;
+
+        ArrayList<EntityType> categoryCards = deck.getCardArrayListKey(category);
+        if (categoryCards != null) {
+            list.addAll(categoryCards);
+        }
+        return list;
+    }
+
+
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -43,6 +58,8 @@ public class Deck implements Serializable {
         sb.append("}");
         return sb.toString();
     }
+
+
 
 
 }

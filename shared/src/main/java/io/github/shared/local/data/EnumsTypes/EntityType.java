@@ -17,7 +17,8 @@ public enum EntityType {
         new HashMap<RessourcesType, Integer>() {{
             put(RessourcesType.Oil, 100);
             put(RessourcesType.Steel, 500);
-        }}
+        }},
+        DeckCardCategory.Industrial
     ),
     BARRACK(
         Type.Building,
@@ -31,7 +32,8 @@ public enum EntityType {
         new HashMap<RessourcesType, Integer>() {{
             put(RessourcesType.Oil, 50);
             put(RessourcesType.Steel, 300);
-        }}
+        }},
+        DeckCardCategory.Military
     ),
     FACTORY(
         Type.Building,
@@ -45,7 +47,8 @@ public enum EntityType {
         new HashMap<RessourcesType, Integer>() {{
             put(RessourcesType.Oil, 200);
             put(RessourcesType.Steel, 700);
-        }}
+        }},
+        DeckCardCategory.Military
     ),
     GARAGE(
         Type.Building,
@@ -59,12 +62,14 @@ public enum EntityType {
         new HashMap<RessourcesType, Integer>() {{
             put(RessourcesType.Oil, 120);
             put(RessourcesType.Steel, 400);
-        }}
+        }},
+        DeckCardCategory.Military
     );
 
 
     //INFANTRY(Type.Unit), HEAVE_INFANTRY(Type.Unit), TANK(Type.Unit), MOTORIZED(Type.Unit), WALKER(Type.Unit), AIRCRAFT(Type.Unit), NAVAL(Type.Unit);
     private final Type type;
+    private final DeckCardCategory category;
     private final ShapeType shapeType;
     private final WeaponType weaponType;
     private final float maxHealth;
@@ -75,7 +80,7 @@ public enum EntityType {
     private final long create_time;
     private final HashMap<RessourcesType, Integer> cost;
 
-    EntityType(Type type, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, long createTime, HashMap<RessourcesType, Integer> cost) {
+    EntityType(Type type, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, long createTime, HashMap<RessourcesType, Integer> cost, DeckCardCategory category) {
         this.type = type;
         this.shapeType = shapeType;
         this.weaponType = weaponType;
@@ -86,6 +91,7 @@ public enum EntityType {
         this.create_time = createTime;
         this.cost = cost;
         this.base_speed = 0;
+        this.category = category;
     }
 
     EntityType(Type type, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float baseSpeed, float freezeTime, long createTime, HashMap<RessourcesType, Integer> cost) {
@@ -99,6 +105,7 @@ public enum EntityType {
         this.create_time = createTime;
         this.cost = cost;
         this.shapeType = null;
+        this.category = null;
     }
 
     public Type getType(){
@@ -140,7 +147,14 @@ public enum EntityType {
         return create_time;
     }
 
+    public DeckCardCategory getCategory(){
+        return category;
+    }
+
     public enum Type{
         Building,Unit
     }
+
+
+
 }

@@ -20,27 +20,50 @@ public final class DefaultDeckGenerator {
      * @return Map du nom du deck vers l'objet Deck
      */
     public static Map<String, Deck> generateDefaultDeck() {
-        Deck defaultDeck = new Deck();
-
-        // Exemple : remplir les catégories avec quelques bâtiments / unités de départ
-        HashMap<DeckCardCategory, ArrayList<EntityType>> cardMap = new HashMap<>();
-
-        // Pour la catégorie principale, par exemple Bâtiments
-        ArrayList<EntityType> buildingList = new ArrayList<>();
-        buildingList.add(EntityType.BASE);
-        buildingList.add(EntityType.GARAGE);
-        buildingList.add(EntityType.FACTORY);
-        buildingList.add(EntityType.BARRACK);
-
-        cardMap.put(DeckCardCategory.Military, buildingList);
-
-        defaultDeck.setCardTabKey(cardMap);
 
         Map<String, Deck> deckMap = new HashMap<>();
+
+        // ==============================================================
+        // 1. DEFAULT DECK (Deck principal militaire)
+        // ==============================================================
+        Deck defaultDeck = new Deck();
+        HashMap<DeckCardCategory, ArrayList<EntityType>> defaultCards = new HashMap<>();
+
+        ArrayList<EntityType> military = new ArrayList<>();
+        military.add(EntityType.BASE);
+        military.add(EntityType.GARAGE);
+        military.add(EntityType.FACTORY);
+        military.add(EntityType.BARRACK);
+
+        defaultCards.put(DeckCardCategory.Military, military);
+        defaultDeck.setCardTabKey(defaultCards);
+
         deckMap.put("Default Deck", defaultDeck);
+
+        // ==============================================================
+        // 2. STARTER DECK (Industrie + Défense légère)
+        // ==============================================================
+        Deck starterDeck = new Deck();
+        HashMap<DeckCardCategory, ArrayList<EntityType>> starterCards = new HashMap<>();
+
+        ArrayList<EntityType> industry = new ArrayList<>();
+        industry.add(EntityType.BASE);
+        industry.add(EntityType.FACTORY);
+
+        ArrayList<EntityType> defense = new ArrayList<>();
+        defense.add(EntityType.BARRACK);   // ex : infanterie légère
+        defense.add(EntityType.GARAGE);    // ex : véhicules légers au départ
+
+        starterCards.put(DeckCardCategory.Military, industry);
+        starterCards.put(DeckCardCategory.Defense, defense);
+
+        starterDeck.setCardTabKey(starterCards);
+
+        deckMap.put("Starter Deck", starterDeck);
 
         return deckMap;
     }
+
 
     /**
      * Sérialise le deck par défaut en JSON utilisable pour la DB.

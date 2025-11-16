@@ -1,70 +1,118 @@
 package io.github.android.gui.adapter;
 
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import io.github.android.gui.Card;
 import io.github.fortheoil.R;
 
 public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.DeckViewHolder> {
 
-    private List<Integer> cards;
-    private OnCardClickListener listener;
+    private List<Card> cards;
+    private int selectedPosition = RecyclerView.NO_POSITION;
+    private final OnCardActionListener listener;
 
-    // Interface pour gérer les clics des boutons
-    public interface OnCardClickListener {
-        void onAddClick(int position);
-        void onInfoClick(int position);
+    public interface OnCardActionListener {
+        void onAddClick(Card card, int position);
+        void onInfoClick(Card card, int position);
     }
 
-    public DeckAdapter(List<Integer> cards, OnCardClickListener listener) {
+    public DeckAdapter(List<Card> cards, OnCardActionListener listener) {
         this.cards = cards;
         this.listener = listener;
     }
 
-    // ViewHolder
     public static class DeckViewHolder extends RecyclerView.ViewHolder {
-        ImageView image;
+        ImageView cardImage;
+        LinearLayout cardActions;
         Button btnAdd;
         Button btnInfo;
 
-        public DeckViewHolder(View itemView) {
+        public DeckViewHolder(@NonNull View itemView) {
             super(itemView);
-            image = itemView.findViewById(R.id.cardImage);
-            btnAdd = itemView.findViewById(R.id.btnAddCard);
-            btnInfo = itemView.findViewById(R.id.btnInfoCard);
+            cardImage = itemView.findViewById(R.id.cardImage);
+            cardActions = itemView.findViewById(R.id.cardActions);
+            btnAdd = itemView.findViewById(R.id.btnAdd);
+            btnInfo = itemView.findViewById(R.id.btnInfo);
         }
     }
 
+    @NonNull
     @Override
-    public DeckViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public DeckViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-            .inflate(R.layout.card_deck_menu, parent, false);
+            .inflate(R.layout.item_deck_card, parent, false);
         return new DeckViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(DeckViewHolder holder, int position) {
-        holder.image.setImageResource(cards.get(position));
+    public void onBindViewHolder(@NonNull DeckViewHolder holder, int position) {
+        Card card = cards.get(position);
+        holder.cardImage.setImageResource(card.getImageResId());
 
-        // Actions des boutons
+        boolean isSelected = position == selectedPosition;
+
+        holder.cardImage.animate().cancel();
+        holder.cardActions.animate().cancel();
+
+        // Overlay sous la carte
+        if (isSelected) {
+            holder.cardImage.animate().scaleX(1.05f).scaleY(1.05f).setDuration(180).start();
+            holder.cardActions.setVisibility(View.VISIBLE);
+            holder.cardActions.setAlpha(1f);
+            holder.cardActions.setTranslationY(0f);
+        } else {
+            holder.cardImage.setScaleX(1f);
+            holder.cardImage.setScaleY(1f);
+            holder.cardActions.setAlpha(0f);
+            holder.cardActions.setTranslationY(dp(holder.itemView, 16));
+            holder.cardActions.setVisibility(View.GONE);
+        }
+
+        // Toggle sélection
+        holder.itemView.setOnClickListener(v -> {
+            int oldPos = selectedPosition;
+            int newPos = holder.getBindingAdapterPosition();
+            if (newPos == RecyclerView.NO_POSITION) return;
+            selectedPosition = (selectedPosition == newPos) ? RecyclerView.NO_POSITION : newPos;
+            if (oldPos != RecyclerView.NO_POSITION) notifyItemChanged(oldPos);
+            notifyItemChanged(selectedPosition);
+        });
+
+        // Actions spécifiques pour le deck
         holder.btnAdd.setOnClickListener(v -> {
-            if (listener != null) listener.onAddClick(position);
+            int pos = holder.getBindingAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION && listener != null) listener.onAddClick(card, pos);
         });
 
         holder.btnInfo.setOnClickListener(v -> {
-            if (listener != null) listener.onInfoClick(position);
+            int pos = holder.getBindingAdapterPosition();
+            if (pos != RecyclerView.NO_POSITION && listener != null) listener.onInfoClick(card, pos);
         });
+    }
+
+    private float dp(View v, int dps) {
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dps, v.getResources().getDisplayMetrics());
     }
 
     @Override
     public int getItemCount() {
         return cards.size();
+    }
+
+    public void setCards(List<Card> newCards){
+        this.cards.clear();
+        this.cards.addAll(newCards);
+        notifyDataSetChanged();
     }
 }

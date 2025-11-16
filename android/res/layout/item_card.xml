@@ -8,47 +8,46 @@
     android:clipChildren="false"
     android:clipToPadding="false">
 
-
-
-    <!-- Contenu principal au-dessus -->
+    <!-- Tout en verticale comme une chaîne -->
     <LinearLayout
-        android:id="@+id/cardContent"
+        android:id="@+id/cardContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center_horizontal">
 
+        <!-- Contenu principal -->
         <ImageView
             android:id="@+id/cardImage"
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:scaleType="centerCrop"/>
-    </LinearLayout>
 
-    <!-- Overlay des actions (dessiné derrière et peut déborder en bas) -->
-    <LinearLayout
-        android:id="@+id/cardActions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:visibility="gone"
-        android:alpha="0"
-        android:translationY="16dp"
-        android:layout_gravity="bottom"
-        android:padding="2dp">
-
-        <Button
-            android:id="@+id/btnAdd"
-            android:layout_width="wrap_content"
+        <!-- Overlay des actions (déployé en dessous) -->
+        <LinearLayout
+            android:id="@+id/cardActions"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ADD"/>
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:alpha="0"
+            android:translationY="16dp"
+            android:padding="2dp">
 
-        <Button
-            android:id="@+id/btnInfo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Info"/>
+            <Button
+                android:id="@+id/btnAdd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ADD"/>
+
+            <Button
+                android:id="@+id/btnInfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Info"/>
+        </LinearLayout>
+
     </LinearLayout>
 
 </FrameLayout>
