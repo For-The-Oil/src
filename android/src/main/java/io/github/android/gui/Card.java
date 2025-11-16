@@ -11,4 +11,6 @@ public class Card {
 
     public int getImageResId() { return imageResId; }
     public String getName() { return name; }
+
+
 }

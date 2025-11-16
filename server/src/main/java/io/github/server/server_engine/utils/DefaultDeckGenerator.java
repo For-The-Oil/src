@@ -30,13 +30,19 @@ public final class DefaultDeckGenerator {
         HashMap<DeckCardCategory, ArrayList<EntityType>> defaultCards = new HashMap<>();
 
         ArrayList<EntityType> military = new ArrayList<>();
-        military.add(EntityType.BASE);
         military.add(EntityType.GARAGE);
         military.add(EntityType.FACTORY);
         military.add(EntityType.BARRACK);
 
+        ArrayList<EntityType> industrial = new ArrayList<>();
+        industrial.add(EntityType.BASE);
+
+        ArrayList<EntityType> defense = new ArrayList<>();
+
         defaultCards.put(DeckCardCategory.Military, military);
-        defaultDeck.setCardTabKey(defaultCards);
+        defaultCards.put(DeckCardCategory.Industrial, industrial);
+        defaultCards.put(DeckCardCategory.Defense, defense);
+        defaultDeck.setCardsByCategory(defaultCards);
 
         deckMap.put("Default Deck", defaultDeck);
 
@@ -46,18 +52,18 @@ public final class DefaultDeckGenerator {
         Deck starterDeck = new Deck();
         HashMap<DeckCardCategory, ArrayList<EntityType>> starterCards = new HashMap<>();
 
-        ArrayList<EntityType> industry = new ArrayList<>();
-        industry.add(EntityType.BASE);
-        industry.add(EntityType.FACTORY);
+        ArrayList<EntityType> military2 = new ArrayList<>();
+        military2.add(EntityType.GARAGE);
 
-        ArrayList<EntityType> defense = new ArrayList<>();
-        defense.add(EntityType.BARRACK);   // ex : infanterie légère
-        defense.add(EntityType.GARAGE);    // ex : véhicules légers au départ
+        ArrayList<EntityType> industrial2 = new ArrayList<>();
+        industrial2.add(EntityType.BASE);
 
-        starterCards.put(DeckCardCategory.Military, industry);
-        starterCards.put(DeckCardCategory.Defense, defense);
+        ArrayList<EntityType> defense2 = new ArrayList<>();
 
-        starterDeck.setCardTabKey(starterCards);
+        starterCards.put(DeckCardCategory.Military, military2);
+        starterCards.put(DeckCardCategory.Industrial, industrial2);
+        starterCards.put(DeckCardCategory.Defense, defense2);
+        starterDeck.setCardsByCategory(starterCards);
 
         deckMap.put("Starter Deck", starterDeck);
 

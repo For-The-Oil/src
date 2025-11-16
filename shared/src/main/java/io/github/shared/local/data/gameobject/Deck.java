@@ -10,25 +10,25 @@ import io.github.shared.local.data.EnumsTypes.DeckCardCategory;
 import io.github.shared.local.data.EnumsTypes.EntityType;
 
 public class Deck implements Serializable {
-    private HashMap<DeckCardCategory, ArrayList<EntityType>> cardTabKey;
+    private HashMap<DeckCardCategory, ArrayList<EntityType>> cardsByCategory;
 
     public Deck() {
-        this.cardTabKey = new HashMap<DeckCardCategory, ArrayList<EntityType>>();
+        this.cardsByCategory = new HashMap<DeckCardCategory, ArrayList<EntityType>>();
     }
 
-    public HashMap<DeckCardCategory, ArrayList<EntityType>> getCardTabKey() {
-        return cardTabKey;
+    public HashMap<DeckCardCategory, ArrayList<EntityType>> getCardsByCategory() {
+        return cardsByCategory;
     }
 
-    public void setCardTabKey(HashMap<DeckCardCategory, ArrayList<EntityType>> cardTabKey) {
-        this.cardTabKey = cardTabKey;
+    public void setCardsByCategory(HashMap<DeckCardCategory, ArrayList<EntityType>> cardsByCategory) {
+        this.cardsByCategory = cardsByCategory;
     }
     public ArrayList<EntityType> getCardArrayListKey(DeckCardCategory menu) {
-        return cardTabKey.get(menu);
+        return cardsByCategory.get(menu);
     }
 
     public EntityType getCardKey(DeckCardCategory menu, int building) {
-        return cardTabKey.get(menu).get(building);
+        return cardsByCategory.get(menu).get(building);
     }
 
 
@@ -50,7 +50,7 @@ public class Deck implements Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Deck{");
-        for (Map.Entry<DeckCardCategory, ArrayList<EntityType>> entry : cardTabKey.entrySet()) {
+        for (Map.Entry<DeckCardCategory, ArrayList<EntityType>> entry : cardsByCategory.entrySet()) {
             sb.append(entry.getKey()).append(" = ");
             sb.append(entry.getValue());
             sb.append(", ");
@@ -59,6 +59,30 @@ public class Deck implements Serializable {
         return sb.toString();
     }
 
+    public void addCard(EntityType card, DeckCardCategory category) {
+        if (card == null || category == null) return;
+
+        // Récupère la liste pour la catégorie, ou crée-la si elle n'existe pas
+        ArrayList<EntityType> list = cardsByCategory.get(category);
+        if (list == null) {
+            list = new ArrayList<>();
+            cardsByCategory.put(category, list);
+        }
+
+        // Évite les doublons
+        if (!list.contains(card)) {
+            list.add(card);
+        }
+    }
+
+    public void removeCard(EntityType card, DeckCardCategory category) {
+        if (card == null || category == null) return;
+
+        ArrayList<EntityType> list = cardsByCategory.get(category);
+        if (list != null) {
+            list.remove(card);
+        }
+    }
 
 
 

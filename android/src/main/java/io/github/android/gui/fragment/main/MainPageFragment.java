@@ -14,16 +14,20 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import io.github.android.activity.HomeActivity;
 import io.github.android.gui.adapter.CarouselAdapter;
 import io.github.android.manager.MatchMakingManager;
 import io.github.fortheoil.R;
 import io.github.shared.local.data.EnumsTypes.GameModeType;
+import io.github.shared.local.data.gameobject.Deck;
+import io.github.android.manager.SessionManager;
 
 public class MainPageFragment extends Fragment {
 
     private HomeActivity activity;
+    private Button btnPlay, btnDeck;
 
     @Nullable
     @Override
@@ -40,17 +44,22 @@ public class MainPageFragment extends Fragment {
         activity = (HomeActivity) getActivity();
         if (activity == null) return;
 
+        btnDeck = view.findViewById(R.id.btnDeck);
+        btnPlay = view.findViewById(R.id.btnPlay);
         ViewPager2 carousel = view.findViewById(R.id.imageCarousel);
-        Button btnPlay = view.findViewById(R.id.btnPlay);
 
-        // Liste des images du carrousel
+        setupCarousel(carousel);
+        setupPlayButton();
+        updateDeckButton(); // initial update du bouton Deck
+    }
+
+    private void setupCarousel(ViewPager2 carousel) {
         List<Integer> images = Arrays.asList(
             R.drawable.placeholder_0,
             R.drawable.placeholder_1,
             R.drawable.placeholder_2
         );
 
-        // Adapter du carrousel
         CarouselAdapter adapter = new CarouselAdapter(images);
         carousel.setAdapter(adapter);
         carousel.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
@@ -65,7 +74,7 @@ public class MainPageFragment extends Fragment {
             });
         }
 
-        // Transformer pour effet zoom
+        // Zoom & alpha effect
         carousel.setPageTransformer((page, position) -> {
             float scale = 0.85f + (1 - Math.abs(position)) * 0.15f;
             page.setScaleX(scale);
@@ -86,12 +95,11 @@ public class MainPageFragment extends Fragment {
                 }
             }
         });
+    }
 
-        // Action du bouton Play
+    private void setupPlayButton() {
         btnPlay.setOnClickListener(v -> {
             String currentMode = activity.getGameMode();
-            // TODO : lancer l’activité ou la logique correspondant au mode
-
             MatchMakingManager myMatchManager = MatchMakingManager.getInstance();
 
             switch (currentMode) {
@@ -99,19 +107,33 @@ public class MainPageFragment extends Fragment {
                     myMatchManager.askMatchmaking(GameModeType.ALPHA_TEST);
                     break;
                 case "MODE_1":
-                    myMatchManager.askMatchmaking(GameModeType.CLASSIC);
-                    break;
                 case "MODE_2":
-                    myMatchManager.askMatchmaking(GameModeType.CLASSIC);
-                    break;
                 default:
                     myMatchManager.askMatchmaking(GameModeType.CLASSIC);
             }
         });
-
-
     }
 
+    /**
+     * Méthode publique à appeler quand le deck courant a changé côté client
+     * Elle met à jour le texte du bouton Deck
+     */
+    public void updateDeckButton() {
+        Deck currentDeck = SessionManager.getInstance().getCurrentDeck();
+        String deckName = "Deck"; // fallback si aucun deck
 
+        if (currentDeck != null) {
+            Map<String, Deck> decks = SessionManager.getInstance().getDecks();
+            for (Map.Entry<String, Deck> entry : decks.entrySet()) {
+                if (entry.getValue() == currentDeck) {
+                    deckName = entry.getKey();
+                    break;
+                }
+            }
+        }
 
+        if (btnDeck != null) {
+            btnDeck.setText(deckName);
+        }
+    }
 }

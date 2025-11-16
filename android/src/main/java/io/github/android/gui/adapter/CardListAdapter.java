@@ -59,6 +59,11 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardVi
         Card card = cards.get(position);
         holder.cardImage.setImageResource(card.getImageResId());
 
+        // Forcer largeur à 30%
+        ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
+        lp.width = (int) (holder.itemView.getResources().getDisplayMetrics().widthPixels * 0.25f);
+        holder.itemView.setLayoutParams(lp);
+
         boolean isSelected = position == selectedPosition;
 
         holder.cardImage.animate().cancel();
@@ -96,6 +101,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardVi
             if (pos != RecyclerView.NO_POSITION && listener != null) listener.onInfoClick(card, pos);
         });
     }
+
 
     private float dp(View v, int dps) {
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dps, v.getResources().getDisplayMetrics());

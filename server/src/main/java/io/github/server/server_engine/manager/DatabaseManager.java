@@ -7,7 +7,6 @@ import io.github.server.config.DatabaseConfig;
 import io.github.server.data.network.UserData;
 import io.github.server.server_engine.utils.DefaultDeckGenerator;
 import io.github.server.server_engine.utils.JsonUtils;
-import io.github.shared.local.data.EnumsTypes.DeckCardCategory;
 import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.gameobject.Deck;
 import org.mindrot.jbcrypt.BCrypt;
@@ -89,7 +88,7 @@ public final class DatabaseManager {
         // -------------------------
         List<EntityType> unlockedCards = new ArrayList<>();
         for (Deck deck : defaultDeckMap.values()) {
-            for (ArrayList<EntityType> list : deck.getCardTabKey().values()) {
+            for (ArrayList<EntityType> list : deck.getCardsByCategory().values()) {
                 for (EntityType entity : list) {
                     if (!unlockedCards.contains(entity)) {
                         unlockedCards.add(entity);

@@ -3,6 +3,7 @@ package io.github.server.server_engine.factory;
 import io.github.shared.local.data.EnumsTypes.KryoMessageType;
 import io.github.shared.local.data.network.KryoMessage;
 import io.github.shared.local.data.requests.AuthRequest;
+import io.github.shared.local.data.requests.DeckRequest;
 import io.github.shared.local.data.requests.MatchMakingRequest;
 import io.github.shared.local.data.requests.SynchronizeRequest;
 
@@ -34,6 +35,10 @@ public class KryoMessagePackager {
 
     public static KryoMessage packageSyncRequest(SynchronizeRequest request){
         return new KryoMessage(KryoMessageType.SYNC, null, request);
+    }
+
+    public static KryoMessage packageDeckRequest(DeckRequest request){
+        return new KryoMessage(KryoMessageType.DECK, null, request);
     }
 
 

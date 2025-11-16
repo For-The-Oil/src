@@ -24,6 +24,7 @@ public class SessionManager {
     private String username;
     private Map<String, Deck> decks;
     private ArrayList<EntityType> unlockedCards;
+    private Deck currentDeck;
     private Boolean isActive=false;
 
     // Constructeur privé pour empêcher l’instanciation directe
@@ -107,6 +108,14 @@ public class SessionManager {
 
     public ArrayList<EntityType> getUnlockedCards() {
         return unlockedCards;
+    }
+
+    public Deck getCurrentDeck() {
+        return currentDeck;
+    }
+
+    public void setCurrentDeck(Deck currentDeck) {
+        this.currentDeck = currentDeck;
     }
 }
 

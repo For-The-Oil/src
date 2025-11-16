@@ -14,6 +14,7 @@ import io.github.shared.local.data.EnumsTypes.AuthModeType;
 import io.github.shared.local.data.EnumsTypes.CellEffectType;
 import io.github.shared.local.data.EnumsTypes.CellType;
 import io.github.shared.local.data.EnumsTypes.DeckCardCategory;
+import io.github.shared.local.data.EnumsTypes.DeckRequestType;
 import io.github.shared.local.data.EnumsTypes.Direction;
 import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.EnumsTypes.EventType;
@@ -100,6 +101,7 @@ public final class KryoRegistry {
         kryo.register(ShapeType.class);
         kryo.register(SyncType.class);
         kryo.register(WeaponType.class);
+        kryo.register(DeckRequestType.class);
 
 
 

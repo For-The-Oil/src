@@ -1,5 +1,6 @@
 package io.github.android.activity;
 
+import static androidx.core.app.PendingIntentCompat.getActivity;
 import static io.github.android.config.ClientDefaultConfig.INIT_WAITING_TIME;
 
 import android.content.Intent;
@@ -9,14 +10,18 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.github.android.gui.adapter.MainAdapter;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
+import io.github.android.gui.fragment.main.DeckFragment;
+import io.github.android.gui.fragment.main.MainPageFragment;
 import io.github.android.gui.fragment.main.MatchMakingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
@@ -27,6 +32,7 @@ import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
 import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.gameobject.Deck;
+import io.github.shared.local.data.requests.DeckRequest;
 import io.github.shared.local.data.requests.MatchMakingRequest;
 
 
@@ -67,11 +73,23 @@ public class HomeActivity extends BaseActivity {
 
         initListener();
         addMatchMakingListener();
+        addSessionUpdateListener();
 
-        Log.d("For The Oil", SessionManager.getInstance().getDecks().toString());
-        Log.d("For The Oil", SessionManager.getInstance().getDecks().get("Default Deck").toString());
-        Log.d("For The Oil", SessionManager.getInstance().getDecks().get("Default Deck").getClass().toString());
-        Log.d("For The Oil", SessionManager.getInstance().getUsername().toString());
+        Log.d("For The Oil", "Decks: " + SessionManager.getInstance().getDecks());
+
+        Deck defaultDeck = SessionManager.getInstance().getDecks().get("Default Deck");
+        if (defaultDeck != null) {
+            Log.d("For The Oil", "Default Deck: " + defaultDeck.toString());
+            Log.d("For The Oil", "Default Deck class: " + defaultDeck.getClass().toString());
+        } else {
+            Log.d("For The Oil", "Default Deck is null");
+        }
+
+        String username = SessionManager.getInstance().getUsername();
+        Log.d("For The Oil", "Username: " + (username != null ? username : "null"));
+
+
+
         ArrayList<EntityType> unlockedCards = SessionManager.getInstance().getUnlockedCards();
         if (unlockedCards != null) {
             for (EntityType type : unlockedCards) {
@@ -237,6 +255,65 @@ public class HomeActivity extends BaseActivity {
         },
         true);
     }
+
+    public void addSessionUpdateListener() {
+        ClientListener listener = ClientListener.getInstance();
+
+        listener.onMessage(DeckRequest.class, request -> {
+            Log.d("ForTheOil", "DeckRequest update received from server");
+
+            // Logs complets de la requête
+            Log.d("ForTheOil", "Keys in request:");
+            for (Map.Entry<String, String> entry : request.getKeys().entrySet()) {
+                Log.d("ForTheOil", "  " + entry.getKey() + " -> " + entry.getValue());
+            }
+
+            // Mise à jour des decks
+            String decksJson = request.getKeys().get("deck_data");
+            if (decksJson != null) {
+                Log.d("ForTheOil", "Updating decks from JSON: " + decksJson);
+                SessionManager.getInstance().setDecksFromJson(decksJson);
+            }
+
+            // Mise à jour des cartes débloquées
+            String unlockedJson = request.getKeys().get("unlocked_cards");
+            if (unlockedJson != null) {
+                Log.d("ForTheOil", "Updating unlocked cards from JSON: " + unlockedJson);
+                SessionManager.getInstance().setUnlockedCardsFromJson(unlockedJson);
+            }
+
+            // Mise à jour du deck courant
+            String currentDeckName = request.getKeys().get("current_deck");
+            if (currentDeckName != null && SessionManager.getInstance().getDecks().containsKey(currentDeckName)) {
+                Deck currentDeck = SessionManager.getInstance().getDecks().get(currentDeckName);
+                Log.d("ForTheOil", "Setting current deck to: " + currentDeckName + " -> " + currentDeck);
+                SessionManager.getInstance().setCurrentDeck(currentDeck);
+            }
+
+            if (SessionManager.getInstance().getDecks().isEmpty()){
+                SessionManager.getInstance().setCurrentDeck(null);
+            }
+
+
+            Fragment f = getSupportFragmentManager().findFragmentByTag("f0");
+            if (f instanceof DeckFragment && f.getView() != null) {
+                runOnUiThread(() -> {
+                    ((DeckFragment) f).refreshUI();
+                    Log.d("ForTheOil", "refreshUI() called on DeckFragment");
+                });
+            }
+
+            Fragment f2 = this.getSupportFragmentManager().findFragmentByTag("f1");
+            if (f2 instanceof MainPageFragment) {
+                ((MainPageFragment) f2).updateDeckButton();
+            }
+
+
+
+        }, true); // true = listener persistant
+    }
+
+
 
 
     // -------------------------

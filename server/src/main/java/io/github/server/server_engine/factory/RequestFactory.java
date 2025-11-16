@@ -73,4 +73,10 @@ public class RequestFactory {
         return new DeckRequest(mode, map);
     }
 
+
+
+
+
+
+
 }
