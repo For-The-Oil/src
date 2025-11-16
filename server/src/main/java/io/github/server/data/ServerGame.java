@@ -2,6 +2,7 @@ package io.github.server.data;
 
 import com.artemis.World;
 
+import java.util.Collection;
 import java.util.Queue;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -193,6 +194,10 @@ public class ServerGame implements IGame {
 
     public Queue<Request> getRequestQueue() {
         return requestQueue;
+    }
+
+    public void addQueueRequest(Collection<Request> requests){
+        requestQueue.addAll(requests);
     }
 
     public CreateInstruction consumeCreateInstruction(long timestamp) {

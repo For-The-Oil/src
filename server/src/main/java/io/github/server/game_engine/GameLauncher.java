@@ -2,6 +2,9 @@ package io.github.server.game_engine;
 
 import static io.github.shared.config.BaseGameConfig.FIXED_TIME_STEP;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import io.github.server.data.ServerGame;
 import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.requests.Request;
@@ -10,9 +13,12 @@ import io.github.shared.shared_engine.manager.InstructionManager;
 public class GameLauncher extends Thread {
 
     private final ServerGame serverGame;
+
+    private final Collection<Request> requestsSync;
     public GameLauncher(ServerGame serverGame) {
         super("GameThread-" + serverGame.getGAME_UUID());
         this.serverGame = serverGame;
+        this.requestsSync = new ArrayList<>();
         init();
     }
     private void init(){
@@ -47,6 +53,8 @@ public class GameLauncher extends Thread {
             }
 
             //Traiter les requests
+            serverGame.addQueueRequest(requestsSync);
+            requestsSync.clear();
             while (!serverGame.isEmptyRequestQueue()) {
                 Request request = serverGame.getRequestQueue().poll();
                 if(request == null)continue;
@@ -63,6 +71,18 @@ public class GameLauncher extends Thread {
         System.out.println("Game loop stopped for game: " + serverGame.getGAME_UUID());
     }
 
+    public ServerGame getGame() {
+        return serverGame;
+    }
+
+    public void stopGame() {
+        serverGame.stopRunning();
+    }
+
+    public void addQueueRequest(Collection<Request> requests){
+        requestsSync.addAll(requests);
+    }
+
     private float getTimeSinceLastFrame() {
         long now = System.currentTimeMillis();
         float delta = now - serverGame.getLastTime();
@@ -70,11 +90,4 @@ public class GameLauncher extends Thread {
         return delta;
     }
 
-    public void stopGame() {
-        serverGame.stopRunning();
-    }
-
-    public ServerGame getGame() {
-        return serverGame;
-    }
 }
