@@ -4,6 +4,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import io.github.shared.data.EnumsTypes.EntityType;
@@ -131,16 +132,11 @@ public class InstructionManager {
                         fields.put("TargetId",netId);
                         fields.put("destinationX",-1);
                         fields.put("destinationY",-1);
-                        fields.put("nextX1",-1);
-                        fields.put("nextY1",-1);
-                        fields.put("nextX2",-1);
-                        fields.put("nextY2",-1);
-                        ArrayList<ComponentSnapshot> lstComponent = new ArrayList<>();
-                        lstComponent.add(new ComponentSnapshot("TargetComponent", fields));
-                        EntitySnapshot entitySnapshot = new EntitySnapshot(netId,netAttack.entityType, lstComponent);
+                        fields.put("nextX1",-1);fields.put("nextY1",-1);fields.put("nextX2",-1);fields.put("nextY2",-1);
 
-                        updateEntityAttack.getToUpdate().add(entitySnapshot);
+                        updateEntityAttack.getToUpdate().add(new EntitySnapshot(netId,netAttack.entityType, new ArrayList<>(Collections.singleton(new ComponentSnapshot("TargetComponent", fields)))));
                     }
+
                     if(!updateEntityAttack.getToUpdate().isEmpty()) instruction = updateEntityAttack;
                     break;
                 case "MoveGroupRequest":
@@ -158,31 +154,25 @@ public class InstructionManager {
                         fields.put("TargetId",-1);
                         fields.put("destinationX",moveGroupRequest.getPosX());
                         fields.put("destinationY",moveGroupRequest.getPosY());
-                        fields.put("nextX1",-1);
-                        fields.put("nextY1",-1);
-                        fields.put("nextX2",-1);
-                        fields.put("nextY2",-1);
-                        ArrayList<ComponentSnapshot> lstComponent = new ArrayList<>();
-                        lstComponent.add(new ComponentSnapshot("TargetComponent", fields));
-                        EntitySnapshot entitySnapshot = new EntitySnapshot(netId, netMove.entityType, lstComponent);
+                        fields.put("nextX1",-1);fields.put("nextY1",-1);fields.put("nextX2",-1);fields.put("nextY2",-1);
 
-                        updateEntityMove.getToUpdate().add(entitySnapshot);
+                        updateEntityMove.getToUpdate().add(new EntitySnapshot(netId, netMove.entityType, new ArrayList<>(Collections.singleton(new ComponentSnapshot("TargetComponent", fields)))));
                     }
+
                     if(!updateEntityMove.getToUpdate().isEmpty()) instruction = updateEntityMove;
                     break;
                 case "BuildRequest":
                     BuildRequest buildRequest = (BuildRequest) request;
                     CreateInstruction buildInstruction = new CreateInstruction(System.currentTimeMillis());
-                    HashMap<RessourcesType, Integer> toSubtractBuild = new HashMap<>();
+
                     EntityType entityTypeBuild = buildRequest.getType();
                     Shape shape = entityTypeBuild.getShapeType().getShape();
-                    if(!ShapeManager.canOverlayShape(game.getMap(), shape, buildRequest.getPosX(), buildRequest.getPosY(), 0, 0, shape.getWidth(), shape.getHeight(),entityTypeBuild.getShapeType().getCanBePlacedOn()))return;
-                    Utility.addResourcesInPlace(toSubtractBuild, entityTypeBuild.getCost());
-                    if(!Utility.canSubtractResources(entityTypeBuild.getCost(), toSubtractBuild)) return;
-                    if(entityTypeBuild.getFrom()!=null) {
-                        Entity entityBuildFrom = EcsManager.findEntityByNetIdPlayerAndType(game.getWorld(), buildRequest.getFrom(), buildRequest.getPlayer(), entityTypeBuild.getFrom());
-                        if (entityBuildFrom == null) return;
-                    }
+
+                    if(!ShapeManager.canOverlayShape(game.getMap(), shape, buildRequest.getPosX(), buildRequest.getPosY(), 0, 0, shape.getWidth(), shape.getHeight(),entityTypeBuild.getShapeType().getCanBePlacedOn())
+                        || !Utility.canSubtractResources(entityTypeBuild.getCost(), entityTypeBuild.getCost())
+                        || (entityTypeBuild.getFrom()!=null
+                        && EcsManager.findEntityByNetIdPlayerAndType(game.getWorld(), buildRequest.getFrom(), buildRequest.getPlayer(), entityTypeBuild.getFrom()) == null)) return;
+
                     buildInstruction.add(entityTypeBuild, Utility.getNetId(), buildRequest.getFrom(), buildRequest.getPosX(), buildRequest.getPosY(), buildRequest.getPlayer());
 
                     if (!buildInstruction.getToSpawn().isEmpty()) instruction = buildInstruction;
@@ -190,15 +180,14 @@ public class InstructionManager {
                 case "CastRequest":
                     CastRequest castRequest = (CastRequest) request;
                     CreateInstruction castInstruction = new CreateInstruction(System.currentTimeMillis());
-                    HashMap<RessourcesType, Integer> toSubtractCast = new HashMap<>();
+
                     EntityType entityTypeCast = castRequest.getType();
 
-                    Utility.addResourcesInPlace(toSubtractCast, entityTypeCast.getCost());
-                    if(!Utility.canSubtractResources(entityTypeCast.getCost(), toSubtractCast)) return;
+                    if(!Utility.canSubtractResources(entityTypeCast.getCost(), entityTypeCast.getCost())) return;
                     Entity entityCastFrom = EcsManager.findEntityByNetIdPlayerAndType(game.getWorld(), castRequest.getFrom(), castRequest.getPlayer(), entityTypeCast.getFrom());
-                    if (entityCastFrom == null) return;
-                    PositionComponent posCast = game.getWorld().getMapper(PositionComponent.class).get(entityCastFrom);
-                    if (posCast == null) return;
+                    if (entityCastFrom == null
+                        || game.getWorld().getMapper(PositionComponent.class).get(entityCastFrom) == null) return;
+
                     castInstruction.add(entityTypeCast, Utility.getNetId(), castRequest.getFrom(), castRequest.getTargetX(), castRequest.getTargetY(), castRequest.getPlayer());
 
                     if (!castInstruction.getToSpawn().isEmpty()) instruction = castInstruction;
@@ -206,16 +195,19 @@ public class InstructionManager {
                 case "SummonRequest":
                     SummonRequest summonRequest = (SummonRequest) request;
                     CreateInstruction createInstructionSummon = new CreateInstruction(System.currentTimeMillis());
+
                     HashMap<RessourcesType, Integer> toSubtractSummon = new HashMap<>();
                     EntityType entityTypeSummon = summonRequest.getType();
 
                     for(int i = summonRequest.getQuantities() ; i>0 ; i--) {
                         Utility.addResourcesInPlace(toSubtractSummon, entityTypeSummon.getCost());
+
                         if(!Utility.canSubtractResources(entityTypeSummon.getCost(), toSubtractSummon))continue;
                         Entity entitySummonFrom = EcsManager.findEntityByNetIdPlayerAndType(game.getWorld(), summonRequest.getFrom(), summonRequest.getPlayer(), entityTypeSummon.getFrom());
                         if (entitySummonFrom == null) continue;
                         PositionComponent posSummon = game.getWorld().getMapper(PositionComponent.class).get(entitySummonFrom);
                         if (posSummon == null) return;
+
                         createInstructionSummon.add(entityTypeSummon, Utility.getNetId(), summonRequest.getFrom(), posSummon.x, posSummon.y, summonRequest.getPlayer());
                     }
 
@@ -224,8 +216,10 @@ public class InstructionManager {
                 case "DestroyRequest":
                     DestroyRequest destroyRequest = (DestroyRequest) request;
                     DestroyInstruction destroyInstruction = new DestroyInstruction(System.currentTimeMillis());
+
                     for (int netId : destroyRequest.getToKill()) {
-                        if (null != EcsManager.findEntityByNetIdAndPlayer(game.getWorld(), netId, destroyRequest.getPlayer()))destroyInstruction.add(netId);
+                        if (null == EcsManager.findEntityByNetIdAndPlayer(game.getWorld(), netId, destroyRequest.getPlayer()))continue;
+                        destroyInstruction.add(netId);
                     }
 
                     if (!destroyInstruction.getToKill().isEmpty()) instruction = destroyInstruction;

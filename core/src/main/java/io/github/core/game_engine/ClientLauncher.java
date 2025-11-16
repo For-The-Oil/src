@@ -76,7 +76,7 @@ public class ClientLauncher extends Thread {
     }
 
     public void setResyncNetGame(NetGame resyncNetGame) {
-        instructionSync.clear();
+        instructionSync.clear(); // TODO : Do Paintest
         this.resyncNetGame = resyncNetGame;
     }
 
