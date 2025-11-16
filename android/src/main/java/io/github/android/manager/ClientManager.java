@@ -120,14 +120,23 @@ public class ClientManager {
         String token = myRequest.getKeys().get("token");
         String username = myRequest.getKeys().get("username");
         String decksJson = myRequest.getKeys().get("decks");
+        String unlockedsJson = myRequest.getKeys().get("unlocked");
 
         // Remplit la session
         sessionManager.setToken(token);
         sessionManager.setUsername(username);
-        if (decksJson == null ||decksJson.isEmpty()){
-            decksJson="{}";
+
+        if (decksJson == null || decksJson.isEmpty()) {
+            decksJson = "{}";
         }
         sessionManager.setDecksFromJson(decksJson);
+
+        // Gestion des cartes débloquées
+        if (unlockedsJson == null || unlockedsJson.isEmpty()) {
+            unlockedsJson = "{}";
+        }
+        sessionManager.setUnlockedCardsFromJson(unlockedsJson);
+
         sessionManager.setActive(true);
     }
 

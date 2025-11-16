@@ -1,5 +1,6 @@
 package io.github.shared.local.data.network;
 
+import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.EnumsTypes.RessourcesType;
 import io.github.shared.local.data.gameobject.Deck;
 
@@ -16,7 +17,7 @@ public class Player extends ClientNetwork {
         super();
     }
     public Player(UUID uuid, String name, HashMap<String, Deck> fullDeck, Deck deck, String token) {
-        super(uuid,name, fullDeck, token);
+        super(uuid,name, fullDeck, null, token);
         this.gameDeck = deck;
         this.resources = new HashMap<>();
     }

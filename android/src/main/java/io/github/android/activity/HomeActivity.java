@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 
 import androidx.viewpager2.widget.ViewPager2;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +25,8 @@ import io.github.android.manager.SessionManager;
 import io.github.android.utils.RedirectUtils;
 import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
+import io.github.shared.local.data.EnumsTypes.EntityType;
+import io.github.shared.local.data.gameobject.Deck;
 import io.github.shared.local.data.requests.MatchMakingRequest;
 
 
@@ -68,9 +71,16 @@ public class HomeActivity extends BaseActivity {
         Log.d("For The Oil", SessionManager.getInstance().getDecks().toString());
         Log.d("For The Oil", SessionManager.getInstance().getDecks().get("Default Deck").toString());
         Log.d("For The Oil", SessionManager.getInstance().getDecks().get("Default Deck").getClass().toString());
-        HashMap<String, Object> map = (HashMap<String, Object>) SessionManager.getInstance().getDecks().get("Default Deck");
-        Log.d("For The Oil", SessionManager.getInstance().getToken().toString());
         Log.d("For The Oil", SessionManager.getInstance().getUsername().toString());
+        ArrayList<EntityType> unlockedCards = SessionManager.getInstance().getUnlockedCards();
+        if (unlockedCards != null) {
+            for (EntityType type : unlockedCards) {
+                Log.d("For The Oil", "Unlocked card: " + type.name());
+            }
+        } else {
+            Log.d("For The Oil", "No unlocked cards");
+        }
+
     }
 
 

@@ -3,6 +3,7 @@ package io.github.shared.local.data.gameobject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import io.github.shared.local.data.EnumsTypes.DeckCardCategory;
 import io.github.shared.local.data.EnumsTypes.EntityType;
@@ -28,5 +29,20 @@ public class Deck implements Serializable {
     public EntityType getCardKey(DeckCardCategory menu, int building) {
         return cardTabKey.get(menu).get(building);
     }
+
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Deck{");
+        for (Map.Entry<DeckCardCategory, ArrayList<EntityType>> entry : cardTabKey.entrySet()) {
+            sb.append(entry.getKey()).append(" = ");
+            sb.append(entry.getValue());
+            sb.append(", ");
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
 
 }

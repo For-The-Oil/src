@@ -1,9 +1,13 @@
 package io.github.shared.local.data.network;
 
 import com.esotericsoftware.kryonet.Connection;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.gameobject.Deck;
 
 public class ClientNetwork {
@@ -12,25 +16,27 @@ public class ClientNetwork {
     private String username;
     private long lastActivityTimestamp;
     private HashMap<String, Deck> decks;
+    private ArrayList<EntityType> unlockedCards;
     private Deck current;
     private transient String ip;
     private transient Connection connection;
 
     public ClientNetwork() {
-        this.decks = new HashMap<>();
+        this.decks = new HashMap<>();this.unlockedCards = new ArrayList<>();
     }
 
-    public ClientNetwork(UUID uuid, String username, HashMap<String, Deck> decks, String token, Connection connection) {
+    public ClientNetwork(UUID uuid, String username, HashMap<String, Deck> decks, ArrayList<EntityType> unlockedCards, String token, Connection connection) {
         this.token = token;
         this.uuid = uuid;
         this.username = username;
         this.decks = decks != null ? decks : new HashMap<>();
         this.connection = connection;
         this.lastActivityTimestamp = System.currentTimeMillis();
+        this.unlockedCards = unlockedCards;
     }
 
-    public ClientNetwork(UUID uuid, String name, HashMap<String, Deck> decks, String token) {
-        this(uuid, name, decks, token, null);
+    public ClientNetwork(UUID uuid, String name, HashMap<String, Deck> decks, ArrayList<EntityType> unlockedCards, String token) {
+        this(uuid, name, decks, unlockedCards, token, null);
     }
 
     public String toString() {
@@ -101,4 +107,11 @@ public class ClientNetwork {
     }
 
 
+    public ArrayList<EntityType> getUnlockedCards() {
+        return unlockedCards;
+    }
+
+    public void setUnlockedCards(ArrayList<EntityType> unlockedCards) {
+        this.unlockedCards = unlockedCards;
+    }
 }

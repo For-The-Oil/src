@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.github.shared.local.data.EnumsTypes.EntityType;
+import io.github.shared.local.data.gameobject.Deck;
 
 /**
  * Method that build the current user session.
@@ -21,7 +22,7 @@ public class SessionManager {
     // Données de session
     private String token;
     private String username;
-    private Map<String, Object> decks;
+    private Map<String, Deck> decks;
     private ArrayList<EntityType> unlockedCards;
     private Boolean isActive=false;
 
@@ -68,17 +69,33 @@ public class SessionManager {
         this.username = username;
     }
 
-    public Map<String, Object> getDecks() { return decks; }
+    public Map<String, Deck> getDecks() { return decks; }
 
     public void setDecksFromJson(String decksJson) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            this.decks = mapper.readValue(decksJson, new TypeReference<Map<String, Object>>() {});
+            this.decks = mapper.readValue(decksJson, new TypeReference<Map<String, Deck>>() {});
         } catch (Exception e) {
             e.printStackTrace();
             this.decks = new HashMap<>();
         }
     }
+
+    public void setUnlockedCardsFromJson(String unlockedsJson) {
+        if (unlockedsJson == null || unlockedsJson.isEmpty()) {
+            this.unlockedCards = new ArrayList<>();
+            return;
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            this.unlockedCards = mapper.readValue(unlockedsJson, new TypeReference<ArrayList<EntityType>>() {});
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.unlockedCards = new ArrayList<>();
+        }
+    }
+
 
     public Boolean isActive() {
         return isActive;
@@ -86,6 +103,10 @@ public class SessionManager {
 
     public void setActive(Boolean active) {
         isActive = active;
+    }
+
+    public ArrayList<EntityType> getUnlockedCards() {
+        return unlockedCards;
     }
 }
 

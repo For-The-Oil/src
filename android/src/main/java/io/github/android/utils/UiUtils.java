@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import io.github.android.activity.BaseActivity;
 import io.github.android.gui.animation.AnimatorBar;
 import io.github.fortheoil.R;
+import io.github.shared.local.data.EnumsTypes.EntityType;
 
 /**
  * Classe utilitaire regroupant des fonctions réutilisables pour l'UI.
@@ -87,6 +88,17 @@ public final class UiUtils {
 
     public static void animateActivityChange(BaseActivity activity){
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top);
+    }
+
+
+    public static int mapEntityTypeToDrawable(EntityType type) {
+        switch (type) {
+            case BASE: return R.drawable.base_card;
+            case GARAGE: return R.drawable.base_card;
+            case FACTORY: return R.drawable.base_card;
+            case BARRACK: return R.drawable.base_card;
+            default: return R.drawable.base_card;
+        }
     }
 
 

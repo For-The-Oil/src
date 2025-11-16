@@ -1,0 +1,4 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <size android:width="16dp"/> <!-- largeur de l’espace -->
+    <solid android:color="@android:color/transparent"/>
+</shape>

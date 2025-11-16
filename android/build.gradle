@@ -76,7 +76,10 @@ configurations { natives }
 dependencies {
   // UI Android standard
   implementation 'androidx.appcompat:appcompat:1.7.1'
+  implementation 'androidx.recyclerview:recyclerview:1.4.0'
   coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+  implementation 'com.google.android.flexbox:flexbox:3.0.0'
+    implementation 'com.google.android.flexbox:flexbox:3.0.0'
 
   // LibGDX backend et cœur du projet
   implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"

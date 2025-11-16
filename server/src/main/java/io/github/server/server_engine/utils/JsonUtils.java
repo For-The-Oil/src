@@ -1,9 +1,12 @@
 package io.github.server.server_engine.utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import io.github.shared.local.data.EnumsTypes.EntityType;
 import io.github.shared.local.data.gameobject.Deck;
 
 public class JsonUtils {
@@ -36,4 +39,14 @@ public class JsonUtils {
             return "{}";
         }
     }
+
+    public static ArrayList<EntityType> parseUnlockedCardsJson(String json) {
+        try {
+            return new ObjectMapper().readValue(json, new TypeReference<ArrayList<EntityType>>() {});
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
 }

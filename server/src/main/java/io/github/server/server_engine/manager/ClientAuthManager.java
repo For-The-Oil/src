@@ -122,17 +122,22 @@ public final class ClientAuthManager {
         System.out.println("User logged in successfully: " + client);
 
         ObjectMapper mapper = new ObjectMapper();
-        String decksJson = "";
+        String decksJson = "{}";
+        String unlockedJson = "{}";
         try {
-            decksJson = mapper.writeValueAsString(client.getDecks()); //
+            decksJson = mapper.writeValueAsString(client.getDecks());
+            unlockedJson = mapper.writeValueAsString(client.getUnlockedCards());
         } catch (Exception e) {
             e.printStackTrace();
-            decksJson = "{}";
         }
+
+        System.out.println(client.getUnlockedCards());
+        System.out.println("Carte débloqué format JSON :" + unlockedJson);
 
         response.put("message", "Success");
         response.put("username", client.getUsername());
         response.put("decks", decksJson);
+        response.put("unlocked", unlockedJson);
         response.put("token", client.getToken());
 
         respondToClient(connection, true, response, AuthModeType.LOGIN_SUCCESS);
@@ -206,17 +211,19 @@ public final class ClientAuthManager {
             ClientNetwork client = addClient(email, connection);
 
             ObjectMapper mapper = new ObjectMapper();
-            String decksJson = "";
+            String decksJson = "{}";
+            String unlockedJson = "{}";
             try {
-                decksJson = mapper.writeValueAsString(client.getDecks()); //
+                decksJson = mapper.writeValueAsString(client.getDecks());
+                unlockedJson = mapper.writeValueAsString(client.getUnlockedCards());
             } catch (Exception e) {
                 e.printStackTrace();
-                decksJson = "{}";
             }
 
             response.put("message", "Success");
             response.put("username", client.getUsername());
             response.put("decks", decksJson);
+            response.put("unlocked", unlockedJson);
             response.put("token", client.getToken());
 
             respondToClient(connection, true, response, AuthModeType.REGISTER_SUCCESS);
@@ -301,6 +308,7 @@ public final class ClientAuthManager {
             userData.getUuid(),
             userData.getUsername(),
             userData.getDecks(),
+            userData.getUnlockedCards(),
             sessionToken,
             connection
         );
@@ -344,6 +352,7 @@ public final class ClientAuthManager {
             userData.getUuid(),
             userData.getUsername(),
             userData.getDecks(),
+            userData.getUnlockedCards(),
             sessionToken,
             connection
         );

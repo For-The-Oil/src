@@ -323,8 +323,8 @@ public final class DatabaseManager {
     // ==========================
     public UserData getUserDataByUUID(UUID uuid) {
         return jdbi.withHandle(handle -> {
-            // On récupère le username et les collections JSON (décks + cartes)
-            String sql = "SELECT u." + COL_USERNAME + ", c." + COL_DECKS +
+            // Récupération du username, decks et unlocked_cards
+            String sql = "SELECT u." + COL_USERNAME + ", c." + COL_DECKS + ", c." + COL_UNLOCKED_CARDS +
                 " FROM " + TABLE_USERS + " u " +
                 "LEFT JOIN " + TABLE_USER_COLLECTIONS + " c ON u." + COL_ID + " = c." + COL_USER_ID +
                 " WHERE u." + COL_ID + " = :uuid";
@@ -334,14 +334,16 @@ public final class DatabaseManager {
                 .map((rs, ctx) -> {
                     String username = rs.getString(COL_USERNAME);
                     String decksJson = rs.getString(COL_DECKS);
+                    String unlockedCardsJson = rs.getString(COL_UNLOCKED_CARDS);
 
-                    // Convertir le JSON en HashMap<String, Deck>
+                    // Conversion JSON -> objets
                     HashMap<String, Deck> decks = JsonUtils.parseDecksJson(decksJson);
+                    ArrayList<EntityType> unlockedCards = JsonUtils.parseUnlockedCardsJson(unlockedCardsJson);
 
-                    return new UserData(uuid, username, decks);
+                    return new UserData(uuid, username, decks, unlockedCards);
                 })
                 .findOne()
-                .orElse(null); // Retourne null si l'utilisateur n'existe pas
+                .orElse(null);
         });
     }
 
@@ -351,7 +353,7 @@ public final class DatabaseManager {
     // ==========================
     public UserData getUserDataByEmail(String email) {
         return jdbi.withHandle(handle -> {
-            String sql = "SELECT u." + COL_ID + ", u." + COL_USERNAME + ", c." + COL_DECKS +
+            String sql = "SELECT u." + COL_ID + ", u." + COL_USERNAME + ", c." + COL_DECKS + ", c." + COL_UNLOCKED_CARDS +
                 " FROM " + TABLE_USERS + " u " +
                 "LEFT JOIN " + TABLE_USER_COLLECTIONS + " c ON u." + COL_ID + " = c." + COL_USER_ID +
                 " WHERE u." + COL_EMAIL + " = :email";
@@ -362,14 +364,18 @@ public final class DatabaseManager {
                     UUID uuid = (UUID) rs.getObject(COL_ID);
                     String username = rs.getString(COL_USERNAME);
                     String decksJson = rs.getString(COL_DECKS);
+                    String unlockedCardsJson = rs.getString(COL_UNLOCKED_CARDS);
 
                     HashMap<String, Deck> decks = JsonUtils.parseDecksJson(decksJson);
-                    return new UserData(uuid, username, decks);
+                    ArrayList<EntityType> unlockedCards = JsonUtils.parseUnlockedCardsJson(unlockedCardsJson);
+
+                    return new UserData(uuid, username, decks, unlockedCards);
                 })
                 .findOne()
                 .orElse(null);
         });
     }
+
 
 
 
