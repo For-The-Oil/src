@@ -108,7 +108,7 @@ public class InstructionManager {
         }
     }
 
-    public static void executeGameRequest(Request request, IGame game) {
+    public static Instruction executeGameRequest(Request request, IGame game) {
         Instruction instruction = null;
         String type = request.getClass().getSimpleName();
         try {
@@ -229,8 +229,9 @@ public class InstructionManager {
             System.err.print("executeRequest err " + e);
         }
         if (instruction != null) {
-            executeInstruction(instruction, game);
+            return instruction;
         }
+        return null;
     }
 
 }

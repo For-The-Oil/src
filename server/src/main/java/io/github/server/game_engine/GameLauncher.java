@@ -46,14 +46,18 @@ public class GameLauncher extends Thread {
                 serverGame.setAccumulator(serverGame.getAccumulator() - FIXED_TIME_STEP);
             }
 
-//       Envoi des instructions ici
-
             //Traiter les requests
             while (!serverGame.isEmptyRequestQueue()) {
                 Request request = serverGame.getRequestQueue().poll();
                 if(request == null)continue;
-                InstructionManager.executeGameRequest(request, serverGame);
+                Instruction instruction = InstructionManager.executeGameRequest(request, serverGame);
+                if(instruction == null)continue;
+                serverGame.getHistoricQueue().add(instruction);
+                serverGame.getNetworkQueue().add(instruction);
+                InstructionManager.executeInstruction(instruction, serverGame);
             }
+
+            //       Envoi des instructions ici
         }
 
         System.out.println("Game loop stopped for game: " + serverGame.getGAME_UUID());
