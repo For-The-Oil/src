@@ -49,6 +49,7 @@ public class SnapshotTracker {
                 case "VelocityComponent":
                 case "BuildingMapPositionComponent":
                 case "OnCreationComponent":
+                case "MoveComponent":
                     for (Field field : componentClass.getDeclaredFields()) {
                         field.setAccessible(true);
                         try {
@@ -116,6 +117,7 @@ public class SnapshotTracker {
                 case "BuildingMapPositionComponent":
                 case "RessourceComponent":
                 case "OnCreationComponent":
+                case "MoveComponent":
                     // Écrasement simple
                     previousSnapshot.setFields(newSnapshot.getFields());
                     break;

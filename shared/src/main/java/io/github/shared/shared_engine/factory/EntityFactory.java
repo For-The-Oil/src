@@ -73,6 +73,7 @@ public final class EntityFactory {
                     case "VelocityComponent":
                     case "BuildingMapPositionComponent":
                     case "OnCreationComponent":
+                    case "MoveComponent":
                         for (Map.Entry<String, Object> entry : cs.getFields().entrySet()) {
                             Field field = clazz.getDeclaredField(entry.getKey());
                             field.setAccessible(true);

@@ -129,11 +129,9 @@ public class InstructionManager {
                         NetComponent netAttack = game.getWorld().getMapper(NetComponent.class).get(entityAttack);
 
                         HashMap<String,Object> fields = new HashMap<>();
-                        fields.put("TargetId",netId);
-                        fields.put("destinationX",-1);
-                        fields.put("destinationY",-1);
-                        fields.put("nextX1",-1);fields.put("nextY1",-1);fields.put("nextX2",-1);fields.put("nextY2",-1);
-
+                        fields.put("targetId",netId);
+                        fields.put("nextTargetId",-1);
+                        fields.put("force",true);
                         updateEntityAttack.getToUpdate().add(new EntitySnapshot(netId,netAttack.entityType, new ArrayList<>(Collections.singleton(new ComponentSnapshot("TargetComponent", fields)))));
                     }
 
@@ -151,12 +149,12 @@ public class InstructionManager {
                         NetComponent netMove = game.getWorld().getMapper(NetComponent.class).get(entityMove);
 
                         HashMap<String,Object> fields = new HashMap<>();
-                        fields.put("TargetId",-1);
                         fields.put("destinationX",moveGroupRequest.getPosX());
                         fields.put("destinationY",moveGroupRequest.getPosY());
                         fields.put("nextX1",-1);fields.put("nextY1",-1);fields.put("nextX2",-1);fields.put("nextY2",-1);
+                        fields.put("force",true);
 
-                        updateEntityMove.getToUpdate().add(new EntitySnapshot(netId, netMove.entityType, new ArrayList<>(Collections.singleton(new ComponentSnapshot("TargetComponent", fields)))));
+                        updateEntityMove.getToUpdate().add(new EntitySnapshot(netId, netMove.entityType, new ArrayList<>(Collections.singleton(new ComponentSnapshot("MoveComponent", fields)))));
                     }
 
                     if(!updateEntityMove.getToUpdate().isEmpty()) instruction = updateEntityMove;

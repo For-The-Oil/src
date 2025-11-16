@@ -9,6 +9,7 @@ import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.MeleeAttackComponent;
+import io.github.shared.data.component.MoveComponent;
 import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.component.ProjectileAttackComponent;
@@ -94,9 +95,15 @@ public final class ComponentFactory {
         return c;
     }
 
-    public static TargetComponent targetComponent(int targetId, float destinationX, float destinationY, float nextX1, float nextY1, float nextX2, float nextY2, boolean force) {
+    public static MoveComponent moveComponent(int targetId, float destinationX, float destinationY, float nextX1, float nextY1, float nextX2, float nextY2, boolean force) {
+        MoveComponent c = new MoveComponent();
+        c.set(destinationX, destinationY, nextX1, nextY1, nextX2, nextY2, force);
+        return c;
+    }
+
+    public static TargetComponent targetComponent(int targetId, int nextTargetId,boolean force) {
         TargetComponent c = new TargetComponent();
-        c.set(targetId, destinationX, destinationY, nextX1, nextY1, nextX2, nextY2, force);
+        c.set(targetId, nextTargetId, force);
         return c;
     }
 
