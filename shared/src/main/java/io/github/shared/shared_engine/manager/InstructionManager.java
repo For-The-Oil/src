@@ -118,10 +118,10 @@ public class InstructionManager {
                     UpdateEntityInstruction updateEntityAttack = new UpdateEntityInstruction(System.currentTimeMillis());
 
                     Entity entityTarget = EcsManager.findEntityByNetId(game.getWorld(),attackGroupRequest.getTargetNetId());
-                    if (entityTarget == null)return;
+                    if (entityTarget == null)return null;
                     PositionComponent posTarget = game.getWorld().getMapper(PositionComponent.class).get(entityTarget);
                     LifeComponent lifeTarget = game.getWorld().getMapper(LifeComponent.class).get(entityTarget);
-                    if (posTarget == null || lifeTarget == null) return;
+                    if (posTarget == null || lifeTarget == null) return null;
 
                     for (int netId : attackGroupRequest.getGroup()){
                         Entity entityAttack = EcsManager.findEntityByNetIdAndPlayer(game.getWorld(), netId, attackGroupRequest.getPlayer());
@@ -141,7 +141,7 @@ public class InstructionManager {
                     MoveGroupRequest moveGroupRequest = (MoveGroupRequest) request;
                     UpdateEntityInstruction updateEntityMove = new UpdateEntityInstruction(System.currentTimeMillis());
 
-                    if(moveGroupRequest.getPosX()<0||moveGroupRequest.getPosY()<0)return;
+                    if(moveGroupRequest.getPosX()<0||moveGroupRequest.getPosY()<0)return null;
 
                     for (int netId : moveGroupRequest.getGroup()){
                         Entity entityMove = EcsManager.findEntityByNetIdAndPlayer(game.getWorld(), netId, moveGroupRequest.getPlayer());
@@ -169,7 +169,7 @@ public class InstructionManager {
                     if(!ShapeManager.canOverlayShape(game.getMap(), shape, buildRequest.getPosX(), buildRequest.getPosY(), 0, 0, shape.getWidth(), shape.getHeight(),entityTypeBuild.getShapeType().getCanBePlacedOn())
                         || !Utility.canSubtractResources(entityTypeBuild.getCost(), entityTypeBuild.getCost())
                         || (entityTypeBuild.getFrom()!=null
-                        && EcsManager.findEntityByNetIdPlayerAndType(game.getWorld(), buildRequest.getFrom(), buildRequest.getPlayer(), entityTypeBuild.getFrom()) == null)) return;
+                        && EcsManager.findEntityByNetIdPlayerAndType(game.getWorld(), buildRequest.getFrom(), buildRequest.getPlayer(), entityTypeBuild.getFrom()) == null)) return null;
 
                     buildInstruction.add(entityTypeBuild, Utility.getNetId(), buildRequest.getFrom(), buildRequest.getPosX(), buildRequest.getPosY(), buildRequest.getPlayer());
 
@@ -181,10 +181,10 @@ public class InstructionManager {
 
                     EntityType entityTypeCast = castRequest.getType();
 
-                    if(!Utility.canSubtractResources(entityTypeCast.getCost(), entityTypeCast.getCost())) return;
+                    if(!Utility.canSubtractResources(entityTypeCast.getCost(), entityTypeCast.getCost())) return null;
                     Entity entityCastFrom = EcsManager.findEntityByNetIdPlayerAndType(game.getWorld(), castRequest.getFrom(), castRequest.getPlayer(), entityTypeCast.getFrom());
                     if (entityCastFrom == null
-                        || game.getWorld().getMapper(PositionComponent.class).get(entityCastFrom) == null) return;
+                        || game.getWorld().getMapper(PositionComponent.class).get(entityCastFrom) == null) return null;
 
                     castInstruction.add(entityTypeCast, Utility.getNetId(), castRequest.getFrom(), castRequest.getTargetX(), castRequest.getTargetY(), castRequest.getPlayer());
 
@@ -204,7 +204,7 @@ public class InstructionManager {
                         Entity entitySummonFrom = EcsManager.findEntityByNetIdPlayerAndType(game.getWorld(), summonRequest.getFrom(), summonRequest.getPlayer(), entityTypeSummon.getFrom());
                         if (entitySummonFrom == null) continue;
                         PositionComponent posSummon = game.getWorld().getMapper(PositionComponent.class).get(entitySummonFrom);
-                        if (posSummon == null) return;
+                        if (posSummon == null) return null;
 
                         createInstructionSummon.add(entityTypeSummon, Utility.getNetId(), summonRequest.getFrom(), posSummon.x, posSummon.y, summonRequest.getPlayer());
                     }
