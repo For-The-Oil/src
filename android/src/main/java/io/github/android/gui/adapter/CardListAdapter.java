@@ -37,7 +37,7 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardVi
         View btnAdd;
         View btnInfo;
 
-        public CardViewHolder(@NonNull View itemView) {
+        public CardViewHolder(View itemView) {
             super(itemView);
             cardImage = itemView.findViewById(R.id.cardImage);
             cardActions = itemView.findViewById(R.id.cardActions);
@@ -46,16 +46,15 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardVi
         }
     }
 
-    @NonNull
     @Override
-    public CardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.item_card, parent, false);
         return new CardViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
+    public void onBindViewHolder(CardViewHolder holder, int position) {
         Card card = cards.get(position);
         holder.cardImage.setImageResource(card.getImageResId());
 

@@ -45,13 +45,12 @@ public final class DeckManager {
                 return;
             }
         }
-
         DeckRequest request = RequestFactory.createDeckRequest(DeckRequestType.MODIFY_DECK, keys);
         KryoMessage kryoMessage = KryoMessagePackager.packDeckRequest(request, SessionManager.getInstance().getToken());
 
         new Thread(() -> {
-    ClientManager.getInstance().getKryoManager().send(kryoMessage);
-}).start();
+            ClientManager.getInstance().getKryoManager().send(kryoMessage);
+        }).start();
     }
 
 

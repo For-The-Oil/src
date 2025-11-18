@@ -29,7 +29,6 @@ import io.github.shared.local.data.EnumsTypes.EntityType;
 public final class UiUtils {
 
     // Empêche l'instanciation
-    private UiUtils() {}
 
     public static void togglePassword(EditText field, ImageButton button) {
         boolean visible = field.getTransformationMethod() instanceof HideReturnsTransformationMethod;

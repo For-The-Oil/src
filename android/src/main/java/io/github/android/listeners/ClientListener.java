@@ -1,18 +1,13 @@
 package io.github.android.listeners;
 
-import android.app.Activity;
-import android.app.LauncherActivity;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
-
-import androidx.appcompat.app.AlertDialog;
 
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import io.github.android.activity.BaseActivity;
-import io.github.android.activity.HomeActivity;
 import io.github.android.activity.LoginActivity;
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.SessionManager;
@@ -31,16 +26,15 @@ import java.util.function.Consumer;
  */
 public class ClientListener extends Listener {
 
+    private static ClientListener INSTANCE;
+
     private BaseActivity currentActivity;
     private final Map<Class<?>, CallbackWrapper> messageHandlers = new HashMap<>();
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
-    private static ClientListener instance;
 
     public static ClientListener getInstance() {
-        if (instance == null) {
-            instance = new ClientListener();
-        }
-        return instance;
+        if (INSTANCE == null) INSTANCE = new ClientListener();
+        return INSTANCE;
     }
 
     private ClientListener() {}

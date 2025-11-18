@@ -3,7 +3,6 @@ package io.github.android.activity;
 import static androidx.core.app.PendingIntentCompat.getActivity;
 import static io.github.android.config.ClientDefaultConfig.INIT_WAITING_TIME;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,7 +14,6 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.github.android.gui.adapter.MainAdapter;
@@ -66,7 +64,7 @@ public class HomeActivity extends BaseActivity {
         this.clientManager = ClientManager.getInstance();
         //this.clientManager.getKryoManager().addListener(new ClientListener());
         this.clientManager.setCurrentContext(this);
-        //ClientListener.getInstance(this, null).setCurrentActivity(this);
+        //ClientListener.getINSTANCE(this, null).setCurrentActivity(this);
         setupViewPager();
         setupLoadingFragment();
         setupMatchmakingFragment();
@@ -79,8 +77,8 @@ public class HomeActivity extends BaseActivity {
 
         Deck defaultDeck = SessionManager.getInstance().getDecks().get("Default Deck");
         if (defaultDeck != null) {
-            Log.d("For The Oil", "Default Deck: " + defaultDeck.toString());
-            Log.d("For The Oil", "Default Deck class: " + defaultDeck.getClass().toString());
+            Log.d("For The Oil", "Default Deck: " + defaultDeck);
+            Log.d("For The Oil", "Default Deck class: " + defaultDeck.getClass());
         } else {
             Log.d("For The Oil", "Default Deck is null");
         }

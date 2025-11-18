@@ -32,9 +32,7 @@ public class SessionManager {
 
     // Accès global à l’instance unique
     public static synchronized SessionManager getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new SessionManager();
-        }
+        if (INSTANCE == null) INSTANCE = new SessionManager();
         return INSTANCE;
     }
 

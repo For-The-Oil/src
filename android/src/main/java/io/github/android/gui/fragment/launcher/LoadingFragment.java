@@ -32,7 +32,7 @@ public class LoadingFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         splashText = view.findViewById(R.id.splashText);
         splashProgress = view.findViewById(R.id.splashProgress);
@@ -58,8 +58,7 @@ public class LoadingFragment extends Fragment {
      * @param onStart Runnable à exécuter au début de l'animation (nullable)
      * @param onEnd Runnable à exécuter à la fin de l'animation (nullable)
      */
-    public void animateProgress(float start, float end, long duration, String message,
-                                @Nullable Runnable onStart, @Nullable Runnable onEnd) {
+    public void animateProgress(float start, float end, long duration, String message, Runnable onStart, Runnable onEnd) {
         if (bar != null && splashProgress != null) {
             bar.addStep(new AnimatorBar.Step(
                 splashProgress,

@@ -49,16 +49,11 @@ import java.util.HashMap;
  * </ul>
  */
 public class LoginActivity extends BaseActivity {
-
-    private int[] layouts;
     private LinearLayout dotsLayout;
     private ClientManager clientManager;
     private LauncherAdapter adapter;
 
     private LoadingFragment loadingFragment;
-    private TextView registerMessage;
-    private TextView loginMessage;
-    private TextView serverMessage;
     private String email;
     private String password;
     private String confirmPassword;
@@ -378,7 +373,7 @@ public class LoginActivity extends BaseActivity {
      * 2.b) if the client can't connect to the server
      */
     private void phaseConnectionFailure() {
-        //ClientManager.getInstance().closeSession();
+        //ClientManager.getINSTANCE().closeSession();
         loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
         loadingFragment.animateProgress(50f, 100f, INIT_WAITING_TIME, "Server not found !", null,
             () -> {
@@ -429,7 +424,7 @@ public class LoginActivity extends BaseActivity {
      * 2.b) If we can't connect to the server
      */
     private void phaseConnectionFailureForRegister() {
-        //ClientManager.getInstance().closeSession();
+        //ClientManager.getINSTANCE().closeSession();
         loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
         loadingFragment.animateProgress(50f, 100f, INIT_WAITING_TIME, "Server not found !", null,
             () -> {
@@ -483,7 +478,7 @@ public class LoginActivity extends BaseActivity {
                     loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
                     loadingFragment.animateProgress(75f, 100f, INIT_WAITING_TIME, "Error : " +message, null,
                         () -> {
-                            //ClientManager.getInstance().closeSession();
+                            //ClientManager.getINSTANCE().closeSession();
                             UiUtils.showMessage(findViewById(R.id.registerMessage), message);
                             loadingFragment.hide();
                         }
@@ -493,7 +488,7 @@ public class LoginActivity extends BaseActivity {
                     loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
                     loadingFragment.animateProgress(75f, 100f, INIT_WAITING_TIME, "Error : " + message, null,
                         () -> {
-                            //ClientManager.getInstance().closeSession();
+                            //ClientManager.getINSTANCE().closeSession();
                             UiUtils.showMessage(findViewById(R.id.loginMessage), message);
                             loadingFragment.hide();
                         }
@@ -504,7 +499,7 @@ public class LoginActivity extends BaseActivity {
                     loadingFragment.setGradient(UiConfig.MEDIUM_RED, UiConfig.DARK_RED);
                     loadingFragment.animateProgress(75f, 100f, INIT_WAITING_TIME, "Unexpected responses !", null,
                         () -> {
-                            //ClientManager.getInstance().closeSession();
+                            //ClientManager.getINSTANCE().closeSession();
                             loadingFragment.hide();
                         }
                     );

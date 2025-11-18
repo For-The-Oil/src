@@ -38,7 +38,7 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.DeckViewHolder
         Button btnAdd;
         Button btnInfo;
 
-        public DeckViewHolder(@NonNull View itemView) {
+        public DeckViewHolder(View itemView) {
             super(itemView);
             cardImage = itemView.findViewById(R.id.cardImage);
             cardActions = itemView.findViewById(R.id.cardActions);
@@ -47,16 +47,15 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.DeckViewHolder
         }
     }
 
-    @NonNull
     @Override
-    public DeckViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public DeckViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.item_deck_card, parent, false);
         return new DeckViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull DeckViewHolder holder, int position) {
+    public void onBindViewHolder(DeckViewHolder holder, int position) {
         Card card = cards.get(position);
         holder.cardImage.setImageResource(card.getImageResId());
 
