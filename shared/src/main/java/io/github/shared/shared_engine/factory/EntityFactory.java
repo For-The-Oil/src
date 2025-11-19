@@ -12,13 +12,18 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
+import io.github.shared.data.EnumsTypes.EntityType;
 import io.github.shared.data.EnumsTypes.RessourcesType;
+import io.github.shared.data.IGame;
+import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.DamageComponent;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.RessourceComponent;
 import io.github.shared.data.gameobject.DamageEntry;
+import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.data.snapshot.EntitySnapshot;
+import io.github.shared.shared_engine.manager.ShapeManager;
 
 public final class EntityFactory {
 
@@ -117,8 +122,9 @@ public final class EntityFactory {
         return entity;
     }
 
-    public static void destroyEntityByNetId(World world, int netId) {
+    public static void destroyEntityByNetId(World world, int netId, IGame game) {
         ComponentMapper<NetComponent> netMapper = world.getMapper(NetComponent.class);
+        ComponentMapper<BuildingMapPositionComponent> BuildingMapPositionMapper = world.getMapper(BuildingMapPositionComponent.class);
 
         // Récupérer toutes les entités qui ont un NetComponent
         IntBag entities = world.getAspectSubscriptionManager()
@@ -129,6 +135,15 @@ public final class EntityFactory {
             int id = entities.get(i);
             NetComponent nc = netMapper.get(id);
             if (nc.netId == netId) {
+
+                if (nc.entityType.getType().equals(EntityType.Type.Building)) {
+                    BuildingMapPositionComponent buildMap = BuildingMapPositionMapper.get(id);
+                    Shape overlay = ShapeManager.rotateShape(nc.entityType.getShapeType().getShape(),buildMap.direction);
+                    Shape map = game.getMapName().getShapeType().getShape();
+                    ShapeManager.overlayShape(overlay,map,0,0,buildMap.x,buildMap.y,map.getWidth(), map.getHeight());
+                    ShapeManager.overlayShape(game.getMap(), overlay, buildMap.x, buildMap.y, 0, 0, overlay.getWidth(), overlay.getHeight());
+                }
+
                 world.delete(id); // Supprime l'entité
                 break; // On arrête après avoir trouvé et supprimé
             }

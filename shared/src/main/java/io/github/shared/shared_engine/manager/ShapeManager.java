@@ -3,6 +3,7 @@ package io.github.shared.shared_engine.manager;
 import java.util.ArrayList;
 
 import io.github.shared.data.EnumsTypes.CellType;
+import io.github.shared.data.EnumsTypes.Direction;
 import io.github.shared.data.gameobject.Cell;
 import io.github.shared.data.gameobject.Shape;
 
@@ -57,8 +58,6 @@ public class ShapeManager {
             }
         }
     }
-
-
 
     /**
      * Returns true if the overlay sub-rectangle can be applied on base without exceeding base bounds
@@ -121,7 +120,61 @@ public class ShapeManager {
         return true;
     }
 
+    /**
+     * Rotates a Shape based on the given Direction.
+     * The original Shape is assumed to be oriented NORTH by default.
+     *
+     * @param original  The original Shape to rotate.
+     * @param direction The target Direction (NORTH, EAST, SOUTH, WEST).
+     * @return A new Shape rotated according to the specified direction.
+     */
+    public static Shape rotateShape(Shape original, Direction direction) {
+        if (original == null) {
+            return null;
+        }
 
+        Cell[][] cells = original.getTab_cells();
+        int width = original.getWidth();
+        int height = original.getHeight();
+        Cell[][] rotated;
+
+        switch (direction) {
+            case NORTH:
+                // No rotation needed, copy the original matrix
+                return new Shape(original);
+            case EAST:
+                // Rotate 90° clockwise
+                rotated = new Cell[width][height];
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        rotated[x][height - 1 - y] = cells[y][x];
+                    }
+                }
+                break;
+            case SOUTH:
+                // Rotate 180°
+                rotated = new Cell[height][width];
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        rotated[height - 1 - y][width - 1 - x] = cells[y][x];
+                    }
+                }
+                break;
+            case WEST:
+                // Rotate 90° counterclockwise
+                rotated = new Cell[width][height];
+                for (int y = 0; y < height; y++) {
+                    for (int x = 0; x < width; x++) {
+                        rotated[width - 1 - x][y] = cells[y][x];
+                    }
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown direction: " + direction);
+        }
+
+        return new Shape(rotated);
+    }
 
 
 }

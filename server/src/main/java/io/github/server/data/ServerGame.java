@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import io.github.server.game_engine.ActionController.ActionController;
 import io.github.server.game_engine.EcsServerEngine;
+import io.github.shared.data.EnumsTypes.Direction;
 import io.github.shared.data.EnumsTypes.EntityType;
 import io.github.shared.data.EnumsTypes.GameModeType;
 import io.github.shared.data.IGame;
@@ -207,8 +208,8 @@ public class ServerGame implements IGame {
         return tmp;
     }
 
-    public void addCreateInstruction(EntityType type, int netId, int from, float posX, float posY, UUID player) {
-        createTracker.add(type,netId,from,posX,posY,player);
+    public void addCreateInstruction(EntityType type, Direction direction, int netId, int from, float posX, float posY, UUID player) {
+        createTracker.add(type,direction,netId,from,posX,posY,player);
     }
 
     public DestroyInstruction consumeDestroyInstruction(long timestamp) {

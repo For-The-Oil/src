@@ -3,6 +3,7 @@ package io.github.shared.data.instructions;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import io.github.shared.data.EnumsTypes.Direction;
 import io.github.shared.data.EnumsTypes.EntityType;
 
 public class CreateInstruction extends Instruction{
@@ -11,10 +12,12 @@ public class CreateInstruction extends Instruction{
     private ArrayList<Integer> from;
     private ArrayList<Float> posX;
     private ArrayList<Float> posY;
+    private ArrayList<Direction> directions;
     private ArrayList<UUID> player;
     public CreateInstruction(){}
     public CreateInstruction(long timestamp) {
         super(timestamp);
+        this.directions = new ArrayList<>();
         this.netId = new ArrayList<>();
         this.from = new ArrayList<>();
         this.posX = new ArrayList<>();
@@ -23,7 +26,8 @@ public class CreateInstruction extends Instruction{
         this.toSpawn = new ArrayList<>();
     }
 
-    public void add(EntityType type, int netId, int from, float posX, float posY, UUID player) {
+    public void add(EntityType type,Direction direction, int netId, int from, float posX, float posY, UUID player) {
+        this.directions.add(direction);
         this.toSpawn.add(type);
         this.netId.add(netId);
         this.from.add(from);
@@ -77,5 +81,13 @@ public class CreateInstruction extends Instruction{
 
     public void setPlayer(ArrayList<UUID> player) {
         this.player = player;
+    }
+
+    public ArrayList<Direction> getDirections() {
+        return directions;
+    }
+
+    public void setDirections(ArrayList<Direction> directions) {
+        this.directions = directions;
     }
 }

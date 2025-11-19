@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import io.github.shared.data.EnumsTypes.Direction;
 import io.github.shared.data.EnumsTypes.EntityType;
 import io.github.shared.data.EnumsTypes.RessourcesType;
 import io.github.shared.data.IGame;
@@ -51,6 +52,7 @@ public class InstructionManager {
                         float y = ci.getPosY().get(i);
                         int netId = ci.getNetId().get(i);
                         int from = ci.getFrom().get(i);
+                        Direction direction = ci.getDirections().get(i);
                         EntityType entityType = ci.getToSpawn().get(i);
                         Entity entity = game.getWorld().createEntity();
 
@@ -63,7 +65,7 @@ public class InstructionManager {
 
                         if (entityType.getType().equals(EntityType.Type.Building)) {
                             Shape overlay = new Shape(entityType.getShapeType().getShape(), netId);
-                            ShapeManager.overlayShape(game.getMap(), overlay, (int) x, (int) y, 0, 0, overlay.getWidth(), overlay.getHeight());
+                            ShapeManager.overlayShape(game.getMap(), ShapeManager.rotateShape(overlay, direction), (int) x, (int) y, 0, 0, overlay.getWidth(), overlay.getHeight());
                         }
 
 
@@ -82,7 +84,7 @@ public class InstructionManager {
                     break;
                 case "DestroyInstruction":
                     for (int netId : ((DestroyInstruction) (instruction)).getToKill()) {
-                        EntityFactory.destroyEntityByNetId(game.getWorld(), netId);
+                        EntityFactory.destroyEntityByNetId(game.getWorld(), netId, game);
                     }
                     break;
                 case "ResourcesInstruction":
@@ -165,13 +167,14 @@ public class InstructionManager {
 
                     EntityType entityTypeBuild = buildRequest.getType();
                     Shape shape = entityTypeBuild.getShapeType().getShape();
+                    Direction direction = buildRequest.getDirection();
 
-                    if(!ShapeManager.canOverlayShape(game.getMap(), shape, buildRequest.getPosX(), buildRequest.getPosY(), 0, 0, shape.getWidth(), shape.getHeight(),entityTypeBuild.getShapeType().getCanBePlacedOn())
+                    if(!ShapeManager.canOverlayShape(game.getMap(), ShapeManager.rotateShape(shape, direction), buildRequest.getPosX(), buildRequest.getPosY(), 0, 0, shape.getWidth(), shape.getHeight(),entityTypeBuild.getShapeType().getCanBePlacedOn())
                         || !Utility.canSubtractResources(entityTypeBuild.getCost(), entityTypeBuild.getCost())
                         || (entityTypeBuild.getFrom()!=null
                         && EcsManager.findEntityByNetIdPlayerAndType(game.getWorld(), buildRequest.getFrom(), buildRequest.getPlayer(), entityTypeBuild.getFrom()) == null)) return null;
 
-                    buildInstruction.add(entityTypeBuild, Utility.getNetId(), buildRequest.getFrom(), buildRequest.getPosX(), buildRequest.getPosY(), buildRequest.getPlayer());
+                    buildInstruction.add(entityTypeBuild,direction, Utility.getNetId(), buildRequest.getFrom(), buildRequest.getPosX(), buildRequest.getPosY(), buildRequest.getPlayer());
 
                     if (!buildInstruction.getToSpawn().isEmpty()) instruction = buildInstruction;
                     break;
@@ -186,7 +189,7 @@ public class InstructionManager {
                     if (entityCastFrom == null
                         || game.getWorld().getMapper(PositionComponent.class).get(entityCastFrom) == null) return null;
 
-                    castInstruction.add(entityTypeCast, Utility.getNetId(), castRequest.getFrom(), castRequest.getTargetX(), castRequest.getTargetY(), castRequest.getPlayer());
+                    castInstruction.add(entityTypeCast,null, Utility.getNetId(), castRequest.getFrom(), castRequest.getTargetX(), castRequest.getTargetY(), castRequest.getPlayer());
 
                     if (!castInstruction.getToSpawn().isEmpty()) instruction = castInstruction;
                     break;
@@ -206,7 +209,7 @@ public class InstructionManager {
                         PositionComponent posSummon = game.getWorld().getMapper(PositionComponent.class).get(entitySummonFrom);
                         if (posSummon == null) return null;
 
-                        createInstructionSummon.add(entityTypeSummon, Utility.getNetId(), summonRequest.getFrom(), posSummon.x, posSummon.y, summonRequest.getPlayer());
+                        createInstructionSummon.add(entityTypeSummon,null, Utility.getNetId(), summonRequest.getFrom(), posSummon.x, posSummon.y, summonRequest.getPlayer());
                     }
 
                     if (!createInstructionSummon.getToSpawn().isEmpty()) instruction = createInstructionSummon;
@@ -228,10 +231,7 @@ public class InstructionManager {
         } catch (Exception e) {
             System.err.print("executeRequest err " + e);
         }
-        if (instruction != null) {
-            return instruction;
-        }
-        return null;
+        return instruction;
     }
 
 }
