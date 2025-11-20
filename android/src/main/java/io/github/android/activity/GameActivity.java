@@ -7,12 +7,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.badlogic.gdx.backends.android.AndroidApplication;
-import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-
-import java.util.ArrayList;
-
-import io.github.android.gui.GameRenderer;
+import com.badlogic.gdx.backends.android.AndroidFragmentApplication;
+import io.github.android.gui.fragment.game.LibGdxFragment;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
@@ -22,7 +18,6 @@ import io.github.core.game_engine.ClientGame;
 import io.github.core.game_engine.ClientLauncher;
 import io.github.fortheoil.R;
 import io.github.shared.data.NetGame;
-import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.requests.SynchronizeRequest;
 
 
@@ -32,7 +27,7 @@ import io.github.shared.data.requests.SynchronizeRequest;
  * Activity that starts when the client join a game.
  *
  */
-public class GameActivity extends BaseActivity {
+public class GameActivity extends BaseActivity implements AndroidFragmentApplication.Callbacks{
 
     private View loadingContainer;
     private FrameLayout libgdxContainer;
@@ -59,17 +54,10 @@ public class GameActivity extends BaseActivity {
         setupLoadingFragment();
     }
 
-
-
-
-
-
-
-
-
-
-
-
+    @Override
+    public void exit() {
+        finish();
+    }
 
 
 
@@ -106,14 +94,35 @@ public class GameActivity extends BaseActivity {
     }
 
 
+    private void successSync(){
+        loadingFragment.animateProgress(75,80,INIT_WAITING_TIME,"Sync succeed", null, this::loadTexture);
+    }
+
+    private void failureSync(){
+        loadingFragment.animateProgress(75,100,INIT_WAITING_TIME,"Sync failure !", null, null);
+    }
+
+
+
+
 
     // ----------
     // Textures & assets loadings
     // ----------
 
     private void loadTexture(){
-        loadingFragment.animateProgress(25,50,INIT_WAITING_TIME,"Loading assets",null, null);
+        loadingFragment.animateProgress(80,95,INIT_WAITING_TIME,"Loading assets",null, this::gameStarting);
     }
+
+
+    private void gameStarting(){
+        libGdxInit();
+        loadingFragment.animateProgress(95,100,INIT_WAITING_TIME,"Starting !",null, () -> {
+            hideloadingContainer();
+        });
+    }
+
+
 
 
 
@@ -141,32 +150,13 @@ public class GameActivity extends BaseActivity {
         if (loadingContainer != null) loadingContainer.setVisibility(View.GONE);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    public void libGdxInit(){
-        // Configurer LibGDX
-        AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-        config.useAccelerometer = false;
-        config.useCompass = false;
-        config.useImmersiveMode = true;
-        config.useGL30 = true;   // libGDX 3D nécessite OpenGL ES2+
-        config.depth = 16;       // active le depth buffer
-
-        // Créer la vue LibGDX
-        AndroidApplication app = new AndroidApplication();
-        View libgdxView = app.initializeForView(new GameRenderer(), config);
-        libgdxContainer.addView(libgdxView);
+    private void libGdxInit() {
+        getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.libgdxContainer, new LibGdxFragment())
+            .commit();
     }
+
 
     private void setupLoadingFragment(){
         loadingFragment = new LoadingFragment();
@@ -195,14 +185,13 @@ public class GameActivity extends BaseActivity {
                     Log.d("For The Oil","FullSynchronizeRequest received :"+request.getType().toString());
                     NetGame netGame = (NetGame) request.getMap().get("game");
 
-                    clientGame = OtherUtils.clientGameBuilder(netGame);
+                    if(clientLauncher==null){
+                        clientGame = OtherUtils.clientGameBuilder(netGame);
+                        clientLauncher = new ClientLauncher(clientGame);
+                    }
+                    clientLauncher.setResyncNetGame(netGame);
 
-                    // TODO : Create a client launcher and ClientGame made from the data sent by the server
-                    // TODO : We MUST check if the data is correct
-
-                    //clientLauncher.setResyncNetGame(netGame);
-
-
+                    successSync(); //TODO : We must manage the case if the client was already in game
                     break;
 
                 default:

@@ -51,7 +51,13 @@ public final class OtherUtils {
 
     public static ClientGame clientGameBuilder(NetGame netGame){
 
-
+        return new ClientGame(
+            netGame.getGameMode(),
+            netGame.getMapName(),
+            netGame.getMap(),
+            netGame.getGAME_UUID(),
+            netGame.getTime_left()
+            );
     }
 
 

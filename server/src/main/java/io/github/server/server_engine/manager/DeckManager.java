@@ -230,6 +230,7 @@ public final class DeckManager {
     }
 
 
+    // TODO : Do the actual security check
     public boolean canDeleteDeck(ClientNetwork client, DeckRequest request){
         return true;
     }
@@ -242,8 +243,6 @@ public final class DeckManager {
     public boolean canSelectDeck(ClientNetwork client, DeckRequest request){
         return true;
     }
-
-
     public boolean isValidModifyDeck(Deck deck){
         return true;
     }
