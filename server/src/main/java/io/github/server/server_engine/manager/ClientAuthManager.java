@@ -14,11 +14,11 @@ import io.github.server.data.network.UserData;
 import io.github.server.exception.BlankParameter;
 import io.github.server.exception.UserEmailAlreadyExist;
 import io.github.server.exception.IncorrectField;
-import io.github.shared.local.data.EnumsTypes.AuthModeType;
-import io.github.shared.local.data.EnumsTypes.KryoMessageType;
-import io.github.shared.local.data.network.ClientNetwork;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.AuthRequest;
+import io.github.shared.data.EnumsTypes.AuthModeType;
+import io.github.shared.data.EnumsTypes.KryoMessageType;
+import io.github.shared.data.network.ClientNetwork;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.requests.AuthRequest;
 
 /**
  * The {@code ClientAuthManager} class is a singleton responsible for managing all authentication

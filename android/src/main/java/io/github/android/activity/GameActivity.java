@@ -10,6 +10,8 @@ import android.widget.FrameLayout;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 
+import java.util.ArrayList;
+
 import io.github.android.gui.GameRenderer;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
@@ -17,10 +19,10 @@ import io.github.android.manager.ClientManager;
 import io.github.android.utils.NetworkUtils;
 import io.github.core.game_engine.ClientGame;
 import io.github.core.game_engine.ClientLauncher;
-import io.github.core.game_engine.manager.GameManager;
 import io.github.fortheoil.R;
-import io.github.shared.local.data.NetGame;
-import io.github.shared.local.data.requests.SynchronizeRequest;
+import io.github.shared.data.NetGame;
+import io.github.shared.data.instructions.Instruction;
+import io.github.shared.data.requests.SynchronizeRequest;
 
 
 /**
@@ -34,7 +36,7 @@ public class GameActivity extends BaseActivity {
     private View loadingContainer;
     private FrameLayout libgdxContainer;
     private LoadingFragment loadingFragment;
-    private ClientLauncher gameLogic;
+    private ClientLauncher clientLauncher;
     private ClientGame clientGame;
     private ClientManager clientManager = ClientManager.getInstance();
 
@@ -180,30 +182,17 @@ public class GameActivity extends BaseActivity {
         ClientListener.getInstance().setCurrentActivity(this);
         ClientListener.getInstance().onMessage(SynchronizeRequest.class, (request -> {
 
-            Log.d("For The Oil","SynchronizeRequest received :"+request.getType().toString());
-
-            NetGame netGame = (NetGame) request.getMap().get("game");
-
-            Log.d("For The Oil", netGame.getGAME_UUID().toString());
-            Log.d("For The Oil", netGame.getEntities().toString());
-            Log.d("For The Oil", netGame.getMapName().toString());
-            Log.d("For The Oil", "Time left : " + netGame.getTime_left());
-
-            ClientGame tmp = GameManager.fullGameResync(netGame, clientGame);
-            if(tmp != null)clientGame = tmp;
-
-            Log.d("For The Oil", clientGame.getGAME_UUID().toString());
-            Log.d("For The Oil", clientGame.getGameMode().toString());
-            Log.d("For The Oil", clientGame.getWorld().toString());
-            Log.d("For The Oil", clientGame.getMapName().toString());
-            Log.d("For The Oil", "Time left : " + clientGame.getTime_left());
-
             switch (request.getType()) {
 
-                case PARTIAL_RESYNC:
+                case INSTRUCTION_SYNC:
+                    Log.d("For The Oil","Instruction Request received :"+request.getType().toString());
+//                    clientLauncher.addQueueInstruction();
                     break;
 
                 case FULL_RESYNC:
+                    Log.d("For The Oil","FullSynchronizeRequest received :"+request.getType().toString());
+                    NetGame netGame = (NetGame) request.getMap().get("game");
+                    clientLauncher.setResyncNetGame(netGame);
                     break;
 
                 default:
@@ -233,12 +222,12 @@ public class GameActivity extends BaseActivity {
     // -----
 
 
-    public ClientLauncher getGameLogic() {
-        return gameLogic;
+    public ClientLauncher getClientLauncher() {
+        return clientLauncher;
     }
 
-    public void setGameLogic(ClientLauncher gameLogic) {
-        this.gameLogic = gameLogic;
+    public void setClientLauncher(ClientLauncher clientLauncher) {
+        this.clientLauncher = clientLauncher;
     }
 
 

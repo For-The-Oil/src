@@ -7,11 +7,11 @@ import java.util.UUID;
 
 import io.github.server.data.ServerGame;
 import io.github.server.data.network.ServerNetwork;
-import io.github.shared.local.data.EnumsTypes.GameModeType;
-import io.github.shared.local.data.EnumsTypes.MapName;
-import io.github.shared.local.data.EnumsTypes.EventType;
-import io.github.shared.local.data.network.ClientNetwork;
-import io.github.shared.local.data.network.Player;
+import io.github.shared.data.EnumsTypes.GameModeType;
+import io.github.shared.data.EnumsTypes.MapName;
+import io.github.shared.data.EnumsTypes.EventType;
+import io.github.shared.data.network.ClientNetwork;
+import io.github.shared.data.network.Player;
 
 public final class GameMaker {
 

@@ -7,10 +7,8 @@ import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
 
-import io.github.core.config.ClientDefaultConfig;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.network.KryoRegistry;
-import jdk.jpackage.internal.Log;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.network.KryoRegistry;
 
 /**
  * <h1>Class KryoClientManager</h1>

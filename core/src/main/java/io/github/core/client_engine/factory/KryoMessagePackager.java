@@ -1,11 +1,10 @@
 package io.github.core.client_engine.factory;
 
 import io.github.core.client_engine.manager.KryoClientManager;
-import io.github.shared.local.data.EnumsTypes.KryoMessageType;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.AuthRequest;
-import io.github.shared.local.data.requests.DeckRequest;
-import io.github.shared.local.data.requests.MatchMakingRequest;
+import io.github.shared.data.EnumsTypes.KryoMessageType;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.requests.AuthRequest;
+import io.github.shared.data.requests.MatchMakingRequest;
 
 /**
  * <h1>KryoMessagePackager</h1>
@@ -33,11 +32,11 @@ public class KryoMessagePackager {
         if (matchRequest == null) {
             throw new IllegalArgumentException("MatchMakingRequest cannot be null");
         }
-        return new KryoMessage(KryoMessageType.MATCHMAKING, token, matchRequest);
+        return new KryoMessage(KryoMessageType.MATCHMAKING, null, matchRequest);
     }
 
 
-    public static KryoMessage packDeckRequest(DeckRequest request, String token) {
+    public static KryoMessage packDeckRequest(io.github.shared.local.data.requests.DeckRequest request, String token) {
         if (request == null) return null;
         return new KryoMessage(KryoMessageType.DECK, token, request);
     }

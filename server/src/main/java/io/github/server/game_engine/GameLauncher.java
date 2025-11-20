@@ -1,17 +1,24 @@
 package io.github.server.game_engine;
 
-import static io.github.server.config.BaseGameConfig.FIXED_TIME_STEP;
+import static io.github.shared.config.BaseGameConfig.FIXED_TIME_STEP;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 import io.github.server.data.ServerGame;
-import io.github.shared.local.data.instructions.Instruction;
-import io.github.shared.local.shared_engine.manager.InstructionManager;
+import io.github.shared.data.instructions.Instruction;
+import io.github.shared.data.requests.Request;
+import io.github.shared.shared_engine.manager.InstructionManager;
 
 public class GameLauncher extends Thread {
 
     private final ServerGame serverGame;
+
+    private final Collection<Request> requestsSync;
     public GameLauncher(ServerGame serverGame) {
         super("GameThread-" + serverGame.getGAME_UUID());
         this.serverGame = serverGame;
+        this.requestsSync = new ArrayList<>();
         init();
     }
     private void init(){
@@ -45,11 +52,35 @@ public class GameLauncher extends Thread {
                 serverGame.setAccumulator(serverGame.getAccumulator() - FIXED_TIME_STEP);
             }
 
-//       Envoi des instructions ici
-//       Traiter les requests  ici
+            //Traiter les requests
+            serverGame.addQueueRequest(requestsSync);
+            requestsSync.clear();
+            while (!serverGame.isEmptyRequestQueue()) {
+                Request request = serverGame.getRequestQueue().poll();
+                if(request == null)continue;
+                Instruction instruction = InstructionManager.executeGameRequest(request, serverGame);
+                if(instruction == null)continue;
+                serverGame.getHistoricQueue().add(instruction);
+                serverGame.getNetworkQueue().add(instruction);
+                InstructionManager.executeInstruction(instruction, serverGame);
+            }
+
+            //       Envoi des instructions ici
         }
 
         System.out.println("Game loop stopped for game: " + serverGame.getGAME_UUID());
+    }
+
+    public ServerGame getGame() {
+        return serverGame;
+    }
+
+    public void stopGame() {
+        serverGame.stopRunning();
+    }
+
+    public void addQueueRequest(Collection<Request> requests){
+        requestsSync.addAll(requests);
     }
 
     private float getTimeSinceLastFrame() {
@@ -59,11 +90,4 @@ public class GameLauncher extends Thread {
         return delta;
     }
 
-    public void stopGame() {
-        serverGame.stopRunning();
-    }
-
-    public ServerGame getGame() {
-        return serverGame;
-    }
 }

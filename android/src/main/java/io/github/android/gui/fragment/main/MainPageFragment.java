@@ -7,8 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -20,9 +18,9 @@ import io.github.android.activity.HomeActivity;
 import io.github.android.gui.adapter.CarouselAdapter;
 import io.github.android.manager.MatchMakingManager;
 import io.github.fortheoil.R;
-import io.github.shared.local.data.EnumsTypes.GameModeType;
-import io.github.shared.local.data.gameobject.Deck;
 import io.github.android.manager.SessionManager;
+import io.github.shared.data.EnumsTypes.GameModeType;
+import io.github.shared.data.gameobject.Deck;
 
 public class MainPageFragment extends Fragment {
 
@@ -44,6 +42,7 @@ public class MainPageFragment extends Fragment {
         btnDeck = view.findViewById(R.id.btnDeck);
         btnPlay = view.findViewById(R.id.btnPlay);
         ViewPager2 carousel = view.findViewById(R.id.imageCarousel);
+        Button btnPlay = view.findViewById(R.id.btnPlay);
 
         setupCarousel(carousel);
         setupPlayButton();
@@ -57,6 +56,7 @@ public class MainPageFragment extends Fragment {
             R.drawable.placeholder_2
         );
 
+        // Adapter du carrousel
         CarouselAdapter adapter = new CarouselAdapter(images);
         carousel.setAdapter(adapter);
         carousel.setOrientation(ViewPager2.ORIENTATION_HORIZONTAL);
@@ -97,6 +97,8 @@ public class MainPageFragment extends Fragment {
     private void setupPlayButton() {
         btnPlay.setOnClickListener(v -> {
             String currentMode = activity.getGameMode();
+            // TODO : lancer l’activité ou la logique correspondant au mode
+
             MatchMakingManager myMatchManager = MatchMakingManager.getInstance();
 
             switch (currentMode) {
@@ -104,8 +106,9 @@ public class MainPageFragment extends Fragment {
                     myMatchManager.askMatchmaking(GameModeType.ALPHA_TEST);
                     break;
                 case "MODE_1":
+                    myMatchManager.askMatchmaking(GameModeType.CLASSIC);
+                    break;
                 case "MODE_2":
-                default:
                     myMatchManager.askMatchmaking(GameModeType.CLASSIC);
             }
         });
@@ -133,4 +136,7 @@ public class MainPageFragment extends Fragment {
             btnDeck.setText(deckName);
         }
     }
+
+
+
 }

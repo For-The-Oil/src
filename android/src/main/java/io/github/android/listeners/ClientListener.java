@@ -12,7 +12,7 @@ import io.github.android.activity.LoginActivity;
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.SessionManager;
 import io.github.android.utils.RedirectUtils;
-import io.github.shared.local.data.network.KryoMessage;
+import io.github.shared.data.network.KryoMessage;
 
 import java.util.HashMap;
 import java.util.Map;

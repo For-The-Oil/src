@@ -2,6 +2,7 @@ package io.github.server.data;
 
 import com.artemis.World;
 
+import java.util.Collection;
 import java.util.Queue;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,18 +11,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import io.github.server.game_engine.ActionController.ActionController;
 import io.github.server.game_engine.EcsServerEngine;
-import io.github.shared.local.data.EnumsTypes.EntityType;
-import io.github.shared.local.data.EnumsTypes.GameModeType;
-import io.github.shared.local.data.IGame;
-import io.github.shared.local.data.instructions.CreateInstruction;
-import io.github.shared.local.data.instructions.DestroyInstruction;
-import io.github.shared.local.data.instructions.Instruction;
-import io.github.shared.local.data.EnumsTypes.EventType;
-import io.github.shared.local.data.EnumsTypes.MapName;
-import io.github.shared.local.data.network.Player;
-import io.github.shared.local.data.gameobject.Shape;
+import io.github.shared.data.EnumsTypes.Direction;
+import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.EnumsTypes.GameModeType;
+import io.github.shared.data.IGame;
+import io.github.shared.data.instructions.CreateInstruction;
+import io.github.shared.data.instructions.DestroyInstruction;
+import io.github.shared.data.instructions.Instruction;
+import io.github.shared.data.EnumsTypes.EventType;
+import io.github.shared.data.EnumsTypes.MapName;
+import io.github.shared.data.network.Player;
+import io.github.shared.data.gameobject.Shape;
 import io.github.server.game_engine.manager.SnapshotTracker;
-import io.github.shared.local.data.requests.Request;
+import io.github.shared.data.requests.Request;
 
 public class ServerGame implements IGame {
     private final UUID GAME_UUID;
@@ -60,6 +62,7 @@ public class ServerGame implements IGame {
         this.historicQueue = new ConcurrentLinkedQueue<>();
         this.networkQueue = new ConcurrentLinkedQueue<>();
         this.accumulator = 0f;
+        this.lastTime = System.currentTimeMillis();
         this.time_left = timeLeft;
         this.activeActions = new ArrayList<>();
         this.running = true;
@@ -153,6 +156,10 @@ public class ServerGame implements IGame {
         return networkQueue.isEmpty();
     }
 
+    public boolean isEmptyRequestQueue() {
+        return requestQueue.isEmpty();
+    }
+
     @Override
     public boolean isRunning() {
         return running;
@@ -190,6 +197,10 @@ public class ServerGame implements IGame {
         return requestQueue;
     }
 
+    public void addQueueRequest(Collection<Request> requests){
+        requestQueue.addAll(requests);
+    }
+
     public CreateInstruction consumeCreateInstruction(long timestamp) {
         CreateInstruction tmp = createTracker;
         createTracker = new CreateInstruction(timestamp);
@@ -197,8 +208,8 @@ public class ServerGame implements IGame {
         return tmp;
     }
 
-    public void addCreateInstruction(EntityType type, int netId, int from, int posX, int posY, UUID player) {
-        createTracker.add(type,netId,from,posX,posY,player);
+    public void addCreateInstruction(EntityType type, Direction direction, int netId, int from, float posX, float posY, UUID player) {
+        createTracker.add(type,direction,netId,from,posX,posY,player);
     }
 
     public DestroyInstruction consumeDestroyInstruction(long timestamp) {

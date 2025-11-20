@@ -13,12 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.github.shared.local.data.component.DamageComponent;
-import io.github.shared.local.data.component.NetComponent;
-import io.github.shared.local.data.component.RessourceComponent;
-import io.github.shared.local.data.instructions.UpdateEntityInstruction;
-import io.github.shared.local.data.snapshot.ComponentSnapshot;
-import io.github.shared.local.data.snapshot.EntitySnapshot;
+import io.github.shared.data.component.DamageComponent;
+import io.github.shared.data.component.NetComponent;
+import io.github.shared.data.component.RessourceComponent;
+import io.github.shared.data.instructions.UpdateEntityInstruction;
+import io.github.shared.data.snapshot.ComponentSnapshot;
+import io.github.shared.data.snapshot.EntitySnapshot;
 
 public class SnapshotTracker {
     private final Map<Integer, EntitySnapshot> pendingSnapshots = new HashMap<>();
@@ -49,6 +49,7 @@ public class SnapshotTracker {
                 case "VelocityComponent":
                 case "BuildingMapPositionComponent":
                 case "OnCreationComponent":
+                case "MoveComponent":
                     for (Field field : componentClass.getDeclaredFields()) {
                         field.setAccessible(true);
                         try {
@@ -116,6 +117,7 @@ public class SnapshotTracker {
                 case "BuildingMapPositionComponent":
                 case "RessourceComponent":
                 case "OnCreationComponent":
+                case "MoveComponent":
                     // Écrasement simple
                     previousSnapshot.setFields(newSnapshot.getFields());
                     break;

@@ -23,7 +23,7 @@ import io.github.android.utils.UiUtils;
 import io.github.core.client_engine.manager.KryoClientManager;
 import io.github.core.client_engine.utils.FormChecker;
 import io.github.fortheoil.R;
-import io.github.shared.local.data.requests.AuthRequest;
+import io.github.shared.data.requests.AuthRequest;
 
 import androidx.viewpager2.widget.ViewPager2;
 import android.widget.CheckBox;

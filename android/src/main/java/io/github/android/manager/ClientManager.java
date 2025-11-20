@@ -14,8 +14,8 @@ import io.github.android.gui.fragment.launcher.ServerFragment;
 import io.github.core.client_engine.factory.KryoMessagePackager;
 import io.github.core.client_engine.factory.RequestFactory;
 import io.github.core.client_engine.manager.KryoClientManager;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.AuthRequest;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.requests.AuthRequest;
 
 /**
  * Manager that manage the connection of the client
