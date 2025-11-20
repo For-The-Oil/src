@@ -4,88 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public enum EntityType {
-    test(
-        Type.Building,
-        ShapeType.Base,
-        null,
-        2000f,
-        2,
-        0f,
-        5f,
-        20,
-        new HashMap<RessourcesType, Integer>() {{
-            put(RessourcesType.Oil, 100);
-            put(RessourcesType.Steel, 500);
-        }},
-        DeckCardCategory.Industrial
-    ),
-
-    BASE(
-        Type.Building,
-        ShapeType.Base,
-        null,
-        2000f,
-        2,
-        0f,
-        5f,
-        20,
-        new HashMap<RessourcesType, Integer>() {{
-            put(RessourcesType.Oil, 100);
-            put(RessourcesType.Steel, 500);
-        }},
-        DeckCardCategory.Industrial
-    ),
-    BARRACK(
-        Type.Building,
-        ShapeType.Barrack,
-        null,
-        1500f,
-        3,
-        0f,
-        4f,
-        15,
-        new HashMap<RessourcesType, Integer>() {{
-            put(RessourcesType.Oil, 50);
-            put(RessourcesType.Steel, 300);
-        }},
-        DeckCardCategory.Military
-    ),
-    FACTORY(
-        Type.Building,
-        ShapeType.Factory,
-        null,
-        2500f,
-        2,
-        0f,
-        6f,
-        25,
-        new HashMap<RessourcesType, Integer>() {{
-            put(RessourcesType.Oil, 200);
-            put(RessourcesType.Steel, 700);
-        }},
-        DeckCardCategory.Military
-    ),
-    GARAGE(
-        Type.Building,
-        ShapeType.Garage,
-        null,
-        1800f,
-        2,
-        0f,
-        5f,
-        18,
-        new HashMap<RessourcesType, Integer>() {{
-            put(RessourcesType.Oil, 120);
-            put(RessourcesType.Steel, 400);
-        }},
-        DeckCardCategory.Military
-    );
-
-
-
+    test(Type.Building,null,WeaponType.test,1,1,1,1,1,1000,new HashMap<>());
+    //Barrack(Type.Building), Factory(Type.Building), Garage(Type.Building),
+    //INFANTRY(Type.Unit), HEAVE_INFANTRY(Type.Unit), TANK(Type.Unit), MOTORIZED(Type.Unit), WALKER(Type.Unit), AIRCRAFT(Type.Unit), NAVAL(Type.Unit);
     private final Type type;
     private final EntityType spawnFrom;
-    private final DeckCardCategory category;
     private final ShapeType shapeType;
     private final ArrayList<Float> projectileData;
     private final WeaponType weaponType;
@@ -95,9 +18,9 @@ public enum EntityType {
     private final float base_speed;
     private final float freeze_time;
     private final long create_time;
-    private final HashMap<RessourcesType, Integer> cost;
+    private final HashMap<ResourcesType, Integer> cost;
 
-    EntityType(Type type, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, long createTime, HashMap<RessourcesType, Integer> cost, DeckCardCategory category) {
+    EntityType(Type type, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, long createTime, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
         this.spawnFrom = null;
         this.shapeType = shapeType;
@@ -110,10 +33,9 @@ public enum EntityType {
         this.create_time = createTime;
         this.cost = cost;
         this.base_speed = 0;
-        this.category = category;
     }
 
-    EntityType(Type type, EntityType spawnFrom, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float baseSpeed, float freezeTime, long createTime, HashMap<RessourcesType, Integer> cost) {
+    EntityType(Type type, EntityType spawnFrom, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float baseSpeed, float freezeTime, long createTime, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
         this.spawnFrom = spawnFrom;
         this.shapeType = null;
@@ -126,10 +48,9 @@ public enum EntityType {
         this.freeze_time = freezeTime;
         this.create_time = createTime;
         this.cost = cost;
-        this.category = null;
     }
 
-    EntityType(Type type, EntityType spawnFrom,float damage, int armorPenetration, float aoe, float maxHeight, float baseSpeed, HashMap<RessourcesType, Integer> cost) {
+    EntityType(Type type, EntityType spawnFrom,float damage, int armorPenetration, float aoe, float maxHeight, float baseSpeed, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
         this.spawnFrom = spawnFrom;
         this.shapeType = null;
@@ -146,7 +67,6 @@ public enum EntityType {
         this.freeze_time = 0;
         this.create_time = 0;
         this.cost = cost;
-        this.category = null;
     }
 
     public Type getType(){
@@ -180,7 +100,7 @@ public enum EntityType {
         return weaponType;
     }
 
-    public HashMap<RessourcesType, Integer> getCost() {
+    public HashMap<ResourcesType, Integer> getCost() {
         return cost;
     }
 
@@ -209,10 +129,6 @@ public enum EntityType {
         return 0f;
     }
 
-
-    public DeckCardCategory getCategory(){
-        return category;
-    }
 
     public enum Type{
         Building,Unit,Projectile
