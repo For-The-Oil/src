@@ -67,8 +67,6 @@ public class InstructionManager {
                             Shape overlay = new Shape(entityType.getShapeType().getShape(), netId);
                             ShapeManager.overlayShape(game.getMap(), ShapeManager.rotateShape(overlay, direction), (int) x, (int) y, 0, 0, overlay.getWidth(), overlay.getHeight());
                         }
-
-
                         NetComponent nc = netMapper.create(entity);
                         nc.set(netId, entityType);
 
