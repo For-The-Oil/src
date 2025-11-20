@@ -9,7 +9,7 @@ import io.github.shared.data.EnumsTypes.MatchModeType;
 import io.github.shared.data.requests.AuthRequest;
 import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
-import io.github.shared.local.data.EnumsTypes.DeckRequestType;
+import io.github.shared.data.EnumsTypes.DeckRequestType;
 
 
 /**

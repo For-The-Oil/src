@@ -8,40 +8,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-import io.github.shared.data.EnumsTypes.AuthModeType;
-import io.github.shared.data.EnumsTypes.CellEffectType;
-import io.github.shared.data.EnumsTypes.CellType;
-import io.github.shared.data.EnumsTypes.DeckCardCategory;
-import io.github.shared.data.EnumsTypes.Direction;
-import io.github.shared.data.EnumsTypes.EntityType;
-import io.github.shared.data.EnumsTypes.EventType;
-import io.github.shared.data.EnumsTypes.GameModeType;
-import io.github.shared.data.EnumsTypes.KryoMessageType;
-import io.github.shared.data.EnumsTypes.MapName;
-import io.github.shared.data.EnumsTypes.MatchModeType;
-import io.github.shared.data.EnumsTypes.ResourcesType;
-import io.github.shared.data.EnumsTypes.ShapeType;
-import io.github.shared.data.EnumsTypes.SyncType;
-import io.github.shared.data.EnumsTypes.WeaponType;
+import io.github.shared.data.EnumsTypes.*;
 import io.github.shared.data.IGame;
 import io.github.shared.data.NetGame;
-import io.github.shared.data.gameobject.Cell;
-import io.github.shared.data.gameobject.DamageEntry;
-import io.github.shared.data.gameobject.Deck;
-import io.github.shared.data.gameobject.Shape;
-import io.github.shared.data.instructions.CreateInstruction;
-import io.github.shared.data.instructions.DestroyInstruction;
-import io.github.shared.data.instructions.EventsInstruction;
-import io.github.shared.data.instructions.FinalInstruction;
-import io.github.shared.data.instructions.Instruction;
-import io.github.shared.data.instructions.ResourcesInstruction;
-import io.github.shared.data.instructions.SpecialRequestsInstruction;
-import io.github.shared.data.instructions.UpdateEntityInstruction;
-import io.github.shared.data.requests.AuthRequest;
-import io.github.shared.data.requests.MatchMakingRequest;
-import io.github.shared.data.requests.SynchronizeRequest;
-import io.github.shared.data.snapshot.ComponentSnapshot;
-import io.github.shared.data.snapshot.EntitySnapshot;
+import io.github.shared.data.gameobject.*;
+import io.github.shared.data.instructions.*;
+import io.github.shared.data.requests.*;
+import io.github.shared.data.snapshot.*;
 
 public final class KryoRegistry {
     public static void registerAll(Kryo kryo) {
@@ -60,6 +33,7 @@ public final class KryoRegistry {
         kryo.register(AuthRequest.class);
         kryo.register(MatchMakingRequest.class);
         kryo.register(SynchronizeRequest.class);
+        kryo.register(DeckRequest.class);
 
 
         //instructions
@@ -71,6 +45,7 @@ public final class KryoRegistry {
         kryo.register(ResourcesInstruction.class);
         kryo.register(SpecialRequestsInstruction.class);
         kryo.register(UpdateEntityInstruction.class);
+        kryo.register(DeckRequestType.class);
 
 
 

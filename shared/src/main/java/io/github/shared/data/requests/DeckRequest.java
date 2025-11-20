@@ -2,7 +2,7 @@ package io.github.shared.data.requests;
 
 import java.util.HashMap;
 
-import io.github.shared.local.data.EnumsTypes.DeckRequestType;
+import io.github.shared.data.EnumsTypes.DeckRequestType;
 
 public class DeckRequest extends Request {
 

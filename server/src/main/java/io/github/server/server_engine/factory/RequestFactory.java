@@ -10,7 +10,7 @@ import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
 import io.github.shared.data.requests.SynchronizeRequest;
-import io.github.shared.local.data.EnumsTypes.DeckRequestType;
+import io.github.shared.data.EnumsTypes.DeckRequestType;
 
 
 /**

@@ -14,11 +14,11 @@ import io.github.core.client_engine.factory.KryoMessagePackager;
 import io.github.core.client_engine.factory.RequestFactory;
 import io.github.shared.data.EnumsTypes.DeckCardCategory;
 import io.github.shared.data.EnumsTypes.EntityType;
-import io.github.shared.data.EnumsTypes.RessourcesType;
+import io.github.shared.data.EnumsTypes.ResourcesType;
 import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.DeckRequest;
-import io.github.shared.local.data.EnumsTypes.DeckRequestType;
+import io.github.shared.data.EnumsTypes.DeckRequestType;
 
 
 public final class DeckManager {
@@ -180,7 +180,7 @@ public final class DeckManager {
 
         if (type.getCost() != null && !type.getCost().isEmpty()) {
             info.append("Coût :\n");
-            for (Map.Entry<RessourcesType, Integer> entry : type.getCost().entrySet()) {
+            for (Map.Entry<ResourcesType, Integer> entry : type.getCost().entrySet()) {
                 info.append("  ").append(entry.getKey()).append(" : ").append(entry.getValue()).append("\n");
             }
         }

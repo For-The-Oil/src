@@ -4,9 +4,84 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public enum EntityType {
-    test(Type.Building,null,WeaponType.test,1,1,1,1,1,1000,new HashMap<>());
-    //Barrack(Type.Building), Factory(Type.Building), Garage(Type.Building),
-    //INFANTRY(Type.Unit), HEAVE_INFANTRY(Type.Unit), TANK(Type.Unit), MOTORIZED(Type.Unit), WALKER(Type.Unit), AIRCRAFT(Type.Unit), NAVAL(Type.Unit);
+    test(
+        Type.Building,
+        DeckCardCategory.Industrial,
+        ShapeType.Base,
+        null,
+        2000f,
+        2,
+        0f,
+        5f,
+        20,
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Oil, 100);
+            put(ResourcesType.Steel, 500);
+        }}
+    ),
+
+    BASE(
+        Type.Building,
+        DeckCardCategory.Industrial,
+        ShapeType.Base,
+        null,
+        2000f,
+        2,
+        0f,
+        5f,
+        20,
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Oil, 100);
+            put(ResourcesType.Steel, 500);
+        }}
+    ),
+    BARRACK(
+        Type.Building,
+        DeckCardCategory.Military,
+        ShapeType.Barrack,
+        null,
+        1500f,
+        3,
+        0f,
+        4f,
+        15,
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Oil, 50);
+            put(ResourcesType.Steel, 300);
+        }}
+    ),
+    FACTORY(
+        Type.Building,
+        DeckCardCategory.Military,
+        ShapeType.Factory,
+        null,
+        2500f,
+        2,
+        0f,
+        6f,
+        25,
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Oil, 200);
+            put(ResourcesType.Steel, 700);
+        }}
+    ),
+    GARAGE(
+        Type.Building,
+        DeckCardCategory.Military,
+        ShapeType.Garage,
+        null,
+        1800f,
+        2,
+        0f,
+        5f,
+        18,
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Oil, 120);
+            put(ResourcesType.Steel, 400);
+        }}
+    );
+
+
     private final Type type;
     private final DeckCardCategory category;
     private final EntityType spawnFrom;

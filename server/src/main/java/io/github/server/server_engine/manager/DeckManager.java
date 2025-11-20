@@ -20,7 +20,7 @@ import io.github.shared.data.EnumsTypes.EntityType;
 import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.requests.DeckRequest;
-import io.github.shared.local.data.EnumsTypes.DeckRequestType;
+import io.github.shared.data.EnumsTypes.DeckRequestType;
 import io.github.shared.data.network.KryoMessage;
 
 public final class DeckManager {
