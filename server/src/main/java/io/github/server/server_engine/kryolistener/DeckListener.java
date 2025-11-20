@@ -4,8 +4,9 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import io.github.server.server_engine.manager.DeckManager;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.DeckRequest;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.requests.DeckRequest;
+
 
 public class DeckListener extends Listener {
 

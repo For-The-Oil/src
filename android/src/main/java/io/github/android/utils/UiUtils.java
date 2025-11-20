@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat;
 import io.github.android.activity.BaseActivity;
 import io.github.android.gui.animation.AnimatorBar;
 import io.github.fortheoil.R;
-import io.github.shared.local.data.EnumsTypes.EntityType;
+import io.github.shared.data.EnumsTypes.EntityType;
 
 /**
  * Classe utilitaire regroupant des fonctions réutilisables pour l'UI.

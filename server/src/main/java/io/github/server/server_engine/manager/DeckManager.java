@@ -15,13 +15,13 @@ import io.github.server.data.network.ServerNetwork;
 import io.github.server.server_engine.factory.KryoMessagePackager;
 import io.github.server.server_engine.factory.RequestFactory;
 import io.github.server.server_engine.utils.JsonUtils;
-import io.github.shared.local.data.EnumsTypes.DeckCardCategory;
+import io.github.shared.data.EnumsTypes.DeckCardCategory;
+import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.gameobject.Deck;
+import io.github.shared.data.network.ClientNetwork;
+import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.local.data.EnumsTypes.DeckRequestType;
-import io.github.shared.local.data.EnumsTypes.EntityType;
-import io.github.shared.local.data.gameobject.Deck;
-import io.github.shared.local.data.network.ClientNetwork;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.DeckRequest;
+import io.github.shared.data.network.KryoMessage;
 
 public final class DeckManager {
 

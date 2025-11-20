@@ -1,11 +1,13 @@
 package io.github.server.server_engine.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.shared.local.data.EnumsTypes.DeckCardCategory;
-import io.github.shared.local.data.EnumsTypes.EntityType;
-import io.github.shared.local.data.gameobject.Deck;
+
 
 import java.util.*;
+
+import io.github.shared.data.EnumsTypes.DeckCardCategory;
+import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.gameobject.Deck;
 
 public final class DefaultDeckGenerator {
 

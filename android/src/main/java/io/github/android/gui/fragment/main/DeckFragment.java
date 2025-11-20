@@ -35,9 +35,10 @@ import io.github.android.manager.DeckManager;
 import io.github.android.manager.SessionManager;
 import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
-import io.github.shared.local.data.EnumsTypes.DeckCardCategory;
-import io.github.shared.local.data.EnumsTypes.EntityType;
-import io.github.shared.local.data.gameobject.Deck;
+import io.github.shared.data.EnumsTypes.DeckCardCategory;
+import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.gameobject.Deck;
+
 
 public class DeckFragment extends Fragment {
 

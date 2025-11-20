@@ -4,7 +4,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public enum EntityType {
-    test(Type.Building,WeaponType.test,1,1,1,1,1,1000,new HashMap<>()),
+    test(
+        Type.Building,
+        ShapeType.Base,
+        null,
+        2000f,
+        2,
+        0f,
+        5f,
+        20,
+        new HashMap<RessourcesType, Integer>() {{
+            put(RessourcesType.Oil, 100);
+            put(RessourcesType.Steel, 500);
+        }},
+        DeckCardCategory.Industrial
+    ),
 
     BASE(
         Type.Building,
@@ -68,9 +82,7 @@ public enum EntityType {
     );
 
 
-    test(Type.Building,null,WeaponType.test,1,1,1,1,1,1000,new HashMap<>());
-    //Barrack(Type.Building), Factory(Type.Building), Garage(Type.Building),
-    //INFANTRY(Type.Unit), HEAVE_INFANTRY(Type.Unit), TANK(Type.Unit), MOTORIZED(Type.Unit), WALKER(Type.Unit), AIRCRAFT(Type.Unit), NAVAL(Type.Unit);
+
     private final Type type;
     private final EntityType spawnFrom;
     private final DeckCardCategory category;
@@ -114,6 +126,7 @@ public enum EntityType {
         this.freeze_time = freezeTime;
         this.create_time = createTime;
         this.cost = cost;
+        this.category = null;
     }
 
     EntityType(Type type, EntityType spawnFrom,float damage, int armorPenetration, float aoe, float maxHeight, float baseSpeed, HashMap<RessourcesType, Integer> cost) {

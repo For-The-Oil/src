@@ -1,9 +1,8 @@
-package io.github.shared.local.data.requests;
+package io.github.shared.data.requests;
 
 import java.util.HashMap;
 
 import io.github.shared.local.data.EnumsTypes.DeckRequestType;
-import io.github.shared.local.data.EnumsTypes.RequestType;
 
 public class DeckRequest extends Request {
 
@@ -11,12 +10,12 @@ public class DeckRequest extends Request {
     private HashMap<String, String> keys;
 
     public DeckRequest() {
-        super(RequestType.DECK);
+        //super(RequestType.DECK);
         keys = new HashMap<>();
     }
 
     public DeckRequest(DeckRequestType mode, HashMap<String, String> map ) {
-        super(RequestType.DECK);
+        //super(RequestType.DECK);
         keys = map;
     }
 

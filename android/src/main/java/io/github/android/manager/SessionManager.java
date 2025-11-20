@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.shared.local.data.EnumsTypes.EntityType;
-import io.github.shared.local.data.gameobject.Deck;
+import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.gameobject.Deck;
+
 
 /**
  * Method that build the current user session.

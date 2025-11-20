@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import io.github.shared.local.data.EnumsTypes.EntityType;
-import io.github.shared.local.data.gameobject.Deck;
+import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.gameobject.Deck;
 
 public class JsonUtils {
     private static final ObjectMapper mapper = new ObjectMapper();

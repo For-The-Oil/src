@@ -11,6 +11,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import io.github.android.gui.adapter.MainAdapter;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
@@ -26,6 +27,7 @@ import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
 import io.github.shared.data.EnumsTypes.EntityType;
 import io.github.shared.data.gameobject.Deck;
+import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
 
 

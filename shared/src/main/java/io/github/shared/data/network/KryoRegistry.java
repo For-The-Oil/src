@@ -38,10 +38,13 @@ import io.github.shared.data.instructions.ResourcesInstruction;
 import io.github.shared.data.instructions.SpecialRequestsInstruction;
 import io.github.shared.data.instructions.UpdateEntityInstruction;
 import io.github.shared.data.requests.AuthRequest;
+import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
 import io.github.shared.data.requests.SynchronizeRequest;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.data.snapshot.EntitySnapshot;
+import io.github.shared.local.data.EnumsTypes.DeckRequestType;
+import io.github.shared.local.data.EnumsTypes.RequestType;
 
 public final class KryoRegistry {
     public static void registerAll(Kryo kryo) {
@@ -60,6 +63,7 @@ public final class KryoRegistry {
         kryo.register(AuthRequest.class);
         kryo.register(MatchMakingRequest.class);
         kryo.register(SynchronizeRequest.class);
+        kryo.register(DeckRequest.class);
 
 
         //instructions
@@ -83,13 +87,17 @@ public final class KryoRegistry {
         kryo.register(EntityType.class);
         kryo.register(EventType.class);
         kryo.register(GameModeType.class);
+        //kryo.register(InstructionType.class);
         kryo.register(KryoMessageType.class);
         kryo.register(MapName.class);
         kryo.register(MatchModeType.class);
+        //kryo.register(ProjectileType.class);
+        //kryo.register(RequestType.class);
         kryo.register(RessourcesType.class);
         kryo.register(ShapeType.class);
         kryo.register(SyncType.class);
         kryo.register(WeaponType.class);
+        kryo.register(DeckRequestType.class);
 
 
         //Objects

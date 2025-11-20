@@ -4,6 +4,7 @@ import io.github.core.client_engine.manager.KryoClientManager;
 import io.github.shared.data.EnumsTypes.KryoMessageType;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.AuthRequest;
+import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
 
 /**
@@ -36,7 +37,7 @@ public class KryoMessagePackager {
     }
 
 
-    public static KryoMessage packDeckRequest(io.github.shared.local.data.requests.DeckRequest request, String token) {
+    public static KryoMessage packDeckRequest(DeckRequest request, String token) {
         if (request == null) return null;
         return new KryoMessage(KryoMessageType.DECK, token, request);
     }

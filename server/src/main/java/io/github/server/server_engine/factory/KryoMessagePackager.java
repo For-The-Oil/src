@@ -1,11 +1,12 @@
 package io.github.server.server_engine.factory;
 
-import io.github.shared.local.data.EnumsTypes.KryoMessageType;
-import io.github.shared.local.data.network.KryoMessage;
-import io.github.shared.local.data.requests.AuthRequest;
-import io.github.shared.local.data.requests.DeckRequest;
-import io.github.shared.local.data.requests.MatchMakingRequest;
-import io.github.shared.local.data.requests.SynchronizeRequest;
+
+import io.github.shared.data.EnumsTypes.KryoMessageType;
+import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.requests.AuthRequest;
+import io.github.shared.data.requests.DeckRequest;
+import io.github.shared.data.requests.MatchMakingRequest;
+import io.github.shared.data.requests.SynchronizeRequest;
 
 /**
  * Packager pour créer des KryoMessage côté serveur.
