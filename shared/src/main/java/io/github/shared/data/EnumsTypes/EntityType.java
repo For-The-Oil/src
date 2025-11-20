@@ -8,6 +8,7 @@ public enum EntityType {
     //Barrack(Type.Building), Factory(Type.Building), Garage(Type.Building),
     //INFANTRY(Type.Unit), HEAVE_INFANTRY(Type.Unit), TANK(Type.Unit), MOTORIZED(Type.Unit), WALKER(Type.Unit), AIRCRAFT(Type.Unit), NAVAL(Type.Unit);
     private final Type type;
+    private final DeckCardCategory category;
     private final EntityType spawnFrom;
     private final ShapeType shapeType;
     private final ArrayList<Float> projectileData;
@@ -20,8 +21,9 @@ public enum EntityType {
     private final long create_time;
     private final HashMap<ResourcesType, Integer> cost;
 
-    EntityType(Type type, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, long createTime, HashMap<ResourcesType, Integer> cost) {
+    EntityType(Type type, DeckCardCategory category, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, long createTime, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
+        this.category = category;
         this.spawnFrom = null;
         this.shapeType = shapeType;
         this.weaponType = weaponType;
@@ -37,6 +39,7 @@ public enum EntityType {
 
     EntityType(Type type, EntityType spawnFrom, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float baseSpeed, float freezeTime, long createTime, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
+        this.category = null;
         this.spawnFrom = spawnFrom;
         this.shapeType = null;
         this.projectileData = new ArrayList<>();
@@ -52,6 +55,7 @@ public enum EntityType {
 
     EntityType(Type type, EntityType spawnFrom,float damage, int armorPenetration, float aoe, float maxHeight, float baseSpeed, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
+        this.category = null;
         this.spawnFrom = spawnFrom;
         this.shapeType = null;
         this.projectileData = new ArrayList<>();
@@ -127,6 +131,10 @@ public enum EntityType {
     public Float getMaxHeight() {
         if(type.equals(Type.Projectile))return projectileData.get(3);
         return 0f;
+    }
+
+    public DeckCardCategory getCategory() {
+        return category;
     }
 
 
