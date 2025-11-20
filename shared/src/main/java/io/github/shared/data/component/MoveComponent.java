@@ -5,6 +5,7 @@ import com.artemis.annotations.PooledWeaver;
 
 @PooledWeaver
 public class MoveComponent extends Component {
+    public boolean targetRelated;
     public float destinationX;
     public float destinationY;
     public float nextX1;
@@ -20,10 +21,12 @@ public class MoveComponent extends Component {
         this.nextY1 = -1;
         this.nextX2 = -1;
         this.nextY2 = -1;
+        targetRelated = false;
         force = false;
     }
 
-    public void set(float destinationX, float destinationY, float nextX1, float nextY1, float nextX2, float nextY2, boolean force) {
+    public void set(boolean targetRelated,float destinationX, float destinationY, float nextX1, float nextY1, float nextX2, float nextY2, boolean force) {
+        this.targetRelated = targetRelated;
         this.force = force;
         this.destinationX = destinationX;
         this.destinationY = destinationY;

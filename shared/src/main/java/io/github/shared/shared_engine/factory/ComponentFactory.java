@@ -95,9 +95,9 @@ public final class ComponentFactory {
         return c;
     }
 
-    public static MoveComponent moveComponent(int targetId, float destinationX, float destinationY, float nextX1, float nextY1, float nextX2, float nextY2, boolean force) {
+    public static MoveComponent moveComponent(boolean targetRelate, float destinationX, float destinationY, float nextX1, float nextY1, float nextX2, float nextY2, boolean force) {
         MoveComponent c = new MoveComponent();
-        c.set(destinationX, destinationY, nextX1, nextY1, nextX2, nextY2, force);
+        c.set(targetRelate,destinationX, destinationY, nextX1, nextY1, nextX2, nextY2, force);
         return c;
     }
 
