@@ -19,7 +19,7 @@ import io.github.shared.data.EnumsTypes.GameModeType;
 import io.github.shared.data.EnumsTypes.KryoMessageType;
 import io.github.shared.data.EnumsTypes.MapName;
 import io.github.shared.data.EnumsTypes.MatchModeType;
-import io.github.shared.data.EnumsTypes.RessourcesType;
+import io.github.shared.data.EnumsTypes.ResourcesType;
 import io.github.shared.data.EnumsTypes.ShapeType;
 import io.github.shared.data.EnumsTypes.SyncType;
 import io.github.shared.data.EnumsTypes.WeaponType;
@@ -86,7 +86,7 @@ public final class KryoRegistry {
         kryo.register(KryoMessageType.class);
         kryo.register(MapName.class);
         kryo.register(MatchModeType.class);
-        kryo.register(RessourcesType.class);
+        kryo.register(ResourcesType.class);
         kryo.register(ShapeType.class);
         kryo.register(SyncType.class);
         kryo.register(WeaponType.class);

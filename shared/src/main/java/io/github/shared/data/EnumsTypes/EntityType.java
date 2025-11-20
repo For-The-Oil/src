@@ -18,9 +18,9 @@ public enum EntityType {
     private final float base_speed;
     private final float freeze_time;
     private final long create_time;
-    private final HashMap<RessourcesType, Integer> cost;
+    private final HashMap<ResourcesType, Integer> cost;
 
-    EntityType(Type type, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, long createTime, HashMap<RessourcesType, Integer> cost) {
+    EntityType(Type type, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, long createTime, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
         this.spawnFrom = null;
         this.shapeType = shapeType;
@@ -35,7 +35,7 @@ public enum EntityType {
         this.base_speed = 0;
     }
 
-    EntityType(Type type, EntityType spawnFrom, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float baseSpeed, float freezeTime, long createTime, HashMap<RessourcesType, Integer> cost) {
+    EntityType(Type type, EntityType spawnFrom, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float baseSpeed, float freezeTime, long createTime, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
         this.spawnFrom = spawnFrom;
         this.shapeType = null;
@@ -50,7 +50,7 @@ public enum EntityType {
         this.cost = cost;
     }
 
-    EntityType(Type type, EntityType spawnFrom,float damage, int armorPenetration, float aoe, float maxHeight, float baseSpeed, HashMap<RessourcesType, Integer> cost) {
+    EntityType(Type type, EntityType spawnFrom,float damage, int armorPenetration, float aoe, float maxHeight, float baseSpeed, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
         this.spawnFrom = spawnFrom;
         this.shapeType = null;
@@ -100,7 +100,7 @@ public enum EntityType {
         return weaponType;
     }
 
-    public HashMap<RessourcesType, Integer> getCost() {
+    public HashMap<ResourcesType, Integer> getCost() {
         return cost;
     }
 

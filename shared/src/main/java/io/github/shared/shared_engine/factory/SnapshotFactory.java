@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.shared.data.EnumsTypes.EntityType;
-import io.github.shared.data.EnumsTypes.RessourcesType;
+import io.github.shared.data.EnumsTypes.ResourcesType;
 import io.github.shared.data.component.DamageComponent;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.RessourceComponent;
@@ -64,11 +64,11 @@ public final class SnapshotFactory {
 
                     case "RessourceComponent":
                         RessourceComponent rc = new RessourceComponent();
-                        Object rawMap = cs.getFields().get("ressources");
+                        Object rawMap = cs.getFields().get("resources");
                         if (rawMap instanceof Map) {
                             Map<?, ?> map = (Map<?, ?>) rawMap;
                             for (Map.Entry<?, ?> entry : map.entrySet()) {
-                                RessourcesType typeKey = RessourcesType.valueOf(entry.getKey().toString());
+                                ResourcesType typeKey = ResourcesType.valueOf(entry.getKey().toString());
                                 int amount = (int) entry.getValue();
                                 rc.add(typeKey, amount);
                             }
@@ -143,7 +143,7 @@ public final class SnapshotFactory {
                             break;
                         case "RessourceComponent":
                             RessourceComponent rc = (RessourceComponent) component;
-                            fields.put("ressources", new HashMap<>(rc.getAll()));
+                            fields.put("resources", new HashMap<>(rc.getAll()));
                             break;
 
                         case "DamageComponent":

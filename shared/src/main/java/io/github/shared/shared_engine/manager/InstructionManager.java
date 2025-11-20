@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 import io.github.shared.data.EnumsTypes.Direction;
 import io.github.shared.data.EnumsTypes.EntityType;
-import io.github.shared.data.EnumsTypes.RessourcesType;
+import io.github.shared.data.EnumsTypes.ResourcesType;
 import io.github.shared.data.IGame;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.NetComponent;
@@ -199,7 +199,7 @@ public class InstructionManager {
                     SummonRequest summonRequest = (SummonRequest) request;
                     CreateInstruction createInstructionSummon = new CreateInstruction(System.currentTimeMillis());
 
-                    HashMap<RessourcesType, Integer> toSubtractSummon = new HashMap<>();
+                    HashMap<ResourcesType, Integer> toSubtractSummon = new HashMap<>();
                     EntityType entityTypeSummon = summonRequest.getType();
 
                     for(int i = summonRequest.getQuantities() ; i>0 ; i--) {

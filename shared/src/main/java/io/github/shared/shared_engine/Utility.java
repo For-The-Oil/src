@@ -7,7 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import io.github.shared.data.EnumsTypes.RessourcesType;
+import io.github.shared.data.EnumsTypes.ResourcesType;
 import io.github.shared.data.network.Player;
 import io.github.shared.data.snapshot.EntitySnapshot;
 
@@ -48,11 +48,11 @@ public class Utility {
     }
 
 
-    public static void addResourcesInPlace(HashMap<RessourcesType, Integer> base, HashMap<RessourcesType, Integer> toAdd) {
+    public static void addResourcesInPlace(HashMap<ResourcesType, Integer> base, HashMap<ResourcesType, Integer> toAdd) {
         if (base == null || toAdd == null) return;
 
-        for (Map.Entry<RessourcesType, Integer> e : toAdd.entrySet()) {
-            RessourcesType type = e.getKey();
+        for (Map.Entry<ResourcesType, Integer> e : toAdd.entrySet()) {
+            ResourcesType type = e.getKey();
             int delta = (e.getValue() == null) ? 0 : e.getValue();
             int current = base.getOrDefault(type, 0);
             base.put(type, current + delta);
@@ -60,9 +60,9 @@ public class Utility {
     }
 
 
-    public static void subtractResourcesInPlace(HashMap<RessourcesType, Integer> base, HashMap<RessourcesType, Integer> toSubtract) {
-        for (Map.Entry<RessourcesType, Integer> entry : toSubtract.entrySet()) {
-            RessourcesType type = entry.getKey();
+    public static void subtractResourcesInPlace(HashMap<ResourcesType, Integer> base, HashMap<ResourcesType, Integer> toSubtract) {
+        for (Map.Entry<ResourcesType, Integer> entry : toSubtract.entrySet()) {
+            ResourcesType type = entry.getKey();
             int valueToSubtract = entry.getValue();
 
             // Récupérer la valeur actuelle (0 si absente)
@@ -77,11 +77,11 @@ public class Utility {
     }
 
 
-    public static boolean canSubtractResources(HashMap<RessourcesType, Integer> base, HashMap<RessourcesType, Integer> toSubtract) {
+    public static boolean canSubtractResources(HashMap<ResourcesType, Integer> base, HashMap<ResourcesType, Integer> toSubtract) {
         if (base == null || toSubtract == null) return false;
 
-        for (Map.Entry<RessourcesType, Integer> e : toSubtract.entrySet()) {
-            RessourcesType type = e.getKey();
+        for (Map.Entry<ResourcesType, Integer> e : toSubtract.entrySet()) {
+            ResourcesType type = e.getKey();
             int valueToSubtract = (e.getValue() == null) ? 0 : e.getValue();
 
             if (valueToSubtract <= 0) continue; // rien à retirer pour cette ressource

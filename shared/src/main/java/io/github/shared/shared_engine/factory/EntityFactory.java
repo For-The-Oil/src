@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.github.shared.data.EnumsTypes.EntityType;
-import io.github.shared.data.EnumsTypes.RessourcesType;
+import io.github.shared.data.EnumsTypes.ResourcesType;
 import io.github.shared.data.IGame;
 import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.DamageComponent;
@@ -88,12 +88,12 @@ public final class EntityFactory {
 
                     case "RessourceComponent":
                         RessourceComponent rc = (RessourceComponent) component;
-                        Object rawMap = cs.getFields().get("ressources");
+                        Object rawMap = cs.getFields().get("resources");
                         if (rawMap instanceof Map) {
                             Map<?, ?> map = (Map<?, ?>) rawMap;
                             rc.reset(); // pour éviter les doublons
                             for (Map.Entry<?, ?> entry : map.entrySet()) {
-                                RessourcesType typeKey = RessourcesType.valueOf(entry.getKey().toString());
+                                ResourcesType typeKey = ResourcesType.valueOf(entry.getKey().toString());
                                 int amount = (int) entry.getValue();
                                 rc.add(typeKey, amount);
                             }

@@ -1,181 +1,235 @@
 package io.github.server.game_engine.manager;
 
-
-import com.artemis.Component;
-import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.World;
+import com.artemis.ComponentMapper;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.List;
 
-import io.github.shared.data.component.DamageComponent;
+import io.github.shared.data.EnumsTypes.ResourcesType;
 import io.github.shared.data.component.NetComponent;
-import io.github.shared.data.component.RessourceComponent;
+import io.github.shared.data.EnumsTypes.EntityType;
 import io.github.shared.data.instructions.UpdateEntityInstruction;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.data.snapshot.EntitySnapshot;
 
+/**
+ * SnapshotTracker
+ *
+ * Tracks per-entity component snapshots that should be sent to clients or
+ * consumed by server-side update instructions. Callers provide ready-made
+ * ComponentSnapshot instances and the tracker aggregates them by entity.
+ *
+ * Usage:
+ * - Call markComponentModified(entity, componentSnapshot) whenever a component
+ *   changes and you want that change reflected in the outgoing snapshots.
+ * - Periodically call consumeSnapshots() or consumeUpdateInstruction(timestamp)
+ *   to retrieve and clear the pending snapshots.
+ */
 public class SnapshotTracker {
+
+    /** Pending snapshots keyed by entity netId. */
     private final Map<Integer, EntitySnapshot> pendingSnapshots = new HashMap<>();
 
-    public void markComponentModified(World world, Entity entity, Class<? extends Component> componentClass) {
-        NetComponent net = world.getMapper(NetComponent.class).get(entity);
+    /**
+     * Registers a component change for the given entity.
+     * The caller supplies a ready-made ComponentSnapshot (type + fields).
+     *
+     * Steps:
+     * 1) Resolve the entity's NetComponent to obtain netId and entityType.
+     * 2) Insert or merge the supplied ComponentSnapshot into the entity's snapshot.
+     *
+     * @param entity            Artemis entity whose component changed
+     * @param componentSnapshot Snapshot describing the changed component (type and fields)
+     */
+    public void markComponentModified(Entity entity, ComponentSnapshot componentSnapshot) {
+        if (entity == null || componentSnapshot == null) return;
+
+        World world = entity.getWorld();
+        if (world == null) return;
+
+        // Resolve NetComponent to identify the entity in the network layer
+        ComponentMapper<NetComponent> netMapper = world.getMapper(NetComponent.class);
+        if (netMapper == null || !netMapper.has(entity)) return;
+
+        NetComponent net = netMapper.get(entity);
         int entityId = net.netId;
-        ComponentMapper<?> mapper = world.getMapper(componentClass);
-        if (!mapper.has(entity)) return;
+        EntityType entityType = net.entityType;
 
-        Component component = mapper.get(entity);
-        HashMap<String, Object> fields = new HashMap<>();
+        String type = componentSnapshot.getType();
+        if (type == null || type.isEmpty()) return;
 
-        String type = componentClass.getSimpleName();
-        try{
-            switch (type) {
-                case "FreezeComponent":
+        // Insert or merge snapshot into the per-entity aggregate
+        EntitySnapshot currentSnapshot = pendingSnapshots.get(entityId);
+        if (currentSnapshot == null) {
+            ArrayList<ComponentSnapshot> components = new ArrayList<>();
+            components.add(componentSnapshot);
+            pendingSnapshots.put(entityId, new EntitySnapshot(entityId, entityType, components));
+            return;
+        }
+
+        ComponentSnapshot previousSnapshot = currentSnapshot.getComponentSnapshot()
+            .stream()
+            .filter(cs -> type.equals(cs.getType()))
+            .findFirst()
+            .orElse(null);
+
+        if (previousSnapshot != null) {
+            // Merge according to component type
+            handleDependentComponent(type, previousSnapshot, componentSnapshot);
+        } else {
+            currentSnapshot.getComponentSnapshot().add(componentSnapshot);
+        }
+    }
+
+    /**
+     * Merges a new snapshot into a previous snapshot, depending on the component type.
+     *
+     * Rules:
+     * - Most components: simple overwrite of fields.
+     * - DamageComponent: merge "entries" lists by concatenation.
+     * - VelocityComponent: sum vx, vy, vz if present in both snapshots.
+     *
+     * @param typeName         Component type name (e.g., "PositionComponent")
+     * @param previousSnapshot Previously stored snapshot to update
+     * @param newSnapshot      Newly supplied snapshot to merge
+     */
+    private void handleDependentComponent(String typeName, ComponentSnapshot previousSnapshot, ComponentSnapshot newSnapshot) {
+        try {
+            switch (typeName) {
+                // Simple overwrite set
                 case "LifeComponent":
+                case "FreezeComponent":
+                case "SpeedComponent":
                 case "MeleeAttackComponent":
+                case "RangedAttackComponent":
+                case "ProprietyComponent":
                 case "NetComponent":
                 case "PositionComponent":
-                case "ProjectileAttackComponent":
                 case "ProjectileComponent":
-                case "ProprietyComponent":
-                case "RangedAttackComponent":
-                case "SpeedComponent":
+                case "ProjectileAttackComponent":
                 case "TargetComponent":
-                case "VelocityComponent":
                 case "BuildingMapPositionComponent":
                 case "OnCreationComponent":
-                case "MoveComponent":
-                    for (Field field : componentClass.getDeclaredFields()) {
-                        field.setAccessible(true);
-                        try {
-                            fields.put(field.getName(), field.get(component));
-                        } catch (IllegalAccessException e) {
-                            System.err.println("Erreur d'accès au champ " + field.getName() + " du composant " + type);
-                            e.printStackTrace();
+                case "MoveComponent": {
+                    previousSnapshot.setFields(newSnapshot.getFields());
+                    break;
+                }
+
+                // Merge damage entries (append lists)
+                case "DamageComponent": {
+                    List<?> prevEntries = safeList(previousSnapshot.getFields().get("entries"));
+                    List<?> newEntries  = safeList(newSnapshot.getFields().get("entries"));
+                    List<Object> merged = new ArrayList<>();
+                    if (prevEntries != null) merged.addAll(prevEntries);
+                    if (newEntries  != null) merged.addAll(newEntries);
+                    previousSnapshot.getFields().put("entries", merged);
+                    break;
+                }
+
+                // Sum velocity components if present (supports vx, vy, vz)
+                case "VelocityComponent": {
+                    Float prevVx = asFloat(previousSnapshot.getFields().get("vx"));
+                    Float prevVy = asFloat(previousSnapshot.getFields().get("vy"));
+                    Float prevVz = asFloat(previousSnapshot.getFields().get("vz"));
+                    Float newVx  = asFloat(newSnapshot.getFields().get("vx"));
+                    Float newVy  = asFloat(newSnapshot.getFields().get("vy"));
+                    Float newVz  = asFloat(newSnapshot.getFields().get("vz"));
+
+                    float mergedVx = (prevVx != null ? prevVx : 0f) + (newVx != null ? newVx : 0f);
+                    float mergedVy = (prevVy != null ? prevVy : 0f) + (newVy != null ? newVy : 0f);
+                    float mergedVz = (prevVz != null ? prevVz : 0f) + (newVz != null ? newVz : 0f);
+
+                    previousSnapshot.getFields().put("vx", mergedVx);
+                    previousSnapshot.getFields().put("vy", mergedVy);
+                    previousSnapshot.getFields().put("vz", mergedVz);
+                    break;
+                }
+
+                case "RessourceComponent": {
+                    // Additionne les ressources clé par clé
+                    Map<String, Object> prevMap = previousSnapshot.getFields();
+                    Map<String, Object> newMap  = newSnapshot.getFields();
+
+                    Object prevResourcesObj = prevMap.get("resources");
+                    Object newResourcesObj  = newMap.get("resources");
+
+                    if (prevResourcesObj instanceof Map && newResourcesObj instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<ResourcesType, Integer> prevResources = (Map<ResourcesType, Integer>) prevResourcesObj;
+                        @SuppressWarnings("unchecked")
+                        Map<ResourcesType, Integer> newResources  = (Map<ResourcesType, Integer>) newResourcesObj;
+
+                        for (Map.Entry<ResourcesType, Integer> entry : newResources.entrySet()) {
+                            ResourcesType key = entry.getKey();
+                            int addVal = entry.getValue() != null ? entry.getValue() : 0;
+                            int oldVal = prevResources.getOrDefault(key, 0);
+                            prevResources.put(key, oldVal + addVal);
+
                         }
                     }
                     break;
-                case "RessourceComponent":
-                    RessourceComponent rc = (RessourceComponent) component;
-                    fields.put("ressources", new HashMap<>(rc.getAll())); // clone pour éviter les effets de bord
-                    break;
-                case "DamageComponent":
-                    DamageComponent dc = (DamageComponent) component;
-                    fields.put("entries", new ArrayList<>(dc.entries)); // clone pour éviter les effets de bord
-                    break;
-
-                default:
-                    throw new IllegalArgumentException("Composant non pris en charge : " + type);
-            }
-        } catch (Exception e) {
-            System.out.print("markComponentModified err "+e);
-        }
+                }
 
 
-        ComponentSnapshot newSnapshot = new ComponentSnapshot(type, fields);
-        EntitySnapshot currentSnapshot = pendingSnapshots.get(entityId);
-
-        if (currentSnapshot == null) {
-            ArrayList<ComponentSnapshot> components = new ArrayList<>();
-            components.add(newSnapshot);
-            pendingSnapshots.put(entityId, new EntitySnapshot(entityId, net.entityType, components));
-        } else {
-            ComponentSnapshot previousSnapshot = currentSnapshot.getComponentSnapshot().stream()
-                .filter(cs -> cs.getType().equals(type))
-                .findFirst()
-                .orElse(null);
-
-            if (previousSnapshot != null) {
-                handleDependentComponent(componentClass, previousSnapshot, newSnapshot);
-            } else {
-                currentSnapshot.getComponentSnapshot().add(newSnapshot);
-            }
-        }
-    }
-
-
-    private void handleDependentComponent(Class<? extends Component> componentClass, ComponentSnapshot previousSnapshot, ComponentSnapshot newSnapshot) {
-        String typeName = componentClass.getSimpleName();
-        try {
-            switch (typeName) {
-                case "LifeComponent":
-                case "FreezeComponent":
-                case "SpeedComponent":
-                case "MeleeAttackComponent":
-                case "RangedAttackComponent":
-                case "ProprietyComponent":
-                case "NetComponent":
-                case "PositionComponent":
-                case "ProjectileComponent":
-                case "ProjectileAttackComponent":
-                case "TargetComponent":
-                case "BuildingMapPositionComponent":
-                case "RessourceComponent":
-                case "OnCreationComponent":
-                case "MoveComponent":
-                    // Écrasement simple
+                default: {
+                    // Fallback: overwrite fields
                     previousSnapshot.setFields(newSnapshot.getFields());
-                    break;
-                case "DamageComponent":
-                    // Fusionner les dégâts
-                    List<?> previousEntries = (List<?>) previousSnapshot.getFields().get("entries");
-                    List<?> newEntries = (List<?>) newSnapshot.getFields().get("entries");
-                    List<Object> merged = new ArrayList<>();
-                    if (previousEntries != null) merged.addAll(previousEntries);
-                    if (newEntries != null) merged.addAll(newEntries);
-                    previousSnapshot.getFields().put("entries", merged);
-                    break;
-                case "VelocityComponent":
-                    Float prevX = (Float) previousSnapshot.getFields().get("x");
-                    Float prevY = (Float) previousSnapshot.getFields().get("y");
-                    Float newX = (Float) newSnapshot.getFields().get("x");
-                    Float newY = (Float) newSnapshot.getFields().get("y");
-
-                    float mergedX = (prevX != null ? prevX : 0f) + (newX != null ? newX : 0f);
-                    float mergedY = (prevY != null ? prevY : 0f) + (newY != null ? newY : 0f);
-
-                    previousSnapshot.getFields().put("x", mergedX);
-                    previousSnapshot.getFields().put("y", mergedY);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Composant inconnu : " + typeName);
+                }
             }
         } catch (Exception e) {
-            System.out.print("handleDependentComponent err "+e);
+            System.out.print("handleDependentComponent error " + e);
         }
     }
 
-
+    /**
+     * Returns and clears the collection of pending entity snapshots.
+     *
+     * @return collection of snapshots to be processed or sent
+     */
     public Collection<EntitySnapshot> consumeSnapshots() {
         Collection<EntitySnapshot> result = pendingSnapshots.values();
         pendingSnapshots.clear();
         return result;
     }
 
+    /**
+     * Indicates whether there are pending snapshots.
+     *
+     * @return true if no snapshots are pending, false otherwise
+     */
     public boolean snapshotsIsEmpty() {
         return pendingSnapshots.isEmpty();
     }
 
-
+    /**
+     * Builds an UpdateEntityInstruction from the current pending snapshots,
+     * assigns the given timestamp, and clears the internal buffer.
+     *
+     * @param timestamp instruction timestamp in milliseconds
+     * @return a populated UpdateEntityInstruction
+     */
     public UpdateEntityInstruction consumeUpdateInstruction(long timestamp) {
-        // Consommer les snapshots existants
         Collection<EntitySnapshot> snapshots = this.consumeSnapshots();
-
-        // Créer l'instruction avec le timestamp
         UpdateEntityInstruction instruction = new UpdateEntityInstruction(timestamp);
-
-        // Convertir la collection en ArrayList et l'associer à l'instruction
         instruction.setToUpdate(new ArrayList<>(snapshots));
-
         return instruction;
     }
 
+    // -------- Helpers --------
 
+    private static List<?> safeList(Object o) {
+        if (o instanceof List<?>) return (List<?>) o;
+        return null;
+    }
 
+    private static Float asFloat(Object o) {
+        if (o instanceof Float) return (Float) o;
+        if (o instanceof Number) return ((Number) o).floatValue();
+        return null;
+    }
 }
-

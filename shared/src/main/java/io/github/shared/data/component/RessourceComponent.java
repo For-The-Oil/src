@@ -5,35 +5,44 @@ import com.artemis.annotations.PooledWeaver;
 
 import java.util.HashMap;
 
-import io.github.shared.data.EnumsTypes.RessourcesType;
+import io.github.shared.data.EnumsTypes.ResourcesType;
 
 
 @PooledWeaver
 public class RessourceComponent extends Component {
-    private HashMap<RessourcesType, Integer> ressources = new HashMap<>();
+    private HashMap<ResourcesType, Integer> resources = new HashMap<>();
 
     public void reset() {
-        ressources.clear();
+        resources.clear();
     }
 
-    public void add(RessourcesType type, int amount) {
-        ressources.put(type, ressources.getOrDefault(type, 0) + amount);
+    public void add(ResourcesType type, int amount) {
+        resources.put(type, resources.getOrDefault(type, 0) + amount);
     }
 
-    public boolean has(RessourcesType type, int required) {
-        return ressources.getOrDefault(type, 0) >= required;
+    public boolean has(ResourcesType type, int required) {
+        return resources.getOrDefault(type, 0) >= required;
     }
 
-    public int get(RessourcesType type) {
-        return ressources.getOrDefault(type, 0);
+    public int get(ResourcesType type) {
+        return resources.getOrDefault(type, 0);
     }
 
-    public void consume(RessourcesType type, int amount) {
-        ressources.put(type, Math.max(ressources.getOrDefault(type, 0) - amount, 0));
+    public void consume(ResourcesType type, int amount) {
+        resources.put(type, Math.max(resources.getOrDefault(type, 0) - amount, 0));
     }
 
-    public HashMap<RessourcesType, Integer> getAll() {
-        return ressources;
+    public HashMap<ResourcesType, Integer> getAll() {
+        return resources;
     }
+
+    public void setResources(HashMap<ResourcesType, Integer> resources) {
+        this.resources = resources;
+    }
+
+    public HashMap<ResourcesType, Integer> getResources() {
+        return resources;
+    }
+
 }
 

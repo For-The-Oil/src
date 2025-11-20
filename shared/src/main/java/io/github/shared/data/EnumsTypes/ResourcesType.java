@@ -1,5 +1,5 @@
 package io.github.shared.data.EnumsTypes;
 
-public enum RessourcesType {
+public enum ResourcesType {
     Oil, Steel, Coal
 }

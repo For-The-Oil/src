@@ -1,6 +1,6 @@
 package io.github.shared.data.network;
 
-import io.github.shared.data.EnumsTypes.RessourcesType;
+import io.github.shared.data.EnumsTypes.ResourcesType;
 import io.github.shared.data.gameobject.Deck;
 
 import java.util.*;
@@ -9,7 +9,7 @@ import java.util.*;
  * Représente un joueur avec plusieurs Decks, bâtiments et unités.
  */
 public class Player extends ClientNetwork {
-    private HashMap<RessourcesType, Integer> resources;
+    private HashMap<ResourcesType, Integer> resources;
     private Deck gameDeck;
 
     public Player(){
@@ -23,11 +23,11 @@ public class Player extends ClientNetwork {
     public Player(ClientNetwork cn){
         this(cn.getUuid(), cn.getUsername(), cn.getDecks(), cn.getCurrentDeck(), cn.getToken());
     }
-    public HashMap<RessourcesType, Integer> getResources() {
+    public HashMap<ResourcesType, Integer> getResources() {
         return resources;
     }
 
-    public void setResources(HashMap<RessourcesType, Integer> resources) {
+    public void setResources(HashMap<ResourcesType, Integer> resources) {
         this.resources = resources;
     }
 

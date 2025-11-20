@@ -3,24 +3,24 @@ package io.github.shared.data.instructions;
 import java.util.HashMap;
 import java.util.UUID;
 
-import io.github.shared.data.EnumsTypes.RessourcesType;
+import io.github.shared.data.EnumsTypes.ResourcesType;
 
 public class ResourcesInstruction extends Instruction{
 
-    private HashMap<RessourcesType, Integer> ressources;
+    private HashMap<ResourcesType, Integer> ressources;
     private UUID player;
     public ResourcesInstruction(){}
-    public ResourcesInstruction(long timestamp, HashMap<RessourcesType, Integer> ressources, UUID player) {
+    public ResourcesInstruction(long timestamp, HashMap<ResourcesType, Integer> ressources, UUID player) {
         super(timestamp);
         this.ressources = ressources;
         this.player = player;
     }
 
-    public HashMap<RessourcesType, Integer> getRessources() {
+    public HashMap<ResourcesType, Integer> getRessources() {
         return ressources;
     }
 
-    public void setRessources(HashMap<RessourcesType, Integer> ressources) {
+    public void setRessources(HashMap<ResourcesType, Integer> ressources) {
         this.ressources = ressources;
     }
 

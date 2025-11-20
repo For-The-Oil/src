@@ -89,9 +89,9 @@ public final class ComponentFactory {
         return c;
     }
 
-    public static VelocityComponent velocityComponent(float vx, float vy) {
+    public static VelocityComponent velocityComponent(float vx, float vy, float vz) {
         VelocityComponent c = new VelocityComponent();
-        c.set(vx, vy);
+        c.set(vx, vy, vz);
         return c;
     }
 
