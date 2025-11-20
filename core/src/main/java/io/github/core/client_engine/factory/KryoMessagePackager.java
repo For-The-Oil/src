@@ -1,8 +1,10 @@
 package io.github.core.client_engine.factory;
 
+import io.github.core.client_engine.manager.KryoClientManager;
 import io.github.shared.data.EnumsTypes.KryoMessageType;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.AuthRequest;
+import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
 
 /**
@@ -33,6 +35,14 @@ public class KryoMessagePackager {
         }
         return new KryoMessage(KryoMessageType.MATCHMAKING, null, matchRequest);
     }
+
+
+    public static KryoMessage packDeckRequest(DeckRequest request, String token) {
+        if (request == null) return null;
+        return new KryoMessage(KryoMessageType.DECK, token, request);
+    }
+
+
 
     // TODO : Add even more way of packaging the Requests
 

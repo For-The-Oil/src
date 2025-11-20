@@ -12,10 +12,36 @@ public enum ShapeType {
         {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
         {new Cell(ROAD),new Cell(ROAD),new Cell(VOID)},
         {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
-    }),new ArrayList<>());
+    }), new ArrayList<>()),
 
-    //MAP1, MAP2,
-    //Barrack, Factory, Garage;
+    Base( new Shape(new Cell[][]{
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+    }), new ArrayList<>()),
+    Barrack(new Shape(new Cell[][]{
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)}
+    }), new ArrayList<>()),
+    Factory(new Shape(new Cell[][]{
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)}
+    }), new ArrayList<>()),
+    Garage(new Shape(new Cell[][]{
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
+        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)}
+    }), new ArrayList<>());
 
     private final Shape shape;
     private final ArrayList<CellType> canBePlacedOn;

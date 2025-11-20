@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import io.github.android.activity.BaseActivity;
 import io.github.android.gui.animation.AnimatorBar;
 import io.github.fortheoil.R;
+import io.github.shared.data.EnumsTypes.EntityType;
 
 /**
  * Classe utilitaire regroupant des fonctions réutilisables pour l'UI.
@@ -28,7 +29,6 @@ import io.github.fortheoil.R;
 public final class UiUtils {
 
     // Empêche l'instanciation
-    private UiUtils() {}
 
     public static void togglePassword(EditText field, ImageButton button) {
         boolean visible = field.getTransformationMethod() instanceof HideReturnsTransformationMethod;
@@ -87,6 +87,17 @@ public final class UiUtils {
 
     public static void animateActivityChange(BaseActivity activity){
         activity.overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_top);
+    }
+
+
+    public static int mapEntityTypeToDrawable(EntityType type) {
+        switch (type) {
+            case BASE: return R.drawable.base_card;
+            case GARAGE: return R.drawable.garage;
+            case FACTORY: return R.drawable.factory;
+            case BARRACK: return R.drawable.barrack;
+            default: return R.drawable.base_card;
+        }
     }
 
 

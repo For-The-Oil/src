@@ -1,11 +1,16 @@
 package io.github.core.client_engine.factory;
 
 import java.util.HashMap;
+import java.util.Map;
+
 import io.github.shared.data.EnumsTypes.AuthModeType;
 import io.github.shared.data.EnumsTypes.GameModeType;
 import io.github.shared.data.EnumsTypes.MatchModeType;
 import io.github.shared.data.requests.AuthRequest;
+import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
+import io.github.shared.local.data.EnumsTypes.DeckRequestType;
+
 
 /**
  * <h1>RequestFactory</h1>
@@ -59,6 +64,13 @@ public class RequestFactory {
 
     public static MatchMakingRequest createMatchmakingRequest(GameModeType mode, MatchModeType type, HashMap<String, String> key){
         return new MatchMakingRequest(type,mode, key);
+    }
+
+    public static DeckRequest createDeckRequest(DeckRequestType mode, HashMap<String, String> keys) {
+        DeckRequest request = new DeckRequest();
+        request.setMode(mode);
+        request.setKeys(keys);
+        return request;
     }
 
 

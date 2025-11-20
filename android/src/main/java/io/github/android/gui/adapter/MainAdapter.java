@@ -11,11 +11,10 @@ import io.github.android.gui.fragment.main.StatsFragment;
 
 public class MainAdapter extends FragmentStateAdapter {
 
-    public MainAdapter(@NonNull FragmentActivity fa) {
+    public MainAdapter(FragmentActivity fa) {
         super(fa);
     }
 
-    @NonNull
     @Override
     public Fragment createFragment(int position) {
         switch (position) {

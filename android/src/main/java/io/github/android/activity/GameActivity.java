@@ -17,6 +17,7 @@ import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.utils.NetworkUtils;
+import io.github.android.utils.OtherUtils;
 import io.github.core.game_engine.ClientGame;
 import io.github.core.game_engine.ClientLauncher;
 import io.github.fortheoil.R;
@@ -52,6 +53,7 @@ public class GameActivity extends BaseActivity {
         Bundle extras = getIntent().getExtras();
 
         Log.d("For The Oil", "Game started");
+
 
         initListener();
         setupLoadingFragment();
@@ -192,21 +194,23 @@ public class GameActivity extends BaseActivity {
                 case FULL_RESYNC:
                     Log.d("For The Oil","FullSynchronizeRequest received :"+request.getType().toString());
                     NetGame netGame = (NetGame) request.getMap().get("game");
-                    clientLauncher.setResyncNetGame(netGame);
+
+                    clientGame = OtherUtils.clientGameBuilder(netGame);
+
+                    // TODO : Create a client launcher and ClientGame made from the data sent by the server
+                    // TODO : We MUST check if the data is correct
+
+                    //clientLauncher.setResyncNetGame(netGame);
+
+
                     break;
 
                 default:
                     break;
             }
 
-
-
-
-
-
         }), true);
     }
-
 
 
 

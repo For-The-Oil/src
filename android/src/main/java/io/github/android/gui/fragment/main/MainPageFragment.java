@@ -7,43 +7,49 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import io.github.android.activity.HomeActivity;
 import io.github.android.gui.adapter.CarouselAdapter;
 import io.github.android.manager.MatchMakingManager;
 import io.github.fortheoil.R;
+import io.github.android.manager.SessionManager;
 import io.github.shared.data.EnumsTypes.GameModeType;
+import io.github.shared.data.gameobject.Deck;
 
 public class MainPageFragment extends Fragment {
 
     private HomeActivity activity;
+    private Button btnPlay, btnDeck;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.second_activity_main, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(View view,Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         activity = (HomeActivity) getActivity();
         if (activity == null) return;
 
+        btnDeck = view.findViewById(R.id.btnDeck);
+        btnPlay = view.findViewById(R.id.btnPlay);
         ViewPager2 carousel = view.findViewById(R.id.imageCarousel);
         Button btnPlay = view.findViewById(R.id.btnPlay);
 
-        // Liste des images du carrousel
+        setupCarousel(carousel);
+        setupPlayButton();
+        updateDeckButton(); // initial update du bouton Deck
+    }
+
+    private void setupCarousel(ViewPager2 carousel) {
         List<Integer> images = Arrays.asList(
             R.drawable.placeholder_0,
             R.drawable.placeholder_1,
@@ -65,7 +71,7 @@ public class MainPageFragment extends Fragment {
             });
         }
 
-        // Transformer pour effet zoom
+        // Zoom & alpha effect
         carousel.setPageTransformer((page, position) -> {
             float scale = 0.85f + (1 - Math.abs(position)) * 0.15f;
             page.setScaleX(scale);
@@ -86,8 +92,9 @@ public class MainPageFragment extends Fragment {
                 }
             }
         });
+    }
 
-        // Action du bouton Play
+    private void setupPlayButton() {
         btnPlay.setOnClickListener(v -> {
             String currentMode = activity.getGameMode();
             // TODO : lancer l’activité ou la logique correspondant au mode
@@ -103,13 +110,31 @@ public class MainPageFragment extends Fragment {
                     break;
                 case "MODE_2":
                     myMatchManager.askMatchmaking(GameModeType.CLASSIC);
-                    break;
-                default:
-                    myMatchManager.askMatchmaking(GameModeType.CLASSIC);
             }
         });
+    }
 
+    /**
+     * Méthode publique à appeler quand le deck courant a changé côté client
+     * Elle met à jour le texte du bouton Deck
+     */
+    public void updateDeckButton() {
+        Deck currentDeck = SessionManager.getInstance().getCurrentDeck();
+        String deckName = "Deck"; // fallback si aucun deck
 
+        if (currentDeck != null) {
+            Map<String, Deck> decks = SessionManager.getInstance().getDecks();
+            for (Map.Entry<String, Deck> entry : decks.entrySet()) {
+                if (entry.getValue() == currentDeck) {
+                    deckName = entry.getKey();
+                    break;
+                }
+            }
+        }
+
+        if (btnDeck != null) {
+            btnDeck.setText(deckName);
+        }
     }
 
 

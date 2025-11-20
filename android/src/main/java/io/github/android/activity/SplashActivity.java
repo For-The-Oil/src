@@ -7,6 +7,7 @@ import static io.github.android.utils.OtherUtils.initClientConfig;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -105,7 +106,13 @@ public class SplashActivity extends BaseActivity {
      */
     private void phaseConnectToServer() {
         loadingFragment.animateProgress(25f, 50f, INIT_WAITING_TIME, "Connecting to the server...", null, () -> {
-            ClientManager.getInstance().getKryoManager().start();
+            try {
+                ClientManager.getInstance().getKryoManager().start();
+            }
+            catch (Exception e){
+                Log.d("For The Oil", "Tried to start a connection while already connected...");
+            }
+
             ClientManager.getInstance().getKryoManager().connect(
                 clientManager.getIP(),
                 clientManager.getPort(),

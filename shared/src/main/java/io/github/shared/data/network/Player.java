@@ -2,6 +2,7 @@ package io.github.shared.data.network;
 
 import io.github.shared.data.EnumsTypes.ResourcesType;
 import io.github.shared.data.gameobject.Deck;
+import io.github.shared.data.network.ClientNetwork;
 
 import java.util.*;
 
@@ -16,7 +17,7 @@ public class Player extends ClientNetwork {
         super();
     }
     public Player(UUID uuid, String name, HashMap<String, Deck> fullDeck, Deck deck, String token) {
-        super(uuid,name, fullDeck, token);
+        super(uuid,name, fullDeck, null, token);
         this.gameDeck = deck;
         this.resources = new HashMap<>();
     }

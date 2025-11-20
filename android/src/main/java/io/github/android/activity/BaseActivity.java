@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * public class LoginActivity extends BaseActivity {
  *     @Override
  *     protected void onBeforeKill() {
- *         ClientManager.getInstance().disconnect();
+ *         ClientManager.getINSTANCE().disconnect();
  *     }
  * }
  *

@@ -26,16 +26,15 @@ import java.util.function.Consumer;
  */
 public class ClientListener extends Listener {
 
+    private static ClientListener INSTANCE;
+
     private BaseActivity currentActivity;
     private final Map<Class<?>, CallbackWrapper> messageHandlers = new HashMap<>();
     private final ExecutorService executor = Executors.newFixedThreadPool(4);
-    private static ClientListener instance;
 
     public static ClientListener getInstance() {
-        if (instance == null) {
-            instance = new ClientListener();
-        }
-        return instance;
+        if (INSTANCE == null) INSTANCE = new ClientListener();
+        return INSTANCE;
     }
 
     private ClientListener() {}

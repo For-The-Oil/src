@@ -11,6 +11,8 @@ import io.github.android.config.ServerDefaultConfig;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.SessionManager;
+import io.github.core.game_engine.ClientGame;
+import io.github.shared.data.NetGame;
 
 public final class OtherUtils {
 
@@ -45,6 +47,11 @@ public final class OtherUtils {
         HashMap<String, String> saved = PrefsUtils.loadPrefs(SERVER_PREFS, context);
         String auto = saved.getOrDefault("auto_login", "false");
         return "true".equalsIgnoreCase(auto);
+    }
+
+    public static ClientGame clientGameBuilder(NetGame netGame){
+
+
     }
 
 

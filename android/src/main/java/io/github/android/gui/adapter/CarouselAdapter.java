@@ -17,9 +17,8 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.Carous
         this.images = images;
     }
 
-    @NonNull
     @Override
-    public CarouselViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public CarouselViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         ImageView imageView = new ImageView(parent.getContext());
         imageView.setLayoutParams(new ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -30,7 +29,7 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.Carous
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CarouselViewHolder holder, int position) {
+    public void onBindViewHolder(CarouselViewHolder holder, int position) {
         holder.imageView.setImageResource(images.get(position));
     }
 

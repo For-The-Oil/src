@@ -34,24 +34,19 @@ public class MatchMakingFragment extends Fragment {
             int minutes = seconds / 60;
             seconds %= 60;
 
-            if (timerText != null) {
-                timerText.setText(String.format("%02d:%02d", minutes, seconds));
-            }
+            if (timerText != null)timerText.setText(String.format("%02d:%02d", minutes, seconds));
 
             timerHandler.postDelayed(this, 500);
         }
     };
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.second_activity_matchmaking, container, false);
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         activity = (HomeActivity) getActivity();

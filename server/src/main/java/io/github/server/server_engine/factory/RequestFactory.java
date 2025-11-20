@@ -7,8 +7,11 @@ import io.github.shared.data.EnumsTypes.MatchModeType;
 import io.github.shared.data.EnumsTypes.SyncType;
 import io.github.shared.data.NetGame;
 import io.github.shared.data.network.ClientNetwork;
+import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
 import io.github.shared.data.requests.SynchronizeRequest;
+import io.github.shared.local.data.EnumsTypes.DeckRequestType;
+
 
 /**
  * Factory côté serveur pour créer des MatchMakingRequest.
@@ -65,6 +68,14 @@ public class RequestFactory {
         map.put("game",game);
         return new SynchronizeRequest(SyncType.FULL_RESYNC, map);
     }
+
+
+    public static DeckRequest createDeckRequest(DeckRequestType mode, HashMap<String, String> map){
+        return new DeckRequest(mode, map);
+    }
+
+
+
 
 
 

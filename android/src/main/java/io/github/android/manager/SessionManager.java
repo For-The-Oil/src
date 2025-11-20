@@ -3,8 +3,13 @@ package io.github.android.manager;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.gameobject.Deck;
+
 
 /**
  * Method that build the current user session.
@@ -18,7 +23,9 @@ public class SessionManager {
     // Données de session
     private String token;
     private String username;
-    private Map<String, Object> decks;
+    private Map<String, Deck> decks;
+    private ArrayList<EntityType> unlockedCards;
+    private Deck currentDeck;
     private Boolean isActive=false;
 
     // Constructeur privé pour empêcher l’instanciation directe
@@ -26,9 +33,7 @@ public class SessionManager {
 
     // Accès global à l’instance unique
     public static synchronized SessionManager getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new SessionManager();
-        }
+        if (INSTANCE == null) INSTANCE = new SessionManager();
         return INSTANCE;
     }
 
@@ -64,17 +69,33 @@ public class SessionManager {
         this.username = username;
     }
 
-    public Map<String, Object> getDecks() { return decks; }
+    public Map<String, Deck> getDecks() { return decks; }
 
     public void setDecksFromJson(String decksJson) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            this.decks = mapper.readValue(decksJson, new TypeReference<Map<String, Object>>() {});
+            this.decks = mapper.readValue(decksJson, new TypeReference<Map<String, Deck>>() {});
         } catch (Exception e) {
             e.printStackTrace();
             this.decks = new HashMap<>();
         }
     }
+
+    public void setUnlockedCardsFromJson(String unlockedsJson) {
+        if (unlockedsJson == null || unlockedsJson.isEmpty()) {
+            this.unlockedCards = new ArrayList<>();
+            return;
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            this.unlockedCards = mapper.readValue(unlockedsJson, new TypeReference<ArrayList<EntityType>>() {});
+        } catch (Exception e) {
+            e.printStackTrace();
+            this.unlockedCards = new ArrayList<>();
+        }
+    }
+
 
     public Boolean isActive() {
         return isActive;
@@ -82,6 +103,18 @@ public class SessionManager {
 
     public void setActive(Boolean active) {
         isActive = active;
+    }
+
+    public ArrayList<EntityType> getUnlockedCards() {
+        return unlockedCards;
+    }
+
+    public Deck getCurrentDeck() {
+        return currentDeck;
+    }
+
+    public void setCurrentDeck(Deck currentDeck) {
+        this.currentDeck = currentDeck;
     }
 }
 
