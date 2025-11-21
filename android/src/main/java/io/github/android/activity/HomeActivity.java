@@ -255,56 +255,66 @@ public class HomeActivity extends BaseActivity {
         ClientListener listener = ClientListener.getInstance();
 
         listener.onMessage(DeckRequest.class, request -> {
-            Log.d("ForTheOil", "DeckRequest update received from server");
+                Log.d("ForTheOil", "DeckRequest update received from server");
 
-            // Logs complets de la requête
-            Log.d("ForTheOil", "Keys in request:");
-            for (Map.Entry<String, String> entry : request.getKeys().entrySet()) {
-                Log.d("ForTheOil", "  " + entry.getKey() + " -> " + entry.getValue());
-            }
+                // Logs complets de la requête
+                Log.d("ForTheOil", "Keys in request:");
+                for (Map.Entry<String, String> entry : request.getKeys().entrySet()) {
+                    Log.d("ForTheOil", "  " + entry.getKey() + " -> " + entry.getValue());
+                }
 
-            // Mise à jour des decks
-            String decksJson = request.getKeys().get("deck_data");
-            if (decksJson != null) {
-                Log.d("ForTheOil", "Updating decks from JSON: " + decksJson);
-                SessionManager.getInstance().setDecksFromJson(decksJson);
-            }
+                // Mise à jour des decks
+                String decksJson = request.getKeys().get("deck_data");
+                if (decksJson != null) {
+                    Log.d("ForTheOil", "Updating decks from JSON: " + decksJson);
+                    SessionManager.getInstance().setDecksFromJson(decksJson);
 
-            // Mise à jour des cartes débloquées
-            String unlockedJson = request.getKeys().get("unlocked_cards");
-            if (unlockedJson != null) {
-                Log.d("ForTheOil", "Updating unlocked cards from JSON: " + unlockedJson);
-                SessionManager.getInstance().setUnlockedCardsFromJson(unlockedJson);
-            }
+                    Deck deck = null;
+                    String deckName = null;
+                    for (String key : SessionManager.getInstance().getDecks().keySet()) {
+                        Deck value = SessionManager.getInstance().getDecks().get(key);
+                        if (value != null && value.toString().equals(SessionManager.getInstance().getCurrentDeck().toString())){
+                            deck = value;
+                            deckName = key;
+                        }
+                    }
+                    if(deck != null) SessionManager.getInstance().setCurrentDeck(deck,deckName);
+                    else SessionManager.getInstance().setCurrentDeck(SessionManager.getInstance().getDecks().entrySet().iterator().next().getValue(),SessionManager.getInstance().getDecks().entrySet().iterator().next().getKey());
 
-            // Mise à jour du deck courant
-            String currentDeckName = request.getKeys().get("current_deck");
-            if (currentDeckName != null && SessionManager.getInstance().getDecks().containsKey(currentDeckName)) {
-                Deck currentDeck = SessionManager.getInstance().getDecks().get(currentDeckName);
-                Log.d("ForTheOil", "Setting current deck to: " + currentDeckName + " -> " + currentDeck);
-                SessionManager.getInstance().setCurrentDeck(currentDeck);
-            }
+                }
 
-            if (SessionManager.getInstance().getDecks().isEmpty()){
-                SessionManager.getInstance().setCurrentDeck(null);
-            }
+                // Mise à jour des cartes débloquées
+                String unlockedJson = request.getKeys().get("unlocked_cards");
+                if (unlockedJson != null) {
+                    Log.d("ForTheOil", "Updating unlocked cards from JSON: " + unlockedJson);
+                    SessionManager.getInstance().setUnlockedCardsFromJson(unlockedJson);
+                }
 
+                // Mise à jour du deck courant
+                String currentDeckName = request.getKeys().get("current_deck");
+                if (currentDeckName != null && SessionManager.getInstance().getDecks().containsKey(currentDeckName)) {
+                    Deck currentDeck = SessionManager.getInstance().getDecks().get(currentDeckName);
+                    Log.d("ForTheOil", "Setting current deck to: " + currentDeckName + " -> " + currentDeck);
+                    SessionManager.getInstance().setCurrentDeck(currentDeck,currentDeckName);
+                }
 
-            Fragment f = getSupportFragmentManager().findFragmentByTag("f0");
-            if (f instanceof DeckFragment && f.getView() != null) {
-                runOnUiThread(() -> {
-                    ((DeckFragment) f).refreshUI();
-                    Log.d("ForTheOil", "refreshUI() called on DeckFragment");
-                });
-            }
-
-            Fragment f2 = this.getSupportFragmentManager().findFragmentByTag("f1");
-            if (f2 instanceof MainPageFragment) {
-                ((MainPageFragment) f2).updateDeckButton();
-            }
-
+                if (SessionManager.getInstance().getDecks().isEmpty()) {
+                    SessionManager.getInstance().setCurrentDeck(null,null);
+                }
 
 
+                Fragment f = getSupportFragmentManager().findFragmentByTag("f0");
+                if (f instanceof DeckFragment && f.getView() != null) {
+                    runOnUiThread(() -> {
+                        ((DeckFragment) f).refreshUI();
+                        Log.d("ForTheOil", "refreshUI() called on DeckFragment");
+                    });
+                }
+
+                Fragment f2 = this.getSupportFragmentManager().findFragmentByTag("f1");
+                if (f2 instanceof MainPageFragment) {
+                    ((MainPageFragment) f2).updateDeckButton();
+                }
         }, true); // true = listener persistant
     }
 

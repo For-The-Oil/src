@@ -1,5 +1,7 @@
 package io.github.android.manager;
 
+import android.util.Log;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,6 +28,7 @@ public class SessionManager {
     private Map<String, Deck> decks;
     private ArrayList<EntityType> unlockedCards;
     private Deck currentDeck;
+    private String currentDeckName;
     private Boolean isActive=false;
 
     // Constructeur privé pour empêcher l’instanciation directe
@@ -69,7 +72,9 @@ public class SessionManager {
         this.username = username;
     }
 
-    public Map<String, Deck> getDecks() { return decks; }
+    public Map<String, Deck> getDecks() {
+        return decks;
+    }
 
     public void setDecksFromJson(String decksJson) {
         try {
@@ -113,8 +118,17 @@ public class SessionManager {
         return currentDeck;
     }
 
-    public void setCurrentDeck(Deck currentDeck) {
+    public void setCurrentDeck(Deck currentDeck,String currentDeckName) {
         this.currentDeck = currentDeck;
+        this.currentDeckName = currentDeckName;
+    }
+
+    public String getCurrentDeckName() {
+        return currentDeckName;
+    }
+
+    public void setCurrentDeckName(String currentDeckName) {
+        this.currentDeckName = currentDeckName;
     }
 }
 

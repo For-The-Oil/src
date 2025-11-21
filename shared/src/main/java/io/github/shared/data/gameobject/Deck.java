@@ -13,7 +13,7 @@ public class Deck implements Serializable {
     private HashMap<DeckCardCategory, ArrayList<EntityType>> cardsByCategory;
 
     public Deck() {
-        this.cardsByCategory = new HashMap<DeckCardCategory, ArrayList<EntityType>>();
+        this.cardsByCategory = new HashMap<>();
     }
 
     public HashMap<DeckCardCategory, ArrayList<EntityType>> getCardsByCategory() {

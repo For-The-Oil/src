@@ -56,12 +56,8 @@ public class DeckFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.second_activity_deck, container, false);
-
         session = SessionManager.getInstance();
 
         initViews();
@@ -69,6 +65,7 @@ public class DeckFragment extends Fragment {
         initDeckRecycler();
         initInventoryRecycler();
         refreshDeckButtons(); // met à jour les boutons dès le départ
+        this.refreshUI();
 
         Button btnDeleteDeck = root.findViewById(R.id.btnDeleteDeck);
         if (btnDeleteDeck != null) {
@@ -79,7 +76,6 @@ public class DeckFragment extends Fragment {
         if (btnAddDeck != null) {
             btnAddDeck.setOnClickListener(v -> onAddDeckClicked());
         }
-
         return root;
     }
 
@@ -137,6 +133,7 @@ public class DeckFragment extends Fragment {
             @Override
             public void onAddClick(Card card, int position) {
                 DeckManager.removeCard(card, currentDeckName.getText().toString(), activeCategory.name());
+                refreshUI();
             }
 
             @Override
@@ -247,13 +244,13 @@ public class DeckFragment extends Fragment {
 
         if (decks.isEmpty()) {
             currentDeckName.setText("Aucun deck");
-            session.setCurrentDeck(null);
+            session.setCurrentDeck(null,null);
         } else {
             // Si currentDeck est null, on prend le premier deck
             if (currentDeck == null) {
                 Map.Entry<String, Deck> firstEntry = decks.entrySet().iterator().next();
                 currentDeck = firstEntry.getValue();
-                session.setCurrentDeck(currentDeck);
+                session.setCurrentDeck(currentDeck,firstEntry.getKey());
                 currentDeckName.setText(firstEntry.getKey());
             }
         }
@@ -291,7 +288,7 @@ public class DeckFragment extends Fragment {
                 selectedDeckButton = deckButton;
 
                 Deck selectedDeck = decks.get(deckName);
-                session.setCurrentDeck(selectedDeck);
+                session.setCurrentDeck(selectedDeck,deckName);
                 currentDeckName.setText(deckName);
 
                 updateDeckRecycler(selectedDeck);

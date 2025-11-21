@@ -217,7 +217,7 @@ public final class DeckManager {
         }
 
         // Met à jour le deck courant côté client
-        SessionManager.getInstance().setCurrentDeck(deck);
+        SessionManager.getInstance().setCurrentDeck(deck,deckName);
         Log.d("DeckManager", "Updated currentDeck locally: " + deckName);
 
         // Prépare les clés pour la requête
