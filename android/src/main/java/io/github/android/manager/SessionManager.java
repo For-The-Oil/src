@@ -118,7 +118,7 @@ public class SessionManager {
         return currentDeck;
     }
 
-    public void setCurrentDeck(Deck currentDeck,String currentDeckName) {
+    public void setCurrentDeck(Deck currentDeck, String currentDeckName) {
         this.currentDeck = currentDeck;
         this.currentDeckName = currentDeckName;
     }

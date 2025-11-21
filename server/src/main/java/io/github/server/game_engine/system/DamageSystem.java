@@ -34,7 +34,7 @@ public class DamageSystem extends IteratingSystem {
      * @param server ServerGame instance to add destroy instructions.
      */
     public DamageSystem(ServerGame server) {
-        super(Aspect.all(LifeComponent.class, DamageComponent.class));
+        super(Aspect.all(LifeComponent.class, DamageComponent.class, NetComponent.class));
         this.server = server;
     }
 

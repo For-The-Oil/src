@@ -18,7 +18,7 @@ import io.github.fortheoil.R;
 public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardViewHolder> {
 
     private List<Card> cards;
-    private int selectedPosition = RecyclerView.NO_POSITION;
+    private int openedPosition = RecyclerView.NO_POSITION;
     private final OnCardActionListener listener;
 
     public interface OnCardActionListener {
@@ -58,17 +58,17 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardVi
         Card card = cards.get(position);
         holder.cardImage.setImageResource(card.getImageResId());
 
-        // Forcer largeur à 30%
+        // largeur 25%
         ViewGroup.LayoutParams lp = holder.itemView.getLayoutParams();
         lp.width = (int) (holder.itemView.getResources().getDisplayMetrics().widthPixels * 0.25f);
         holder.itemView.setLayoutParams(lp);
 
-        boolean isSelected = position == selectedPosition;
+        boolean isOpened = position == openedPosition;
 
         holder.cardImage.animate().cancel();
         holder.cardActions.animate().cancel();
 
-        if (isSelected) {
+        if (isOpened) {
             holder.cardImage.animate().scaleX(1.05f).scaleY(1.05f).setDuration(180).start();
             holder.cardActions.setVisibility(View.VISIBLE);
             holder.cardActions.setAlpha(1f);
@@ -82,22 +82,29 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardVi
         }
 
         holder.itemView.setOnClickListener(v -> {
-            int oldPos = selectedPosition;
+            int oldPos = openedPosition;
             int newPos = holder.getBindingAdapterPosition();
             if (newPos == RecyclerView.NO_POSITION) return;
-            selectedPosition = (selectedPosition == newPos) ? RecyclerView.NO_POSITION : newPos;
+
+            // toggle
+            openedPosition = (openedPosition == newPos)
+                ? RecyclerView.NO_POSITION
+                : newPos;
+
             if (oldPos != RecyclerView.NO_POSITION) notifyItemChanged(oldPos);
-            notifyItemChanged(selectedPosition);
+            notifyItemChanged(newPos);
         });
 
         holder.btnAdd.setOnClickListener(v -> {
             int pos = holder.getBindingAdapterPosition();
-            if (pos != RecyclerView.NO_POSITION && listener != null) listener.onAddClick(card, pos);
+            if (pos != RecyclerView.NO_POSITION && listener != null)
+                listener.onAddClick(card, pos);
         });
 
         holder.btnInfo.setOnClickListener(v -> {
             int pos = holder.getBindingAdapterPosition();
-            if (pos != RecyclerView.NO_POSITION && listener != null) listener.onInfoClick(card, pos);
+            if (pos != RecyclerView.NO_POSITION && listener != null)
+                listener.onInfoClick(card, pos);
         });
     }
 
@@ -115,5 +122,13 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardVi
         this.cards.clear();
         this.cards.addAll(newCards);
         notifyDataSetChanged();
+    }
+
+    public void clearSelection() {
+        if (openedPosition != RecyclerView.NO_POSITION) {
+            int old = openedPosition;
+            openedPosition = RecyclerView.NO_POSITION;
+            notifyItemChanged(old);
+        }
     }
 }

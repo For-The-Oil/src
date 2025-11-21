@@ -1,20 +1,25 @@
 package io.github.android.gui.fragment.main;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -39,46 +44,62 @@ import io.github.shared.data.EnumsTypes.DeckCardCategory;
 import io.github.shared.data.EnumsTypes.EntityType;
 import io.github.shared.data.gameobject.Deck;
 
-
 public class DeckFragment extends Fragment {
 
+    // ---- UI Elements ----
     private Button btnIndustry, btnMilitary, btnDefense;
     private TextView currentDeckName;
     private RecyclerView deckRecycler, inventoryRecycler;
-    private DeckAdapter deckAdapter;
-    private SessionManager session;
-    private Deck currentDeck;
-    private DeckCardCategory activeCategory = DeckCardCategory.Military;
-    private View root;
-
     private LinearLayout deckSelectorLayout;
     private Button selectedDeckButton = null;
 
+    // ---- Adapters & Data ----
+    private DeckAdapter deckAdapter;
+    private CardListAdapter cardListAdapter;
+    private SessionManager session;
+    private Deck currentDeck;
+    private DeckCardCategory activeCategory = DeckCardCategory.Military;
+
+    // ---- Helpers ----
+    private View root;
+    private java.util.function.Predicate<MotionEvent> clickedInCardActions;
+
+    // =====================================================================================
+    // ---- onCreateView : initialisation principale ----
+    // =====================================================================================
+    @SuppressLint("ClickableViewAccessibility")
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.second_activity_deck, container, false);
         session = SessionManager.getInstance();
 
+        // --- Initialisation vues ---
         initViews();
         initCategorySelector();
         initDeckRecycler();
         initInventoryRecycler();
-        refreshDeckButtons(); // met à jour les boutons dès le départ
-        this.refreshUI();
 
-        Button btnDeleteDeck = root.findViewById(R.id.btnDeleteDeck);
-        if (btnDeleteDeck != null) {
-            btnDeleteDeck.setOnClickListener(v -> onDeleteDeckClicked());
-        }
+        // --- Deck buttons & refresh ---
+        refreshDeckButtons();
+        refreshUI();
 
-        Button btnAddDeck = root.findViewById(R.id.btnAddDeck);
-        if (btnAddDeck != null) {
-            btnAddDeck.setOnClickListener(v -> onAddDeckClicked());
-        }
+        // --- Add/Delete deck buttons ---
+        setupAddDeleteButtons();
+
+        // --- Gestion touch pour clear selection ---
+        setupGlobalTouchListeners();
+
+        // --- Recycler touch listeners ---
+        inventoryRecycler.addOnItemTouchListener(makeTouchListener(inventoryRecycler));
+        deckRecycler.addOnItemTouchListener(makeTouchListener(deckRecycler));
+
         return root;
     }
 
+    // =====================================================================================
+    // ---- Initialisation des vues ----
+    // =====================================================================================
     private void initViews() {
         btnIndustry = root.findViewById(R.id.btnIndustry);
         btnMilitary = root.findViewById(R.id.btnMilitary);
@@ -91,6 +112,9 @@ public class DeckFragment extends Fragment {
         currentDeckName = root.findViewById(R.id.currentDeckName);
     }
 
+    // =====================================================================================
+    // ---- Catégorie ----
+    // =====================================================================================
     private void initCategorySelector() {
         Button[] buttons = {btnIndustry, btnMilitary, btnDefense};
         DeckCardCategory[] categories = {DeckCardCategory.Industrial, DeckCardCategory.Military, DeckCardCategory.Defense};
@@ -106,11 +130,15 @@ public class DeckFragment extends Fragment {
 
     private void onCategorySelected(DeckCardCategory category) {
         activeCategory = category;
-        currentDeck = session.getCurrentDeck(); // toujours récupérer le deck courant
+        currentDeck = session.getCurrentDeck();
         Log.d("DeckFragment", "Category selected: " + category.name());
+
         updateCategorySelection(new Button[]{btnIndustry, btnMilitary, btnDefense}, category);
         updateDeckRecycler(currentDeck);
         updateInventoryRecycler();
+
+        if (deckAdapter != null) deckAdapter.clearSelection();
+        if (cardListAdapter != null) cardListAdapter.clearSelection();
     }
 
     private void updateCategorySelection(Button[] buttons, DeckCardCategory selectedCategory) {
@@ -121,6 +149,9 @@ public class DeckFragment extends Fragment {
         }
     }
 
+    // =====================================================================================
+    // ---- Deck Recycler ----
+    // =====================================================================================
     private void initDeckRecycler() {
         FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getContext());
         layoutManager.setFlexDirection(FlexDirection.ROW);
@@ -132,6 +163,7 @@ public class DeckFragment extends Fragment {
         deckAdapter = new DeckAdapter(convertDeckToCards(currentDeck, activeCategory), new DeckAdapter.OnCardActionListener() {
             @Override
             public void onAddClick(Card card, int position) {
+                clearAdapterSelection(inventoryRecycler);
                 DeckManager.removeCard(card, currentDeckName.getText().toString(), activeCategory.name());
                 refreshUI();
             }
@@ -146,10 +178,14 @@ public class DeckFragment extends Fragment {
     }
 
     private void updateDeckRecycler(Deck deck) {
-        if (deck == null || deckAdapter == null) return;
-        deckAdapter.setCards(convertDeckToCards(deck, activeCategory));
+        if (deckAdapter == null) return;
+        if (deck == null) deckAdapter.setCards(new ArrayList<>());
+        else deckAdapter.setCards(convertDeckToCards(deck, activeCategory));
     }
 
+    // =====================================================================================
+    // ---- Inventory Recycler ----
+    // =====================================================================================
     private void initInventoryRecycler() {
         FlexboxLayoutManager layoutManager = new FlexboxLayoutManager(getContext());
         layoutManager.setFlexDirection(FlexDirection.ROW);
@@ -174,9 +210,10 @@ public class DeckFragment extends Fragment {
         if (inventoryRecycler.getAdapter() instanceof CardListAdapter) {
             ((CardListAdapter) inventoryRecycler.getAdapter()).setCards(unlockedCardsUi);
         } else {
-            CardListAdapter adapter = new CardListAdapter(unlockedCardsUi, new CardListAdapter.OnCardActionListener() {
+            cardListAdapter = new CardListAdapter(unlockedCardsUi, new CardListAdapter.OnCardActionListener() {
                 @Override
                 public void onAddClick(Card card, int position) {
+                    clearAdapterSelection(deckRecycler);
                     DeckManager.addCard(card, currentDeckName.getText().toString(), activeCategory.name());
                 }
 
@@ -185,7 +222,7 @@ public class DeckFragment extends Fragment {
                     DeckManager.infoCard(getContext(), card);
                 }
             });
-            inventoryRecycler.setAdapter(adapter);
+            inventoryRecycler.setAdapter(cardListAdapter);
         }
     }
 
@@ -202,37 +239,9 @@ public class DeckFragment extends Fragment {
         return cards;
     }
 
-    // ---- Refresh UI après update serveur ----
-    public void refreshUI() {
-        currentDeck = session.getCurrentDeck();
-        Log.d("DeckFragment", "refreshUI() called, currentDeck=" + currentDeck);
-
-        if (currentDeckName != null && currentDeck != null) {
-            for (String deckName : session.getDecks().keySet()) {
-                if (session.getDecks().get(deckName) == currentDeck) {
-                    currentDeckName.setText(deckName);
-                    break;
-                }
-            }
-        }
-        refreshDeckButtons();
-        refreshCategoryListeners();
-        updateDeckRecycler(currentDeck);
-        updateInventoryRecycler();
-    }
-
-    private void refreshCategoryListeners() {
-        Button[] buttons = {btnIndustry, btnMilitary, btnDefense};
-        DeckCardCategory[] categories = {DeckCardCategory.Industrial, DeckCardCategory.Military, DeckCardCategory.Defense};
-
-        for (int i = 0; i < buttons.length; i++) {
-            Button b = buttons[i];
-            DeckCardCategory category = categories[i];
-            b.setOnClickListener(v -> onCategorySelected(category));
-        }
-        updateCategorySelection(buttons, activeCategory);
-    }
-
+    // =====================================================================================
+    // ---- Gestion Deck Buttons ----
+    // =====================================================================================
     public void refreshDeckButtons() {
         if (deckSelectorLayout == null) return;
 
@@ -245,14 +254,11 @@ public class DeckFragment extends Fragment {
         if (decks.isEmpty()) {
             currentDeckName.setText("Aucun deck");
             session.setCurrentDeck(null,null);
-        } else {
-            // Si currentDeck est null, on prend le premier deck
-            if (currentDeck == null) {
-                Map.Entry<String, Deck> firstEntry = decks.entrySet().iterator().next();
-                currentDeck = firstEntry.getValue();
-                session.setCurrentDeck(currentDeck,firstEntry.getKey());
-                currentDeckName.setText(firstEntry.getKey());
-            }
+        } else if (currentDeck == null) {
+            Map.Entry<String, Deck> firstEntry = decks.entrySet().iterator().next();
+            currentDeck = firstEntry.getValue();
+            session.setCurrentDeck(currentDeck,firstEntry.getKey());
+            currentDeckName.setText(firstEntry.getKey());
         }
 
         for (String deckName : decks.keySet()) {
@@ -268,8 +274,8 @@ public class DeckFragment extends Fragment {
             params.setMargins(0, 0, 16, 0);
             deckButton.setLayoutParams(params);
 
-            // Sélection visuelle si c'est le deck courant
-            if (currentDeck != null && decks.get(deckName) == currentDeck) {
+            // sélection visuelle
+            if (decks.get(deckName) == currentDeck) {
                 deckButton.setSelected(true);
                 deckButton.setAlpha(1f);
                 selectedDeckButton = deckButton;
@@ -278,40 +284,55 @@ public class DeckFragment extends Fragment {
                 deckButton.setAlpha(0.6f);
             }
 
-            deckButton.setOnClickListener(v -> {
-                if (selectedDeckButton != null) {
-                    selectedDeckButton.setSelected(false);
-                    selectedDeckButton.setAlpha(0.6f);
-                }
-                deckButton.setSelected(true);
-                deckButton.setAlpha(1f);
-                selectedDeckButton = deckButton;
-
-                Deck selectedDeck = decks.get(deckName);
-                session.setCurrentDeck(selectedDeck,deckName);
-                currentDeckName.setText(deckName);
-
-                updateDeckRecycler(selectedDeck);
-                updateInventoryRecycler();
-                DeckManager.selectDeck(deckName);
-            });
-
+            deckButton.setOnClickListener(v -> selectDeck(deckName));
             deckSelectorLayout.addView(deckButton);
         }
 
-        // Bouton "+" pour ajouter un deck
+        // Bouton + pour ajouter un deck
         Button addButton = new Button(getContext());
         addButton.setText("+");
         addButton.setTextColor(Color.WHITE);
         addButton.setBackgroundResource(R.drawable.button_add);
         addButton.setOnClickListener(v -> onAddDeckClicked());
-
         deckSelectorLayout.addView(addButton);
     }
 
+    private void selectDeck(String deckName) {
+        if (selectedDeckButton != null) {
+            selectedDeckButton.setSelected(false);
+            selectedDeckButton.setAlpha(0.6f);
+        }
 
+        Button deckButton = findButtonByName(deckName); // TODO: implémenter si nécessaire
+        if (deckButton != null) {
+            deckButton.setSelected(true);
+            deckButton.setAlpha(1f);
+            selectedDeckButton = deckButton;
+        }
 
-    // ---- Ajout / Suppression de decks ----
+        Deck selectedDeck = session.getDecks().get(deckName);
+        session.setCurrentDeck(selectedDeck, deckName);
+        currentDeckName.setText(deckName);
+
+        updateDeckRecycler(selectedDeck);
+        updateInventoryRecycler();
+        DeckManager.selectDeck(deckName);
+
+        if (deckAdapter != null) deckAdapter.clearSelection();
+        if (cardListAdapter != null) cardListAdapter.clearSelection();
+    }
+
+    // =====================================================================================
+    // ---- Gestion Add/Delete Deck ----
+    // =====================================================================================
+    private void setupAddDeleteButtons() {
+        Button btnDeleteDeck = root.findViewById(R.id.btnDeleteDeck);
+        if (btnDeleteDeck != null) btnDeleteDeck.setOnClickListener(v -> onDeleteDeckClicked());
+
+        Button btnAddDeck = root.findViewById(R.id.btnAddDeck);
+        if (btnAddDeck != null) btnAddDeck.setOnClickListener(v -> onAddDeckClicked());
+    }
+
     private void onDeleteDeckClicked() {
         Deck current = session.getCurrentDeck();
         String name = findDeckName(current);
@@ -327,14 +348,6 @@ public class DeckFragment extends Fragment {
             .setPositiveButton("Oui", (dialog, which) -> DeckManager.deleteDeck(name))
             .setNegativeButton("Non", null)
             .show();
-    }
-
-    private String findDeckName(Deck deck) {
-        if (deck == null) return null;
-        for (Map.Entry<String, Deck> entry : session.getDecks().entrySet()) {
-            if (entry.getValue() == deck) return entry.getKey();
-        }
-        return null;
     }
 
     private void onAddDeckClicked() {
@@ -362,4 +375,168 @@ public class DeckFragment extends Fragment {
             .setNegativeButton("Annuler", null)
             .show();
     }
+
+    private String findDeckName(Deck deck) {
+        if (deck == null) return null;
+        for (Map.Entry<String, Deck> entry : session.getDecks().entrySet()) {
+            if (entry.getValue() == deck) return entry.getKey();
+        }
+        return null;
+    }
+
+    // =====================================================================================
+    // ---- Global Touch & Card Actions ----
+    // =====================================================================================
+    private void setupGlobalTouchListeners() {
+        // initialisation clickedInCardActions
+        java.util.function.BiFunction<View, MotionEvent, Boolean> isInsideView = (view, ev) -> {
+            if (view == null) return false;
+            int[] loc = new int[2];
+            view.getLocationOnScreen(loc);
+            float x = ev.getRawX();
+            float y = ev.getRawY();
+            return x >= loc[0] && x <= loc[0] + view.getWidth()
+                && y >= loc[1] && y <= loc[1] + view.getHeight();
+        };
+
+        clickedInCardActions = ev -> {
+            RecyclerView[] recyclers = {inventoryRecycler, deckRecycler};
+
+            for (RecyclerView recycler : recyclers) {
+                for (int i = 0; i < recycler.getChildCount(); i++) {
+                    View itemView = recycler.getChildAt(i);
+                    View cardContainer = itemView.findViewById(R.id.cardContainer);
+                    View cardActions = itemView.findViewById(R.id.cardActions);
+
+                    if (cardActions != null && cardActions.getVisibility() == View.VISIBLE
+                        && isInsideView.apply(cardActions, ev)) {
+                        closeAllCardActionsExcept(cardActions);
+                        return true;
+                    }
+
+                    if (isInsideView.apply(itemView, ev) ||
+                        (cardContainer != null && isInsideView.apply(cardContainer, ev))) {
+                        if (cardActions != null) closeAllCardActionsExcept(cardActions);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+
+        // TouchListener global pour clear selection
+        Runnable clearSelectionIfNotInActions = () -> {
+            clearAdapterSelection(inventoryRecycler);
+            clearAdapterSelection(deckRecycler);
+        };
+
+        NestedScrollView nested = root.findViewById(R.id.nestedView);
+        HorizontalScrollView deckSelector = root.findViewById(R.id.deckSelector);
+
+        View.OnTouchListener containerTouch = (v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN && !clickedInCardActions.test(event)) {
+                clearSelectionIfNotInActions.run();
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP) v.performClick();
+            return false;
+        };
+
+        nested.setOnTouchListener(containerTouch);
+        deckSelector.setOnTouchListener(containerTouch);
+    }
+
+    private void clearAdapterSelection(RecyclerView recycler) {
+        RecyclerView.Adapter<?> adapter = recycler.getAdapter();
+        if (adapter instanceof CardListAdapter) ((CardListAdapter) adapter).clearSelection();
+        else if (adapter instanceof DeckAdapter) ((DeckAdapter) adapter).clearSelection();
+    }
+
+    private RecyclerView.OnItemTouchListener makeTouchListener(RecyclerView recycler) {
+        return new RecyclerView.OnItemTouchListener() {
+            final GestureDetector gd = new GestureDetector(getContext(),
+                new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onSingleTapUp(MotionEvent e) {
+                        if (!clickedInCardActions.test(e)) {
+                            View child = recycler.findChildViewUnder(e.getX(), e.getY());
+                            if (child == null) clearAdapterSelection(recycler);
+                        }
+                        return false;
+                    }
+                });
+
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                gd.onTouchEvent(e);
+                return false;
+            }
+
+            @Override public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {}
+            @Override public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {}
+        };
+    }
+
+    private void closeAllCardActionsExcept(View except) {
+        RecyclerView[] recyclers = {inventoryRecycler, deckRecycler};
+        for (RecyclerView recycler : recyclers) {
+            for (int i = 0; i < recycler.getChildCount(); i++) {
+                View child = recycler.getChildAt(i);
+                View actions = child.findViewById(R.id.cardActions);
+                if (actions != null && actions != except) actions.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    /**
+     * Recherche un Button dans deckSelectorLayout correspondant au nom du deck
+     */
+    private Button findButtonByName(String deckName) {
+        if (deckSelectorLayout == null) return null;
+
+        for (int i = 0; i < deckSelectorLayout.getChildCount(); i++) {
+            View child = deckSelectorLayout.getChildAt(i);
+            if (child instanceof Button) {
+                Button b = (Button) child;
+                if (deckName.equals(b.getText().toString())) {
+                    return b;
+                }
+            }
+        }
+        return null; // pas trouvé
+    }
+
+    // =====================================================================================
+    // ---- Refresh UI ----
+    // =====================================================================================
+    public void refreshUI() {
+        currentDeck = session.getCurrentDeck();
+        Log.d("DeckFragment", "refreshUI() called, currentDeck=" + currentDeck);
+
+        if (currentDeckName != null && currentDeck != null) {
+            for (Map.Entry<String, Deck> entry : session.getDecks().entrySet()) {
+                if (entry.getValue() == currentDeck) {
+                    currentDeckName.setText(entry.getKey());
+                    break;
+                }
+            }
+        }
+
+        refreshDeckButtons();
+        refreshCategoryListeners();
+        updateDeckRecycler(currentDeck);
+        updateInventoryRecycler();
+    }
+
+    private void refreshCategoryListeners() {
+        Button[] buttons = {btnIndustry, btnMilitary, btnDefense};
+        DeckCardCategory[] categories = {DeckCardCategory.Industrial, DeckCardCategory.Military, DeckCardCategory.Defense};
+
+        for (int i = 0; i < buttons.length; i++) {
+            Button b = buttons[i];
+            DeckCardCategory category = categories[i];
+            b.setOnClickListener(v -> onCategorySelected(category));
+        }
+        updateCategorySelection(buttons, activeCategory);
+    }
+
 }

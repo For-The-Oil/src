@@ -273,13 +273,15 @@ public class HomeActivity extends BaseActivity {
                     String deckName = null;
                     for (String key : SessionManager.getInstance().getDecks().keySet()) {
                         Deck value = SessionManager.getInstance().getDecks().get(key);
-                        if (value != null && value.toString().equals(SessionManager.getInstance().getCurrentDeck().toString())){
+                        if (SessionManager.getInstance().getCurrentDeck()!=null && value != null && (key+value).equals(SessionManager.getInstance().getCurrentDeckName()+SessionManager.getInstance().getCurrentDeck().toString())){
                             deck = value;
                             deckName = key;
                         }
                     }
                     if(deck != null) SessionManager.getInstance().setCurrentDeck(deck,deckName);
-                    else SessionManager.getInstance().setCurrentDeck(SessionManager.getInstance().getDecks().entrySet().iterator().next().getValue(),SessionManager.getInstance().getDecks().entrySet().iterator().next().getKey());
+                    else if(SessionManager.getInstance().getDecks().entrySet().iterator().hasNext()) {
+                        SessionManager.getInstance().setCurrentDeck(SessionManager.getInstance().getDecks().entrySet().iterator().next().getValue(),SessionManager.getInstance().getDecks().entrySet().iterator().next().getKey());
+                    }else SessionManager.getInstance().setCurrentDeck(null,null);
 
                 }
 
