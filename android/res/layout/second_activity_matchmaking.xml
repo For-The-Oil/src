@@ -6,6 +6,35 @@
     android:layout_height="match_parent"
     android:background="@drawable/splash_background">
 
+    <!-- Animation Lottie -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/matchmakingLottie"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        app:lottie_rawRes="@raw/satellite_antenna"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginLeft="45dp"
+        android:layout_marginTop="150dp"
+        />
+
+    <!-- Texte info -->
+    <TextView
+        android:id="@+id/matchmakingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Recherche de partie..."
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/matchmakingLottie"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="-40dp"
+        />
 
     <!-- Timer -->
     <TextView
@@ -19,7 +48,8 @@
         app:layout_constraintTop_toBottomOf="@id/matchmakingText"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp"/>
+        android:layout_marginTop="12dp"
+        />
 
     <!-- Bouton Cancel -->
     <Button
@@ -34,41 +64,7 @@
         app:layout_constraintTop_toBottomOf="@id/matchmakingTimer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp"/>
-
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/matchmakingLottie"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        app:lottie_rawRes="@raw/satellite_antenna"
-        app:lottie_autoPlay="true"
-        app:lottie_loop="true"
-
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="200dp"
-        android:layout_marginLeft="45dp"
+        android:layout_marginTop="24dp"
         />
-
-
-    <!-- Barre de progression -->
-
-    <!-- Texte info -->
-    <TextView
-        android:id="@+id/matchmakingText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Recherche de partie..."
-        android:textColor="@android:color/white"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/matchmakingLogo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp"/>
-
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
