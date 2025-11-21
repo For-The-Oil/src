@@ -11,6 +11,8 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.github.android.gui.Card;
@@ -24,6 +26,7 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.DeckViewHolder
 
     public interface OnCardActionListener {
         void onAddClick(Card card, int position);
+
         void onInfoClick(Card card, int position);
     }
 
@@ -118,7 +121,7 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.DeckViewHolder
         return cards.size();
     }
 
-    public void setCards(List<Card> newCards){
+    public void setCards(List<Card> newCards) {
         this.cards.clear();
         this.cards.addAll(newCards);
         notifyDataSetChanged();
@@ -131,4 +134,5 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.DeckViewHolder
             notifyItemChanged(old);
         }
     }
+
 }

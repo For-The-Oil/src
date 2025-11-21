@@ -9,6 +9,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import io.github.android.manager.SessionManager;
+
 public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.CarouselViewHolder> {
 
     private List<Integer> images; // liste de ressources drawable
@@ -33,6 +35,7 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.Carous
         holder.imageView.setImageResource(images.get(position));
     }
 
+
     @Override
     public int getItemCount() {
         return images.size();
@@ -45,5 +48,7 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.Carous
             imageView = (ImageView) itemView;
         }
     }
+
+
 }
 

@@ -1,5 +1,7 @@
 package io.github.android.gui.fragment.main;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -15,9 +18,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import io.github.android.activity.BaseActivity;
 import io.github.android.activity.HomeActivity;
 import io.github.android.gui.adapter.CarouselAdapter;
+import io.github.android.manager.ClientManager;
 import io.github.android.manager.MatchMakingManager;
+import io.github.android.utils.RedirectUtils;
 import io.github.fortheoil.R;
 import io.github.android.manager.SessionManager;
 import io.github.shared.data.EnumsTypes.GameModeType;
@@ -48,7 +54,49 @@ public class MainPageFragment extends Fragment {
         setupCarousel(carousel);
         setupPlayButton();
         updateDeckButton(); // initial update du bouton Deck
+
+        Button btnWebsite = view.findViewById(R.id.btnWebsite);
+
+        btnWebsite.setOnClickListener(v -> {
+            openWebsiteInRealChrome("https://github.com/For-The-Oil/");
+        });
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        String text = SessionManager.getInstance().getCurrentDeckName();
+        if(text==null){
+            text="None";
+        }
+        btnDeck.setText(text);
+    }
+
+
+
+
+    private void openWebsiteInRealChrome(String url) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        intent.setPackage("com.android.chrome"); // force chrome
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+
+        try {
+            startActivity(intent);
+        } catch (Exception e) {
+            // Chrome absent → fallback navigateur externe
+            intent.setPackage(null);
+            startActivity(intent);
+            new android.os.Handler().postDelayed(() -> {
+                if (ClientManager.getInstance().getKryoManager().getClient() != null) {
+                    ClientManager.getInstance().getKryoManager().getClient().close();
+                }
+            }, 2000);
+        }
+    }
+
 
     private void setupCarousel(ViewPager2 carousel) {
         List<Integer> images = Arrays.asList(

@@ -6,6 +6,7 @@ import java.util.HashMap;
 public enum EntityType {
     test(
         Type.Building,
+        null,
         DeckCardCategory.Industrial,
         ShapeType.Base,
         null,
@@ -22,6 +23,7 @@ public enum EntityType {
 
     BASE(
         Type.Building,
+        null,
         DeckCardCategory.Industrial,
         ShapeType.Base,
         null,
@@ -37,6 +39,7 @@ public enum EntityType {
     ),
     BARRACK(
         Type.Building,
+        null,
         DeckCardCategory.Military,
         ShapeType.Barrack,
         null,
@@ -52,6 +55,7 @@ public enum EntityType {
     ),
     FACTORY(
         Type.Building,
+        null,
         DeckCardCategory.Military,
         ShapeType.Factory,
         null,
@@ -67,6 +71,7 @@ public enum EntityType {
     ),
     GARAGE(
         Type.Building,
+        null,
         DeckCardCategory.Military,
         ShapeType.Garage,
         null,
@@ -96,10 +101,10 @@ public enum EntityType {
     private final long create_time;
     private final HashMap<ResourcesType, Integer> cost;
 
-    EntityType(Type type, DeckCardCategory category, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, long createTime, HashMap<ResourcesType, Integer> cost) {
+    EntityType(Type type, EntityType spawnFrom, DeckCardCategory category, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, long createTime, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
         this.category = category;
-        this.spawnFrom = null;
+        this.spawnFrom = spawnFrom;
         this.shapeType = shapeType;
         this.weaponType = weaponType;
         this.projectileData = new ArrayList<>();

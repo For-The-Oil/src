@@ -28,6 +28,7 @@ import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +80,7 @@ public class DeckFragment extends Fragment {
         initCategorySelector();
         initDeckRecycler();
         initInventoryRecycler();
+        initSort();
 
         // --- Deck buttons & refresh ---
         refreshDeckButtons();
@@ -202,7 +204,7 @@ public class DeckFragment extends Fragment {
         if (session.getUnlockedCards() != null) {
             for (EntityType type : session.getUnlockedCards()) {
                 if (type.getCategory() == activeCategory) {
-                    unlockedCardsUi.add(new Card(UiUtils.mapEntityTypeToDrawable(type), type.name()));
+                    unlockedCardsUi.add(new Card(type, UiUtils.mapEntityTypeToDrawable(type)));
                 }
             }
         }
@@ -233,7 +235,7 @@ public class DeckFragment extends Fragment {
         ArrayList<EntityType> types = deck.getCardArrayListKey(category);
         if (types != null) {
             for (EntityType t : types) {
-                cards.add(new Card(UiUtils.mapEntityTypeToDrawable(t), t.name()));
+                cards.add(new Card(t, UiUtils.mapEntityTypeToDrawable(t)));
             }
         }
         return cards;
@@ -289,11 +291,11 @@ public class DeckFragment extends Fragment {
         }
 
         // Bouton + pour ajouter un deck
-        Button addButton = new Button(getContext());
-        addButton.setText("+");
-        addButton.setTextColor(Color.WHITE);
-        addButton.setBackgroundResource(R.drawable.button_add);
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        MaterialButton addButton = (MaterialButton) inflater.inflate(R.layout.add_deck_btn, deckSelectorLayout, false);
+
         addButton.setOnClickListener(v -> onAddDeckClicked());
+
         deckSelectorLayout.addView(addButton);
     }
 
@@ -399,30 +401,50 @@ public class DeckFragment extends Fragment {
                 && y >= loc[1] && y <= loc[1] + view.getHeight();
         };
 
+        View sortMenu = root.findViewById(R.id.sortMenu);
+        View btnSort = root.findViewById(R.id.btnSort);
+
+
         clickedInCardActions = ev -> {
             RecyclerView[] recyclers = {inventoryRecycler, deckRecycler};
 
             for (RecyclerView recycler : recyclers) {
+                RecyclerView.Adapter<?> adapter = recycler.getAdapter();
                 for (int i = 0; i < recycler.getChildCount(); i++) {
                     View itemView = recycler.getChildAt(i);
                     View cardContainer = itemView.findViewById(R.id.cardContainer);
                     View cardActions = itemView.findViewById(R.id.cardActions);
 
-                    if (cardActions != null && cardActions.getVisibility() == View.VISIBLE
-                        && isInsideView.apply(cardActions, ev)) {
-                        closeAllCardActionsExcept(cardActions);
-                        return true;
-                    }
+                    if ((cardActions != null && isInsideView.apply(cardActions, ev)) ||
+                        (cardContainer != null && isInsideView.apply(cardContainer, ev)) ||
+                        isInsideView.apply(itemView, ev)) {
 
-                    if (isInsideView.apply(itemView, ev) ||
-                        (cardContainer != null && isInsideView.apply(cardContainer, ev))) {
-                        if (cardActions != null) closeAllCardActionsExcept(cardActions);
-                        return true;
+                        // On ferme toutes les autres cartes sauf celles du recyclerview actuel
+                        for (RecyclerView otherRecycler : recyclers) {
+                            if (otherRecycler != recycler) {
+                                clearAdapterSelection(otherRecycler);
+                            }
+                        }
+
+                        return true; // on est "dans la carte", donc ne rien fermer dans ce recyclerview
                     }
                 }
             }
+
+            // Ignorer clics sur menu de tri ou bouton
+            if (isInsideView.apply(sortMenu, ev) || isInsideView.apply(btnSort, ev)) {
+                return true;
+            }
+
+            // clic en dehors → fermer tout
+            for (RecyclerView recycler : recyclers) {
+                clearAdapterSelection(recycler);
+            }
             return false;
         };
+
+
+
 
         // TouchListener global pour clear selection
         Runnable clearSelectionIfNotInActions = () -> {
@@ -538,5 +560,56 @@ public class DeckFragment extends Fragment {
         }
         updateCategorySelection(buttons, activeCategory);
     }
+
+
+
+    //------
+    // Sort menu
+    //------
+    private void initSort() {
+        MaterialButton btnSort = root.findViewById(R.id.btnSort);
+        LinearLayout sortMenu = root.findViewById(R.id.sortMenu);
+
+        TextView sortByName = root.findViewById(R.id.sortByName);
+        TextView sortByCategory = root.findViewById(R.id.sortByCategory);
+        TextView sortByMaxHealth = root.findViewById(R.id.sortByMaxHealth);
+        TextView sortByArmor = root.findViewById(R.id.sortByArmor);
+        TextView sortByTotalCost = root.findViewById(R.id.sortByTotalCost);
+
+        btnSort.setOnClickListener(v -> {
+            sortMenu.setVisibility(sortMenu.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+        });
+
+        sortByName.setOnClickListener(v -> {
+            if (cardListAdapter != null) cardListAdapter.sortByName();
+            sortMenu.setVisibility(View.GONE);
+            btnSort.setText("Trier: Nom ▼");
+        });
+
+        sortByCategory.setOnClickListener(v -> {
+            if (cardListAdapter != null) cardListAdapter.sortByCategory();
+            sortMenu.setVisibility(View.GONE);
+            btnSort.setText("Trier: Catégorie ▼");
+        });
+
+        sortByMaxHealth.setOnClickListener(v -> {
+            if (cardListAdapter != null) cardListAdapter.sortByMaxHealth();
+            sortMenu.setVisibility(View.GONE);
+            btnSort.setText("Trier: Santé ▼");
+        });
+
+        sortByArmor.setOnClickListener(v -> {
+            if (cardListAdapter != null) cardListAdapter.sortByArmor();
+            sortMenu.setVisibility(View.GONE);
+            btnSort.setText("Trier: Armure ▼");
+        });
+
+        sortByTotalCost.setOnClickListener(v -> {
+            if (cardListAdapter != null) cardListAdapter.sortByTotalCost();
+            sortMenu.setVisibility(View.GONE);
+            btnSort.setText("Trier: Coût total ▼");
+        });
+    }
+
 
 }

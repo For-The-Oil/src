@@ -1,11 +1,18 @@
 package io.github.android.activity;
 
 import static io.github.android.config.ClientDefaultConfig.INIT_WAITING_TIME;
+
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -56,6 +63,7 @@ public class HomeActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.second_activity);
 
         this.clientManager = ClientManager.getInstance();
@@ -71,6 +79,11 @@ public class HomeActivity extends BaseActivity {
         addSessionUpdateListener();
 
         Log.d("For The Oil", "Decks: " + SessionManager.getInstance().getDecks());
+
+        if(SessionManager.getInstance().getDecks()==null){
+            RedirectUtils.simpleRedirectAndClearStack(this, SplashActivity.class, "login_error", "Disconnected !");
+            return;
+        }
 
         Deck defaultDeck = SessionManager.getInstance().getDecks().get("Default Deck");
         if (defaultDeck != null) {
@@ -329,6 +342,8 @@ public class HomeActivity extends BaseActivity {
 
     public void setGameMode(String mode) {
         gameMode = mode;
+        Button btn = findViewById(R.id.btnMode);
+        btn.setText(mode);
     }
 
     public String getGameMode() {

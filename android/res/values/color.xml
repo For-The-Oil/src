@@ -1,14 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_background_color">#F5A623FF</color>
-    <color name="background">#FFFFFFFF</color>
+    <!-- Backgrounds -->
+    <color name="ic_background_color">#F5A623</color> <!-- Orange vif pour icône ou overlay -->
+    <color name="background">#FFFFFF</color>          <!-- Fond général -->
+    <color name="white">#FFFFFF</color>              <!-- Blanc pur -->
+    <color name="custom_white_transparent">#20FFFFFF</color>
 
+    <!-- Pagination dots -->
+    <color name="dot_active">#1976D2</color>         <!-- Bleu primaire actif -->
+    <color name="dot_inactive">#BDBDBD</color>       <!-- Gris clair inactif -->
 
-    <color name="dot_active">#1976D2</color>     <!-- Bleu foncé -->
-    <color name="dot_inactive">#BDBDBD</color>   <!-- Gris clair -->
-
-    <color name="custom_red">#E53935</color> <!-- Rouge vif -->
-    <color name="custom_red_dark">#C62828</color>   <!-- Rouge foncé -->
+    <!-- Rouge custom -->
+    <color name="custom_red">#E53935</color>         <!-- Rouge vif -->
+    <color name="custom_red_dark">#C62828</color>    <!-- Rouge foncé -->
     <color name="custom_red_light">#FFCDD2</color>  <!-- Rouge clair -->
 
+    <!-- Bleu custom pour boutons et accent -->
+    <color name="custom_blue">#64B5F6</color>        <!-- Bleu clair bouton -->
+    <color name="custom_blue_dark">#1976D2</color>   <!-- Bleu foncé principal -->
+    <color name="custom_blue_light">#BBDEFB</color>  <!-- Bleu clair secondaire -->
+
+
+    <color name="custom_green">#00FF00</color>
+    <color name="custom_other_green">#4CAF50</color>
+    <color name="deck_green">#9CCC65</color>
+
+    <!-- Gris & textes -->
+    <color name="text_primary">#212121</color>       <!-- Texte principal -->
+    <color name="text_secondary">#757575</color>     <!-- Texte secondaire -->
+    <color name="divider">#E0E0E0</color>            <!-- Séparateurs / bordures -->
+    <color name="black">#000000</color>
+    <color name="dark_gray">#424242</color>
+    <color name="gray">#9E9E9E</color>
+
+    <!-- Accent général -->
+    <color name="accent_color">#FF4081</color>       <!-- Rose accent Material -->
 </resources>

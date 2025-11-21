@@ -1,0 +1,206 @@
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="180dp"
+    android:layout_height="wrap_content"
+    android:layout_margin="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="12dp">
+
+        <!-- Image de l'unité -->
+        <ImageView
+            android:id="@+id/unitImage"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:contentDescription="Unit Image"
+            android:scaleType="fitCenter"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Nom de l'unité -->
+        <TextView
+            android:id="@+id/unitName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Unit Name"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Conteneur des propriétés Label : Valeur -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Type -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingVertical="2dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="Type"
+                    android:textSize="14sp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/darker_gray"/>
+
+                <TextView
+                    android:id="@+id/unitType"
+                    android:layout_width="wrap_content"
+                    android:text="Building"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"/>
+            </LinearLayout>
+
+            <!-- Spawn From -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingVertical="2dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="Spawn from"
+                    android:textSize="14sp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/darker_gray"/>
+
+                <TextView
+                    android:id="@+id/unitSpawnFrom"
+                    android:layout_width="wrap_content"
+                    android:text="BASE"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"/>
+            </LinearLayout>
+
+            <!-- HP -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingVertical="2dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="HP"
+                    android:textSize="14sp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/darker_gray"/>
+
+                <TextView
+                    android:id="@+id/unitHealth"
+                    android:layout_width="wrap_content"
+                    android:text="100"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"/>
+            </LinearLayout>
+
+            <!-- Armor -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingVertical="2dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="Armor"
+                    android:textSize="14sp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/darker_gray"/>
+
+                <TextView
+                    android:id="@+id/unitArmor"
+                    android:layout_width="wrap_content"
+                    android:text="10"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"/>
+            </LinearLayout>
+
+            <!-- Speed -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingVertical="2dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="Speed"
+                    android:textSize="14sp"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/darker_gray"/>
+
+                <TextView
+                    android:id="@+id/unitSpeed"
+                    android:layout_width="wrap_content"
+                    android:text="5"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"/>
+            </LinearLayout>
+
+            <!-- Cost -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingVertical="2dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="Cost"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_height="wrap_content"
+                    />
+
+                <TextView
+                    android:id="@+id/unitCost"
+                    android:layout_width="wrap_content"
+                    android:text="Oil 100, Steel 500"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

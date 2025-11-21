@@ -10,6 +10,8 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import io.github.android.gui.Card;
@@ -131,4 +133,49 @@ public class CardListAdapter extends RecyclerView.Adapter<CardListAdapter.CardVi
             notifyItemChanged(old);
         }
     }
+
+    public List<Card> getCards(){
+        return cards;
+    }
+
+    // 1. Tri par nom (alphabétique)
+    public void sortByName() {
+        Collections.sort(cards, Comparator.comparing(Card::getName));
+        notifyDataSetChanged();
+    }
+
+    // 2. Tri par catégorie (Industrial, Military, Defense)
+    public void sortByCategory() {
+        Collections.sort(cards, Comparator.comparing(Card::getCategory, Comparator.nullsLast(Comparator.naturalOrder())));
+        notifyDataSetChanged();
+    }
+
+    // 3. Tri par santé maximale (maxHealth)
+    public void sortByMaxHealth() {
+        Collections.sort(cards, Comparator.comparingDouble(Card::getMaxHealth).reversed()); // du plus fort au plus faible
+        notifyDataSetChanged();
+    }
+
+    // 4. Tri par armure
+    public void sortByArmor() {
+        Collections.sort(cards, Comparator.comparingInt(Card::getArmor).reversed());
+        notifyDataSetChanged();
+    }
+
+    // 5. Tri par vitesse (baseSpeed)
+    public void sortByBaseSpeed() {
+        Collections.sort(cards, Comparator.comparingDouble(Card::getBaseSpeed).reversed());
+        notifyDataSetChanged();
+    }
+
+    // 6. Tri par coût total (somme des ressources)
+    public void sortByTotalCost() {
+        Collections.sort(cards, (c1, c2) -> {
+            int cost1 = c1.getCost().values().stream().mapToInt(Integer::intValue).sum();
+            int cost2 = c2.getCost().values().stream().mapToInt(Integer::intValue).sum();
+            return Integer.compare(cost1, cost2);
+        });
+        notifyDataSetChanged();
+    }
+
 }

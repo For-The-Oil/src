@@ -1,15 +1,38 @@
 <resources>
 
-    <!-- Thème principal pour ton application AndroidX -->
-    <style name="DefaultTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <!-- Thème principal amélioré -->
+    <style name="DefaultTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Fenêtre -->
         <item name="android:windowBackground">@android:color/white</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
-        <item name="android:textColor">@android:color/black</item>
-        <item name="android:fontFamily">sans-serif</item>
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
-    </style>
 
+        <!-- Typographie -->
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorSecondary">@color/dark_gray</item>
+        <item name="android:textColorHint">@color/gray</item>
+        <item name="android:windowBackground">@color/white</item>
+
+        <!-- Couleurs Material -->
+        <item name="colorPrimary">#1976D2</item> <!-- bleu principal -->
+        <item name="colorPrimaryDark">#1565C0</item>
+        <item name="colorAccent">#FF4081</item> <!-- accent rose -->
+        <item name="colorButtonNormal">#64B5F6</item>
+        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
+
+        <!-- Ripple et interactions -->
+        <item name="colorControlHighlight">#64B5F6</item>
+        <item name="android:colorControlHighlight">#64B5F6</item>
+
+        <!-- AppCompat modernisation -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">#1976D2</item>
+
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
 
 </resources>
