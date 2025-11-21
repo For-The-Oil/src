@@ -49,7 +49,9 @@ public class GameLauncher extends Thread {
                     if(instruction == null)continue;
                     InstructionManager.executeInstruction(instruction, serverGame);
                 }
-                serverGame.setAccumulator(serverGame.getAccumulator() - FIXED_TIME_STEP);
+                float time = serverGame.getAccumulator() - FIXED_TIME_STEP;
+                serverGame.setAccumulator(time);
+                serverGame.setTime_left((long) time);
             }
 
             //Traiter les requests
@@ -65,7 +67,10 @@ public class GameLauncher extends Thread {
                 InstructionManager.executeInstruction(instruction, serverGame);
             }
 
-            //       Envoi des instructions ici
+            //Envoi des instructions ici
+            
+
+            if(serverGame.getTime_left()<0)stopGame();
         }
 
         System.out.println("Game loop stopped for game: " + serverGame.getGAME_UUID());
