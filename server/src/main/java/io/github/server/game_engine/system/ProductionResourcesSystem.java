@@ -10,6 +10,7 @@ import com.artemis.systems.IteratingSystem;
 import java.util.HashMap;
 
 import io.github.server.data.ServerGame;
+import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.component.RessourceComponent;
@@ -68,7 +69,7 @@ public class ProductionResourcesSystem extends IteratingSystem {
      * @param game the server game context used for player access and update tracking
      */
     public ProductionResourcesSystem(ServerGame game) {
-        super(Aspect.all(RessourceComponent.class, ProprietyComponent.class, NetComponent.class));
+        super(Aspect.all(RessourceComponent.class, ProprietyComponent.class, NetComponent.class).exclude(FreezeComponent.class));
         this.game = game;
     }
 

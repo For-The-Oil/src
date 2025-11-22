@@ -7,6 +7,7 @@ import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.IntBag;
 
 import io.github.server.data.ServerGame;
+import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.PositionComponent;
@@ -57,7 +58,7 @@ public class RangedAttackSystem extends IteratingSystem {
      * Requires ServerGame to register snapshots each frame.
      */
     public RangedAttackSystem(ServerGame server) {
-        super(Aspect.all(RangedAttackComponent.class, PositionComponent.class, ProprietyComponent.class, TargetComponent.class,NetComponent.class));
+        super(Aspect.all(RangedAttackComponent.class, PositionComponent.class, ProprietyComponent.class, TargetComponent.class,NetComponent.class).exclude(FreezeComponent.class));
         this.server = server;
     }
 

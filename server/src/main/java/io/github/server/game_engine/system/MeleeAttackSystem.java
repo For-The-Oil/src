@@ -7,6 +7,7 @@ import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.IntBag;
 
 import io.github.server.data.ServerGame;
+import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.MeleeAttackComponent;
 import io.github.shared.data.component.NetComponent;
@@ -52,7 +53,7 @@ public class MeleeAttackSystem extends IteratingSystem {
      * Constructor requires the ServerGame instance so we can register snapshots.
      */
     public MeleeAttackSystem(ServerGame server) {
-        super(Aspect.all(MeleeAttackComponent.class, PositionComponent.class, ProprietyComponent.class, TargetComponent.class,NetComponent.class));
+        super(Aspect.all(MeleeAttackComponent.class, PositionComponent.class, ProprietyComponent.class, TargetComponent.class,NetComponent.class).exclude(FreezeComponent.class));
         this.server = server;
     }
 
