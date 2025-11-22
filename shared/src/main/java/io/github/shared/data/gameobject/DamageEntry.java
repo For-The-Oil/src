@@ -10,8 +10,8 @@ public class DamageEntry implements Serializable {
 
     public DamageEntry() {}
 
-    public DamageEntry(int sourceEntityId, float damage, float armorPenetration) {
-        this.sourceEntityId = sourceEntityId;
+    public DamageEntry(int sourceEntityNetId, float damage, float armorPenetration) {
+        this.sourceEntityId = sourceEntityNetId;
         this.damage = damage;
         this.armorPenetration = armorPenetration;
     }

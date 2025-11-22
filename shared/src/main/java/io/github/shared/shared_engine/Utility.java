@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import io.github.shared.config.BaseGameConfig;
 import io.github.shared.data.EnumsTypes.ResourcesType;
 import io.github.shared.data.network.Player;
 import io.github.shared.data.snapshot.EntitySnapshot;
@@ -105,6 +106,17 @@ public class Utility {
             }
         }
         return netIds;
+    }
+
+
+    /** Convert world coordinate (float) to cell index (int). */
+    public static int shapeToCell(float worldCoord) {
+        return (int) Math.floor(worldCoord / BaseGameConfig.CELL_SIZE);
+    }
+
+    /** Convert cell index (int) to world coordinate (float). */
+    public static float cellToShape(int cellIndex) {
+        return cellIndex * BaseGameConfig.CELL_SIZE;
     }
 
 
