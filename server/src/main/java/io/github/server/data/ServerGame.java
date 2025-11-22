@@ -126,7 +126,7 @@ public class ServerGame implements IGame {
     }
 
     public void substractTime_left(long time) {
-        this.time_left -= time;
+        this.time_left = this.time_left - time;
     }
 
     @Override

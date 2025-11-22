@@ -49,9 +49,8 @@ public class GameLauncher extends Thread {
                     if(instruction == null)continue;
                     InstructionManager.executeInstruction(instruction, serverGame);
                 }
-                float time = serverGame.getAccumulator() - FIXED_TIME_STEP;
-                serverGame.setAccumulator(time);
-                serverGame.setTime_left((long) time);
+                serverGame.setAccumulator(serverGame.getAccumulator() - FIXED_TIME_STEP);
+                serverGame.substractTime_left((long) FIXED_TIME_STEP);
             }
 
             //Traiter les requests
@@ -68,7 +67,6 @@ public class GameLauncher extends Thread {
             }
 
             //Envoi des instructions ici
-            
 
             if(serverGame.getTime_left()<0)stopGame();
         }
