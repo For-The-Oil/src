@@ -109,7 +109,7 @@ public class EcsManager {
      * @param entityType expected entity type (nullable: when null, type is ignored)
      * @return the matching Entity, or null if no match
      */
-    public static Entity findEntityByNetIdPlayerAndType(World world, int netId, UUID playerId, EntityType entityType)
+    public static Entity findEntityByNetIdPlayerAndEntityType(World world, int netId, UUID playerId, EntityType entityType)
     {
         if (world == null || playerId == null) return null;
 
@@ -122,6 +122,43 @@ public class EcsManager {
             ComponentMapper<NetComponent> netMapper = world.getMapper(NetComponent.class);
             NetComponent net = netMapper.get(e);
             if (net == null || net.entityType != entityType) {
+                return null;
+            }
+        }
+        return e;
+    }
+
+    /**
+     * Find the entity that satisfies:
+     *  - NetComponent.netId == netId
+     *  - If entityType != null, NetComponent.entityType == entityType
+     *  - ProprietyComponent.player == playerId
+     *
+     * Implementation detail:
+     *  - Uses findEntityByNetId(...) to grab the candidate first.
+     *  - If entityType is provided (non-null), it must exactly match; otherwise, type is ignored.
+     *  - Early-return behavior is preserved: if the candidate's type (when provided) or player
+     *    does not match, returns null immediately (does not look for other entities with same netId).
+     *
+     * @param world Artemis world
+     * @param netId network id to match
+     * @param playerId expected player UUID (must not be null)
+     * @param type expected entity.type (nullable: when null, type is ignored)
+     * @return the matching Entity, or null if no match
+     */
+    public static Entity findEntityByNetIdPlayerAndType(World world, int netId, UUID playerId, EntityType.Type type)
+    {
+        if (world == null || playerId == null) return null;
+
+        // Reuse the player check first; returns null if netId not found or player mismatch
+        Entity e = findEntityByNetIdAndPlayer(world, netId, playerId);
+        if (e == null) return null;
+
+        // If type is provided, enforce equality; otherwise, ignore
+        if (type != null) {
+            ComponentMapper<NetComponent> netMapper = world.getMapper(NetComponent.class);
+            NetComponent net = netMapper.get(e);
+            if (net == null || net.entityType.getType() != type) {
                 return null;
             }
         }

@@ -10,6 +10,7 @@ import io.github.server.data.ServerGame;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.NetComponent;
+import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.component.RangedAttackComponent;
@@ -58,7 +59,7 @@ public class RangedAttackSystem extends IteratingSystem {
      * Requires ServerGame to register snapshots each frame.
      */
     public RangedAttackSystem(ServerGame server) {
-        super(Aspect.all(RangedAttackComponent.class, PositionComponent.class, ProprietyComponent.class, TargetComponent.class,NetComponent.class).exclude(FreezeComponent.class));
+        super(Aspect.all(RangedAttackComponent.class, PositionComponent.class, ProprietyComponent.class, TargetComponent.class,NetComponent.class).exclude(FreezeComponent.class, OnCreationComponent.class));
         this.server = server;
     }
 

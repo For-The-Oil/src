@@ -11,6 +11,7 @@ import io.github.shared.data.EnumsTypes.WeaponType;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.NetComponent;
+import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.component.ProjectileAttackComponent;
 import io.github.shared.data.component.ProprietyComponent;
@@ -54,7 +55,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
      * Requires ServerGame to route projectile creation to your server pipeline.
      */
     public ProjectileAttackSystem(ServerGame server) {
-        super(Aspect.all(ProjectileAttackComponent.class, PositionComponent.class, ProprietyComponent.class, TargetComponent.class,NetComponent.class).exclude(FreezeComponent.class));
+        super(Aspect.all(ProjectileAttackComponent.class, PositionComponent.class, ProprietyComponent.class, TargetComponent.class,NetComponent.class).exclude(FreezeComponent.class, OnCreationComponent.class));
         this.server = server;
     }
 
