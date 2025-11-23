@@ -48,17 +48,12 @@ public class FreezeServerSystem extends IteratingSystem {
      */
     @Override
     protected void process(int e) {
-        // World delta (seconds) used to reduce the remaining freeze time
-        final float dt = world.getDelta();
-
         // Fetch the component for this entity
         FreezeComponent fc = mFreeze.get(e);
-
-        // If the freeze time has expired or is zero, unfreeze by removing the component
-        if (fc.freeze_time <= 0f) return; // Nothing else to do for this entity
+        if (fc.freeze_time <= 0f) return;// If the freeze time has expired or is zero, unfreeze by removing the component
 
         // Reduce the remaining freeze time, clamped to [0, +inf)
-        float newTime = Math.max(fc.freeze_time - dt, 0f);
+        float newTime = Math.max(fc.freeze_time - world.getDelta(), 0f);
 
         // Prepare a snapshot describing the new FreezeComponent state.
         // SnapshotTracker merges FreezeComponent via overwrite of fields, so we only send "freeze_time".

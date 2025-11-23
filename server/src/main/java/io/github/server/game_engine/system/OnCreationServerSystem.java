@@ -54,15 +54,12 @@ public class OnCreationServerSystem extends IteratingSystem {
      */
     @Override
     protected void process(int e) {
-        // Frame delta time (seconds) as provided by the Artemis world
-        final float dt = world.getDelta();
 
         // Fetch the required components for this entity
         OnCreationComponent occ = mOnCreation.get(e);// creation metadata and countdown
+        if (occ.time <= 0f)return;
         NetComponent net = mNet.get(e);// netId and type information for instruction routing
 
-        // --- Expiration path: remove OnCreation and add a Freeze snapshot ---
-        if (occ.time <= 0f)return;
         if(net.entityType.getType().equals(EntityType.Type.Unit)){
             float x = 0;
             float y = 0;
@@ -88,7 +85,7 @@ public class OnCreationServerSystem extends IteratingSystem {
 
         // --- Update path: still in "creation" state, tick down the timer and inform clients ---
         // Reduce the remaining time, clamped to zero
-        float newTime = Math.max(occ.time - dt, 0f);
+        float newTime = Math.max(occ.time - world.getDelta(), 0f);
 
         // Prepare a snapshot for OnCreationComponent (overwrite fields)
         java.util.HashMap<String, Object> fields = new java.util.HashMap<>();

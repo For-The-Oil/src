@@ -28,12 +28,12 @@ public class PathfindingDemo {
         MapNode end = new MapNode(4, 3,new ArrayList<>());
 
         // Instancie le graphe avec unité 1x1 (ou 2x2 si tu veux tester)
-        MapGraph graph = new MapGraph(shape,null, null,end, EntityType.test, 1);
 
 
         // Prépare le pathfinder et le chemin
-        GraphPath<MapNode> path = new DefaultGraphPath<>();
+        MapGraph graph = new MapGraph(shape,null, null,end, EntityType.test, 1);
         IndexedAStarPathFinder<MapNode> pathFinder = new IndexedAStarPathFinder<>(graph);
+        GraphPath<MapNode> path = new DefaultGraphPath<>();
 
         // Recherche du chemin
         pathFinder.searchNodePath(start, end, new MapHeuristic(), path);
