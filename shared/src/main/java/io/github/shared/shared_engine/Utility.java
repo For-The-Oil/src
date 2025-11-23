@@ -110,12 +110,13 @@ public class Utility {
 
 
     /** Convert world coordinate (float) to cell index (int). */
-    public static int shapeToCell(float worldCoord) {
+    public static int worldToCell(float worldCoord) {
+
         return (int) Math.floor(worldCoord / BaseGameConfig.CELL_SIZE);
     }
 
     /** Convert cell index (int) to world coordinate (float). */
-    public static float cellToShape(int cellIndex) {
+    public static float cellToWorld(int cellIndex) {
         return cellIndex * BaseGameConfig.CELL_SIZE;
     }
 

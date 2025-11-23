@@ -205,10 +205,10 @@ public class RangedAttackSystem extends IteratingSystem {
         // Convert world-space coordinates to discrete tile indices.
         // IMPORTANT: replace worldToCellX/Y(...) with your own formula (tile size, origin, scaling, etc.).
         // This step maps continuous positions into the grid used by Shape/Cell.
-        final int sx = Utility.shapeToCell(attackerPos.x); // start cell X (attacker)
-        final int sy = Utility.shapeToCell(attackerPos.y); // start cell Y (attacker)
-        final int tx = Utility.shapeToCell(targetPos.x);   // target cell X
-        final int ty = Utility.shapeToCell(targetPos.y);   // target cell Y
+        final int sx = Utility.worldToCell(attackerPos.x); // start cell X (attacker)
+        final int sy = Utility.worldToCell(attackerPos.y); // start cell Y (attacker)
+        final int tx = Utility.worldToCell(targetPos.x);   // target cell X
+        final int ty = Utility.worldToCell(targetPos.y);   // target cell Y
 
         // Fetch the map (Shape) to query bounds and cells.
         // If either endpoint is outside the map, consider LoS blocked to avoid undefined accesses.

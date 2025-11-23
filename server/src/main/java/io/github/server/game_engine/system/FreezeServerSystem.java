@@ -7,6 +7,7 @@ import com.artemis.systems.IteratingSystem;
 
 import io.github.server.data.ServerGame;
 import io.github.shared.data.component.FreezeComponent;
+import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 
 /**
@@ -14,18 +15,16 @@ import io.github.shared.data.snapshot.ComponentSnapshot;
  *
  * Responsibilities:
  *  - Iterate over all entities that currently have a FreezeComponent.
- *  - If freeze_time <= 0: unfreeze the entity by removing the FreezeComponent.
- *  - Else: decrement freeze_time by world delta and notify the server via SnapshotTracker
+ *  - If: decrement freeze_time by world delta and notify the server via SnapshotTracker
  *    using a ComponentSnapshot (the tracker will later produce a single UpdateEntityInstruction
  *    for all modified entities in the frame).
  *
  * Design notes:
- *  - Removal is done with entity.edit().remove(FreezeComponent.class).
  *  - SnapshotTracker overwrites FreezeComponent fields (here: "freeze_time") when merging.
  *  - Keeping local state (fc.freeze_time) in sync ensures gameplay systems read updated values immediately.
  */
 @Wire
-public class FreezeSystem extends IteratingSystem {
+public class FreezeServerSystem extends IteratingSystem {
 
     // Server reference used to register snapshots (aggregated updates for the frame)
     private final ServerGame server;
@@ -37,16 +36,15 @@ public class FreezeSystem extends IteratingSystem {
      * Constructor requires ServerGame so this system can register component snapshots
      * to be flushed later into a single UpdateEntityInstruction.
      */
-    public FreezeSystem(ServerGame server) {
+    public FreezeServerSystem(ServerGame server) {
         // Run over all entities that currently have a FreezeComponent
-        super(Aspect.all(FreezeComponent.class));
+        super(Aspect.all(FreezeComponent.class).exclude(OnCreationComponent.class));
         this.server = server;
     }
 
     /**
      * Per-entity update:
-     *  - If freeze_time <= 0: remove FreezeComponent (entity is no longer frozen).
-     *  - Else: decrement by delta, update local component, and register a snapshot.
+     * decrement by delta, update local component, and register a snapshot.
      */
     @Override
     protected void process(int e) {
@@ -57,11 +55,7 @@ public class FreezeSystem extends IteratingSystem {
         FreezeComponent fc = mFreeze.get(e);
 
         // If the freeze time has expired or is zero, unfreeze by removing the component
-        if (fc.freeze_time <= 0f) {
-            // Detach the FreezeComponent from the entity; it will no longer be matched by this system
-            world.getEntity(e).edit().remove(FreezeComponent.class);
-            return; // Nothing else to do for this entity
-        }
+        if (fc.freeze_time <= 0f) return; // Nothing else to do for this entity
 
         // Reduce the remaining freeze time, clamped to [0, +inf)
         float newTime = Math.max(fc.freeze_time - dt, 0f);

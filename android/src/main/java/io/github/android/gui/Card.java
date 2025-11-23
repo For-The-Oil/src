@@ -16,7 +16,7 @@ public class Card {
     private final float passiveHeal;
     private final float baseSpeed;
     private final float freezeTime;
-    private final long createTime;
+    private final float createTime;
     private final HashMap<ResourcesType, Integer> cost;
 
     public Card(EntityType entityType, int imageResId) {
@@ -43,7 +43,7 @@ public class Card {
     public float getPassiveHeal() { return passiveHeal; }
     public float getBaseSpeed() { return baseSpeed; }
     public float getFreezeTime() { return freezeTime; }
-    public long getCreateTime() { return createTime; }
+    public float getCreateTime() { return createTime; }
     public HashMap<ResourcesType, Integer> getCost() { return cost; }
 
 }

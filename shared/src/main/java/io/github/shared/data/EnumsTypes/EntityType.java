@@ -98,10 +98,10 @@ public enum EntityType {
     private final float passiveHeal;
     private final float base_speed;
     private final float freeze_time;
-    private final long create_time;
+    private final float create_time;
     private final HashMap<ResourcesType, Integer> cost;
 
-    EntityType(Type type, EntityType spawnFrom, DeckCardCategory category, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, long createTime, HashMap<ResourcesType, Integer> cost) {
+    EntityType(Type type, EntityType spawnFrom, DeckCardCategory category, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, float createTime, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
         this.category = category;
         this.spawnFrom = spawnFrom;
@@ -117,7 +117,7 @@ public enum EntityType {
         this.base_speed = 0;
     }
 
-    EntityType(Type type, EntityType spawnFrom, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float baseSpeed, float freezeTime, long createTime, HashMap<ResourcesType, Integer> cost) {
+    EntityType(Type type, EntityType spawnFrom, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float baseSpeed, float freezeTime, float createTime, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
         this.category = null;
         this.spawnFrom = spawnFrom;
@@ -188,7 +188,7 @@ public enum EntityType {
         return cost;
     }
 
-    public long getCreate_time() {
+    public float getCreate_time() {
         return create_time;
     }
 

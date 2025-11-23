@@ -4,21 +4,17 @@ import com.artemis.Component;
 import com.artemis.annotations.PooledWeaver;
 @PooledWeaver
 public class OnCreationComponent extends Component {
-    public int from;
-    public float x;
-    public float y;
-    public long time;
+    public int fromNetId;
+    public float time;
 
 
     public void reset() {
-        x = y = 0;
-        from = 0;
+        fromNetId = -1;
+        time = -1;
     }
 
-    public void set(float x, float y, int from,long time) {
-        this.x = x;
-        this.y = y;
-        this.from = from;
+    public void set(int fromNetId,float time) {
+        this.fromNetId = fromNetId;
         this.time = time;
     }
 

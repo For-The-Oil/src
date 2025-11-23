@@ -119,9 +119,9 @@ public final class ComponentFactory {
         return c;
     }
 
-    public static OnCreationComponent onCreationComponent(int x, int y, int from, long timeMillis) {
+    public static OnCreationComponent onCreationComponent(int from, float timeMillis) {
         OnCreationComponent c = new OnCreationComponent();
-        c.set(x, y, from,timeMillis);
+        c.set(from,timeMillis);
         return c;
     }
 
