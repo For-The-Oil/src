@@ -12,6 +12,7 @@ import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.snapshot.ComponentSnapshot;
+import io.github.shared.shared_engine.Utility;
 
 /**
  * OnCreationSystem
@@ -63,7 +64,7 @@ public class OnCreationServerSystem extends IteratingSystem {
         if(net.entityType.getType().equals(EntityType.Type.Unit)){
             float x = 0;
             float y = 0;
-            PositionComponent positionComponent = getPositionByNetId(occ.fromNetId);
+            PositionComponent positionComponent = Utility.getPositionByNetId(world,occ.fromNetId,mNet,mPos);
             if(positionComponent!=null){
                 x = positionComponent.x;
                 y = positionComponent.y;
@@ -96,23 +97,6 @@ public class OnCreationServerSystem extends IteratingSystem {
 
         // Register the snapshot into the tracker for aggregation this frame
         server.getUpdateTracker().markComponentModified(world.getEntity(e), onCreationSnap);
-    }
-
-    protected PositionComponent getPositionByNetId(int netId) {
-        if (world == null || netId < 0) return null;
-
-        // Récupère tous les entités qui possèdent NetComponent
-        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class,PositionComponent.class)).getEntities();
-
-        int[] ids = entities.getData();
-        for (int i = 0, size = entities.size(); i < size; i++) {
-            int eId = ids[i];
-            NetComponent net = mNet.get(eId);
-            if (net != null && net.netId == netId && net.isValid()) { // netId + validité
-                return mPos.get(eId);
-            }
-        }
-        return null; // pas trouvé
     }
 
 }

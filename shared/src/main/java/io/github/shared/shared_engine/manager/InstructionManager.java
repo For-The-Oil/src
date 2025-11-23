@@ -14,6 +14,7 @@ import io.github.shared.data.IGame;
 import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
+import io.github.shared.data.component.MoveComponent;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
@@ -55,6 +56,8 @@ public class InstructionManager {
                     ComponentMapper<LifeComponent> lifeMapper = game.getWorld().getMapper(LifeComponent.class);
                     ComponentMapper<FreezeComponent> freezeMapper = game.getWorld().getMapper(FreezeComponent.class);
                     ComponentMapper<ProjectileComponent> projectileMapper = game.getWorld().getMapper(ProjectileComponent.class);
+                    ComponentMapper<MoveComponent> moveMapper = game.getWorld().getMapper(MoveComponent.class);
+
                     for (int i = 0; i < ci.getToSpawn().size(); i++) {
                         float x = ci.getPosX().get(i);
                         float y = ci.getPosY().get(i);
@@ -82,25 +85,33 @@ public class InstructionManager {
                             posC.set(x,y,0);
                         }
 
-                        if(entityType.getType().equals(EntityType.Type.Projectile)){
-                            PositionComponent posC = positionMapper.create(entity);
-                            posC.set(x,y,0);
-                            ProjectileComponent pc = projectileMapper.create(entity);
-                            pc.set(entityType,entityType.getDamage(),entityType.getAoe(),entityType.getMaxHeight());
-                        }
-
                         if(entityType.getType().equals(EntityType.Type.Building)||entityType.getType().equals(EntityType.Type.Unit)){
+
                             FreezeComponent fc= freezeMapper.create(entity);
                             fc.freeze_time = entityType.getFreeze_time();
+
                             LifeComponent lc = lifeMapper.create(entity);
                             lc.set(entityType.getMaxHealth(),entityType.getMaxHealth(),entityType.getArmor(),entityType.getPassiveHeal());
+
+                            OnCreationComponent occ = onCreateMapper.create(entity);
+                            occ.set(from, entityType.getCreate_time());
+                        }
+
+                        if(entityType.getType().equals(EntityType.Type.Projectile)){
+                            PositionComponent posFromC = Utility.getPositionByNetId(game.getWorld(), from,netMapper,positionMapper);
+
+                            PositionComponent posC = positionMapper.create(entity);
+                            posC.set(posFromC.x, posFromC.y,0);
+
+                            ProjectileComponent pc = projectileMapper.create(entity);
+                            pc.set(entityType,entityType.getDamage(),entityType.getAoe(),entityType.getMaxHeight());
+
+                            MoveComponent mc = moveMapper.create(entity);
+                            mc.set(false,x,y,true);
                         }
 
                         NetComponent nc = netMapper.create(entity);
                         nc.set(netId, entityType);
-
-                        OnCreationComponent occ = onCreateMapper.create(entity);
-                        occ.set(from, entityType.getCreate_time());
                     }
                     break;
 

@@ -1,5 +1,10 @@
 package io.github.shared.shared_engine;
 
+import com.artemis.Aspect;
+import com.artemis.ComponentMapper;
+import com.artemis.World;
+import com.artemis.utils.IntBag;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.github.shared.config.BaseGameConfig;
 import io.github.shared.data.EnumsTypes.ResourcesType;
+import io.github.shared.data.component.NetComponent;
+import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.network.Player;
 import io.github.shared.data.snapshot.EntitySnapshot;
 
@@ -118,6 +125,23 @@ public class Utility {
     /** Convert cell index (int) to world coordinate (float). */
     public static float cellToWorld(int cellIndex) {
         return cellIndex * BaseGameConfig.CELL_SIZE;
+    }
+
+    public static PositionComponent getPositionByNetId(World world, int netId, ComponentMapper<NetComponent> mNet, ComponentMapper<PositionComponent> mPos) {
+        if (world == null || netId < 0) return null;
+
+        // Récupère tous les entités qui possèdent NetComponent
+        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class,PositionComponent.class)).getEntities();
+
+        int[] ids = entities.getData();
+        for (int i = 0, size = entities.size(); i < size; i++) {
+            int eId = ids[i];
+            NetComponent net = mNet.get(eId);
+            if (net != null && net.netId == netId && net.isValid()) { // netId + validité
+                return mPos.get(eId);
+            }
+        }
+        return null; // pas trouvé
     }
 
 
