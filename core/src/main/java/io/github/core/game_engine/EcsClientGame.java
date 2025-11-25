@@ -3,6 +3,7 @@ package io.github.core.game_engine;
 import com.artemis.WorldConfiguration;
 import com.artemis.WorldConfigurationBuilder;
 
+import io.github.shared.shared_engine.manager.DamageSystem;
 import io.github.shared.shared_engine.system.FreezeSystem;
 import io.github.shared.shared_engine.system.OnCreationSystem;
 
@@ -11,6 +12,7 @@ public class EcsClientGame {
         return new WorldConfigurationBuilder()
             .with(new FreezeSystem())
             .with(new OnCreationSystem())
+            .with(new DamageSystem())
             .build();
     }
 }
