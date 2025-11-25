@@ -1,4 +1,4 @@
-package io.github.server.game_engine.system;
+package io.github.shared.shared_engine.system;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;

@@ -12,7 +12,7 @@ import io.github.server.game_engine.system.ProductionResourcesSystem;
 import io.github.server.game_engine.system.ProjectileAttackSystem;
 import io.github.server.game_engine.system.ProjectileImpactSystem;
 import io.github.server.game_engine.system.RangedAttackSystem;
-import io.github.server.game_engine.system.VectorApplicationSystem;
+import io.github.shared.shared_engine.system.VectorApplicationSystem;
 import io.github.shared.shared_engine.manager.DamageSystem;
 import io.github.shared.shared_engine.system.FreezeSystem;
 import io.github.shared.shared_engine.system.OnCreationSystem;
