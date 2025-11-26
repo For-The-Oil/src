@@ -14,6 +14,12 @@ import io.github.shared.data.NetGame;
 import io.github.shared.data.gameobject.*;
 import io.github.shared.data.instructions.*;
 import io.github.shared.data.requests.*;
+import io.github.shared.data.requests.game.AttackGroupRequest;
+import io.github.shared.data.requests.game.BuildRequest;
+import io.github.shared.data.requests.game.CastRequest;
+import io.github.shared.data.requests.game.DestroyRequest;
+import io.github.shared.data.requests.game.MoveGroupRequest;
+import io.github.shared.data.requests.game.SummonRequest;
 import io.github.shared.data.snapshot.*;
 
 public final class KryoRegistry {
@@ -28,12 +34,26 @@ public final class KryoRegistry {
         kryo.register(UUID.class, new DefaultSerializers.UUIDSerializer());
 
 
-        //requests
+        //Network
         kryo.register(KryoMessage.class);
+
+
+        //requests (Network)
         kryo.register(AuthRequest.class);
-        kryo.register(MatchMakingRequest.class);
-        kryo.register(SynchronizeRequest.class);
         kryo.register(DeckRequest.class);
+        kryo.register(MatchMakingRequest.class);
+        kryo.register(Request.class);
+        kryo.register(SpecialRequest.class);
+        kryo.register(SynchronizeRequest.class);
+
+
+        //requests (Game)
+        kryo.register(AttackGroupRequest.class);
+        kryo.register(BuildRequest.class);
+        kryo.register(CastRequest.class);
+        kryo.register(DestroyRequest.class);
+        kryo.register(MoveGroupRequest.class);
+        kryo.register(SummonRequest.class);
 
 
         //instructions

@@ -1,6 +1,5 @@
 package io.github.core.client_engine.factory;
 
-import io.github.core.client_engine.manager.KryoClientManager;
 import io.github.shared.data.EnumsTypes.KryoMessageType;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.AuthRequest;
