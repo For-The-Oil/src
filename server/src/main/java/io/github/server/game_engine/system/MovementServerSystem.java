@@ -2,6 +2,7 @@
 package io.github.server.game_engine.system;
 
 import com.artemis.Aspect;
+import com.artemis.Component;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
@@ -14,6 +15,7 @@ import io.github.server.game_engine.gdx_ai.MapGraph;
 import io.github.server.game_engine.gdx_ai.MapHeuristic;
 import io.github.server.game_engine.gdx_ai.MapNode;
 import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.EnumsTypes.WeaponType;
 import io.github.shared.data.component.*;
 import io.github.shared.data.gameobject.Cell;
 import io.github.shared.data.snapshot.ComponentSnapshot;
@@ -157,6 +159,14 @@ public class MovementServerSystem extends IteratingSystem {
         fields.put("vz", 0f);
         ComponentSnapshot snap = new ComponentSnapshot("VelocityComponent", fields);
         server.getUpdateTracker().markComponentModified(world.getEntity(e), snap);
+
+
+        MeleeAttackComponent melee = mMelee.get(e);
+        ProjectileAttackComponent attack = mProjectile.get(e);
+        RangedAttackComponent ranged = mRanged.get(e);
+        if(melee!=null)AttackMovingPenalty(melee.weaponType,melee,e);
+        if(attack!=null)AttackMovingPenalty(attack.weaponType,melee,e);
+        if(ranged!=null)AttackMovingPenalty(ranged.weaponType,melee,e);
     }
 
     /**
@@ -260,5 +270,43 @@ public class MovementServerSystem extends IteratingSystem {
         Cell cell = server.getMap().getCells(gx, gy);
         if (cell == null || cell.getCellType() == null) return 0f;
         return cell.getCellType().getMovementCost(type) * cell.getEffectType().getMovingCost();
+    }
+
+    private void AttackMovingPenalty(WeaponType weaponType,Component component, int e){
+        if(!weaponType.isHitAndMove()){
+            if (weaponType.getType().equals(WeaponType.Type.Melee)) {
+                MeleeAttackComponent meleeAttackComponent = (MeleeAttackComponent) component;
+                HashMap<String, Object> fields = new HashMap<>();
+                fields.put("weaponType", weaponType);
+                fields.put("damage",meleeAttackComponent.damage);
+                fields.put("cooldown", weaponType.getCooldown());
+                fields.put("currentCooldown", weaponType.getAnimationAndFocusCooldown());
+                fields.put("reach",meleeAttackComponent.reach);
+                ComponentSnapshot snap = new ComponentSnapshot("MeleeAttackComponent", fields);
+                server.getUpdateTracker().markComponentModified(world.getEntity(e), snap);
+            }
+            if (weaponType.getType().equals(WeaponType.Type.Range)) {
+                RangedAttackComponent rangedAttackComponent = (RangedAttackComponent) component;
+                HashMap<String, Object> fields = new HashMap<>();
+                fields.put("weaponType", weaponType);
+                fields.put("damage",rangedAttackComponent.damage);
+                fields.put("cooldown", weaponType.getCooldown());
+                fields.put("currentCooldown", weaponType.getAnimationAndFocusCooldown());
+                fields.put("reach",rangedAttackComponent.range);
+                ComponentSnapshot snap = new ComponentSnapshot("RangedAttackComponent", fields);
+                server.getUpdateTracker().markComponentModified(world.getEntity(e), snap);
+            }
+            if (weaponType.getType().equals(WeaponType.Type.ProjectileLauncher)) {
+                ProjectileComponent projectileComponent = (ProjectileComponent) component;
+                HashMap<String, Object> fields = new HashMap<>();
+                fields.put("weaponType", weaponType);
+                fields.put("damage",projectileComponent.damage);
+                fields.put("cooldown", weaponType.getCooldown());
+                fields.put("currentCooldown", weaponType.getAnimationAndFocusCooldown());
+                fields.put("reach",projectileComponent.damage);
+                ComponentSnapshot snap = new ComponentSnapshot("ProjectileComponent", fields);
+                server.getUpdateTracker().markComponentModified(world.getEntity(e), snap);
+            }
+        }
     }
 }
