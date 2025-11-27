@@ -14,8 +14,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import io.github.shared.config.BaseGameConfig;
 import io.github.shared.data.EnumsTypes.ResourcesType;
+import io.github.shared.data.IGame;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.PositionComponent;
+import io.github.shared.data.gameobject.Cell;
+import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.network.Player;
 import io.github.shared.data.snapshot.EntitySnapshot;
 
@@ -117,9 +120,9 @@ public class Utility {
 
 
     /** Convert world coordinate (float) to cell index (int). */
-    public static int worldToCell(float worldCoord) {
+    public static int worldToCell(float worldCoordinate) {
 
-        return (int) Math.floor(worldCoord / BaseGameConfig.CELL_SIZE);
+        return (int) Math.floor(worldCoordinate / BaseGameConfig.CELL_SIZE);
     }
 
     /** Convert cell index (int) to world coordinate (float). */
@@ -142,6 +145,64 @@ public class Utility {
             }
         }
         return null; // pas trouvé
+    }
+
+    public static boolean isRangedDistanceValid(PositionComponent attackerPos, PositionComponent targetPos, float range, Shape map) {
+        // Early-out: quick spherical range check in continuous 3D space.
+        // If the target is farther than 'range', there's no need to perform an expensive line-of-sight (LoS) test.
+        final float dx = targetPos.x - attackerPos.x;
+        final float dy = targetPos.y - attackerPos.y;
+        final float dz = targetPos.z - attackerPos.z;
+        final float dist2 = dx*dx + dy*dy + dz*dz;
+        if (dist2 > (range * range)) return false; // too far: reject immediately
+
+        // Convert world-space coordinates to discrete tile indices.
+        // IMPORTANT: replace worldToCellX/Y(...) with your own formula (tile size, origin, scaling, etc.).
+        // This step maps continuous positions into the grid used by Shape/Cell.
+        final int sx = Utility.worldToCell(attackerPos.x); // start cell X (attacker)
+        final int sy = Utility.worldToCell(attackerPos.y); // start cell Y (attacker)
+        final int tx = Utility.worldToCell(targetPos.x);   // target cell X
+        final int ty = Utility.worldToCell(targetPos.y);   // target cell Y
+
+        // Fetch the map (Shape) to query bounds and cells.
+        // If either endpoint is outside the map, consider LoS blocked to avoid undefined accesses.
+        if (!map.isValidPosition(sx, sy) || !map.isValidPosition(tx, ty)) {
+            return false; // out of bounds: treat as obstructed
+        }
+
+        // Bresenham’s line traversal: iterates all grid cells intersected by the segment (sx,sy) → (tx,ty).
+        // We check every visited cell for traversability; any non-traversable cell blocks the shot.
+        int x = sx, y = sy;
+        int dxg = Math.abs(tx - sx);
+        int dyg = Math.abs(ty - sy);
+        int stepX = (sx < tx) ? 1 : -1;
+        int stepY = (sy < ty) ? 1 : -1;
+        int err = dxg - dyg;
+
+        // Bresenham's line: iterate cells from (sx, sy) to (tx, ty) without while(true)
+        // We process the current cell, then stop once we have reached the target cell.
+        do {
+            // Bounds check for safety at each step; reject if we step outside the map.
+            if (!map.isValidPosition(x, y)) return false;
+
+            // Read the current grid cell along the path and verify it is traversable.
+            // Rule: cell.getCellType().isTraversable(null) must be true for LoS to remain clear.
+            Cell cell = map.getCells(x, y);
+            if (cell != null && !cell.getCellType().isTraversable(null)) {
+                return false; // obstacle encountered: LoS blocked
+            }
+
+            // Bresenham step: advance along the dominant axis while correcting the error for the minor axis.
+            int e2 = 2 * err;
+            if (e2 > -dyg) { err -= dyg; x += stepX; }
+            if (e2 <  dxg) { err += dxg; y += stepY; }
+
+            // Loop ends when we have just processed the target cell
+        } while (x != tx || y != ty);
+
+
+        // All cells along the segment are traversable: the ranged shot is valid.
+        return true;
     }
 
 

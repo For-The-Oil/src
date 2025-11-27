@@ -1,4 +1,4 @@
-package io.github.shared.shared_engine.manager;
+package io.github.shared.shared_engine.system;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;

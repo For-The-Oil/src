@@ -27,8 +27,6 @@ public class PathfindingDemo {
         MapNode start = new MapNode(0, 0,new ArrayList<>());
         MapNode end = new MapNode(4, 3,new ArrayList<>());
 
-        // Instancie le graphe avec unité 1x1 (ou 2x2 si tu veux tester)
-
 
         // Prépare le pathfinder et le chemin
         MapGraph graph = new MapGraph(shape,null, null,end, EntityType.test, 1);

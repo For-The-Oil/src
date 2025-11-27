@@ -104,7 +104,7 @@ public class InstructionManager {
                             posC.set(posFromC.x, posFromC.y,0);
 
                             ProjectileComponent pc = projectileMapper.create(entity);
-                            pc.set(entityType,entityType.getDamage(),entityType.getAoe(),entityType.getMaxHeight());
+                            pc.set(entityType,entityType.getDamage(),entityType.getAoe(),entityType.getMaxHeight(),posFromC.x,posFromC.y);
 
                             MoveComponent mc = moveMapper.create(entity);
                             mc.set(false,x,y,true);

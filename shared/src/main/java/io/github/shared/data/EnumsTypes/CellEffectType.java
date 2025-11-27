@@ -7,7 +7,7 @@ public enum CellEffectType {
     SLOW(2f),
     SPEED_BOOST(0.5f);
 
-    public final float movingCost;
+    private final float movingCost;
 
     CellEffectType(float movingCost) {
         this.movingCost = movingCost;

@@ -93,26 +93,26 @@ public class ProductionResourcesSystem extends IteratingSystem {
      *
      * If the period has not elapsed yet, the method returns immediately.
      *
-     * @param entityId Artemis entity identifier being processed
+     * @param e Artemis entity identifier being processed
      */
     @Override
-    protected void process(int entityId) {
+    protected void process(int e) {
         if (accumulator < PERIOD_SEC) return;
 
         // Only Buildings produce resources
-        NetComponent net = mNet.get(entityId);
+        NetComponent net = mNet.get(e);
         if (net == null || net.entityType == null) return;
         if (!EntityType.Type.Building.equals(net.entityType.getType())) return;
 
         // Resolve owner
-        ProprietyComponent prop = mProp.get(entityId);
+        ProprietyComponent prop = mProp.get(e);
         if (prop == null || prop.player == null) return;
 
         Player owner = Utility.findPlayerByUuid(game.getPlayersList(), prop.player);
         if (owner == null) return;
 
         // Read payload and merge into the player's inventory
-        RessourceComponent res = mRes.get(entityId);
+        RessourceComponent res = mRes.get(e);
         if (res == null) return;
 
         HashMap<ResourcesType, Integer> payload = res.getAll();
