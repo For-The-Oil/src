@@ -87,10 +87,10 @@ public class MovementServerSystem extends IteratingSystem {
         if (pos == null || vel == null) return;
 
         // If velocity is flagged as stopped, skip
-        if (vel.isStop()) return;
-
+        if (vel.isStop())return;
         // Apply damping to gradually reduce velocity toward zero
-        zeroVelocity(vel, e);
+        else zeroVelocity(vel, pos, e);
+
 
         // No movement intent -> nothing else to do
         if (move == null) return;
@@ -207,7 +207,7 @@ public class MovementServerSystem extends IteratingSystem {
      * Gradually reduces velocity toward zero using damping based on delta time.
      * This creates a smooth stop instead of an abrupt halt.
      */
-    private void zeroVelocity(VelocityComponent vel, int e) {
+    private void zeroVelocity(VelocityComponent vel,PositionComponent pos, int e) {
         float vx = vel.vx;
         float vy = vel.vy;
         float vz = vel.vz;
@@ -224,6 +224,12 @@ public class MovementServerSystem extends IteratingSystem {
         float speed = (float) Math.sqrt(vx * vx + vy * vy + vz * vz);
         if (speed < 0.05f) {
             vx = vy = vz = 0f;
+            HashMap<String, Object> fields = new HashMap<>();
+            fields.put("x", pos.x);
+            fields.put("y", pos.y);
+            fields.put("z", pos.z);
+            ComponentSnapshot snap = new ComponentSnapshot("PositionComponent", fields);
+            server.getUpdateTracker().markComponentModified(world.getEntity(e), snap);
         }
 
         // Send snapshot update
