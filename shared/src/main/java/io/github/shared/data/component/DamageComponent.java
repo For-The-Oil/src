@@ -1,6 +1,7 @@
 package io.github.shared.data.component;
 
 import com.artemis.Component;
+import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import io.github.shared.data.gameobject.DamageEntry;
 
 
 @PooledWeaver
-public class DamageComponent extends Component {
+public class DamageComponent extends PooledComponent {
     public ArrayList<DamageEntry> entries = new ArrayList<>();
 
     // Ajouter une attaque
@@ -23,6 +24,7 @@ public class DamageComponent extends Component {
     }
 
     // Appelée automatiquement par Artemis si pooling activé
+    @Override
     public void reset() {
         entries.clear();
     }

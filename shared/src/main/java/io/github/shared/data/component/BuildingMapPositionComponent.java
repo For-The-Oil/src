@@ -8,6 +8,7 @@ import com.artemis.Component;
  * rotation = le sens dans lequel le batiment est posé, {0,1,2,3}
  */
 
+import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 import io.github.shared.data.EnumsTypes.Direction;
@@ -19,14 +20,15 @@ import io.github.shared.data.EnumsTypes.Direction;
  * direction = le sens dans lequel le bâtiment est posé, {0,1,2,3}
  */
 @PooledWeaver
-public class BuildingMapPositionComponent extends Component {
+public class BuildingMapPositionComponent extends PooledComponent {
     public int x;
     public int y;
     public Direction direction;
 
+    @Override
     public void reset() {
-        x = 0;
-        y = 0;
+        x = -1;
+        y = -1;
         direction = null;
     }
 

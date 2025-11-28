@@ -3,13 +3,14 @@ package io.github.shared.data.component;
 
 import com.artemis.Component;
 
+import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 import io.github.shared.data.EnumsTypes.EntityType;
 
 
 @PooledWeaver
-public class ProjectileComponent extends Component {
+public class ProjectileComponent extends PooledComponent {
     public EntityType projectileType;
     public int damage;
     public float aoe;
@@ -17,6 +18,7 @@ public class ProjectileComponent extends Component {
     public float fromX;
     public float fromY;
 
+    @Override
     public void reset() {
         projectileType = null;
         damage = 0;

@@ -1,15 +1,17 @@
 package io.github.shared.data.component;
 
 import com.artemis.Component;
+import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 
 @PooledWeaver
-public class TargetComponent extends Component {
+public class TargetComponent extends PooledComponent {
     public int targetId;
     public int nextTargetId;
     public boolean force = false;
 
+    @Override
     public void reset() {
         targetId = -1;
         nextTargetId = -1;

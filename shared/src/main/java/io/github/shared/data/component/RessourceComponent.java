@@ -1,6 +1,7 @@
 package io.github.shared.data.component;
 
 import com.artemis.Component;
+import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 import java.util.HashMap;
@@ -9,9 +10,10 @@ import io.github.shared.data.EnumsTypes.ResourcesType;
 
 
 @PooledWeaver
-public class RessourceComponent extends Component {
+public class RessourceComponent extends PooledComponent {
     private HashMap<ResourcesType, Integer> resources = new HashMap<>();
 
+    @Override
     public void reset() {
         resources.clear();
     }

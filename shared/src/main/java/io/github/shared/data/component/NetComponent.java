@@ -1,16 +1,18 @@
 package io.github.shared.data.component;
 
 import com.artemis.Component;
+import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 import io.github.shared.data.EnumsTypes.EntityType;
 
 
 @PooledWeaver
-public class NetComponent extends Component {
+public class NetComponent extends PooledComponent {
     public int netId;
     public EntityType entityType;
 
+    @Override
     public void reset() {
         netId = -1;
         entityType = null;

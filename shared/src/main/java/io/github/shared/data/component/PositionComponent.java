@@ -1,6 +1,7 @@
 package io.github.shared.data.component;
 
 import com.artemis.Component;
+import com.artemis.PooledComponent;
 import com.badlogic.gdx.math.Vector2;
 
 /**
@@ -14,13 +15,14 @@ import com.artemis.annotations.PooledWeaver;
  * Composant représentant la position d'une entité dans le monde (2D).
  */
 @PooledWeaver
-public class PositionComponent extends Component {
+public class PositionComponent extends PooledComponent {
     public float x;
     public float y;
     public float z;
     public float horizontalRotation;
     public float verticalRotation;
 
+    @Override
     public void reset() {
         x = y = z = 0f;
         horizontalRotation = verticalRotation = 0f;

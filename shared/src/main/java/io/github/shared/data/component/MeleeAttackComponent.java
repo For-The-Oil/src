@@ -4,17 +4,19 @@ import com.artemis.Component;
 
 import io.github.shared.data.EnumsTypes.WeaponType;
 
+import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 
 @PooledWeaver
-public class MeleeAttackComponent extends Component {
+public class MeleeAttackComponent extends PooledComponent {
     public WeaponType weaponType;
     public int damage;
     public float cooldown;
     public float currentCooldown;
     public float reach;
 
+    @Override
     public void reset() {
         weaponType = null;
         damage = 0;

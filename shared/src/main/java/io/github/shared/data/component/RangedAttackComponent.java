@@ -1,19 +1,21 @@
 package io.github.shared.data.component;
 
 import com.artemis.Component;
+import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 import io.github.shared.data.EnumsTypes.WeaponType;
 
 
 @PooledWeaver
-public class RangedAttackComponent extends Component {
+public class RangedAttackComponent extends PooledComponent {
     public WeaponType weaponType;
     public int damage;
     public float cooldown;
     public float currentCooldown;
     public float range;
 
+    @Override
     public void reset() {
         weaponType = null;
         damage = 0;

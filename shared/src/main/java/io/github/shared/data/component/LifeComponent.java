@@ -2,16 +2,18 @@ package io.github.shared.data.component;
 
 import com.artemis.Component;
 
+import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 
 @PooledWeaver
-public class LifeComponent extends Component {
+public class LifeComponent extends PooledComponent {
     public float health;
     public float maxHealth;
     public int armor;
     public float passiveHeal;
 
+     @Override
     public void reset() {
         health = maxHealth = 0f;
         armor = 0;

@@ -1,15 +1,17 @@
 package io.github.shared.data.component;
 
 import com.artemis.Component;
+import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 @PooledWeaver
-public class MoveComponent extends Component {
+public class MoveComponent extends PooledComponent {
     public boolean targetRelated;
     public float destinationX;
     public float destinationY;
     public boolean force = false;
 
+    @Override
     public void reset() {
         this.destinationX = -1;
         this.destinationY = -1;

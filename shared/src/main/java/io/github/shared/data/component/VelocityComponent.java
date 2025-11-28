@@ -1,16 +1,18 @@
  package io.github.shared.data.component;
 
  import com.artemis.Component;
+ import com.artemis.PooledComponent;
  import com.artemis.annotations.PooledWeaver;
  import com.badlogic.gdx.math.Vector2;
 
 
  @PooledWeaver
- public class VelocityComponent extends Component {
+ public class VelocityComponent extends PooledComponent {
      public float vx;
      public float vy;
      public float vz;
 
+     @Override
      public void reset() {
          vx = 0f;
          vy = 0f;

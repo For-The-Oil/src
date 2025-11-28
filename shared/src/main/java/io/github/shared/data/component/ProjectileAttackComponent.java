@@ -1,6 +1,7 @@
 package io.github.shared.data.component;
 
 import com.artemis.Component;
+import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 import io.github.shared.data.EnumsTypes.EntityType;
@@ -8,13 +9,14 @@ import io.github.shared.data.EnumsTypes.WeaponType;
 
 
 @PooledWeaver
-public class ProjectileAttackComponent extends Component {
+public class ProjectileAttackComponent extends PooledComponent {
     public WeaponType weaponType;
     public float cooldown;
     public float currentCooldown;
     public float range;
     public EntityType projectileType;
 
+    @Override
     public void reset() {
         weaponType = null;
         cooldown = 0f;
