@@ -74,7 +74,7 @@ public class GraphicsSyncSystem extends BaseSystem {
             }
 
             // Mettre à jour instance
-            mc.mapInstance.get(ModelType.Entity).updateFromComponents(pos,life,vel,null,null,null);
+            mc.mapInstance.get(ModelType.Entity).updateFromComponents(pos,life,vel,melee,ranged,projectile);
 
             if(melee != null){
                 if(mc.mapInstance.get(ModelType.Melee) == null) {
