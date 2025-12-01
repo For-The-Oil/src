@@ -52,15 +52,11 @@ public class ExtendedModelInstance extends ModelInstance {
 
         if (velocity != null) {
             if (velocity.isStop()) {
-                // Si l'animation de déplacement est en cours, on l'arrête
-                if (animationController.current != null &&
-                    "Move".equals(animationController.current.animation.id)) {
-                    animationController.animate("Idle", -1); // Animation Idle en boucle
+                if (animationController.current != null && "Move".equals(animationController.current.animation.id)) {
+                    animationController.current = null; // Stoppe l'animation
                 }
             } else {
-                // Si l'entité bouge, on joue l'animation de déplacement
-                if (animationController.current == null ||
-                    !"Move".equals(animationController.current.animation.id)) {
+                if (animationController.current == null || (!"Move".equals(animationController.current.animation.id)&&!"Attack".equals(animationController.current.animation.id))) {
                     animationController.animate("Move", -1); // Animation Run en boucle
                 }
             }
