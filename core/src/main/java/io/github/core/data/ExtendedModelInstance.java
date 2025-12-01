@@ -17,21 +17,30 @@ public class ExtendedModelInstance extends ModelInstance {
     private int entityNetId;// ID de l'entité ECS
     private float health;// Vie actuelle
     private float maxHealth;// Vie max
+    private float  translationX ;
+    private float  translationY ;
+    private float   translationZ ;
     private boolean isAlive;// État
 
     private AnimationController animationController;
 
-    public ExtendedModelInstance(Model model, int entityId) {
+    public ExtendedModelInstance(Model model, int entityId, float x, float y, float z) {
         super(model);
         this.entityId = entityId;
         this.animationController = new AnimationController(this);
+        this.translationX = x;
+        this.translationY = y;
+        this.translationZ = z;
     }
 
-    public ExtendedModelInstance(Model model,int entityNetId , int entityId) {
+    public ExtendedModelInstance(Model model,int entityNetId , int entityId, float x, float y, float z) {
         super(model);
         this.entityId = entityId;
         this.entityNetId = entityNetId;
         this.animationController = new AnimationController(this);
+        this.translationX = x;
+        this.translationY = y;
+        this.translationZ = z;
     }
 
     public void updateFromComponents(PositionComponent pos, LifeComponent life, VelocityComponent velocity, MeleeAttackComponent melee, RangedAttackComponent ranged, ProjectileAttackComponent projectile) {
@@ -39,7 +48,7 @@ public class ExtendedModelInstance extends ModelInstance {
         if(pos != null) {
             this.transform.setToRotation(Vector3.Y, pos.horizontalRotation);
             this.transform.rotate(Vector3.X, pos.verticalRotation);
-            this.transform.setTranslation(pos.x, pos.y, pos.z);
+            this.transform.setTranslation(this.translationX+pos.x, this.translationY+pos.y, this.translationZ+pos.z);
         }
 
         // Mettre à jour la vie
@@ -82,5 +91,6 @@ public class ExtendedModelInstance extends ModelInstance {
         }
 
     }
+
 }
 

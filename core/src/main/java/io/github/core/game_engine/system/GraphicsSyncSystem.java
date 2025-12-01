@@ -9,14 +9,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import io.github.core.data.component.ModelComponent;
 import io.github.core.data.ExtendedModelInstance;
@@ -30,6 +28,7 @@ import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.component.ProjectileAttackComponent;
 import io.github.shared.data.component.RangedAttackComponent;
 import io.github.shared.data.component.VelocityComponent;
+import io.github.shared.data.enumsTypes.WeaponType;
 
 public class GraphicsSyncSystem extends BaseSystem {
 
@@ -69,32 +68,33 @@ public class GraphicsSyncSystem extends BaseSystem {
             ProjectileAttackComponent projectile = mProjAttack.get(e);
 
             if (mc == null) {
-                mc = new ModelComponent(net != null ? createModelInstance(net.entityType,net.netId,e) : createDefaultModelInstance(e));
+                mc = new ModelComponent(net != null ? createModelInstance(net.entityType,net.netId,e) : createDefaultModelInstance(e,0,0,0));
                 world.edit(e).add(mc);
             }
 
             // Mettre à jour instance
             mc.mapInstance.get(ModelType.Entity).updateFromComponents(pos,life,vel,melee,ranged,projectile);
-
-            if(melee != null){
-                if(mc.mapInstance.get(ModelType.Melee) == null) {
-                    mc.mapInstance.put(ModelType.Melee, net != null ? createModelInstance(net.entityType, net.netId, e) : createDefaultModelInstance(e));
+            if(net != null) {
+                if (melee != null) {
+                    if (mc.mapInstance.get(ModelType.Melee) == null) {
+                        mc.mapInstance.put(ModelType.Melee, createModelInstance(melee.weaponType, net.netId, e));
+                    }
+                    mc.mapInstance.get(ModelType.Melee).updateFromComponents(pos, life, vel, melee, null, null);
                 }
-                mc.mapInstance.get(ModelType.Melee).updateFromComponents(pos,life,vel,melee,null,null);
-            }
 
-            if(ranged != null){
-                if(mc.mapInstance.get(ModelType.Range) == null) {
-                    mc.mapInstance.put(ModelType.Range, net != null ? createModelInstance(net.entityType, net.netId, e) : createDefaultModelInstance(e));
+                if (ranged != null) {
+                    if (mc.mapInstance.get(ModelType.Range) == null) {
+                        mc.mapInstance.put(ModelType.Range, createModelInstance(ranged.weaponType, net.netId, e));
+                    }
+                    mc.mapInstance.get(ModelType.Range).updateFromComponents(pos, life, vel, null, ranged, null);
                 }
-                mc.mapInstance.get(ModelType.Range).updateFromComponents(pos,life,vel,null,ranged,null);
-            }
 
-            if(projectile != null){
-                if(mc.mapInstance.get(ModelType.ProjectileLauncher) == null) {
-                    mc.mapInstance.put(ModelType.ProjectileLauncher, net != null ? createModelInstance(net.entityType, net.netId, e) : createDefaultModelInstance(e));
+                if (projectile != null) {
+                    if (mc.mapInstance.get(ModelType.ProjectileLauncher) == null) {
+                        mc.mapInstance.put(ModelType.ProjectileLauncher, createModelInstance(projectile.weaponType, net.netId, e));
+                    }
+                    mc.mapInstance.get(ModelType.ProjectileLauncher).updateFromComponents(pos, life, vel, null, null, projectile);
                 }
-                mc.mapInstance.get(ModelType.ProjectileLauncher).updateFromComponents(pos,life,vel,null,null,projectile);
             }
 
 
@@ -108,17 +108,22 @@ public class GraphicsSyncSystem extends BaseSystem {
     }
 
     private ExtendedModelInstance createModelInstance(EntityType entityType, int net, int e) {
-        //return new ExtendedModelInstance(,net,e);///TODO
-        return createDefaultModelInstance(e);
+        //return new ExtendedModelInstance(,net,e,0,0,0);///TODO
+        return createDefaultModelInstance(e,0,0,0);
     }
 
-    private ExtendedModelInstance createDefaultModelInstance(int e) {
+    private ExtendedModelInstance createModelInstance(WeaponType weaponType, int net, int e) {
+        //return new ExtendedModelInstance(,net,e,weaponType.getTranslationX(),weaponType.getTranslationY(),weaponType.getTranslationZ());///TODO
+        return createDefaultModelInstance(e,weaponType.getTranslationX(),weaponType.getTranslationY(),weaponType.getTranslationZ());
+    }
+
+    private ExtendedModelInstance createDefaultModelInstance(int e,float x,float y,float z) {
         // Crée un modèle par défaut (cube rouge par exemple)
         ModelBuilder builder = new ModelBuilder();
         Model model = builder.createBox(1f, 1f, 1f,
             new Material(ColorAttribute.createDiffuse(Color.RED)),
             VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-        return new ExtendedModelInstance(model,e);
+        return new ExtendedModelInstance(model,e,x,y,z);
     }
 }
 

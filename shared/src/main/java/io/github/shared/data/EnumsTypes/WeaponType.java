@@ -1,7 +1,7 @@
 package io.github.shared.data.enumsTypes;
 
 public enum WeaponType {
-    test(Type.Melee,1,1,1,1,1,1,false);
+    test(Type.Melee,1,1,1,1,1,1,1,1,1,false);
     //RIFLE(Type.Range), SHOTGUN(Type.Range), BAZOOKA(Type.Range),
     //SWORD(Type.Melee), SPEAR(Type.Melee), CHAINSAW(Type.Melee);
     private final Type type;
@@ -11,10 +11,13 @@ public enum WeaponType {
     private final float animationCooldown;
     private final float animationAndFocusCooldown;
     private final float reach;
+    private final float  translationX ;
+    private final float  translationY ;
+    private final float   translationZ ;
     private final boolean HitAndMove;
     private final EntityType projectileType;
 
-    WeaponType(Type type, int damage, int armorPenetration, float cooldown, float animationCooldown, float animationAndFocusCooldown, float reach, boolean hitAndMove) {
+    WeaponType(Type type, int damage, int armorPenetration, float cooldown, float animationCooldown, float animationAndFocusCooldown, float reach, float translationX, float translationY, float translationZ, boolean hitAndMove) {
         this.type = type;
         this.damage = damage;
         this.armorPenetration = armorPenetration;
@@ -22,7 +25,10 @@ public enum WeaponType {
         this.animationCooldown = animationCooldown;
         this.animationAndFocusCooldown = animationAndFocusCooldown;
         this.reach = reach;
-        HitAndMove = hitAndMove;
+        this.translationX = translationX;
+        this.translationY = translationY;
+        this.translationZ = translationZ;
+        this.HitAndMove = hitAndMove;
         this.projectileType = null;
     }
 
@@ -60,6 +66,18 @@ public enum WeaponType {
 
     public float getAnimationCooldown() {
         return animationCooldown;
+    }
+
+    public float getTranslationX() {
+        return translationX;
+    }
+
+    public float getTranslationY() {
+        return translationY;
+    }
+
+    public float getTranslationZ() {
+        return translationZ;
     }
 
     public enum Type{
