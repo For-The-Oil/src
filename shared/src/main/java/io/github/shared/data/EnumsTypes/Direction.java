@@ -1,4 +1,4 @@
-package io.github.shared.data.EnumsTypes;
+package io.github.shared.data.enumsTypes;
 
 public enum Direction {
     NORTH, SOUTH, EAST, WEST;

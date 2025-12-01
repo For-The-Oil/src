@@ -5,6 +5,7 @@ import static io.github.shared.config.BaseGameConfig.FIXED_TIME_STEP;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import io.github.core.data.ClientGame;
 import io.github.core.game_engine.manager.GameManager;
 import io.github.shared.data.NetGame;
 import io.github.shared.data.instructions.Instruction;

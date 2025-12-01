@@ -1,8 +1,8 @@
 package io.github.android.gui;
 
-import io.github.shared.data.EnumsTypes.DeckCardCategory;
-import io.github.shared.data.EnumsTypes.EntityType;
-import io.github.shared.data.EnumsTypes.ResourcesType;
+import io.github.shared.data.enumsTypes.DeckCardCategory;
+import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.ResourcesType;
 
 import java.util.HashMap;
 

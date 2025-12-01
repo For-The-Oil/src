@@ -2,7 +2,6 @@ package io.github.android.utils;
 
 import static android.view.View.VISIBLE;
 
-import android.app.Activity;
 import android.content.Context;
 import android.text.Html;
 import android.text.method.HideReturnsTransformationMethod;
@@ -10,17 +9,14 @@ import android.text.method.PasswordTransformationMethod;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import io.github.android.activity.BaseActivity;
-import io.github.android.gui.animation.AnimatorBar;
 import io.github.fortheoil.R;
-import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.EntityType;
 
 /**
  * Classe utilitaire regroupant des fonctions réutilisables pour l'UI.

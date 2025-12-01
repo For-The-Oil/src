@@ -1,23 +1,25 @@
-package io.github.shared.data.EnumsTypes;
+package io.github.shared.data.enumsTypes;
 
 public enum WeaponType {
-    test(Type.Melee,1,1,1,1,1,false);
+    test(Type.Melee,1,1,1,1,1,1,false);
     //RIFLE(Type.Range), SHOTGUN(Type.Range), BAZOOKA(Type.Range),
     //SWORD(Type.Melee), SPEAR(Type.Melee), CHAINSAW(Type.Melee);
     private final Type type;
     private final int damage;
     private final int armorPenetration;
     private final float cooldown;
+    private final float animationCooldown;
     private final float animationAndFocusCooldown;
     private final float reach;
     private final boolean HitAndMove;
     private final EntityType projectileType;
 
-    WeaponType(Type type, int damage, int armorPenetration, float cooldown, float animationAndFocusCooldown, float reach, boolean hitAndMove) {
+    WeaponType(Type type, int damage, int armorPenetration, float cooldown, float animationCooldown, float animationAndFocusCooldown, float reach, boolean hitAndMove) {
         this.type = type;
         this.damage = damage;
         this.armorPenetration = armorPenetration;
         this.cooldown = cooldown;
+        this.animationCooldown = animationCooldown;
         this.animationAndFocusCooldown = animationAndFocusCooldown;
         this.reach = reach;
         HitAndMove = hitAndMove;
@@ -54,6 +56,10 @@ public enum WeaponType {
 
     public boolean isHitAndMove() {
         return HitAndMove;
+    }
+
+    public float getAnimationCooldown() {
+        return animationCooldown;
     }
 
     public enum Type{

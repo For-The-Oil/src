@@ -1,4 +1,4 @@
-package io.github.shared.data.EnumsTypes;
+package io.github.shared.data.enumsTypes;
 
 public enum AuthModeType {
     REGISTER, LOGIN, TOKEN, LOGIN_FAIL, REGISTER_FAIL, TOKEN_FAIL, TOKEN_SUCCESS, REGISTER_SUCCESS, LOGIN_SUCCESS, RESPONSE

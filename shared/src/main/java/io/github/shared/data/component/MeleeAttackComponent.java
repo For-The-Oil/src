@@ -1,8 +1,6 @@
 package io.github.shared.data.component;
 
-import com.artemis.Component;
-
-import io.github.shared.data.EnumsTypes.WeaponType;
+import io.github.shared.data.enumsTypes.WeaponType;
 
 import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;

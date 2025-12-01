@@ -3,7 +3,7 @@ package io.github.shared.data.snapshot;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.EntityType;
 
 public class EntitySnapshot implements Serializable {
     private int netId; // identifiant unique

@@ -1,7 +1,7 @@
 package io.github.core.game_engine.manager;
 
 
-import io.github.core.game_engine.ClientGame;
+import io.github.core.data.ClientGame;
 import io.github.shared.data.NetGame;
 import io.github.shared.data.snapshot.EntitySnapshot;
 import io.github.shared.shared_engine.Utility;

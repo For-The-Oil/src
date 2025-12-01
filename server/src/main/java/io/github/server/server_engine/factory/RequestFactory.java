@@ -2,15 +2,15 @@ package io.github.server.server_engine.factory;
 
 import java.util.HashMap;
 
-import io.github.shared.data.EnumsTypes.GameModeType;
-import io.github.shared.data.EnumsTypes.MatchModeType;
-import io.github.shared.data.EnumsTypes.SyncType;
+import io.github.shared.data.enumsTypes.GameModeType;
+import io.github.shared.data.enumsTypes.MatchModeType;
+import io.github.shared.data.enumsTypes.SyncType;
 import io.github.shared.data.NetGame;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
 import io.github.shared.data.requests.SynchronizeRequest;
-import io.github.shared.data.EnumsTypes.DeckRequestType;
+import io.github.shared.data.enumsTypes.DeckRequestType;
 
 
 /**

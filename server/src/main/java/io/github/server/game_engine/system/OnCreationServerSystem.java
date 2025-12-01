@@ -4,10 +4,9 @@ import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
-import com.artemis.utils.IntBag;
 
 import io.github.server.data.ServerGame;
-import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.EntityType;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;

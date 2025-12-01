@@ -1,7 +1,5 @@
 package io.github.shared.data.component;
 
-import com.artemis.Component;
-
 /**
  * x = La colonne de la map ou se trouve le coin supérieur gauche de notre batîment
  * y = La ligne de la map ou se trouve le coin supérieur gauche de notre batîment
@@ -11,7 +9,7 @@ import com.artemis.Component;
 import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
-import io.github.shared.data.EnumsTypes.Direction;
+import io.github.shared.data.enumsTypes.Direction;
 
 
 /**

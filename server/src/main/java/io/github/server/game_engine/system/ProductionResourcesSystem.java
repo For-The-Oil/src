@@ -2,8 +2,6 @@ package io.github.server.game_engine.system;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
-import com.artemis.Entity;
-import com.artemis.World;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 
@@ -15,8 +13,8 @@ import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.component.RessourceComponent;
-import io.github.shared.data.EnumsTypes.EntityType;
-import io.github.shared.data.EnumsTypes.ResourcesType;
+import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.ResourcesType;
 import io.github.shared.data.instructions.ResourcesInstruction;
 import io.github.shared.data.network.Player;
 import io.github.shared.shared_engine.Utility;

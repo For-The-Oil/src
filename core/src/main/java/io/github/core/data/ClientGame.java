@@ -1,4 +1,4 @@
-package io.github.core.game_engine;
+package io.github.core.data;
 
 import com.artemis.World;
 
@@ -9,9 +9,10 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import io.github.shared.data.EnumsTypes.EventType;
-import io.github.shared.data.EnumsTypes.GameModeType;
-import io.github.shared.data.EnumsTypes.MapName;
+import io.github.core.game_engine.EcsClientGame;
+import io.github.shared.data.enumsTypes.EventType;
+import io.github.shared.data.enumsTypes.GameModeType;
+import io.github.shared.data.enumsTypes.MapName;
 import io.github.shared.data.IGame;
 import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.instructions.Instruction;
@@ -28,11 +29,12 @@ public class ClientGame implements IGame {
     private MapName mapName;
     private EventType currentEvent;
     private final Queue<Instruction> executionQueue;
+    private final Queue<ExtendedModelInstance> ModelInstanceQueue;
     private float accumulator;
     private long lastTime;
     private long timeLeft;  // seconds
 
-    public ClientGame(GameModeType gameMode, MapName mapName, Shape map, UUID uuid,long timeLeft) {
+    public ClientGame(GameModeType gameMode, MapName mapName, Shape map, UUID uuid, long timeLeft) {
         this.GAME_UUID = uuid;
         this.gameMode = gameMode;
         this.mapName = mapName;
@@ -41,9 +43,10 @@ public class ClientGame implements IGame {
         this.playersList = new ArrayList<>();
         this.running = true;
         this.executionQueue = new ConcurrentLinkedQueue<>();
+        this.ModelInstanceQueue = new ConcurrentLinkedQueue<>();
         this.accumulator = 0f;
-        this.timeLeft = timeLeft;
         this.lastTime = System.currentTimeMillis();
+        this.timeLeft = timeLeft;
         this.currentEvent = EventType.START;
 
         this.world = new World(EcsClientGame.serverWorldConfiguration(this));// Important this line after anything else because dangerous overwise
@@ -175,5 +178,9 @@ public class ClientGame implements IGame {
 
     public void addQueueInstruction(Collection<Instruction> instruction){
         executionQueue.addAll(instruction);
+    }
+
+    public Queue<ExtendedModelInstance> getModelInstanceQueue() {
+        return ModelInstanceQueue;
     }
 }

@@ -1,6 +1,6 @@
-package io.github.shared.data.EnumsTypes;
+package io.github.shared.data.enumsTypes;
 
-import static io.github.shared.data.EnumsTypes.MapName.*;
+import static io.github.shared.data.enumsTypes.MapName.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;

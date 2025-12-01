@@ -6,8 +6,8 @@ import java.util.HashMap;
 
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.SessionManager;
-import io.github.shared.data.EnumsTypes.KryoMessageType;
-import io.github.shared.data.EnumsTypes.SyncType;
+import io.github.shared.data.enumsTypes.KryoMessageType;
+import io.github.shared.data.enumsTypes.SyncType;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.SynchronizeRequest;
 

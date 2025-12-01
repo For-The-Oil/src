@@ -3,7 +3,7 @@ package io.github.shared.data.instructions;
 import java.util.HashMap;
 import java.util.UUID;
 
-import io.github.shared.data.EnumsTypes.ResourcesType;
+import io.github.shared.data.enumsTypes.ResourcesType;
 
 public class ResourcesInstruction extends Instruction{
 

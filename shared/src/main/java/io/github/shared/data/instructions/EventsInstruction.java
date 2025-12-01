@@ -1,6 +1,6 @@
 package io.github.shared.data.instructions;
 
-import io.github.shared.data.EnumsTypes.EventType;
+import io.github.shared.data.enumsTypes.EventType;
 
 public class EventsInstruction extends Instruction{
     private EventType type;

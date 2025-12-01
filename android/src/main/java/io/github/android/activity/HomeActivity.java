@@ -2,16 +2,12 @@ package io.github.android.activity;
 
 import static io.github.android.config.ClientDefaultConfig.INIT_WAITING_TIME;
 
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -32,7 +28,7 @@ import io.github.android.manager.SessionManager;
 import io.github.android.utils.RedirectUtils;
 import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
-import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.EntityType;
 import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;

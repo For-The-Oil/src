@@ -1,4 +1,4 @@
-package io.github.shared.data.EnumsTypes;
+package io.github.shared.data.enumsTypes;
 
 import java.util.ArrayList;
 import java.util.HashMap;

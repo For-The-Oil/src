@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-import io.github.shared.data.EnumsTypes.EventType;
-import io.github.shared.data.EnumsTypes.GameModeType;
-import io.github.shared.data.EnumsTypes.MapName;
+import io.github.shared.data.enumsTypes.EventType;
+import io.github.shared.data.enumsTypes.GameModeType;
+import io.github.shared.data.enumsTypes.MapName;
 import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.network.Player;
 

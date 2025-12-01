@@ -14,8 +14,8 @@ import java.util.Map;
 
 import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
-import io.github.shared.data.EnumsTypes.EntityType;
-import io.github.shared.data.EnumsTypes.ResourcesType;
+import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.ResourcesType;
 
 public class UnitCardAdapter extends RecyclerView.Adapter<UnitCardAdapter.UnitViewHolder> {
 

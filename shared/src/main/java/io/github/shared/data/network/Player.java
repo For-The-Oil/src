@@ -1,8 +1,7 @@
 package io.github.shared.data.network;
 
-import io.github.shared.data.EnumsTypes.ResourcesType;
+import io.github.shared.data.enumsTypes.ResourcesType;
 import io.github.shared.data.gameobject.Deck;
-import io.github.shared.data.network.ClientNetwork;
 
 import java.util.*;
 

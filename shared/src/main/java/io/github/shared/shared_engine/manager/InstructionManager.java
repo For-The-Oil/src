@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import io.github.shared.data.EnumsTypes.Direction;
-import io.github.shared.data.EnumsTypes.EntityType;
-import io.github.shared.data.EnumsTypes.ResourcesType;
+import io.github.shared.data.enumsTypes.Direction;
+import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.ResourcesType;
 import io.github.shared.data.IGame;
 import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.FreezeComponent;

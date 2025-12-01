@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Arrays;
 
 import io.github.android.gui.adapter.UnitCardAdapter;
-import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.EntityType;
 import io.github.fortheoil.R;
 
 public class StatsFragment extends Fragment {

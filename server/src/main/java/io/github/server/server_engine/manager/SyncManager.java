@@ -11,7 +11,7 @@ import io.github.server.data.network.ServerNetwork;
 import io.github.server.server_engine.factory.KryoMessagePackager;
 import io.github.server.server_engine.factory.RequestFactory;
 import io.github.server.server_engine.utils.PlayerChecker;
-import io.github.shared.data.EnumsTypes.SyncType;
+import io.github.shared.data.enumsTypes.SyncType;
 import io.github.shared.data.NetGame;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.network.KryoMessage;

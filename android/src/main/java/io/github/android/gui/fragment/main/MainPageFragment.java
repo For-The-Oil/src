@@ -3,13 +3,11 @@ package io.github.android.gui.fragment.main;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
@@ -18,15 +16,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import io.github.android.activity.BaseActivity;
 import io.github.android.activity.HomeActivity;
 import io.github.android.gui.adapter.CarouselAdapter;
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.MatchMakingManager;
-import io.github.android.utils.RedirectUtils;
 import io.github.fortheoil.R;
 import io.github.android.manager.SessionManager;
-import io.github.shared.data.EnumsTypes.GameModeType;
+import io.github.shared.data.enumsTypes.GameModeType;
 import io.github.shared.data.gameobject.Deck;
 
 public class MainPageFragment extends Fragment {

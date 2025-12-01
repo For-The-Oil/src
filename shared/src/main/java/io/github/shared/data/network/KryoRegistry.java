@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-import io.github.shared.data.EnumsTypes.*;
+import io.github.shared.data.enumsTypes.*;
 import io.github.shared.data.IGame;
 import io.github.shared.data.NetGame;
 import io.github.shared.data.gameobject.*;

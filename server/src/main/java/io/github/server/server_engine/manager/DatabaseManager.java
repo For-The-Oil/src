@@ -7,7 +7,7 @@ import io.github.server.config.DatabaseConfig;
 import io.github.server.data.network.UserData;
 import io.github.server.server_engine.utils.DefaultDeckGenerator;
 import io.github.server.server_engine.utils.JsonUtils;
-import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.EntityType;
 import io.github.shared.data.gameobject.Deck;
 
 import org.mindrot.jbcrypt.BCrypt;

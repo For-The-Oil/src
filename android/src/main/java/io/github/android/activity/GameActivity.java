@@ -13,9 +13,9 @@ import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.utils.NetworkUtils;
-import io.github.android.utils.OtherUtils;
-import io.github.core.game_engine.ClientGame;
+import io.github.core.data.ClientGame;
 import io.github.core.game_engine.ClientLauncher;
+import io.github.core.game_engine.manager.GameManager;
 import io.github.fortheoil.R;
 import io.github.shared.data.NetGame;
 import io.github.shared.data.requests.SynchronizeRequest;
@@ -186,7 +186,7 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
                     NetGame netGame = (NetGame) request.getMap().get("game");
 
                     if(clientLauncher==null){
-                        clientGame = OtherUtils.clientGameBuilder(netGame);
+                        clientGame = GameManager.fullGameResync(netGame,null);
                         clientLauncher = new ClientLauncher(clientGame);
                     }
                     clientLauncher.setResyncNetGame(netGame);

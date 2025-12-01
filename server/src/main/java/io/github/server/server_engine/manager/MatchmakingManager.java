@@ -1,7 +1,7 @@
 package io.github.server.server_engine.manager;
 
-import static io.github.shared.data.EnumsTypes.MatchModeType.CONFIRM;
-import static io.github.shared.data.EnumsTypes.MatchModeType.LEAVE;
+import static io.github.shared.data.enumsTypes.MatchModeType.CONFIRM;
+import static io.github.shared.data.enumsTypes.MatchModeType.LEAVE;
 
 import com.esotericsoftware.kryonet.Connection;
 import java.util.ArrayList;
@@ -13,8 +13,8 @@ import io.github.server.game_engine.GameLauncher;
 import io.github.server.server_engine.factory.KryoMessagePackager;
 import io.github.server.server_engine.factory.RequestFactory;
 import io.github.server.server_engine.utils.GameMaker;
-import io.github.shared.data.EnumsTypes.GameModeType;
-import io.github.shared.data.EnumsTypes.MatchModeType;
+import io.github.shared.data.enumsTypes.GameModeType;
+import io.github.shared.data.enumsTypes.MatchModeType;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.network.Player;

@@ -1,4 +1,4 @@
-package io.github.shared.data.EnumsTypes;
+package io.github.shared.data.enumsTypes;
 
 public enum DeckCardCategory {
     Industrial, Military, Defense, Other

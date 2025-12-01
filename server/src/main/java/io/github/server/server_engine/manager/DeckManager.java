@@ -4,23 +4,20 @@ import com.esotericsoftware.kryonet.Connection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
-import javax.swing.text.html.parser.Entity;
 
 import io.github.server.data.network.ServerNetwork;
 import io.github.server.server_engine.factory.KryoMessagePackager;
 import io.github.server.server_engine.factory.RequestFactory;
 import io.github.server.server_engine.utils.JsonUtils;
-import io.github.shared.data.EnumsTypes.DeckCardCategory;
-import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.DeckCardCategory;
+import io.github.shared.data.enumsTypes.EntityType;
 import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.requests.DeckRequest;
-import io.github.shared.data.EnumsTypes.DeckRequestType;
+import io.github.shared.data.enumsTypes.DeckRequestType;
 import io.github.shared.data.network.KryoMessage;
 
 public final class DeckManager {

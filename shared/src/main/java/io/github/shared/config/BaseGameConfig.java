@@ -1,12 +1,12 @@
 package io.github.shared.config;
 
-import static io.github.shared.data.EnumsTypes.GameModeType.ALPHA_TEST;
-import static io.github.shared.data.EnumsTypes.GameModeType.CLASSIC;
+import static io.github.shared.data.enumsTypes.GameModeType.ALPHA_TEST;
+import static io.github.shared.data.enumsTypes.GameModeType.CLASSIC;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import io.github.shared.data.EnumsTypes.GameModeType;
+import io.github.shared.data.enumsTypes.GameModeType;
 
 public final class BaseGameConfig {
 

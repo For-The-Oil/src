@@ -1,6 +1,6 @@
-package io.github.shared.data.EnumsTypes;
+package io.github.shared.data.enumsTypes;
 
-import static io.github.shared.data.EnumsTypes.CellType.*;
+import static io.github.shared.data.enumsTypes.CellType.*;
 
 import java.util.ArrayList;
 

@@ -2,7 +2,7 @@ package io.github.shared.data.requests;
 
 import java.util.HashMap;
 
-import io.github.shared.data.EnumsTypes.SyncType;
+import io.github.shared.data.enumsTypes.SyncType;
 
 public class SynchronizeRequest extends Request{
     private SyncType  type;

@@ -1,12 +1,11 @@
 package io.github.shared.data.component;
 
-import com.artemis.Component;
 import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
 import java.util.HashMap;
 
-import io.github.shared.data.EnumsTypes.ResourcesType;
+import io.github.shared.data.enumsTypes.ResourcesType;
 
 
 @PooledWeaver

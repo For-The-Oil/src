@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.github.server.data.ServerGame;
 import io.github.server.game_engine.GameLauncher;
-import io.github.shared.data.EnumsTypes.GameModeType;
+import io.github.shared.data.enumsTypes.GameModeType;
 import io.github.shared.data.network.ClientNetwork;
 import com.esotericsoftware.kryonet.Connection;
 public class ServerNetwork {

@@ -2,7 +2,7 @@ package io.github.shared.data.requests;
 
 import java.util.HashMap;
 
-import io.github.shared.data.EnumsTypes.AuthModeType;
+import io.github.shared.data.enumsTypes.AuthModeType;
 
 public class AuthRequest extends Request {
 

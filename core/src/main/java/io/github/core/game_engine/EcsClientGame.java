@@ -3,6 +3,8 @@ package io.github.core.game_engine;
 import com.artemis.WorldConfiguration;
 import com.artemis.WorldConfigurationBuilder;
 
+import io.github.core.data.ClientGame;
+import io.github.core.game_engine.system.GraphicsSyncSystem;
 import io.github.shared.shared_engine.system.DamageSystem;
 import io.github.shared.shared_engine.system.FreezeSystem;
 import io.github.shared.shared_engine.system.MovementSystem;
@@ -17,6 +19,7 @@ public class EcsClientGame {
             .with(new DamageSystem())
             .with(new MovementSystem())
             .with(new VectorApplicationSystem())
+            .with(new GraphicsSyncSystem(game))
             .build();
     }
 }

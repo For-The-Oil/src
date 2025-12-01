@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.github.shared.data.EnumsTypes.DeckCardCategory;
-import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.DeckCardCategory;
+import io.github.shared.data.enumsTypes.EntityType;
 
 public class Deck implements Serializable {
     private HashMap<DeckCardCategory, ArrayList<EntityType>> cardsByCategory;

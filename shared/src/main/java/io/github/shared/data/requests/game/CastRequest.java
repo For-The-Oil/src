@@ -1,6 +1,6 @@
 package io.github.shared.data.requests.game;
 
-import io.github.shared.data.EnumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.EntityType;
 import io.github.shared.data.requests.Request;
 
 public class CastRequest extends Request {

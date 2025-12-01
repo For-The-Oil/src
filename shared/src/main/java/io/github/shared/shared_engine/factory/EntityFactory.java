@@ -12,8 +12,8 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-import io.github.shared.data.EnumsTypes.EntityType;
-import io.github.shared.data.EnumsTypes.ResourcesType;
+import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enumsTypes.ResourcesType;
 import io.github.shared.data.IGame;
 import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.DamageComponent;
