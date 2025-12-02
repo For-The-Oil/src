@@ -6,6 +6,8 @@ import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.IntBag;
 
+import java.util.HashMap;
+
 import io.github.server.data.ServerGame;
 import io.github.shared.data.enumsTypes.WeaponType;
 import io.github.shared.data.component.FreezeComponent;
@@ -16,6 +18,7 @@ import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.component.ProjectileAttackComponent;
 import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.component.TargetComponent;
+import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.shared_engine.Utility;
 
 /**
@@ -151,6 +154,35 @@ public class ProjectileAttackSystem extends IteratingSystem {
 
         // We can shoot only if we have a valid enemy candidate in range and cooldown is ready
         final boolean canShoot = (candidateId != -1 && inRange && isEnemy);
+        if(canShoot){
+            PositionComponent tPos = mPos.get(candidateId);
+            if (tPos != null) {
+                float dx = tPos.x - (pos.x+attack.weaponType.getTranslationX());
+                float dz = tPos.z - (pos.z+attack.weaponType.getTranslationZ());
+                HashMap<String, Object> fields = new HashMap<>();
+                fields.put("weaponType",attack.weaponType);
+                fields.put("cooldown",attack.cooldown);
+                fields.put("currentCooldown",attack.currentCooldown);
+                fields.put("range",attack.range);
+                fields.put("EntityType",attack.projectileType);
+                fields.put("horizontalRotation", pos.horizontalRotation + ((float) Math.atan2(dz, dx) - pos.horizontalRotation) * attack.weaponType.getTurn_speed() * world.getDelta());
+                fields.put("verticalRotation",attack.verticalRotation);
+                ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
+                server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
+                if (!attack.weaponType.isHitAndMove()){
+                    dx = tPos.x - pos.x;
+                    dz = tPos.z - pos.z;
+                    fields = new HashMap<>();
+                    fields.put("x", pos.x);
+                    fields.put("y", pos.z);
+                    fields.put("z", pos.z);
+                    fields.put("horizontalRotation", (float) Math.atan2(dz, dx));
+                    fields.put("verticalRotation", pos.verticalRotation);
+                    ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
+                    server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                }
+            }
+        }
 
         if (ready && canShoot) {
             // === Spawn projectile (no direct damage) via placeholder ===

@@ -13,6 +13,8 @@ public class MeleeAttackComponent extends PooledComponent {
     public float cooldown;
     public float currentCooldown;
     public float reach;
+    public float horizontalRotation;
+    public float verticalRotation;
 
     @Override
     public void reset() {
@@ -21,6 +23,8 @@ public class MeleeAttackComponent extends PooledComponent {
         cooldown = 0f;
         currentCooldown = 0f;
         reach = 0f;
+        horizontalRotation = 0f;
+        verticalRotation = 0f;
     }
 
     public void set(WeaponType weaponType, int damage, float cooldown, float reach) {
@@ -29,6 +33,8 @@ public class MeleeAttackComponent extends PooledComponent {
         this.cooldown = cooldown;
         this.reach = reach;
         this.currentCooldown = 0f;
+        this.horizontalRotation = 0f;
+        this.verticalRotation = 0f;
     }
 
     public boolean isReady() {

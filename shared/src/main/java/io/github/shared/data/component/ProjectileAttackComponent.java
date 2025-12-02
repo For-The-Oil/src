@@ -14,6 +14,8 @@ public class ProjectileAttackComponent extends PooledComponent {
     public float currentCooldown;
     public float range;
     public EntityType projectileType;
+    public float horizontalRotation;
+    public float verticalRotation;
 
     @Override
     public void reset() {
@@ -22,6 +24,8 @@ public class ProjectileAttackComponent extends PooledComponent {
         currentCooldown = 0f;
         range = 0f;
         projectileType = null;
+        horizontalRotation = 0f;
+        verticalRotation = 0f;
     }
 
     public void set(WeaponType weaponType, float cooldown, float range, EntityType projectileType) {
@@ -30,6 +34,8 @@ public class ProjectileAttackComponent extends PooledComponent {
         this.range = range;
         this.projectileType = projectileType;
         this.currentCooldown = 0f;
+        this.horizontalRotation = 0f;
+        this.verticalRotation = 0f;
     }
 
     public boolean isReady() {

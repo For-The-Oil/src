@@ -1,7 +1,7 @@
 package io.github.shared.data.enumsTypes;
 
 public enum WeaponType {
-    test(Type.Melee,1,1,1,1,1,1,1,1,1,false);
+    test(Type.Melee,1,1,1,1,1,(float) Math.toRadians(360f),1,1,1,1,false,true);
     //RIFLE(Type.Range), SHOTGUN(Type.Range), BAZOOKA(Type.Range),
     //SWORD(Type.Melee), SPEAR(Type.Melee), CHAINSAW(Type.Melee);
     private final Type type;
@@ -10,25 +10,30 @@ public enum WeaponType {
     private final float cooldown;
     private final float animationCooldown;
     private final float animationAndFocusCooldown;
+
+    private final float turn_speed;
     private final float reach;
     private final float  translationX ;
     private final float  translationY ;
     private final float   translationZ ;
     private final boolean HitAndMove;
+    private final boolean isTurret;
     private final EntityType projectileType;
 
-    WeaponType(Type type, int damage, int armorPenetration, float cooldown, float animationCooldown, float animationAndFocusCooldown, float reach, float translationX, float translationY, float translationZ, boolean hitAndMove) {
+    WeaponType(Type type, int damage, int armorPenetration, float cooldown, float animationCooldown, float animationAndFocusCooldown, float turnSpeed, float reach, float translationX, float translationY, float translationZ, boolean hitAndMove, boolean isTurret) {
         this.type = type;
         this.damage = damage;
         this.armorPenetration = armorPenetration;
         this.cooldown = cooldown;
         this.animationCooldown = animationCooldown;
         this.animationAndFocusCooldown = animationAndFocusCooldown;
+        this.turn_speed = turnSpeed;
         this.reach = reach;
         this.translationX = translationX;
         this.translationY = translationY;
         this.translationZ = translationZ;
         this.HitAndMove = hitAndMove;
+        this.isTurret = isTurret;
         this.projectileType = null;
     }
 
@@ -78,6 +83,14 @@ public enum WeaponType {
 
     public float getTranslationZ() {
         return translationZ;
+    }
+
+    public boolean isTurret() {
+        return isTurret;
+    }
+
+    public float getTurn_speed() {
+        return turn_speed;
     }
 
     public enum Type{

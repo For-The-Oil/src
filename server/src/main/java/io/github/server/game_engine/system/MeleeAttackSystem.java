@@ -6,6 +6,8 @@ import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.IntBag;
 
+import java.util.HashMap;
+
 import io.github.server.data.ServerGame;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
@@ -154,6 +156,36 @@ public class MeleeAttackSystem extends IteratingSystem {
 
         // We can attack only if we have a valid enemy candidate in reach and cooldown is ready
         final boolean foundAttackable = (candidateId != -1 && inReach && isEnemy);
+        if(foundAttackable){
+            PositionComponent tPos = mPos.get(candidateId);
+            if (tPos != null) {
+                float dx = tPos.x - (pos.x+melee.weaponType.getTranslationX());
+                float dz = tPos.z - (pos.z+melee.weaponType.getTranslationZ());
+                HashMap<String, Object> fields = new HashMap<>();
+                fields.put("weaponType",melee.weaponType);
+                fields.put("damage",melee.damage);
+                fields.put("cooldown",melee.cooldown);
+                fields.put("currentCooldown",melee.currentCooldown);
+                fields.put("reach",melee.reach);
+                fields.put("horizontalRotation", pos.horizontalRotation + ((float) Math.atan2(dz, dx) - pos.horizontalRotation) * melee.weaponType.getTurn_speed() * world.getDelta());
+                fields.put("verticalRotation",melee.verticalRotation);
+                ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
+                server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
+                if (!melee.weaponType.isHitAndMove()){
+                    dx = tPos.x - pos.x;
+                    dz = tPos.z - pos.z;
+
+                    fields = new HashMap<>();
+                    fields.put("x", pos.x);
+                    fields.put("y", pos.z);
+                    fields.put("z", pos.z);
+                    fields.put("horizontalRotation", (float) Math.atan2(dz, dx));
+                    fields.put("verticalRotation", pos.verticalRotation);
+                    ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
+                    server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                }
+            }
+        }
 
 
         if (ready && foundAttackable) {
