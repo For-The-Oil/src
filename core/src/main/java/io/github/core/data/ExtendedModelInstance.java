@@ -13,7 +13,6 @@ import io.github.shared.data.component.ProjectileAttackComponent;
 import io.github.shared.data.component.RangedAttackComponent;
 import io.github.shared.data.component.VelocityComponent;
 import io.github.shared.data.enumsTypes.WeaponType;
-import jdk.internal.net.http.frame.Http2Frame;
 
 public class ExtendedModelInstance extends ModelInstance {
     private int entityId;// ID de l'entité ECS
@@ -46,7 +45,7 @@ public class ExtendedModelInstance extends ModelInstance {
         this.translationZ = z;
     }
 
-    public void updateEntity(PositionComponent pos, LifeComponent life, VelocityComponent velocity, MeleeAttackComponent melee, RangedAttackComponent ranged, ProjectileAttackComponent projectile) {
+    public void updateEntityInstance(PositionComponent pos, LifeComponent life, VelocityComponent velocity, MeleeAttackComponent melee, RangedAttackComponent ranged, ProjectileAttackComponent projectile) {
         // Mettre à jour la transformation
         if(pos != null) {
             Matrix4 finalTransform = new Matrix4().idt()
@@ -86,7 +85,7 @@ public class ExtendedModelInstance extends ModelInstance {
         }
     }
 
-    public void updateFromComponents(PositionComponent pos, LifeComponent life, VelocityComponent velocity,WeaponType weaponType, float currentCooldown, float secondHorizontalRotation, float secondVerticalRotation) {
+    public void updateWeaponInstance(PositionComponent pos, LifeComponent life, VelocityComponent velocity, WeaponType weaponType, float currentCooldown, float secondHorizontalRotation, float secondVerticalRotation) {
         // Mettre à jour la transformation
         if(pos != null) {
             float H2 = 0,V2 = 0;

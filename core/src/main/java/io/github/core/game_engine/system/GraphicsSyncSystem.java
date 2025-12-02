@@ -73,27 +73,27 @@ public class GraphicsSyncSystem extends BaseSystem {
             }
 
             // Mettre à jour instance
-            mc.mapInstance.get(ModelType.Entity).updateEntity(pos,life,vel,melee,ranged,projectile);
+            mc.mapInstance.get(ModelType.Entity).updateEntityInstance(pos,life,vel,melee,ranged,projectile);
             if(net != null) {
                 if (melee != null) {
                     if (mc.mapInstance.get(ModelType.Melee) == null) {
                         mc.mapInstance.put(ModelType.Melee, createModelInstance(melee.weaponType, net.netId, e));
                     }
-                    mc.mapInstance.get(ModelType.Melee).updateFromComponents(pos, life, vel, melee.weaponType, melee.currentCooldown, melee.horizontalRotation, melee.verticalRotation);
+                    mc.mapInstance.get(ModelType.Melee).updateWeaponInstance(pos, life, vel, melee.weaponType, melee.currentCooldown, melee.horizontalRotation, melee.verticalRotation);
                 }
 
                 if (ranged != null) {
                     if (mc.mapInstance.get(ModelType.Range) == null) {
                         mc.mapInstance.put(ModelType.Range, createModelInstance(ranged.weaponType, net.netId, e));
                     }
-                    mc.mapInstance.get(ModelType.Range).updateFromComponents(pos, life, vel, ranged.weaponType, ranged.currentCooldown, ranged.horizontalRotation, ranged.verticalRotation);
+                    mc.mapInstance.get(ModelType.Range).updateWeaponInstance(pos, life, vel, ranged.weaponType, ranged.currentCooldown, ranged.horizontalRotation, ranged.verticalRotation);
                 }
 
                 if (projectile != null) {
                     if (mc.mapInstance.get(ModelType.ProjectileLauncher) == null) {
                         mc.mapInstance.put(ModelType.ProjectileLauncher, createModelInstance(projectile.weaponType, net.netId, e));
                     }
-                    mc.mapInstance.get(ModelType.ProjectileLauncher).updateFromComponents(pos, life, vel, projectile.weaponType, projectile.currentCooldown, projectile.horizontalRotation, projectile.verticalRotation);
+                    mc.mapInstance.get(ModelType.ProjectileLauncher).updateWeaponInstance(pos, life, vel, projectile.weaponType, projectile.currentCooldown, projectile.horizontalRotation, projectile.verticalRotation);
                 }
             }
 
