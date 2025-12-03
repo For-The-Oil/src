@@ -75,6 +75,7 @@ public class RangedAttackSystem extends IteratingSystem {
         TargetComponent tgt = mTarget.get(e); // primary/secondary targets + forced flag
         NetComponent net = mNet.get(e);// netId
         float time = ranged.currentCooldown-world.getDelta();
+        float tmp = ranged.horizontalRotation;
 
         // (1) PRIMARY target — validate via the specialized range function
         int candidateId = -1;
@@ -154,28 +155,40 @@ public class RangedAttackSystem extends IteratingSystem {
             if (tPos != null) {
                 float dx = tPos.x - (pos.x+ranged.weaponType.getTranslationX());
                 float dz = tPos.z - (pos.z+ranged.weaponType.getTranslationZ());
-                HashMap<String, Object> fields = new HashMap<>();
-                fields.put("weaponType",ranged.weaponType);
-                fields.put("damage",ranged.damage);
-                fields.put("cooldown",ranged.cooldown);
-                fields.put("currentCooldown",ranged.currentCooldown);
-                fields.put("range",ranged.range);
-                fields.put("horizontalRotation", pos.horizontalRotation + ((float) Math.atan2(dz, dx) - pos.horizontalRotation) * ranged.weaponType.getTurn_speed() * world.getDelta());
-                fields.put("verticalRotation",ranged.verticalRotation);
-                ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
-                server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
+                tmp = pos.horizontalRotation + ((float) Math.atan2(dz, dx) - pos.horizontalRotation) * ranged.weaponType.getTurn_speed() * world.getDelta();
+                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"RangedAttackComponent");
+                if(previousSnapshot != null){
+                    previousSnapshot.getFields().put("horizontalRotation",tmp);
+                }
+                else {
+                    HashMap<String, Object> fields = new HashMap<>();
+                    fields.put("weaponType", ranged.weaponType);
+                    fields.put("damage", ranged.damage);
+                    fields.put("cooldown", ranged.cooldown);
+                    fields.put("currentCooldown", ranged.currentCooldown);
+                    fields.put("range", ranged.range);
+                    fields.put("horizontalRotation", tmp);
+                    fields.put("verticalRotation", ranged.verticalRotation);
+                    ComponentSnapshot positionComponent = new ComponentSnapshot("RangedAttackComponent", fields);
+                    server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
+                }
                 if (!ranged.weaponType.isHitAndMove()){
                     dx = tPos.x - pos.x;
                     dz = tPos.z - pos.z;
-
-                    fields = new HashMap<>();
-                    fields.put("x", pos.x);
-                    fields.put("y", pos.z);
-                    fields.put("z", pos.z);
-                    fields.put("horizontalRotation", (float) Math.atan2(dz, dx));
-                    fields.put("verticalRotation", pos.verticalRotation);
-                    ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
-                    server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                    ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"PositionComponent");
+                    if(previousSnapshot2 != null){
+                        previousSnapshot2.getFields().put("horizontalRotation",(float) Math.atan2(dz, dx));
+                    }
+                    else {
+                        HashMap<String, Object> fields = new HashMap<>();
+                        fields.put("x", pos.x);
+                        fields.put("y", pos.z);
+                        fields.put("z", pos.z);
+                        fields.put("horizontalRotation", (float) Math.atan2(dz, dx));
+                        fields.put("verticalRotation", pos.verticalRotation);
+                        ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                    }
                 }
             }
         }
@@ -216,14 +229,22 @@ public class RangedAttackSystem extends IteratingSystem {
                 }
             }
             if(time!=0f){
-                java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
-                fields.put("weaponType",ranged.weaponType );
-                fields.put("damage",ranged.damage );
-                fields.put("cooldown",ranged.cooldown );
-                fields.put("currentCooldown",time);
-                fields.put("reach",ranged.range );
-                ComponentSnapshot damageSnap = new ComponentSnapshot("MeleeAttackComponent", fields);
-                server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
+                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"RangedAttackComponent");
+                if(previousSnapshot != null){
+                    previousSnapshot.getFields().put("currentCooldown",time);
+                }
+                else {
+                    java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
+                    fields.put("weaponType", ranged.weaponType);
+                    fields.put("damage", ranged.damage);
+                    fields.put("cooldown", ranged.cooldown);
+                    fields.put("currentCooldown", time);
+                    fields.put("reach", ranged.range);
+                    fields.put("horizontalRotation", tmp);
+                    fields.put("verticalRotation", ranged.verticalRotation);
+                    ComponentSnapshot damageSnap = new ComponentSnapshot("RangedAttackComponent", fields);
+                    server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
+                }
             }
     }
 }

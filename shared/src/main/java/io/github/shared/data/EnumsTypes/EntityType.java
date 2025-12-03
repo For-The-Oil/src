@@ -18,6 +18,10 @@ public enum EntityType {
         new HashMap<ResourcesType, Integer>() {{
             put(ResourcesType.Oil, 100);
             put(ResourcesType.Steel, 500);
+        }},
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Oil, 100);
+            put(ResourcesType.Steel, 500);
         }}
     ),
 
@@ -35,7 +39,8 @@ public enum EntityType {
         new HashMap<ResourcesType, Integer>() {{
             put(ResourcesType.Oil, 100);
             put(ResourcesType.Steel, 500);
-        }}
+        }},
+        null
     ),
     BARRACK(
         Type.Building,
@@ -51,7 +56,8 @@ public enum EntityType {
         new HashMap<ResourcesType, Integer>() {{
             put(ResourcesType.Oil, 50);
             put(ResourcesType.Steel, 300);
-        }}
+        }},
+        null
     ),
     FACTORY(
         Type.Building,
@@ -67,7 +73,8 @@ public enum EntityType {
         new HashMap<ResourcesType, Integer>() {{
             put(ResourcesType.Oil, 200);
             put(ResourcesType.Steel, 700);
-        }}
+        }},
+        null
     ),
     GARAGE(
         Type.Building,
@@ -83,7 +90,8 @@ public enum EntityType {
         new HashMap<ResourcesType, Integer>() {{
             put(ResourcesType.Oil, 120);
             put(ResourcesType.Steel, 400);
-        }}
+        }},
+        null
     );
 
 
@@ -100,13 +108,15 @@ public enum EntityType {
     private final float freeze_time;
     private final float create_time;
     private final HashMap<ResourcesType, Integer> cost;
+    private final HashMap<ResourcesType, Integer> production;
 
-    EntityType(Type type, EntityType spawnFrom, DeckCardCategory category, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, float createTime, HashMap<ResourcesType, Integer> cost) {
+    EntityType(Type type, EntityType spawnFrom, DeckCardCategory category, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, float createTime, HashMap<ResourcesType, Integer> cost, HashMap<ResourcesType, Integer> production) {
         this.type = type;
         this.category = category;
         this.spawnFrom = spawnFrom;
         this.shapeType = shapeType;
         this.weaponType = weaponType;
+        this.production = production;
         this.projectileData = new ArrayList<>();
         this.maxHealth = maxHealth;
         this.armor = armor;
@@ -124,6 +134,7 @@ public enum EntityType {
         this.shapeType = null;
         this.projectileData = new ArrayList<>();
         this.weaponType = weaponType;
+        this.production = null;
         this.maxHealth = maxHealth;
         this.armor = armor;
         this.passiveHeal = passiveHeal;
@@ -144,6 +155,7 @@ public enum EntityType {
         this.projectileData.add(aoe);
         this.projectileData.add(maxHeight);
         this.weaponType = null;
+        this.production = null;
         this.maxHealth = 0;
         this.armor = 0;
         this.passiveHeal = 0;
@@ -220,6 +232,10 @@ public enum EntityType {
 
     public DeckCardCategory getCategory() {
         return category;
+    }
+
+    public HashMap<ResourcesType, Integer> getProduction() {
+        return production;
     }
 
 

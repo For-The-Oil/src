@@ -72,6 +72,8 @@ public class ProjectileAttackSystem extends IteratingSystem {
         ProprietyComponent meP = mProp.get(e);// attacker team (ally/enemy checks)
         TargetComponent tgt = mTarget.get(e);// primary/secondary targets, force flag
         NetComponent net = mNet.get(e);// netId
+        float time = attack.currentCooldown-world.getDelta();
+        float tmp = attack.horizontalRotation;
 
 
         // Helper: squared range to avoid sqrt while comparing distances
@@ -159,27 +161,40 @@ public class ProjectileAttackSystem extends IteratingSystem {
             if (tPos != null) {
                 float dx = tPos.x - (pos.x+attack.weaponType.getTranslationX());
                 float dz = tPos.z - (pos.z+attack.weaponType.getTranslationZ());
-                HashMap<String, Object> fields = new HashMap<>();
-                fields.put("weaponType",attack.weaponType);
-                fields.put("cooldown",attack.cooldown);
-                fields.put("currentCooldown",attack.currentCooldown);
-                fields.put("range",attack.range);
-                fields.put("EntityType",attack.projectileType);
-                fields.put("horizontalRotation", pos.horizontalRotation + ((float) Math.atan2(dz, dx) - pos.horizontalRotation) * attack.weaponType.getTurn_speed() * world.getDelta());
-                fields.put("verticalRotation",attack.verticalRotation);
-                ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
-                server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
+                tmp = pos.horizontalRotation + ((float) Math.atan2(dz, dx) - pos.horizontalRotation) * attack.weaponType.getTurn_speed() * world.getDelta();
+                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"ProjectileAttackComponent");
+                if(previousSnapshot != null){
+                    previousSnapshot.getFields().put("horizontalRotation",tmp);
+                }
+                else {
+                    HashMap<String, Object> fields = new HashMap<>();
+                    fields.put("weaponType", attack.weaponType);
+                    fields.put("cooldown", attack.cooldown);
+                    fields.put("currentCooldown", attack.currentCooldown);
+                    fields.put("range", attack.range);
+                    fields.put("EntityType", attack.projectileType);
+                    fields.put("horizontalRotation", tmp);
+                    fields.put("verticalRotation", attack.verticalRotation);
+                    ComponentSnapshot positionComponent = new ComponentSnapshot("ProjectileAttackComponent", fields);
+                    server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
+                }
                 if (!attack.weaponType.isHitAndMove()){
                     dx = tPos.x - pos.x;
                     dz = tPos.z - pos.z;
-                    fields = new HashMap<>();
-                    fields.put("x", pos.x);
-                    fields.put("y", pos.z);
-                    fields.put("z", pos.z);
-                    fields.put("horizontalRotation", (float) Math.atan2(dz, dx));
-                    fields.put("verticalRotation", pos.verticalRotation);
-                    ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
-                    server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                    ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"PositionComponent");
+                    if(previousSnapshot2 != null){
+                        previousSnapshot2.getFields().put("horizontalRotation",(float) Math.atan2(dz, dx));
+                    }
+                    else {
+                        HashMap<String, Object> fields = new HashMap<>();
+                        fields.put("x", pos.x);
+                        fields.put("y", pos.z);
+                        fields.put("z", pos.z);
+                        fields.put("horizontalRotation", (float) Math.atan2(dz, dx));
+                        fields.put("verticalRotation", pos.verticalRotation);
+                        ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                    }
                 }
             }
         }
@@ -188,8 +203,8 @@ public class ProjectileAttackSystem extends IteratingSystem {
             // === Spawn projectile (no direct damage) via placeholder ===
 
             // Read weapon metadata: animation/focus extra to add to cooldown
-            WeaponType wt  = attack.weaponType;
-            float extra    = (wt != null ? wt.getAnimationAndFocusCooldown() : 0f);
+            WeaponType wt = attack.weaponType;
+            float extra = (wt != null ? wt.getAnimationAndFocusCooldown() : 0f);
 
             PositionComponent tPos = mPos.get(candidateId); // target position for projectile trajectory
             if (tPos != null && meP != null) {
@@ -199,7 +214,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
             }
 
             // Reset cooldown to base + animation/focus extra
-            attack.currentCooldown = attack.cooldown + extra;
+            time = attack.cooldown + extra;
 
         } else {
             // No shot this frame: enforce animation/focus minimum or tick down
@@ -209,11 +224,26 @@ public class ProjectileAttackSystem extends IteratingSystem {
             boolean noEntityFound = (candidateId == -1);
             if (noEntityFound && attack.currentCooldown < extra) {
                 // Raise cooldown to the animation/focus threshold (penalize shooting without targets)
-                attack.currentCooldown = extra;
+                time = extra;
                 // Do NOT tick down this frame.
-            } else {
-                // Normal cooldown ticking when threshold met or a candidate existed but couldn't be shot
-                attack.updateCooldown(dt);
+            }
+        }
+        if(time!=0f){
+            ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"ProjectileAttackComponent");
+            if(previousSnapshot != null){
+                previousSnapshot.getFields().put("currentCooldown",time);
+            }
+            else {
+                java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
+                fields.put("weaponType", attack.weaponType);
+                fields.put("cooldown", attack.cooldown);
+                fields.put("currentCooldown", time);
+                fields.put("range", attack.range);
+                fields.put("projectileType", attack.projectileType);
+                fields.put("horizontalRotation", tmp);
+                fields.put("verticalRotation", attack.verticalRotation);
+                ComponentSnapshot damageSnap = new ComponentSnapshot("ProjectileAttackComponent", fields);
+                server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
             }
         }
     }

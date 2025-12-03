@@ -17,6 +17,10 @@ public class RessourceComponent extends PooledComponent {
         resources.clear();
     }
 
+    public void set(HashMap<ResourcesType, Integer> resources) {
+        this.resources = resources;
+    }
+
     public void add(ResourcesType type, int amount) {
         resources.put(type, resources.getOrDefault(type, 0) + amount);
     }
@@ -35,10 +39,6 @@ public class RessourceComponent extends PooledComponent {
 
     public HashMap<ResourcesType, Integer> getAll() {
         return resources;
-    }
-
-    public void setResources(HashMap<ResourcesType, Integer> resources) {
-        this.resources = resources;
     }
 
     public HashMap<ResourcesType, Integer> getResources() {

@@ -70,6 +70,7 @@ public class MeleeAttackSystem extends IteratingSystem {
         TargetComponent tgt = mTarget.get(e); // primary/secondary targets + forced flag
         NetComponent net = mNet.get(e);// netId
         float time = melee.currentCooldown-world.getDelta();
+        float tmp = melee.horizontalRotation;
 
         // Precompute squared reach for distance checks (avoids sqrt)
         final float reach2 = melee.reach * melee.reach;
@@ -153,7 +154,6 @@ public class MeleeAttackSystem extends IteratingSystem {
             ProprietyComponent tP = mProp.get(candidateId);
             isEnemy = (tP == null || meP == null || tP.team == null || meP.team == null || !tP.team.equals(meP.team));
         }
-
         // We can attack only if we have a valid enemy candidate in reach and cooldown is ready
         final boolean foundAttackable = (candidateId != -1 && inReach && isEnemy);
         if(foundAttackable){
@@ -161,28 +161,40 @@ public class MeleeAttackSystem extends IteratingSystem {
             if (tPos != null) {
                 float dx = tPos.x - (pos.x+melee.weaponType.getTranslationX());
                 float dz = tPos.z - (pos.z+melee.weaponType.getTranslationZ());
-                HashMap<String, Object> fields = new HashMap<>();
-                fields.put("weaponType",melee.weaponType);
-                fields.put("damage",melee.damage);
-                fields.put("cooldown",melee.cooldown);
-                fields.put("currentCooldown",melee.currentCooldown);
-                fields.put("reach",melee.reach);
-                fields.put("horizontalRotation", pos.horizontalRotation + ((float) Math.atan2(dz, dx) - pos.horizontalRotation) * melee.weaponType.getTurn_speed() * world.getDelta());
-                fields.put("verticalRotation",melee.verticalRotation);
-                ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
-                server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
+                tmp = pos.horizontalRotation + ((float) Math.atan2(dz, dx) - pos.horizontalRotation) * melee.weaponType.getTurn_speed() * world.getDelta();
+                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"MeleeAttackComponent");
+                if(previousSnapshot != null){
+                    previousSnapshot.getFields().put("horizontalRotation",tmp);
+                }
+                else {
+                    HashMap<String, Object> fields = new HashMap<>();
+                    fields.put("weaponType", melee.weaponType);
+                    fields.put("damage", melee.damage);
+                    fields.put("cooldown", melee.cooldown);
+                    fields.put("currentCooldown", melee.currentCooldown);
+                    fields.put("reach", melee.reach);
+                    fields.put("horizontalRotation", tmp);
+                    fields.put("verticalRotation", melee.verticalRotation);
+                    ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
+                    server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
+                }
                 if (!melee.weaponType.isHitAndMove()){
                     dx = tPos.x - pos.x;
                     dz = tPos.z - pos.z;
-
-                    fields = new HashMap<>();
-                    fields.put("x", pos.x);
-                    fields.put("y", pos.z);
-                    fields.put("z", pos.z);
-                    fields.put("horizontalRotation", (float) Math.atan2(dz, dx));
-                    fields.put("verticalRotation", pos.verticalRotation);
-                    ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
-                    server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                    ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"PositionComponent");
+                    if(previousSnapshot2 != null){
+                        previousSnapshot2.getFields().put("horizontalRotation",(float) Math.atan2(dz, dx));
+                    }
+                    else {
+                        HashMap<String, Object> fields = new HashMap<>();
+                        fields.put("x", pos.x);
+                        fields.put("y", pos.z);
+                        fields.put("z", pos.z);
+                        fields.put("horizontalRotation", (float) Math.atan2(dz, dx));
+                        fields.put("verticalRotation", pos.verticalRotation);
+                        ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                    }
                 }
             }
         }
@@ -227,14 +239,22 @@ public class MeleeAttackSystem extends IteratingSystem {
             }
         }
         if(time!=0f){
-            java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
-            fields.put("weaponType",melee.weaponType );
-            fields.put("damage",melee.damage );
-            fields.put("cooldown",melee.cooldown );
-            fields.put("currentCooldown",time);
-            fields.put("reach",melee.reach );
-            ComponentSnapshot damageSnap = new ComponentSnapshot("MeleeAttackComponent", fields);
-            server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
+            ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"MeleeAttackComponent");
+            if(previousSnapshot != null){
+                previousSnapshot.getFields().put("currentCooldown",time);
+            }
+            else {
+                java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
+                fields.put("weaponType", melee.weaponType);
+                fields.put("damage", melee.damage);
+                fields.put("cooldown", melee.cooldown);
+                fields.put("currentCooldown", time);
+                fields.put("reach", melee.reach);
+                fields.put("horizontalRotation", tmp);
+                fields.put("verticalRotation", melee.verticalRotation);
+                ComponentSnapshot damageSnap = new ComponentSnapshot("MeleeAttackComponent", fields);
+                server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
+            }
         }
     }
 }

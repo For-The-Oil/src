@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import io.github.shared.data.component.RessourceComponent;
 import io.github.shared.data.enumsTypes.Direction;
 import io.github.shared.data.enumsTypes.EntityType;
 import io.github.shared.data.enumsTypes.ResourcesType;
@@ -57,6 +58,7 @@ public class InstructionManager {
                     ComponentMapper<FreezeComponent> freezeMapper = game.getWorld().getMapper(FreezeComponent.class);
                     ComponentMapper<ProjectileComponent> projectileMapper = game.getWorld().getMapper(ProjectileComponent.class);
                     ComponentMapper<MoveComponent> moveMapper = game.getWorld().getMapper(MoveComponent.class);
+                    ComponentMapper<RessourceComponent> resMapper = game.getWorld().getMapper(RessourceComponent.class);
 
                     for (int i = 0; i < ci.getToSpawn().size(); i++) {
                         float x = ci.getPosX().get(i);
@@ -83,6 +85,11 @@ public class InstructionManager {
 
                             PositionComponent posC = positionMapper.create(entity);
                             posC.set(x,y,0);
+
+                            if(entityType.getProduction()!= null){
+                                RessourceComponent res = resMapper.create(entity);
+                                res.set(new HashMap<>(entityType.getProduction()));
+                            }
                         }
 
                         if(entityType.getType().equals(EntityType.Type.Building)||entityType.getType().equals(EntityType.Type.Unit)){
@@ -95,6 +102,7 @@ public class InstructionManager {
 
                             OnCreationComponent occ = onCreateMapper.create(entity);
                             occ.set(from, entityType.getCreate_time());
+
                         }
 
                         if(entityType.getType().equals(EntityType.Type.Projectile)){

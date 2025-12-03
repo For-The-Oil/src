@@ -60,7 +60,20 @@ public class OnCreationServerSystem extends IteratingSystem {
         if (occ.time <= 0f)return;
         NetComponent net = mNet.get(e);// netId and type information for instruction routing
 
-        if(net.entityType.getType().equals(EntityType.Type.Unit)){
+        // --- Update path: still in "creation" state, tick down the timer and inform clients ---
+        // Reduce the remaining time, clamped to zero
+        float newTime = Math.max(occ.time - world.getDelta(), 0f);
+
+        // Prepare a snapshot for OnCreationComponent (overwrite fields)
+        java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
+        fields.put("time", newTime);// updated countdown
+        fields.put("fromNetId", occ.fromNetId); // optional: keep origin for visibility/debug
+        ComponentSnapshot onCreationSnap = new ComponentSnapshot("OnCreationComponent", fields);
+
+        // Register the snapshot into the tracker for aggregation this frame
+        server.getUpdateTracker().markComponentModified(world.getEntity(e), onCreationSnap);
+
+        if(newTime <= 0f &&net.entityType.getType().equals(EntityType.Type.Unit)){
             float x = 0;
             float y = 0;
             PositionComponent positionComponent = Utility.getPositionByNetId(world,occ.fromNetId,mNet,mPos);
@@ -70,32 +83,18 @@ public class OnCreationServerSystem extends IteratingSystem {
             }
 
             // Prepare a snapshot for PositionComponent (overwrite fields)
-            java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
-            fields.put("x", x);
-            fields.put("y", y);
-            fields.put("z",0f);
-            fields.put("horizontalRotation",0f );
-            fields.put("verticalRotation",0f );
+            java.util.HashMap<String, Object> fieldsPosition = new java.util.HashMap<>();
+            fieldsPosition.put("x", x);
+            fieldsPosition.put("y", y);
+            fieldsPosition.put("z",0f);
+            fieldsPosition.put("horizontalRotation",0f );
+            fieldsPosition.put("verticalRotation",0f );
 
-            ComponentSnapshot onCreationSnap = new ComponentSnapshot("PositionComponent", fields);
+            ComponentSnapshot onCreationSnapPosition = new ComponentSnapshot("PositionComponent", fieldsPosition);
 
             // Register the snapshot into the tracker for aggregation this frame
-            server.getUpdateTracker().markComponentModified(world.getEntity(e), onCreationSnap);
+            server.getUpdateTracker().markComponentModified(world.getEntity(e), onCreationSnapPosition);
         }
-
-        // --- Update path: still in "creation" state, tick down the timer and inform clients ---
-        // Reduce the remaining time, clamped to zero
-        float newTime = Math.max(occ.time - world.getDelta(), 0f);
-
-        // Prepare a snapshot for OnCreationComponent (overwrite fields)
-        java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
-        fields.put("time", newTime);// updated countdown
-        fields.put("fromNetId", occ.fromNetId); // optional: keep origin for visibility/debug
-
-        ComponentSnapshot onCreationSnap = new ComponentSnapshot("OnCreationComponent", fields);
-
-        // Register the snapshot into the tracker for aggregation this frame
-        server.getUpdateTracker().markComponentModified(world.getEntity(e), onCreationSnap);
     }
 
 }

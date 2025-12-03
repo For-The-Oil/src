@@ -115,7 +115,10 @@ public class ProductionResourcesSystem extends IteratingSystem {
 
         HashMap<ResourcesType, Integer> payload = res.getAll();
         if (payload == null || payload.isEmpty()) return;
-
+        HashMap<ResourcesType, Integer> playerR = Utility.findPlayerByUuid(game.getPlayersList(),prop.player).getResources();
+        for(ResourcesType resourcesType : playerR.keySet()){
+            payload.put(resourcesType,playerR.get(resourcesType)+payload.getOrDefault(resourcesType,0));
+        }
         // Emit one ResourcesInstruction for this production tick
         long timestamp = System.currentTimeMillis();
         ResourcesInstruction instruction = new ResourcesInstruction(timestamp, payload, prop.player);

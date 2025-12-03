@@ -77,13 +77,29 @@ public class SnapshotTracker {
             .filter(cs -> type.equals(cs.getType()))
             .findFirst()
             .orElse(null);
-
         if (previousSnapshot != null) {
             // Merge according to component type
             handleDependentComponent(type, previousSnapshot, componentSnapshot);
         } else {
             currentSnapshot.getComponentSnapshot().add(componentSnapshot);
         }
+    }
+
+    public ComponentSnapshot getPreviousSnapshot(Entity entity, String type) {
+        if (entity == null) return null;
+        World world = entity.getWorld();
+        if (world == null) return null;
+        ComponentMapper<NetComponent> netMapper = world.getMapper(NetComponent.class);
+        if (netMapper == null || !netMapper.has(entity)) return null;
+        NetComponent net = netMapper.get(entity);
+        int entityId = net.netId;
+        EntitySnapshot currentSnapshot = pendingSnapshots.get(entityId);
+        if (currentSnapshot == null) {return null;}
+        return currentSnapshot.getComponentSnapshot()
+            .stream()
+            .filter(cs -> type.equals(cs.getType()))
+            .findFirst()
+            .orElse(null);
     }
 
     /**
