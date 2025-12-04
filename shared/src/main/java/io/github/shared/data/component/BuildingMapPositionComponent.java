@@ -9,7 +9,7 @@ package io.github.shared.data.component;
 import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
-import io.github.shared.data.enumsTypes.Direction;
+import io.github.shared.data.enums_types.Direction;
 
 
 /**

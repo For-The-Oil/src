@@ -1,6 +1,6 @@
 package io.github.shared.data.network;
 
-import io.github.shared.data.enumsTypes.KryoMessageType;
+import io.github.shared.data.enums_types.KryoMessageType;
 
 public class KryoMessage {
     private KryoMessageType type;

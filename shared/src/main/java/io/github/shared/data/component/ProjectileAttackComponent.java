@@ -3,8 +3,8 @@ package io.github.shared.data.component;
 import com.artemis.PooledComponent;
 import com.artemis.annotations.PooledWeaver;
 
-import io.github.shared.data.enumsTypes.EntityType;
-import io.github.shared.data.enumsTypes.WeaponType;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.WeaponType;
 
 
 @PooledWeaver

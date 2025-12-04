@@ -2,13 +2,13 @@ package io.github.core.client_engine.factory;
 
 import java.util.HashMap;
 
-import io.github.shared.data.enumsTypes.AuthModeType;
-import io.github.shared.data.enumsTypes.GameModeType;
-import io.github.shared.data.enumsTypes.MatchModeType;
+import io.github.shared.data.enums_types.AuthModeType;
+import io.github.shared.data.enums_types.GameModeType;
+import io.github.shared.data.enums_types.MatchModeType;
 import io.github.shared.data.requests.AuthRequest;
 import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
-import io.github.shared.data.enumsTypes.DeckRequestType;
+import io.github.shared.data.enums_types.DeckRequestType;
 
 
 /**

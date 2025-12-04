@@ -9,7 +9,7 @@ import com.artemis.utils.IntBag;
 import java.util.HashMap;
 
 import io.github.server.data.ServerGame;
-import io.github.shared.data.enumsTypes.WeaponType;
+import io.github.shared.data.enums_types.WeaponType;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.NetComponent;

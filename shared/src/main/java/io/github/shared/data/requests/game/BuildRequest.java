@@ -1,7 +1,7 @@
 package io.github.shared.data.requests.game;
 
-import io.github.shared.data.enumsTypes.Direction;
-import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enums_types.Direction;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.requests.Request;
 
 public class BuildRequest extends Request {

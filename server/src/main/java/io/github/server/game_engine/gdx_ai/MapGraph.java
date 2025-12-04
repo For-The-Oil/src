@@ -10,9 +10,9 @@ import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 
 import io.github.shared.config.BaseGameConfig;
-import io.github.shared.data.enumsTypes.EntityType;
-import io.github.shared.data.enumsTypes.MapName;
-import io.github.shared.data.enumsTypes.WeaponType;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.MapName;
+import io.github.shared.data.enums_types.WeaponType;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.gameobject.Cell;
 import io.github.shared.data.gameobject.Shape;

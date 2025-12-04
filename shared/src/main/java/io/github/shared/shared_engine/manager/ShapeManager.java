@@ -2,8 +2,8 @@ package io.github.shared.shared_engine.manager;
 
 import java.util.ArrayList;
 
-import io.github.shared.data.enumsTypes.CellType;
-import io.github.shared.data.enumsTypes.Direction;
+import io.github.shared.data.enums_types.CellType;
+import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.gameobject.Cell;
 import io.github.shared.data.gameobject.Shape;
 

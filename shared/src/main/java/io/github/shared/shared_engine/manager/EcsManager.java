@@ -9,7 +9,7 @@ import com.artemis.utils.IntBag;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.ProprietyComponent;
 

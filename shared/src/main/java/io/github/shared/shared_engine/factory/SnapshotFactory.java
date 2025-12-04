@@ -11,8 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.github.shared.data.enumsTypes.EntityType;
-import io.github.shared.data.enumsTypes.ResourcesType;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.ResourcesType;
 import io.github.shared.data.component.DamageComponent;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.RessourceComponent;

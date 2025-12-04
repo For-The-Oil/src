@@ -13,9 +13,7 @@ import java.util.Queue;
 import io.github.core.data.component.ModelComponent;
 import io.github.core.data.ExtendedModelInstance;
 import io.github.core.data.enumsTypes.ModelType;
-import io.github.core.data.ClientGame;
 import io.github.core.game_engine.factory.InstanceFactory;
-import io.github.shared.data.enumsTypes.EntityType;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.MeleeAttackComponent;
 import io.github.shared.data.component.NetComponent;
@@ -23,10 +21,8 @@ import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.component.ProjectileAttackComponent;
 import io.github.shared.data.component.RangedAttackComponent;
 import io.github.shared.data.component.VelocityComponent;
-import io.github.shared.data.enumsTypes.WeaponType;
 
 public class GraphicsSyncSystem extends BaseSystem {
-
     private ComponentMapper<ModelComponent> mm;
     private ComponentMapper<NetComponent> mNet;
     private ComponentMapper<PositionComponent> mPos;
@@ -35,11 +31,10 @@ public class GraphicsSyncSystem extends BaseSystem {
     private ComponentMapper<MeleeAttackComponent> mMelee;
     private ComponentMapper<RangedAttackComponent> mRanged;
     private ComponentMapper<ProjectileAttackComponent> mProjAttack;
-
     private final Queue<ExtendedModelInstance> sharedRenderQueue;
 
-    public GraphicsSyncSystem(ClientGame game) {
-        this.sharedRenderQueue = game.getModelInstanceQueue();
+    public GraphicsSyncSystem(Queue<ExtendedModelInstance> modelInstanceQueue) {
+        this.sharedRenderQueue = modelInstanceQueue;
     }
 
     @Override

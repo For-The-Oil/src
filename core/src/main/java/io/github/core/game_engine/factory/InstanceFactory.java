@@ -1,16 +1,15 @@
 package io.github.core.game_engine.factory;
 
 import com.badlogic.gdx.graphics.g3d.*;
-import com.badlogic.gdx.math.Vector3;
 
 import java.util.*;
 
 import io.github.core.data.ExtendedModelInstance;
-import io.github.shared.data.enumsTypes.EntityType;
-import io.github.shared.data.enumsTypes.WeaponType;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.WeaponType;
 import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.gameobject.Cell;
-import io.github.shared.data.enumsTypes.CellType;
+import io.github.shared.data.enums_types.CellType;
 import io.github.shared.shared_engine.Utility;
 
 public class InstanceFactory {
@@ -41,13 +40,13 @@ public class InstanceFactory {
 
                 // Si une instance existe déjà avec le même modèle, on réutilise et on met à jour la position
                 if (existing != null && existing.model == newModel) {
-                    existing.transform.setToTranslation(x * Utility.cellToWorld(x), 0f, y * Utility.cellToWorld(y));
+                    existing.transform.setToTranslation(Utility.cellToWorld(x), 0f, Utility.cellToWorld(y));//X et y inversé pour libgdx
                     continue;
                 }
 
                 // Sinon on (re)crée
                 ModelInstance inst = new ModelInstance(newModel);
-                inst.transform.setToTranslation(x * Utility.cellToWorld(x), 0f, y * Utility.cellToWorld(y));
+                inst.transform.setToTranslation(Utility.cellToWorld(x), 0f, Utility.cellToWorld(y));//X et y inversé pour libgdx
                 instances.set(index, inst);
             }
         }

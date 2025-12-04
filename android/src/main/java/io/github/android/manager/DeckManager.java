@@ -12,13 +12,13 @@ import io.github.android.gui.Card;
 import io.github.android.utils.JsonUtils;
 import io.github.core.client_engine.factory.KryoMessagePackager;
 import io.github.core.client_engine.factory.RequestFactory;
-import io.github.shared.data.enumsTypes.DeckCardCategory;
-import io.github.shared.data.enumsTypes.EntityType;
-import io.github.shared.data.enumsTypes.ResourcesType;
+import io.github.shared.data.enums_types.DeckCardCategory;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.ResourcesType;
 import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.DeckRequest;
-import io.github.shared.data.enumsTypes.DeckRequestType;
+import io.github.shared.data.enums_types.DeckRequestType;
 
 
 public final class DeckManager {

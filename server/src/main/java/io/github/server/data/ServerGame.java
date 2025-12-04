@@ -11,15 +11,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import io.github.server.game_engine.ActionController.ActionController;
 import io.github.server.game_engine.EcsServerEngine;
-import io.github.shared.data.enumsTypes.Direction;
-import io.github.shared.data.enumsTypes.EntityType;
-import io.github.shared.data.enumsTypes.GameModeType;
+import io.github.shared.data.enums_types.Direction;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.GameModeType;
 import io.github.shared.data.IGame;
 import io.github.shared.data.instructions.CreateInstruction;
 import io.github.shared.data.instructions.DestroyInstruction;
 import io.github.shared.data.instructions.Instruction;
-import io.github.shared.data.enumsTypes.EventType;
-import io.github.shared.data.enumsTypes.MapName;
+import io.github.shared.data.enums_types.EventType;
+import io.github.shared.data.enums_types.MapName;
 import io.github.shared.data.network.Player;
 import io.github.shared.data.gameobject.Shape;
 import io.github.server.game_engine.manager.SnapshotTracker;
@@ -33,6 +33,8 @@ public class ServerGame implements IGame {
     private ArrayList<Player> playersList;
     private final GameModeType gameMode;
     private Shape map;
+
+    private boolean isMapDirty;
     private MapName mapName;
     private EventType currentEvent;
     private final SnapshotTracker updateTracker;
@@ -67,6 +69,7 @@ public class ServerGame implements IGame {
         this.activeActions = new ArrayList<>();
         this.running = true;
         this.map = new Shape(mapName.getShapeType().getShape()); // deep copy via constructeur
+        this.isMapDirty = true;
 
         this.world = new World(EcsServerEngine.serverWorldConfiguration(this));// Important this line after anything else because dangerous overwise
     }
@@ -90,6 +93,16 @@ public class ServerGame implements IGame {
     @Override
     public Shape getMap() {
         return map;
+    }
+
+    @Override
+    public boolean isMapDirty() {
+        return isMapDirty;
+    }
+
+    @Override
+    public void setMapDirty(boolean dirty) {
+        isMapDirty = dirty;
     }
 
     @Override

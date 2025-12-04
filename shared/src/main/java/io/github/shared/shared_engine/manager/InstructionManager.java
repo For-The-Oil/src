@@ -8,9 +8,9 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import io.github.shared.data.component.RessourceComponent;
-import io.github.shared.data.enumsTypes.Direction;
-import io.github.shared.data.enumsTypes.EntityType;
-import io.github.shared.data.enumsTypes.ResourcesType;
+import io.github.shared.data.enums_types.Direction;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.ResourcesType;
 import io.github.shared.data.IGame;
 import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.FreezeComponent;
@@ -79,6 +79,7 @@ public class InstructionManager {
                         if (entityType.getType().equals(EntityType.Type.Building)) {
                             Shape overlay = new Shape(entityType.getShapeType().getShape(), netId);
                             ShapeManager.overlayShape(game.getMap(), ShapeManager.rotateShape(overlay, direction), (int) x, (int) y, 0, 0, overlay.getWidth(), overlay.getHeight());
+                            game.setMapDirty(true);
 
                             BuildingMapPositionComponent bpc = buildingMapPositionMapper.create(entity);
                             bpc.set(Utility.worldToCell(x),Utility.worldToCell(y),direction);

@@ -2,9 +2,9 @@ package io.github.shared.shared_engine.factory;
 
 import java.util.UUID;
 
-import io.github.shared.data.enumsTypes.Direction;
-import io.github.shared.data.enumsTypes.EntityType;
-import io.github.shared.data.enumsTypes.WeaponType;
+import io.github.shared.data.enums_types.Direction;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.WeaponType;
 import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.gameobject.Deck;
 
 

@@ -28,7 +28,7 @@ import io.github.android.manager.SessionManager;
 import io.github.android.utils.RedirectUtils;
 import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
-import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;

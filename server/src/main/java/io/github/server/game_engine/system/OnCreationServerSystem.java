@@ -6,7 +6,7 @@ import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 
 import io.github.server.data.ServerGame;
-import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;

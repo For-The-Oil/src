@@ -16,7 +16,7 @@ import androidx.core.content.ContextCompat;
 
 import io.github.android.activity.BaseActivity;
 import io.github.fortheoil.R;
-import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enums_types.EntityType;
 
 /**
  * Classe utilitaire regroupant des fonctions réutilisables pour l'UI.

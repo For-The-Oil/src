@@ -2,8 +2,8 @@ package io.github.shared.data.requests;
 
 import java.util.HashMap;
 
-import io.github.shared.data.enumsTypes.GameModeType;
-import io.github.shared.data.enumsTypes.MatchModeType;
+import io.github.shared.data.enums_types.GameModeType;
+import io.github.shared.data.enums_types.MatchModeType;
 
 public class MatchMakingRequest extends Request{
 

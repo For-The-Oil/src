@@ -5,7 +5,7 @@ import com.esotericsoftware.kryonet.Listener;
 
 import io.github.server.data.network.ServerNetwork;
 import io.github.server.server_engine.manager.ClientAuthManager;
-import io.github.shared.data.enumsTypes.KryoMessageType;
+import io.github.shared.data.enums_types.KryoMessageType;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.AuthRequest;

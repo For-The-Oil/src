@@ -13,7 +13,6 @@ import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.utils.NetworkUtils;
-import io.github.core.data.ClientGame;
 import io.github.core.game_engine.ClientLauncher;
 import io.github.core.game_engine.manager.GameManager;
 import io.github.fortheoil.R;
@@ -33,7 +32,6 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
     private FrameLayout libgdxContainer;
     private LoadingFragment loadingFragment;
     private ClientLauncher clientLauncher;
-    private ClientGame clientGame;
     private ClientManager clientManager = ClientManager.getInstance();
 
     @Override
@@ -186,8 +184,8 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
                     NetGame netGame = (NetGame) request.getMap().get("game");
 
                     if(clientLauncher==null){
-                        clientGame = GameManager.fullGameResync(netGame,null);
-                        clientLauncher = new ClientLauncher(clientGame);
+                        GameManager.fullGameResync(netGame);
+                        clientLauncher = new ClientLauncher();
                     }
                     clientLauncher.setResyncNetGame(netGame);
 

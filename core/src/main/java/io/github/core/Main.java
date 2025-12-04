@@ -14,8 +14,8 @@ import com.esotericsoftware.kryonet.Listener;
 import java.io.IOException;
 import java.util.HashMap;
 
-import io.github.shared.data.enumsTypes.AuthModeType;
-import io.github.shared.data.enumsTypes.KryoMessageType;
+import io.github.shared.data.enums_types.AuthModeType;
+import io.github.shared.data.enums_types.KryoMessageType;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.network.KryoRegistry;
 import io.github.shared.data.requests.AuthRequest;

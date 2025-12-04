@@ -6,8 +6,8 @@ import com.badlogic.gdx.ai.pfa.indexed.IndexedAStarPathFinder;
 
 import java.util.ArrayList;
 
-import io.github.shared.data.enumsTypes.CellType;
-import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enums_types.CellType;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.gameobject.Cell;
 import io.github.shared.data.gameobject.Shape;
 

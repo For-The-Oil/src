@@ -13,12 +13,10 @@ import io.github.shared.shared_engine.manager.InstructionManager;
 
 public class ClientLauncher extends Thread {
 
-    private ClientGame clientGame;
     private NetGame resyncNetGame;
     private final Collection<Instruction> instructionSync;
-    public ClientLauncher(ClientGame clientGame) {
-        super("GameThread-" + clientGame.getGAME_UUID());
-        this.clientGame = clientGame;
+    public ClientLauncher() {
+        super("GameThread-" + ClientGame.getInstance().getGAME_UUID());
         instructionSync = new ArrayList<>();
         resyncNetGame = null;
         init();
@@ -30,50 +28,47 @@ public class ClientLauncher extends Thread {
 
     @Override
     public void run() {
-        System.out.println("Game loop started for game: " + clientGame.getGAME_UUID());
-        while (clientGame.isRunning()) {
+        System.out.println("Game loop started for game: " + ClientGame.getInstance().getGAME_UUID());
+        while (ClientGame.getInstance().isRunning()) {
             float frameTime = getTimeSinceLastFrame();
-            clientGame.setAccumulator(clientGame.getAccumulator() + frameTime);
+            ClientGame.getInstance().setAccumulator(ClientGame.getInstance().getAccumulator() + frameTime);
 
-            while (clientGame.getAccumulator() >= FIXED_TIME_STEP) {
+            while (ClientGame.getInstance().getAccumulator() >= FIXED_TIME_STEP) {
                 //Mise à jour ECS
-                clientGame.getWorld().setDelta(FIXED_TIME_STEP / 1000f); // converti en secondes pour Artémis
-                clientGame.getWorld().process();
+                ClientGame.getInstance().getWorld().setDelta(FIXED_TIME_STEP / 1000f); // converti en secondes pour Artémis
+                ClientGame.getInstance().getWorld().process();
 
                 //addInstruction
-                clientGame.addQueueInstruction(instructionSync);
+                ClientGame.getInstance().addQueueInstruction(instructionSync);
                 instructionSync.clear();
 
                 //Exécuter les instructions en attente
-                while (!clientGame.isEmptyExecutionQueue()) {
-                    Instruction instruction = clientGame.getExecutionQueue().poll();
+                while (!ClientGame.getInstance().isEmptyExecutionQueue()) {
+                    Instruction instruction = ClientGame.getInstance().getExecutionQueue().poll();
                     if(instruction == null)continue;
-                    InstructionManager.executeInstruction(instruction, clientGame);
+                    InstructionManager.executeInstruction(instruction, ClientGame.getInstance());
                 }
-                clientGame.setAccumulator(clientGame.getAccumulator() - FIXED_TIME_STEP);
+                ClientGame.getInstance().setAccumulator(ClientGame.getInstance().getAccumulator() - FIXED_TIME_STEP);
             }
 
             //FullGameResync
             if(resyncNetGame != null){
-                ClientGame tmp = GameManager.fullGameResync(resyncNetGame,clientGame);
-                if(tmp != null){
-                    clientGame = tmp;
-                }
+                GameManager.fullGameResync(resyncNetGame);
             }
         }
 
-        System.out.println("Game loop stopped for game: " + clientGame.getGAME_UUID());
+        System.out.println("Game loop stopped for game: " + ClientGame.getInstance().getGAME_UUID());
     }
 
     private float getTimeSinceLastFrame() {
         long now = System.currentTimeMillis();
-        float delta = now - clientGame.getLastTime();
-        clientGame.setLastTime(now);
+        float delta = now - ClientGame.getInstance().getLastTime();
+        ClientGame.getInstance().setLastTime(now);
         return delta;
     }
 
     public void stopGame() {
-        clientGame.stopRunning();
+        ClientGame.getInstance().stopRunning();
     }
 
     public void setResyncNetGame(NetGame resyncNetGame) {

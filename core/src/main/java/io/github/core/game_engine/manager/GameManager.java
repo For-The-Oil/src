@@ -9,25 +9,19 @@ import io.github.shared.shared_engine.factory.EntityFactory;
 import io.github.shared.shared_engine.manager.EcsManager;
 
 public class GameManager {
-    public static ClientGame fullGameResync(NetGame netGame,ClientGame clientgame) {
-        boolean flag = false;
-            if(clientgame == null || !netGame.getGameMode().equals(clientgame.getGameMode()) || !netGame.getMapName().equals(clientgame.getMapName())){
-                flag = true;
-                clientgame = new ClientGame(netGame.getGameMode(), netGame.getMapName(), netGame.getMap(), netGame.getGAME_UUID(),netGame.getTime_left());
-            }
+    public static void fullGameResync(NetGame netGame) {
+        if(ClientGame.isInstanceNull() || !netGame.getGameMode().equals(ClientGame.getInstance().getGameMode()) || !netGame.getMapName().equals(ClientGame.getInstance().getMapName())){
+            ClientGame.setInstance(netGame.getGameMode(), netGame.getMapName(), netGame.getMap(), netGame.getGAME_UUID(),netGame.getTime_left());
+        }
+        EcsManager.filterEntitiesByNetId(ClientGame.getInstance().getWorld(),Utility.extractNetIds(netGame.getEntities()));
+        for(EntitySnapshot es : netGame.getEntities())EntityFactory.applySnapshotToEntity(ClientGame.getInstance().getWorld(),es);
 
-            EcsManager.filterEntitiesByNetId(clientgame.getWorld(),Utility.extractNetIds(netGame.getEntities()));
-            for(EntitySnapshot es : netGame.getEntities())EntityFactory.applySnapshotToEntity(clientgame.getWorld(),es);
-
-            clientgame.setMap(netGame.getMap());
-            clientgame.setCurrentEvent(netGame.getCurrentEvent());
-            clientgame.setPlayersList(netGame.getPlayersList());
-            clientgame.setPlayerTeam(netGame.getPlayerTeam());
-            clientgame.setTime_left(netGame.getTime_left());
-            clientgame.setRunning(netGame.isRunning());
-
-            if(flag)return clientgame;
-            return null;
+        ClientGame.getInstance().setMap(netGame.getMap());
+        ClientGame.getInstance().setCurrentEvent(netGame.getCurrentEvent());
+        ClientGame.getInstance().setPlayersList(netGame.getPlayersList());
+        ClientGame.getInstance().setPlayerTeam(netGame.getPlayerTeam());
+        ClientGame.getInstance().setTime_left(netGame.getTime_left());
+        ClientGame.getInstance().setRunning(netGame.isRunning());
     }
 
 

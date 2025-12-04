@@ -3,8 +3,8 @@ package io.github.shared.data.instructions;
 import java.util.ArrayList;
 import java.util.UUID;
 
-import io.github.shared.data.enumsTypes.Direction;
-import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enums_types.Direction;
+import io.github.shared.data.enums_types.EntityType;
 
 public class CreateInstruction extends Instruction{
     private ArrayList<EntityType> toSpawn;

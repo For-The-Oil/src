@@ -12,8 +12,8 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-import io.github.shared.data.enumsTypes.EntityType;
-import io.github.shared.data.enumsTypes.ResourcesType;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.ResourcesType;
 import io.github.shared.data.IGame;
 import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.DamageComponent;
@@ -142,6 +142,7 @@ public final class EntityFactory {
                     Shape map = game.getMapName().getShapeType().getShape();
                     ShapeManager.overlayShape(overlay,map,0,0,buildMap.x,buildMap.y,map.getWidth(), map.getHeight());
                     ShapeManager.overlayShape(game.getMap(), overlay, buildMap.x, buildMap.y, 0, 0, overlay.getWidth(), overlay.getHeight());
+                    game.setMapDirty(true);
                 }
 
                 world.delete(id); // Supprime l'entité

@@ -1,4 +1,4 @@
-package io.github.shared.data.enumsTypes;
+package io.github.shared.data.enums_types;
 
 public enum WeaponType {
     test(Type.Melee,1,1,1,1,1,(float) Math.toRadians(360f),1,1,1,1,false,true);

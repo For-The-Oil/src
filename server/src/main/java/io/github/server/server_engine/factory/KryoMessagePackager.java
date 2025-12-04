@@ -1,7 +1,7 @@
 package io.github.server.server_engine.factory;
 
 
-import io.github.shared.data.enumsTypes.KryoMessageType;
+import io.github.shared.data.enums_types.KryoMessageType;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.AuthRequest;
 import io.github.shared.data.requests.DeckRequest;

@@ -10,9 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 
-import io.github.shared.data.enumsTypes.ResourcesType;
+import io.github.shared.data.enums_types.ResourcesType;
 import io.github.shared.data.component.NetComponent;
-import io.github.shared.data.enumsTypes.EntityType;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.instructions.UpdateEntityInstruction;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.data.snapshot.EntitySnapshot;

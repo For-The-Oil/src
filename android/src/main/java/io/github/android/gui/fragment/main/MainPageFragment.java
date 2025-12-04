@@ -22,7 +22,7 @@ import io.github.android.manager.ClientManager;
 import io.github.android.manager.MatchMakingManager;
 import io.github.fortheoil.R;
 import io.github.android.manager.SessionManager;
-import io.github.shared.data.enumsTypes.GameModeType;
+import io.github.shared.data.enums_types.GameModeType;
 import io.github.shared.data.gameobject.Deck;
 
 public class MainPageFragment extends Fragment {

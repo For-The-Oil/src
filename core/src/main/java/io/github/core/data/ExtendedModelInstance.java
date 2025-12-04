@@ -13,7 +13,7 @@ import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.component.ProjectileAttackComponent;
 import io.github.shared.data.component.RangedAttackComponent;
 import io.github.shared.data.component.VelocityComponent;
-import io.github.shared.data.enumsTypes.WeaponType;
+import io.github.shared.data.enums_types.WeaponType;
 
 public class ExtendedModelInstance extends ModelInstance {
     private int entityId;// ID de l'entité ECS
@@ -49,9 +49,9 @@ public class ExtendedModelInstance extends ModelInstance {
     public void updateEntityInstance(PositionComponent pos, LifeComponent life, VelocityComponent velocity, MeleeAttackComponent melee, RangedAttackComponent ranged, ProjectileAttackComponent projectile) {
         // Mettre à jour la transformation
         if(pos != null) {
-            Matrix4 finalTransform = new Matrix4().idt()
-                .translate(pos.x, pos.y, pos.z)
-                .rotate(Vector3.Y, pos.horizontalRotation)
+            Matrix4 finalTransform = new Matrix4().idt()//X et y inversé pour libgdx
+                .translate(pos.x, pos.z, pos.y)
+                .rotate(Vector3.Z, pos.horizontalRotation)
                 .rotate(Vector3.X, pos.verticalRotation);
             this.transform.set(finalTransform);
         }
@@ -97,12 +97,12 @@ public class ExtendedModelInstance extends ModelInstance {
                 H2 = secondHorizontalRotation;
                 V2 = secondVerticalRotation;
             }
-            Matrix4 finalTransform = new Matrix4().idt()
-                .translate(pos.x, pos.y, pos.z)
-                .rotate(Vector3.Y, pos.horizontalRotation)
+            Matrix4 finalTransform = new Matrix4().idt()//X et y inversé pour libgdx
+                .translate(pos.x, pos.z, pos.y)
+                .rotate(Vector3.Z, pos.horizontalRotation)
                 .rotate(Vector3.X, pos.verticalRotation)
-                .translate(translationX, translationY, translationZ)
-                .rotate(Vector3.Y, H2)
+                .translate(translationX, translationZ, translationY)
+                .rotate(Vector3.Z, H2)
                 .rotate(Vector3.X, V2);
             this.transform.set(finalTransform);
         }

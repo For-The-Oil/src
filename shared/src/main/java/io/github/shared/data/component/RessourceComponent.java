@@ -5,7 +5,7 @@ import com.artemis.annotations.PooledWeaver;
 
 import java.util.HashMap;
 
-import io.github.shared.data.enumsTypes.ResourcesType;
+import io.github.shared.data.enums_types.ResourcesType;
 
 
 @PooledWeaver

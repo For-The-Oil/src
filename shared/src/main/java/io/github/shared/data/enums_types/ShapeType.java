@@ -1,6 +1,6 @@
-package io.github.shared.data.enumsTypes;
+package io.github.shared.data.enums_types;
 
-import static io.github.shared.data.enumsTypes.CellType.*;
+import static io.github.shared.data.enums_types.CellType.*;
 
 import java.util.ArrayList;
 
@@ -10,7 +10,7 @@ import io.github.shared.data.gameobject.Shape;
 public enum ShapeType {
     test(new Shape(new Cell[][]{
         {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
-        {new Cell(ROAD),new Cell(ROAD),new Cell(VOID)},
+        {new Cell(ROAD),new Cell(VOID),new Cell(ROAD)},
         {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
     }), new ArrayList<>()),
 

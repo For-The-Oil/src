@@ -7,23 +7,27 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 
-import io.github.core.data.ExtendedModelInstance;
-import io.github.shared.data.enumsTypes.CellType;
-import io.github.shared.data.enumsTypes.EntityType;
-import io.github.shared.data.enumsTypes.WeaponType;
+import io.github.shared.data.enums_types.CellType;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.WeaponType;
 
 public class ModelFactory {
 
     private static ModelFactory INSTANCE;
     private static Model defaultModel;
+    private static Model defaultModelShape;
     private ModelFactory(){
         ModelBuilder builder = new ModelBuilder();
 
-        // Crée un modèle par défaut (cube rouge par exemple)
-        defaultModel = builder.createBox(1f, 1f, 1f,
-            new Material(ColorAttribute.createDiffuse(Color.MAGENTA)),
+        // Crée un modèle par défaut
+        defaultModel = builder.createBox(75f, 75f, 75f,
+            new Material(ColorAttribute.createDiffuse(Color.RED)),
             VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
+        // Crée un modèle par défaut
+        defaultModelShape = builder.createBox(100f, 1f, 100f,
+            new Material(ColorAttribute.createDiffuse(Color.MAGENTA)),
+            VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
     }
 
@@ -52,7 +56,7 @@ public class ModelFactory {
     public Model getModel(CellType cellType) {
         switch (cellType) {
             default:
-                return defaultModel;
+                return defaultModelShape;
         }
     }
 }

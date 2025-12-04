@@ -10,21 +10,25 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import io.github.core.game_engine.EcsClientGame;
-import io.github.shared.data.enumsTypes.EventType;
-import io.github.shared.data.enumsTypes.GameModeType;
-import io.github.shared.data.enumsTypes.MapName;
+import io.github.core.game_engine.factory.ModelFactory;
+import io.github.shared.data.enums_types.EventType;
+import io.github.shared.data.enums_types.GameModeType;
+import io.github.shared.data.enums_types.MapName;
 import io.github.shared.data.IGame;
 import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.network.Player;
 
 public class ClientGame implements IGame {
+
+    private static ClientGame INSTANCE;
     private final UUID GAME_UUID;
     private boolean running;
     private final World world;
     private final HashMap<String, ArrayList<Player>> playerTeam;
     private final ArrayList<Player> playersList;
     private final GameModeType gameMode;
+    private boolean isMapDirty;
     private Shape map;
     private MapName mapName;
     private EventType currentEvent;
@@ -34,11 +38,12 @@ public class ClientGame implements IGame {
     private long lastTime;
     private long timeLeft;  // seconds
 
-    public ClientGame(GameModeType gameMode, MapName mapName, Shape map, UUID uuid, long timeLeft) {
+    private ClientGame(GameModeType gameMode, MapName mapName, Shape map, UUID uuid, long timeLeft) {
         this.GAME_UUID = uuid;
         this.gameMode = gameMode;
         this.mapName = mapName;
         this.map = map;
+        this.isMapDirty = true;
         this.playerTeam = new HashMap<>();
         this.playersList = new ArrayList<>();
         this.running = true;
@@ -49,7 +54,26 @@ public class ClientGame implements IGame {
         this.timeLeft = timeLeft;
         this.currentEvent = EventType.START;
 
-        this.world = new World(EcsClientGame.serverWorldConfiguration(this));// Important this line after anything else because dangerous overwise
+        this.world = new World(EcsClientGame.serverWorldConfiguration(ModelInstanceQueue));// Important this line after anything else because dangerous overwise
+    }
+
+    public static ClientGame getInstance() {
+        if (INSTANCE == null){
+            throw new NullPointerException("The ClientGame instance is null");
+        }
+        return INSTANCE;
+    }
+
+    public static void setInstance(GameModeType gameMode, MapName mapName, Shape map, UUID uuid, long timeLeft) {
+        INSTANCE = new ClientGame(gameMode,mapName,map,uuid,timeLeft);
+    }
+
+    public static void removeInstance() {
+        INSTANCE = null;
+    }
+
+    public static boolean isInstanceNull() {
+        return INSTANCE == null;
     }
 
 
@@ -101,6 +125,16 @@ public class ClientGame implements IGame {
     @Override
     public Shape getMap() {
         return map;
+    }
+
+    @Override
+    public boolean isMapDirty() {
+        return isMapDirty;
+    }
+
+    @Override
+    public void setMapDirty(boolean dirty) {
+        isMapDirty = dirty;
     }
 
     // Setter ajouté pour map

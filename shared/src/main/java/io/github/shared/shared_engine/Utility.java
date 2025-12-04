@@ -13,7 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.github.shared.config.BaseGameConfig;
-import io.github.shared.data.enumsTypes.ResourcesType;
+import io.github.shared.data.enums_types.ResourcesType;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.gameobject.Cell;

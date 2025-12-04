@@ -4,9 +4,9 @@ import com.artemis.Aspect;
 import com.artemis.World;
 import com.artemis.utils.IntBag;
 
-import io.github.shared.data.enumsTypes.EventType;
-import io.github.shared.data.enumsTypes.GameModeType;
-import io.github.shared.data.enumsTypes.MapName;
+import io.github.shared.data.enums_types.EventType;
+import io.github.shared.data.enums_types.GameModeType;
+import io.github.shared.data.enums_types.MapName;
 import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.network.Player;
 import io.github.shared.data.snapshot.EntitySnapshot;
@@ -61,6 +61,14 @@ public class NetGame implements IGame {
     public GameModeType getGameMode() { return gameMode; }
     public MapName getMapName() { return mapName; }
     public Shape getMap() { return map; }
+
+    @Override
+    public boolean isMapDirty() {
+        return false;
+    }
+    @Override
+    public void setMapDirty(boolean dirty) {}
+
     public EventType getCurrentEvent() { return currentEvent; }
     public void setCurrentEvent(EventType currentEvent) { this.currentEvent = currentEvent ;}
     public HashMap<String, ArrayList<Player>> getPlayerTeam() { return playerTeam; }

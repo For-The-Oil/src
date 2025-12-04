@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-import io.github.shared.data.enumsTypes.EventType;
-import io.github.shared.data.enumsTypes.GameModeType;
-import io.github.shared.data.enumsTypes.MapName;
+import io.github.shared.data.enums_types.EventType;
+import io.github.shared.data.enums_types.GameModeType;
+import io.github.shared.data.enums_types.MapName;
 import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.network.Player;
 
@@ -26,6 +26,9 @@ public interface IGame {
     GameModeType getGameMode();
     MapName getMapName();
     Shape getMap();
+    boolean isMapDirty();
+
+    void setMapDirty(boolean dirty);
 
     // Event handling
     EventType getCurrentEvent();
