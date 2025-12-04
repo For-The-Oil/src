@@ -13,9 +13,9 @@ public enum WeaponType {
 
     private final float turn_speed;
     private final float reach;
-    private final float  translationX ;
-    private final float  translationY ;
-    private final float   translationZ ;
+    private final float translationX ;
+    private final float translationY ;
+    private final float translationZ ;
     private final boolean HitAndMove;
     private final boolean isTurret;
     private final EntityType projectileType;
