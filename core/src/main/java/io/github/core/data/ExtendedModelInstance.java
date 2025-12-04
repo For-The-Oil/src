@@ -2,6 +2,7 @@ package io.github.core.data;
 
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
@@ -69,11 +70,13 @@ public class ExtendedModelInstance extends ModelInstance {
                 }
             } else {
                 if (animationController.current == null || (!"Move".equals(animationController.current.animation.id)&&!"Attack".equals(animationController.current.animation.id))) {
-                    animationController.animate("Move", -1); // Animation Run en boucle
+                    if(hasAnimation("Move")){
+                        animationController.animate("Move", -1);// Animation Run en boucle
+                    }
                 }
             }
         }
-
+        if(hasAnimation("Attack")){
         if (melee != null && melee.currentCooldown <= melee.weaponType.getAnimationCooldown()) {
             animationController.setAnimation("Attack", 1);
         }
@@ -82,6 +85,7 @@ public class ExtendedModelInstance extends ModelInstance {
         }
         if (projectile != null && projectile.currentCooldown <= projectile.weaponType.getAnimationCooldown()) {
                 animationController.setAnimation("Attack", 1);
+        }
         }
     }
 
@@ -117,15 +121,46 @@ public class ExtendedModelInstance extends ModelInstance {
                 }
             } else {
                 if (animationController.current == null || (!"Move".equals(animationController.current.animation.id)&&!"Attack".equals(animationController.current.animation.id))) {
-                    animationController.animate("Move", -1); // Animation Run en boucle
+                    if(hasAnimation("Move")){
+                        animationController.animate("Move", -1);// Animation Run en boucle
+                    }
                 }
             }
         }
 
-        if (weaponType != null && currentCooldown <= weaponType.getAnimationCooldown()) {
+        if (weaponType != null && hasAnimation("Attack") && currentCooldown <= weaponType.getAnimationCooldown()) {
             animationController.setAnimation("Attack", 1);
         }
     }
 
+
+    private boolean hasAnimation(String animId) {
+        if (this.animations == null) return false;
+        for (Animation a : this.animations) {
+            if (a != null && a.id != null && a.id.equals(animId)) return true;
+        }
+        return false;
+    }
+
+
+    public boolean isAlive() {
+        return isAlive;
+    }
+
+    public float getMaxHealth() {
+        return maxHealth;
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public int getEntityNetId() {
+        return entityNetId;
+    }
+
+    public int getEntityId() {
+        return entityId;
+    }
 }
 
