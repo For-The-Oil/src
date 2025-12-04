@@ -77,15 +77,15 @@ public class ExtendedModelInstance extends ModelInstance {
             }
         }
         if(hasAnimation("Attack")){
-        if (melee != null && melee.currentCooldown <= melee.weaponType.getAnimationCooldown()) {
-            animationController.setAnimation("Attack", 1);
-        }
-        if (ranged != null && ranged.currentCooldown <= ranged.weaponType.getAnimationCooldown()) {
+            if (melee != null && melee.currentCooldown <= melee.weaponType.getAnimationCooldown()) {
                 animationController.setAnimation("Attack", 1);
-        }
-        if (projectile != null && projectile.currentCooldown <= projectile.weaponType.getAnimationCooldown()) {
+            }
+            if (ranged != null && ranged.currentCooldown <= ranged.weaponType.getAnimationCooldown()) {
                 animationController.setAnimation("Attack", 1);
-        }
+            }
+            if (projectile != null && projectile.currentCooldown <= projectile.weaponType.getAnimationCooldown()) {
+                animationController.setAnimation("Attack", 1);
+            }
         }
     }
 
