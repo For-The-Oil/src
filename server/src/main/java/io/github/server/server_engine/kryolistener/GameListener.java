@@ -38,8 +38,7 @@ public class GameListener extends Listener {
         KryoMessage kryo = (KryoMessage) object;
 
         if(kryo.getObj() instanceof SynchronizeRequest)
-            handleSynchroRequest(connection, kryo);
-
+            handleSynchroRequest(connection, (SynchronizeRequest) kryo.getObj());
 
         if(kryo.getObj() instanceof AttackGroupRequest ||
             kryo.getObj() instanceof BuildRequest ||
@@ -50,18 +49,12 @@ public class GameListener extends Listener {
             handleGameRequest((Request) kryo.getObj());
         }
 
-
-
-
     }
 
 
-    private void handleSynchroRequest(Connection connection, KryoMessage kryo){
+    private void handleSynchroRequest(Connection connection, SynchronizeRequest synchronizeRequest){
         System.out.println("SynchronizeRequest Received !");
-
-        SynchronizeRequest request = (SynchronizeRequest) kryo.getObj();
-
-        SyncManager.getInstance().handleSyncRequest(connection, request);
+        SyncManager.getInstance().handleSyncRequest(connection, synchronizeRequest);
     }
 
     private void handleGameRequest(Request request){
