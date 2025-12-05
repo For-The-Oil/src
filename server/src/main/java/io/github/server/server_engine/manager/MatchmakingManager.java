@@ -192,7 +192,6 @@ public final class MatchmakingManager {
         // Crée un thread pour la game
         GameLauncher gameLauncher = new GameLauncher(serverGame);
         ServerNetwork.getInstance().getGameMapByUUID().put(serverGame.getGAME_UUID(), gameLauncher);
-        gameLauncher.start();
 
         System.out.println("Game thread started: " + serverGame.getGAME_UUID() + " on thread " + gameLauncher.getName());
 
@@ -210,14 +209,20 @@ public final class MatchmakingManager {
                     System.out.println("?? Player " + p.getUsername() + " is no longer connected ? skipping.");
                     continue;
                 }
-
-                sendMatchmakingNotification(activeClient, "Game started !",
-                    serverGame.getGameMode(), MatchModeType.FOUND, myMap);
+                sendMatchmakingNotification(activeClient, "Game started !", serverGame.getGameMode(), MatchModeType.FOUND, myMap);
+                SyncManager.getInstance().syncPlayer(activeClient);
             }
 
             System.out.println("? All connected players notified for game: " + serverGame.getGAME_UUID());
             scheduler.shutdown();
         }, 2000, TimeUnit.MILLISECONDS);
+
+        ScheduledExecutorService scheduler2 = Executors.newSingleThreadScheduledExecutor();
+
+        scheduler2.schedule(() -> {
+            gameLauncher.start();
+            scheduler.shutdown();
+        }, 5000, TimeUnit.MILLISECONDS);
 
     }
 

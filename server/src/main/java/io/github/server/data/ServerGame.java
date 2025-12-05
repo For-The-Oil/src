@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import io.github.server.game_engine.ActionController.ActionController;
 import io.github.server.game_engine.EcsServerEngine;
 import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.EntityType;
@@ -44,7 +43,6 @@ public class ServerGame implements IGame {
     private final Queue<Instruction> executionQueue;
     private final Queue<Instruction> historicQueue;
     private final Queue<Instruction> networkQueue;
-    private final ArrayList<ActionController> activeActions;
     private float accumulator;
     private long lastTime;
     private long time_left;  //seconds
@@ -66,7 +64,6 @@ public class ServerGame implements IGame {
         this.accumulator = 0f;
         this.lastTime = System.currentTimeMillis();
         this.time_left = timeLeft;
-        this.activeActions = new ArrayList<>();
         this.running = true;
         this.map = new Shape(mapName.getShapeType().getShape()); // deep copy via constructeur
         this.isMapDirty = true;
@@ -124,9 +121,6 @@ public class ServerGame implements IGame {
         return updateTracker;
     }
 
-    public ArrayList<ActionController> getActiveActions() {
-        return activeActions;
-    }
 
     @Override
     public long getTime_left() {

@@ -8,6 +8,7 @@ import java.util.Collection;
 import io.github.server.data.ServerGame;
 import io.github.server.game_engine.manager.RequestGameManager;
 import io.github.server.server_engine.manager.SyncManager;
+import io.github.shared.data.enums_types.EventType;
 import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.requests.Request;
 import io.github.shared.shared_engine.manager.InstructionManager;

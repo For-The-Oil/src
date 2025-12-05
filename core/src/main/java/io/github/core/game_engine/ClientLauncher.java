@@ -54,6 +54,7 @@ public class ClientLauncher extends Thread {
             //FullGameResync
             if(resyncNetGame != null){
                 GameManager.fullGameResync(resyncNetGame);
+                resyncNetGame = null;
             }
         }
 

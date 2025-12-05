@@ -14,12 +14,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import io.github.android.gui.fragment.game.LibGdxFragment;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.utils.NetworkUtils;
+import io.github.core.data.ClientGame;
 import io.github.core.game_engine.ClientLauncher;
 import io.github.core.game_engine.manager.GameManager;
 import io.github.fortheoil.R;
@@ -89,14 +93,18 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
 
     private void fullSyncAnimated(){
-        loadingFragment.animateProgress(50,75,INIT_WAITING_TIME,"Synchronizing", null, this::actualSync);
+        loadingFragment.animateProgress(50, 75, INIT_WAITING_TIME, "Synchronizing", null, this::actualSync);
     }
 
     private void actualSync(){
-        Log.d("For The Oil", "We are asking the server for synchronization !");
-        new Thread(() -> {
-            NetworkUtils.askForFullGameSync();
-        }).start();
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+        scheduler.schedule(() -> {
+            if(ClientGame.isInstanceNull()) {
+                Log.d("For The Oil", "We are asking the server for synchronization !");
+                NetworkUtils.askForFullGameSync();
+            }else Log.d("For The Oil", "There is no need to request for synchronization !");
+            scheduler.shutdown();
+        }, 1000, TimeUnit.MILLISECONDS);
     }
 
 
@@ -201,9 +209,9 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
                         GameManager.fullGameResync(netGame);
                         clientLauncher = new ClientLauncher();
                     }
-                    clientLauncher.setResyncNetGame(netGame);
+                    else clientLauncher.setResyncNetGame(netGame);
 
-                    successSync(); //TODO : We must manage the case if the client was already in game
+                    if(loadingFragment.isVisible()) successSync();
                     break;
 
                 default:
