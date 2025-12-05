@@ -1,11 +1,13 @@
 package io.github.server.server_engine.factory;
 
 import java.util.HashMap;
+import java.util.Queue;
 
 import io.github.shared.data.enums_types.GameModeType;
 import io.github.shared.data.enums_types.MatchModeType;
 import io.github.shared.data.enums_types.SyncType;
 import io.github.shared.data.NetGame;
+import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
@@ -67,6 +69,12 @@ public class RequestFactory {
         HashMap<String, Object> map = new HashMap<>();
         map.put("game",game);
         return new SynchronizeRequest(SyncType.FULL_RESYNC, map);
+    }
+
+    public static SynchronizeRequest createSynchronizeInstructions(ClientNetwork client, Queue<Instruction> networkQueue){
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("instructions", networkQueue);
+        return new SynchronizeRequest(SyncType.INSTRUCTION_SYNC, map);
     }
 
 

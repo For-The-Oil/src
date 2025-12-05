@@ -2,6 +2,9 @@ package io.github.server.server_engine.manager;
 
 import com.esotericsoftware.kryonet.Connection;
 
+import java.util.ArrayList;
+import java.util.Queue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -13,14 +16,17 @@ import io.github.server.server_engine.factory.RequestFactory;
 import io.github.server.server_engine.utils.PlayerChecker;
 import io.github.shared.data.enums_types.SyncType;
 import io.github.shared.data.NetGame;
+import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.network.KryoMessage;
+import io.github.shared.data.network.Player;
 import io.github.shared.data.requests.SynchronizeRequest;
 
 public final class SyncManager {
 
     private static final SyncManager INSTANCE = new SyncManager();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
 
     public static SyncManager getInstance() {
         return INSTANCE;
@@ -40,6 +46,7 @@ public final class SyncManager {
                 break;
 
             case INSTRUCTION_SYNC:
+                
                 break;
 
             default:
@@ -59,7 +66,7 @@ public final class SyncManager {
 
         NetGame netGame = new NetGame(sgame);
 
-        // Envoie dans 2 secondes
+        // Envoie dans 0.5 secondes
         scheduler.schedule(() -> {
             try {
                 System.out.println("Scheduled task started !");
@@ -70,9 +77,35 @@ public final class SyncManager {
 
                 System.out.println("Sync request sent.");
             } catch (Exception e) {
-                e.printStackTrace(); // ← Si ça s’affiche, tu as trouvé la cause !!!
+                e.printStackTrace();
             }
         }, 500, TimeUnit.MILLISECONDS);
+
+    }
+
+
+    public static void sendInstructions(Queue<Instruction> networkQueue, ArrayList<Player> playersList){
+        if(networkQueue==null || playersList==null) return;
+        System.out.println("Sending Instructions to all players");
+
+        for (Player player: playersList) {
+
+            if(player.getConnection().isConnected()) {
+
+                executor.execute(() -> {
+                    try {
+                        SynchronizeRequest request = RequestFactory.createSynchronizeInstructions(player, networkQueue);
+                        KryoMessage kryoMessage = KryoMessagePackager.packageSyncRequest(request);
+                        player.getConnection().sendTCP(kryoMessage);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+            }
+
+        }
+
 
     }
 

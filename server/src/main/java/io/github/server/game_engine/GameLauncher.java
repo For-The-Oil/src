@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import io.github.server.data.ServerGame;
+import io.github.server.server_engine.manager.SyncManager;
 import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.requests.Request;
 import io.github.shared.shared_engine.manager.InstructionManager;
@@ -66,7 +67,11 @@ public class GameLauncher extends Thread {
                 InstructionManager.executeInstruction(instruction, serverGame);
             }
 
-            //Envoi des instructions ici
+            //Envoi des instructions
+            if(!serverGame.isEmptyNetworkQueue()) {
+                SyncManager.sendInstructions(serverGame.getNetworkQueue(), serverGame.getPlayersList());
+                serverGame.getNetworkQueue().clear();
+            }
 
             if(serverGame.getTime_left()<0)stopGame();
         }
@@ -82,8 +87,8 @@ public class GameLauncher extends Thread {
         serverGame.stopRunning();
     }
 
-    public void addQueueRequest(Collection<Request> requests){
-        requestsSync.addAll(requests);
+    public void addQueueRequest(Request requests){
+        requestsSync.add(requests);
     }
 
     private float getTimeSinceLastFrame() {

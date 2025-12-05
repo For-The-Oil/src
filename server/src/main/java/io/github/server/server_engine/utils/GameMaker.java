@@ -44,7 +44,7 @@ public final class GameMaker {
         MapName mapName = mode.getAssociated_map().get(new Random().nextInt(mode.getAssociated_map().size()));
 
         // Événement initial
-        EventType eventType = EventType.START;
+        EventType eventType = EventType.WAITING_ROOM;
 
         // Temps de jeu max pour ce mode
         long timeLeft = mode.getMAX_GAME_TIME();

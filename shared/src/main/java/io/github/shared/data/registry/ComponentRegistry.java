@@ -16,6 +16,7 @@ public class ComponentRegistry {
         FreezeComponent.class,
         LifeComponent.class,
         MeleeAttackComponent.class,
+        MoveComponent.class,
         NetComponent.class,
         OnCreationComponent.class,
         PositionComponent.class,
@@ -26,8 +27,7 @@ public class ComponentRegistry {
         RessourceComponent.class,
         SpeedComponent.class,
         TargetComponent.class,
-        VelocityComponent.class,
-        MoveComponent.class
+        VelocityComponent.class
     );
 }
 

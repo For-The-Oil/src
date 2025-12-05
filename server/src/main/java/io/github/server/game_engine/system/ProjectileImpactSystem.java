@@ -17,18 +17,18 @@ import io.github.shared.data.gameobject.DamageEntry;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 
 /**
- * ProjectileImpactSystem
+ * <h1>Projectile Impact System</h1>
  *
- * Responsibilities:
- *  - Detect when a projectile has reached its destination (MoveComponent.destinationX/Y).
- *  - Apply AOE damage to all enemy entities within ProjectileComponent.aoe radius.
- *  - Register damage via SnapshotTracker (aggregated later into UpdateEntityInstruction).
- *  - Destroy the projectile entity using server.addDestroyInstruction(net.netId).
+ * <ul><strong>Responsibilities:</strong></ul>
+ *  <li>Detect when a projectile has reached its destination (MoveComponent.destinationX/Y).</li>
+ *  <li>Apply AOE damage to all enemy entities within ProjectileComponent.aoe radius.</li>
+ *  <li>Register damage via SnapshotTracker (aggregated later into UpdateEntityInstruction).</li>
+ *  <li>Destroy the projectile entity using server.addDestroyInstruction(net.netId).</li>
  *
- * Notes:
- *  - Damage is applied through snapshots, not direct component mutation.
- *  - This system assumes projectile movement is handled elsewhere and that
- *    destinationX/Y represent the final impact point.
+ * <ul><strong>Notes:</strong></ul>
+ *  <li>Damage is applied through snapshots, not direct component mutation.</li>
+ *  <li>This system assumes projectile movement is handled elsewhere and that
+ *    destinationX/Y represent the final impact point.</li>
  */
 @Wire
 public class ProjectileImpactSystem extends IteratingSystem {

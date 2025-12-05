@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import io.github.server.data.ServerGame;
 import io.github.server.data.network.ServerNetwork;
+import io.github.server.game_engine.GameLauncher;
 import io.github.shared.data.enums_types.GameModeType;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.network.Player;
@@ -45,6 +46,26 @@ public final class PlayerChecker {
                     for (Player player : game.getPlayersList()) {
                         if (player.getUuid().equals(targetUUID)) {
                             return game;
+                        }
+                    }
+                }
+            }
+        }
+        return null; // pas trouvé
+    }
+
+
+    public static GameLauncher getGameLauncherOfClient(ClientNetwork client){
+        if (client == null || client.getUuid() == null) return null;
+
+        UUID targetUUID = client.getUuid();
+        HashMap<GameModeType, ArrayList<ServerGame>> gameModeArrayListOfGames =  ServerNetwork.getInstance().getGameModeArrayListOfGames();
+        synchronized (gameModeArrayListOfGames) {
+            for (ArrayList<ServerGame> games : gameModeArrayListOfGames.values()) {
+                for (ServerGame game : games) {
+                    for (Player player : game.getPlayersList()) {
+                        if (player.getUuid().equals(targetUUID)) {
+                            return ServerNetwork.getInstance().getGameMapByUUID().get();
                         }
                     }
                 }

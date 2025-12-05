@@ -38,7 +38,7 @@ public class ClientGame implements IGame {
     private long lastTime;
     private long timeLeft;  // seconds
 
-    private ClientGame(GameModeType gameMode, MapName mapName, Shape map, UUID uuid, long timeLeft) {
+    private ClientGame(GameModeType gameMode, MapName mapName, Shape map, UUID uuid, long timeLeft, EventType eventType) {
         this.GAME_UUID = uuid;
         this.gameMode = gameMode;
         this.mapName = mapName;
@@ -52,7 +52,7 @@ public class ClientGame implements IGame {
         this.accumulator = 0f;
         this.lastTime = System.currentTimeMillis();
         this.timeLeft = timeLeft;
-        this.currentEvent = EventType.START;
+        this.currentEvent = eventType;
 
         this.world = new World(EcsClientGame.serverWorldConfiguration(ModelInstanceQueue));// Important this line after anything else because dangerous overwise
     }
@@ -64,8 +64,8 @@ public class ClientGame implements IGame {
         return INSTANCE;
     }
 
-    public static void setInstance(GameModeType gameMode, MapName mapName, Shape map, UUID uuid, long timeLeft) {
-        INSTANCE = new ClientGame(gameMode,mapName,map,uuid,timeLeft);
+    public static void setInstance(GameModeType gameMode, MapName mapName, Shape map, UUID uuid, long timeLeft,EventType eventType) {
+        INSTANCE = new ClientGame(gameMode,mapName,map,uuid,timeLeft,eventType);
     }
 
     public static void removeInstance() {

@@ -6,7 +6,9 @@ import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Queue;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import io.github.shared.data.enums_types.AuthModeType;
 import io.github.shared.data.enums_types.CellEffectType;
@@ -45,7 +47,8 @@ public final class KryoRegistry {
         kryo.register(String.class);
         kryo.register(HashMap.class);
         kryo.register(ArrayList.class);
-        //kryo.register(Queue.class);
+        kryo.register(Queue.class);
+        kryo.register(ConcurrentLinkedQueue.class);
         kryo.register(UUID.class, new DefaultSerializers.UUIDSerializer());
 
 

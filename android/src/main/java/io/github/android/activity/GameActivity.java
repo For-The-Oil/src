@@ -8,6 +8,13 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Queue;
+
 import io.github.android.gui.fragment.game.LibGdxFragment;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
@@ -17,6 +24,7 @@ import io.github.core.game_engine.ClientLauncher;
 import io.github.core.game_engine.manager.GameManager;
 import io.github.fortheoil.R;
 import io.github.shared.data.NetGame;
+import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.requests.SynchronizeRequest;
 
 
@@ -176,7 +184,13 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
                 case INSTRUCTION_SYNC:
                     Log.d("For The Oil","Instruction Request received :"+request.getType().toString());
-//                    clientLauncher.addQueueInstruction();
+
+                    Object obj = request.getMap().getOrDefault("instructions", null);
+                    if(obj instanceof Queue){
+                        // WARNING THIS PART COULD BE DANGEROUS
+                        Queue<Instruction> queue = (Queue<Instruction>) obj;
+                        clientLauncher.addQueueInstruction(queue);
+                    }
                     break;
 
                 case FULL_RESYNC:
