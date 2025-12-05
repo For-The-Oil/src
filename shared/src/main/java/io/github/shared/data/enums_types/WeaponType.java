@@ -16,7 +16,7 @@ public enum WeaponType {
     private final float translationX ;
     private final float translationY ;
     private final float translationZ ;
-    private final boolean HitAndMove;
+    private final boolean hitAndMove;
     private final boolean isTurret;
     private final EntityType projectileType;
 
@@ -32,7 +32,7 @@ public enum WeaponType {
         this.translationX = translationX;
         this.translationY = translationY;
         this.translationZ = translationZ;
-        this.HitAndMove = hitAndMove;
+        this.hitAndMove = hitAndMove;
         this.isTurret = isTurret;
         this.projectileType = null;
     }
@@ -66,7 +66,7 @@ public enum WeaponType {
     }
 
     public boolean isHitAndMove() {
-        return HitAndMove;
+        return hitAndMove;
     }
 
     public float getAnimationCooldown() {

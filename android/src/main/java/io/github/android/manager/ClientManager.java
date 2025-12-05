@@ -1,5 +1,6 @@
 package io.github.android.manager;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
@@ -32,7 +33,7 @@ public class ClientManager {
         kryoManager = new KryoClientManager();
     }
 
-    public static  ClientManager getInstance() {
+    public static ClientManager getInstance() {
         if (INSTANCE == null) INSTANCE = new ClientManager();
         return INSTANCE;
     }

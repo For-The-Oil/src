@@ -7,6 +7,7 @@ import io.github.server.data.ServerGame;
 import io.github.server.game_engine.GameLauncher;
 import io.github.server.server_engine.manager.SyncManager;
 import io.github.server.server_engine.utils.PlayerChecker;
+import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.Request;
 import io.github.shared.data.requests.SynchronizeRequest;
@@ -37,31 +38,16 @@ public class GameListener extends Listener {
         KryoMessage kryo = (KryoMessage) object;
 
         if(kryo.getObj() instanceof SynchronizeRequest)
-            handleSynchroRequest(connection, object, kryo);
+            handleSynchroRequest(connection, kryo);
 
 
-        if(kryo.getObj() instanceof AttackGroupRequest){
-
-        }
-
-        if(kryo.getObj() instanceof BuildRequest){
-
-        }
-
-        if (kryo.getObj() instanceof CastRequest){
-
-        }
-
-        if(kryo.getObj() instanceof DestroyRequest){
-
-        }
-
-        if(kryo.getObj() instanceof MoveGroupRequest){
-
-        }
-
-        if(kryo.getObj() instanceof SummonRequest){
-
+        if(kryo.getObj() instanceof AttackGroupRequest ||
+            kryo.getObj() instanceof BuildRequest ||
+            kryo.getObj() instanceof CastRequest ||
+            kryo.getObj() instanceof DestroyRequest ||
+            kryo.getObj() instanceof MoveGroupRequest ||
+            kryo.getObj() instanceof SummonRequest){
+            handleGameRequest((Request) kryo.getObj());
         }
 
 
@@ -70,7 +56,7 @@ public class GameListener extends Listener {
     }
 
 
-    private void handleSynchroRequest(Connection connection, Object object, KryoMessage kryo){
+    private void handleSynchroRequest(Connection connection, KryoMessage kryo){
         System.out.println("SynchronizeRequest Received !");
 
         SynchronizeRequest request = (SynchronizeRequest) kryo.getObj();
@@ -79,10 +65,9 @@ public class GameListener extends Listener {
     }
 
     private void handleGameRequest(Request request){
-        // TODO: ADD GameLogic
-        //GameLauncher gameLauncher = PlayerChecker.getGameOfClient(client);
+        GameLauncher gameLauncher = PlayerChecker.getGameLauncherOfClient(request.getPlayer());
         System.out.println("GameRequest Received !");
-        //gameLauncher.addQueueRequest(request);
+        gameLauncher.addQueueRequest(request);
     }
 
 

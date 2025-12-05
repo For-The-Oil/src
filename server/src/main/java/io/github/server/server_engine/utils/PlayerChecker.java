@@ -55,19 +55,13 @@ public final class PlayerChecker {
     }
 
 
-    public static GameLauncher getGameLauncherOfClient(ClientNetwork client){
-        if (client == null || client.getUuid() == null) return null;
-
-        UUID targetUUID = client.getUuid();
-        HashMap<GameModeType, ArrayList<ServerGame>> gameModeArrayListOfGames =  ServerNetwork.getInstance().getGameModeArrayListOfGames();
-        synchronized (gameModeArrayListOfGames) {
-            for (ArrayList<ServerGame> games : gameModeArrayListOfGames.values()) {
-                for (ServerGame game : games) {
-                    for (Player player : game.getPlayersList()) {
-                        if (player.getUuid().equals(targetUUID)) {
-                            return ServerNetwork.getInstance().getGameMapByUUID().get();
-                        }
-                    }
+    public static GameLauncher getGameLauncherOfClient(UUID ClientUUID){
+        if (ClientUUID == null) return null;
+        for (GameLauncher launchers : ServerNetwork.getInstance().getGameMapByUUID().values()) {
+            ServerGame game = launchers.getGame();
+            for (Player player : game.getPlayersList()) {
+                if (player.getUuid().equals(ClientUUID)) {
+                    return launchers;
                 }
             }
         }

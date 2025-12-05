@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import io.github.server.data.ServerGame;
+import io.github.server.game_engine.manager.RequestGameManager;
 import io.github.server.server_engine.manager.SyncManager;
 import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.requests.Request;
@@ -60,7 +61,7 @@ public class GameLauncher extends Thread {
             while (!serverGame.isEmptyRequestQueue()) {
                 Request request = serverGame.getRequestQueue().poll();
                 if(request == null)continue;
-                Instruction instruction = InstructionManager.executeGameRequest(request, serverGame);
+                Instruction instruction = RequestGameManager.executeGameRequest(request, serverGame);
                 if(instruction == null)continue;
                 serverGame.getHistoricQueue().add(instruction);
                 serverGame.getNetworkQueue().add(instruction);
