@@ -1,10 +1,13 @@
 package io.github.core.data;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
+import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 
 import io.github.shared.data.component.LifeComponent;
@@ -20,30 +23,30 @@ public class ExtendedModelInstance extends ModelInstance {
     private int entityNetId;// ID de l'entité ECS
     private float health;// Vie actuelle
     private float maxHealth;// Vie max
-    private float  translationX ;
-    private float  translationY ;
-    private float   translationZ ;
     private boolean isAlive;// État
 
-    private AnimationController animationController;
+    private AnimationController animationControllerEntity;
+    private AnimationController animationControllerMelee;
+    private AnimationController animationControllerRange;
+    private AnimationController animationControllerProjectileLauncher;
 
-    public ExtendedModelInstance(Model model, int entityId, float x, float y, float z) {
+    public ExtendedModelInstance(Model model, int entityId) {
         super(model);
         this.entityId = entityId;
-        this.animationController = new AnimationController(this);
-        this.translationX = x;
-        this.translationY = y;
-        this.translationZ = z;
+        this.animationControllerEntity = new AnimationController(this);
+        this.animationControllerMelee = new AnimationController(this);
+        this.animationControllerRange = new AnimationController(this);
+        this.animationControllerProjectileLauncher = new AnimationController(this);
     }
 
-    public ExtendedModelInstance(Model model,int entityNetId , int entityId, float x, float y, float z) {
+    public ExtendedModelInstance(Model model,int entityNetId , int entityId) {
         super(model);
         this.entityId = entityId;
         this.entityNetId = entityNetId;
-        this.animationController = new AnimationController(this);
-        this.translationX = x;
-        this.translationY = y;
-        this.translationZ = z;
+        this.animationControllerEntity = new AnimationController(this);
+        this.animationControllerMelee = new AnimationController(this);
+        this.animationControllerRange = new AnimationController(this);
+        this.animationControllerProjectileLauncher = new AnimationController(this);
     }
 
     public void updateEntityInstance(PositionComponent pos, LifeComponent life, VelocityComponent velocity, MeleeAttackComponent melee, RangedAttackComponent ranged, ProjectileAttackComponent projectile) {
@@ -65,72 +68,80 @@ public class ExtendedModelInstance extends ModelInstance {
 
         if (velocity != null) {
             if (velocity.isStop()) {
-                if (animationController.current != null && "Move".equals(animationController.current.animation.id)) {
-                    animationController.current = null; // Stoppe l'animation
+                if (animationControllerEntity.current != null && "Move".equals(animationControllerEntity.current.animation.id)) {
+                    animationControllerEntity.current.loopCount = 0; // Stoppe l'animation
                 }
             } else {
-                if (animationController.current == null || (!"Move".equals(animationController.current.animation.id)&&!"Attack".equals(animationController.current.animation.id))) {
+                if (animationControllerEntity.current == null || (!"Move".equals(animationControllerEntity.current.animation.id)&&!"Attack".equals(animationControllerEntity.current.animation.id))) {
                     if(hasAnimation("Move")){
-                        animationController.animate("Move", -1);// Animation Run en boucle
+                        animationControllerEntity.animate("Move", -1);// Animation Run en boucle
                     }
                 }
             }
         }
         if(hasAnimation("Attack")){
             if (melee != null && melee.currentCooldown <= melee.weaponType.getAnimationCooldown()) {
-                animationController.setAnimation("Attack", 1);
+                animationControllerEntity.animate("Attack", 1,1f, null, 0);
             }
             if (ranged != null && ranged.currentCooldown <= ranged.weaponType.getAnimationCooldown()) {
-                animationController.setAnimation("Attack", 1);
+                animationControllerEntity.animate("Attack", 1,1f, null, 0);
             }
             if (projectile != null && projectile.currentCooldown <= projectile.weaponType.getAnimationCooldown()) {
-                animationController.setAnimation("Attack", 1);
+                animationControllerEntity.animate("Attack", 1,1f, null, 0);
             }
         }
+        this.calculateTransforms();
     }
 
-    public void updateWeaponInstance(PositionComponent pos, LifeComponent life, VelocityComponent velocity, WeaponType weaponType, float currentCooldown, float secondHorizontalRotation, float secondVerticalRotation) {
-        // Mettre à jour la transformation
-        if(pos != null) {
-            float H2 = 0,V2 = 0;
-            if(weaponType.isTurret()){
-                H2 = secondHorizontalRotation;
-                V2 = secondVerticalRotation;
+    public void updateWeaponInstance(VelocityComponent velocity,WeaponType weaponType,float currentCooldown, float secondHorizontalRotation, float secondVerticalRotation) {
+        String name ="";
+        AnimationController animationController = null;
+        if (weaponType.getType().equals(WeaponType.Type.Melee)){
+            name = "Melee";
+            animationController = animationControllerMelee;
+            Node turretNode = this.getNode("Melee");
+            if(weaponType.isTurret()) {
+                turretNode.rotation.set(new Quaternion(Vector3.Z, secondHorizontalRotation));
+                turretNode.rotation.set(new Quaternion(Vector3.X, secondVerticalRotation));
             }
-            Matrix4 finalTransform = new Matrix4().idt()//X et y inversé pour libgdx
-                .translate(pos.x, pos.z, pos.y)
-                .rotate(Vector3.Z, pos.horizontalRotation)
-                .rotate(Vector3.X, pos.verticalRotation)
-                .translate(translationX, translationZ, translationY)
-                .rotate(Vector3.Z, H2)
-                .rotate(Vector3.X, V2);
-            this.transform.set(finalTransform);
+        }
+        else if (weaponType.getType().equals(WeaponType.Type.Range)) {
+            name = "Range";
+            animationController = animationControllerRange;
+            Node turretNode = this.getNode("Range");
+            if(weaponType.isTurret()) {
+                turretNode.rotation.set(new Quaternion(Vector3.Z, secondHorizontalRotation));
+                turretNode.rotation.set(new Quaternion(Vector3.X, secondVerticalRotation));
+            }
+        }
+        else if (weaponType.getType().equals(WeaponType.Type.ProjectileLauncher)) {
+            name = "ProjectileLauncher";
+            animationController = animationControllerProjectileLauncher;
+            Node turretNode = this.getNode("ProjectileLauncher");
+            if(weaponType.isTurret()) {
+                turretNode.rotation.set(new Quaternion(Vector3.Z, secondHorizontalRotation));
+                turretNode.rotation.set(new Quaternion(Vector3.X, secondVerticalRotation));
+            }
         }
 
-        // Mettre à jour la vie
-        if (life != null) {
-            this.health = life.health;
-            this.maxHealth = life.maxHealth;
-            this.isAlive = life.isAlive();
-        }
-
-        if (velocity != null) {
+        if (velocity != null && !name.isEmpty()&&animationController!=null) {
             if (velocity.isStop()) {
-                if (animationController.current != null && "Move".equals(animationController.current.animation.id)) {
-                    animationController.current = null; // Stoppe l'animation
+                if (animationController.current != null && ("Move"+name).equals(animationController.current.animation.id)) {
+                    animationController.current.loopCount = 0; // Stoppe l'animation
                 }
             } else {
-                if (animationController.current == null || (!"Move".equals(animationController.current.animation.id)&&!"Attack".equals(animationController.current.animation.id))) {
-                    if(hasAnimation("Move")){
-                        animationController.animate("Move", -1);// Animation Run en boucle
+                if (animationController.current == null || (!("Move"+name).equals(animationController.current.animation.id)&&! ("Attack"+name).equals(animationController.current.animation.id))) {
+                    if(hasAnimation(("Move"+name))){
+                        animationController.animate(("Move"+name), -1,1f, null, 0);// Animation Run en boucle
                     }
                 }
             }
         }
 
         if (weaponType != null && hasAnimation("Attack") && currentCooldown <= weaponType.getAnimationCooldown()) {
-            animationController.setAnimation("Attack", 1);
+        animationController.animate("Attack",1,1f, null, 0);
         }
+        this.calculateTransforms();
     }
 
 
@@ -161,6 +172,13 @@ public class ExtendedModelInstance extends ModelInstance {
 
     public int getEntityId() {
         return entityId;
+    }
+
+    public void update(float delta) {
+        animationControllerEntity.update(delta);
+        animationControllerMelee.update(delta);
+        animationControllerRange.update(delta);
+        animationControllerProjectileLauncher.update(delta);
     }
 }
 

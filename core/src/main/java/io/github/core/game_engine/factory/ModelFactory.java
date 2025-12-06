@@ -1,7 +1,9 @@
 package io.github.core.game_engine.factory;
 
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -11,14 +13,22 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.graphics.g3d.loader.G3dModelLoader;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder;
 import com.badlogic.gdx.graphics.g3d.utils.MeshPartBuilder.VertexInfo;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.UBJsonReader;
 
+
+import net.mgsx.gltf.loaders.glb.GLBLoader;
+import net.mgsx.gltf.loaders.gltf.GLTFLoader;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.util.HashMap;
+import java.util.Locale;
 
 import io.github.shared.config.BaseGameConfig;
 import io.github.shared.data.enums_types.CellType;
@@ -44,7 +54,7 @@ public class ModelFactory {
         am.finishLoading();
         for(Object o : HashMapPath.keySet()){
             if(o instanceof CellType) HashMapModel.put(o,createSolModel(am,HashMapPath.get(o)));
-            else ;
+            else HashMapModel.put(o,loadModel(HashMapPath.get(o)));
         }
         am.finishLoading();
 
@@ -141,6 +151,27 @@ public class ModelFactory {
 
         return mb.end();
     }
+
+
+    /** Charge et retourne le Model libGDX depuis un chemin interne. */
+    public static Model loadModel(String path) {
+        String p = path.toLowerCase(Locale.ROOT);
+        FileHandle fh = Gdx.files.internal(path);
+
+        if (p.endsWith(".g3db")) {
+            return new G3dModelLoader(new UBJsonReader()).loadModel(fh);            // libGDX core
+        } else if (p.endsWith(".g3dj")) {
+            return new G3dModelLoader(new JsonReader()).loadModel(fh);              // libGDX core
+        } else if (p.endsWith(".glb")) {
+            SceneAsset asset = new GLBLoader().load(fh);                            // gdx-gltf
+            return asset.scene.model;                                               // <-- Model libGDX
+        } else if (p.endsWith(".gltf")) {
+            SceneAsset asset = new GLTFLoader().load(fh);                           // gdx-gltf
+            return asset.scene.model;                                               // <-- Model libGDX
+        }
+        throw new IllegalArgumentException("Format non supporté: " + path);
+    }
+
 
     public Model getDefaultModel() {
         return defaultModel;

@@ -9,19 +9,17 @@ import io.github.core.data.ExtendedModelInstance;
 import io.github.core.data.enumsTypes.ModelType;
 
 public class ModelComponent extends PooledComponent {
-    public HashMap<ModelType, ExtendedModelInstance> mapInstance;
+    public ExtendedModelInstance mapInstance;
 
     public ModelComponent() {
-        this.mapInstance = new HashMap<>();
     }
     public ModelComponent(ExtendedModelInstance instance) {
-        this.mapInstance = new HashMap<>();
-        mapInstance.put(ModelType.Entity,instance);
+        this.mapInstance = instance;
     }
 
     @Override
     public void reset() {
-        mapInstance.clear();
+        mapInstance = null;
     }
 
 }

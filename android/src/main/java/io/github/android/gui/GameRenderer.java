@@ -75,7 +75,9 @@ public class GameRenderer implements ApplicationListener {
             }
         }
         for(ExtendedModelInstance instance : entityInstance){
+            float delta = Gdx.graphics.getDeltaTime();
             if(instance != null){
+                instance.update(delta);
                 modelBatch.render(instance, environment);
             }
         }

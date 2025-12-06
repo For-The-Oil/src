@@ -58,38 +58,29 @@ public class GraphicsSyncSystem extends BaseSystem {
             ProjectileAttackComponent projectile = mProjAttack.get(e);
 
             if (mc == null) {
-                mc = new ModelComponent(net != null ? InstanceFactory.getExtendedModelInstance(net.entityType,net.netId,e) : InstanceFactory.getDefaultExtendedModelInstance(e,0,0,0));
+                mc = new ModelComponent(net != null ? InstanceFactory.getExtendedModelInstance(net.entityType,net.netId,e) : InstanceFactory.getDefaultExtendedModelInstance(e));
                 world.edit(e).add(mc);
             }
 
             // Mettre à jour instance
-            mc.mapInstance.get(ModelType.Entity).updateEntityInstance(pos,life,vel,melee,ranged,projectile);
+            mc.mapInstance.updateEntityInstance(pos,life,vel,melee,ranged,projectile);
             if(net != null) {
                 if (melee != null) {
-                    if (mc.mapInstance.get(ModelType.Melee) == null) {
-                        mc.mapInstance.put(ModelType.Melee, InstanceFactory.getExtendedModelInstance(melee.weaponType, net.netId, e));
-                    }
-                    mc.mapInstance.get(ModelType.Melee).updateWeaponInstance(pos, life, vel, melee.weaponType, melee.currentCooldown, melee.horizontalRotation, melee.verticalRotation);
+                    mc.mapInstance.updateWeaponInstance(vel,melee.weaponType,melee.currentCooldown, melee.horizontalRotation, melee.verticalRotation);
                 }
 
                 if (ranged != null) {
-                    if (mc.mapInstance.get(ModelType.Range) == null) {
-                        mc.mapInstance.put(ModelType.Range, InstanceFactory.getExtendedModelInstance(ranged.weaponType, net.netId, e));
-                    }
-                    mc.mapInstance.get(ModelType.Range).updateWeaponInstance(pos, life, vel, ranged.weaponType, ranged.currentCooldown, ranged.horizontalRotation, ranged.verticalRotation);
+                    mc.mapInstance.updateWeaponInstance(vel,ranged.weaponType, ranged.currentCooldown, ranged.horizontalRotation, ranged.verticalRotation);
                 }
 
                 if (projectile != null) {
-                    if (mc.mapInstance.get(ModelType.ProjectileLauncher) == null) {
-                        mc.mapInstance.put(ModelType.ProjectileLauncher, InstanceFactory.getExtendedModelInstance(projectile.weaponType, net.netId, e));
-                    }
-                    mc.mapInstance.get(ModelType.ProjectileLauncher).updateWeaponInstance(pos, life, vel, projectile.weaponType, projectile.currentCooldown, projectile.horizontalRotation, projectile.verticalRotation);
+                    mc.mapInstance.updateWeaponInstance(vel,projectile.weaponType, projectile.currentCooldown, projectile.horizontalRotation, projectile.verticalRotation);
                 }
             }
 
 
             // Ajouter à la nouvelle liste
-            newRenderList.addAll(mc.mapInstance.values());
+            newRenderList.add(mc.mapInstance);
         }
 
         // Remplacer la liste partagée par la nouvelle
