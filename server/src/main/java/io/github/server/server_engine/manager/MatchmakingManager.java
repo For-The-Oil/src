@@ -230,6 +230,7 @@ public final class MatchmakingManager {
 
         scheduler2.schedule(() -> {
             SyncManager.sendInstructions(new ArrayDeque<>(Collections.singleton(eventsInstruction)), serverGame.getPlayersList());
+            serverGame.setCurrentEvent(EventType.START);
             gameLauncher.start();
             scheduler2.shutdown();
         }, 5000, TimeUnit.MILLISECONDS);
