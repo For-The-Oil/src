@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import io.github.core.data.ClientGame;
 import io.github.core.data.ExtendedModelInstance;
 import io.github.core.game_engine.factory.InstanceFactory;
+import io.github.shared.config.BaseGameConfig;
 
 
 public class GameRenderer implements ApplicationListener {
@@ -42,7 +43,7 @@ public class GameRenderer implements ApplicationListener {
         camera.position.set(100f, 125f, 700f);
         camera.lookAt(100f, 0f, 0f);
         camera.near = 0.1f;
-        camera.far = 100000f;
+        camera.far = BaseGameConfig.CELL_SIZE*1000f;
         camera.update();
 
         // Environnement / éclairage

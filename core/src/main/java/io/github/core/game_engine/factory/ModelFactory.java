@@ -20,6 +20,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.HashMap;
 
+import io.github.shared.config.BaseGameConfig;
 import io.github.shared.data.enums_types.CellType;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.WeaponType;
@@ -30,12 +31,20 @@ public class ModelFactory {
     private static Model defaultModel;
     private static Model defaultModelShape;
     private static HashMap<Object,Model> HashMapModel;
+    private static HashMap<Object,String> HashMapPath;
 
     private static AssetManager am = new AssetManager();
     private ModelFactory(){
         ModelBuilder builder = new ModelBuilder();
         HashMapModel = new HashMap<>();
-        //am.load("",Texture.class);
+
+        for(String path : HashMapPath.values()){
+            am.load(path,Texture.class);
+        }
+        am.finishLoading();
+        for(Object o : HashMapPath.keySet()){
+            HashMapModel.put(HashMapPath.get(o),createSolModel(am,HashMapPath.get(o)));
+        }
         am.finishLoading();
 
         // Crée un modèle par défaut
@@ -44,12 +53,25 @@ public class ModelFactory {
             VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
         // Crée un modèle par défaut
-        defaultModelShape = builder.createBox(100f, 1f, 100f,
+        defaultModelShape = builder.createBox(BaseGameConfig.CELL_SIZE, 1f, BaseGameConfig.CELL_SIZE,
             new Material(ColorAttribute.createDiffuse(Color.MAGENTA)),
             VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
 
     }
+
+    public static ModelFactory getInstance() {
+        if (INSTANCE == null) {
+            if(HashMapPath == null){throw new NullPointerException("The HashMapPath is null");}
+            INSTANCE = new ModelFactory();
+        }
+        return INSTANCE;
+    }
+
+    public static void initINSTANCE(HashMap<Object,String> MapPath){
+        HashMapPath = MapPath;
+    }
+
 
     public static void disposeINSTANCE(){
         for(Model model : HashMapModel.values()){
@@ -59,10 +81,13 @@ public class ModelFactory {
         defaultModel.dispose();
         defaultModelShape.dispose();
         am.dispose();
+        HashMapModel = null;
+        defaultModel = null;
+        defaultModelShape = null;
         INSTANCE = null;
     }
 
-    public static Model createSolModel(AssetManager am,String pngPath, float sizeX, float sizeZ) {
+    public static Model createSolModel(AssetManager am,String pngPath) {
         Texture texture = am.get(pngPath, Texture.class);
         texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         texture.setWrap(TextureWrap.ClampToEdge, TextureWrap.ClampToEdge);
@@ -81,18 +106,14 @@ public class ModelFactory {
         Vector3 up = new Vector3(0f, 1f, 0f);
 
         VertexInfo v1 = new VertexInfo().setPos(0f,0f,0f).setNor(up).setUV(0f, 0f);
-        VertexInfo v2 = new VertexInfo().setPos(0f,0f,sizeZ).setNor(up).setUV(0f, 1f);
-        VertexInfo v3 = new VertexInfo().setPos(sizeX,0f,sizeZ).setNor(up).setUV(1f, 1f);
-        VertexInfo v4 = new VertexInfo().setPos(sizeX,0f,0f).setNor(up).setUV(1f, 0f);
+        VertexInfo v2 = new VertexInfo().setPos(0f,0f,BaseGameConfig.CELL_SIZE).setNor(up).setUV(0f, 1f);
+        VertexInfo v3 = new VertexInfo().setPos(BaseGameConfig.CELL_SIZE,0f,BaseGameConfig.CELL_SIZE).setNor(up).setUV(1f, 1f);
+        VertexInfo v4 = new VertexInfo().setPos(BaseGameConfig.CELL_SIZE,0f,0f).setNor(up).setUV(1f, 0f);
 
         // Ordre CCW vu de dessus pour une normale (0,1,0)
         part.rect(v1, v2, v3, v4);
 
         return mb.end();
-    }
-    public static ModelFactory getInstance() {
-        if (INSTANCE == null) INSTANCE = new ModelFactory();
-        return INSTANCE;
     }
     public Model getDefaultModel() {
         return defaultModel;
