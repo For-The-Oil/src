@@ -4,6 +4,20 @@ public enum WeaponType {
     test(Type.Melee,1,1,1,1,1,(float) Math.toRadians(360f),1,1,1,1,false,true);
     //RIFLE(Type.Range), SHOTGUN(Type.Range), BAZOOKA(Type.Range),
     //SWORD(Type.Melee), SPEAR(Type.Melee), CHAINSAW(Type.Melee);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     private final Type type;
     private final int damage;
     private final int armorPenetration;

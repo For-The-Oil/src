@@ -41,7 +41,22 @@ public enum ShapeType {
         {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
         {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)},
         {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID), new Cell(VOID)}
+    }), new ArrayList<>()),
+
+    MINE(new Shape(new Cell[][]{
+        {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
+        {new Cell(ROAD),new Cell(VOID),new Cell(ROAD)},
+        {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
+    }), new ArrayList<>()),
+
+    DERRICK(new Shape(new Cell[][]{
+        {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
+        {new Cell(ROAD),new Cell(VOID),new Cell(ROAD)},
+        {new Cell(ROAD),new Cell(ROAD),new Cell(ROAD)},
     }), new ArrayList<>());
+
+
+
 
     private final Shape shape;
     private final ArrayList<CellType> canBePlacedOn;

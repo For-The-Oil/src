@@ -88,11 +88,21 @@ public final class UiUtils {
 
     public static int mapEntityTypeToDrawable(EntityType type) {
         switch (type) {
-            case BASE: return R.drawable.base_card;
+
+            //Buildings
+            case BASE: return R.drawable.base;
             case GARAGE: return R.drawable.garage;
             case FACTORY: return R.drawable.factory;
             case BARRACK: return R.drawable.barrack;
-            default: return R.drawable.base_card;
+            case DERRICK: return R.drawable.derrick;
+            case MINE: return R.drawable.mine;
+
+            //Units
+            case JEEP: return R.drawable.jeep;
+            case BIKE: return R.drawable.bike;
+            case TANK: return R.drawable.tank;
+
+            default: return R.drawable.missing;
         }
     }
 
