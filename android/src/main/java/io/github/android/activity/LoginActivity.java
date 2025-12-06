@@ -8,7 +8,7 @@ import static io.github.android.utils.FormatUtils.isValidIPAddress;
 
 import android.os.Bundle;
 
-import io.github.android.config.ServerDefaultConfig;
+import io.github.core.config.ServerDefaultConfig;
 import io.github.android.config.UiConfig;
 import io.github.android.gui.adapter.LauncherAdapter;
 import io.github.android.gui.fragment.launcher.LoadingFragment;

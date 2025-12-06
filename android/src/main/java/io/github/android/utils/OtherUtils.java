@@ -7,7 +7,7 @@ import android.content.Context;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.android.config.ServerDefaultConfig;
+import io.github.core.config.ServerDefaultConfig;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.SessionManager;

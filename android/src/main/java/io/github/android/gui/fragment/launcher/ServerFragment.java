@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import java.util.HashMap;
 
-import io.github.android.config.ServerDefaultConfig;
+import io.github.core.config.ServerDefaultConfig;
 import io.github.android.manager.ClientManager;
 import io.github.android.utils.PrefsUtils;
 import io.github.fortheoil.R;

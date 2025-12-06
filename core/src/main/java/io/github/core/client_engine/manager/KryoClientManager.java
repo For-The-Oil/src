@@ -7,6 +7,7 @@ import com.esotericsoftware.kryonet.Listener;
 
 import java.io.IOException;
 
+import io.github.core.config.ServerDefaultConfig;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.network.KryoRegistry;
 
@@ -62,7 +63,7 @@ public class KryoClientManager {
      * <p>Init a Kryo Client and register into Kryo all the Serialized objects.</p>
      */
     public KryoClientManager() {
-        client = new Client();
+        client = new Client(ServerDefaultConfig.WRITE_BUFFER, ServerDefaultConfig.OBJECT_BUFFER);
         KryoRegistry.registerAll(client.getKryo());
     }
 

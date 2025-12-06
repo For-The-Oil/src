@@ -3,8 +3,9 @@ package io.github.server.config;
 public final class ServerSpecConfig {
 
     public static int BASE_PORT = 54555;
-    public static int MAIN_SERVER_WRITE_BUFFER = 64*1024; // 64Ko
-    public static int MAIN_SERVER_OBJ_BUFFER = 32*1024;  // 32Ko
+    public static int MAIN_SERVER_WRITE_BUFFER = 2 * 1024 * 1024; // 2 Mo
+    public static int MAIN_SERVER_OBJ_BUFFER   = 2 * 1024 * 1024; // 2 Mo
+
 
     public static String SERVER_VERSION = "0.1";
     public static String CLIENT_VERSION ="0.0";
