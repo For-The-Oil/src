@@ -19,7 +19,10 @@ import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.utils.PrefsUtils;
 import io.github.android.utils.RedirectUtils;
+import io.github.core.game_engine.factory.ModelFactory;
 import io.github.fortheoil.R;
+import io.github.shared.data.enums_types.CellType;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.requests.AuthRequest;
 
 /**
@@ -50,6 +53,7 @@ public class SplashActivity extends BaseActivity {
         initClientConfig(this);
         initListener();
         setupLoadingFragment();
+        initPath();
     }
 
     public void handleClassicConnectionStep() {
@@ -243,6 +247,19 @@ public class SplashActivity extends BaseActivity {
         FrameLayout overlay = findViewById(R.id.loadingOverlay);
         overlay.setOnTouchListener((v, event) -> overlay.getVisibility() == View.VISIBLE);
         overlay.post(this::handleClassicConnectionStep);
+    }
+
+
+
+    private void initPath(){
+
+        HashMap<Object, String> map = new HashMap<>();
+
+        map.put(CellType.ROAD, "textures/concrete.png");
+        map.put(CellType.GRASS, "textures/grass.png");
+
+        ModelFactory.initINSTANCE(map);
+
     }
 
 }
