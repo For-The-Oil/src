@@ -1,7 +1,6 @@
 package io.github.core.game_engine.factory;
 
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -36,7 +35,7 @@ public class ModelFactory {
     private ModelFactory(){
         ModelBuilder builder = new ModelBuilder();
         HashMapModel = new HashMap<>();
-        am.load("",Texture.class);
+        //am.load("",Texture.class);
         am.finishLoading();
 
         // Crée un modèle par défaut
@@ -49,7 +48,7 @@ public class ModelFactory {
             new Material(ColorAttribute.createDiffuse(Color.MAGENTA)),
             VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
-        
+
     }
 
     public static void disposeINSTANCE(){
