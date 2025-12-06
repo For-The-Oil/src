@@ -89,13 +89,12 @@ public final class SyncManager {
         System.out.println("Sending Instructions to all players");
 
         for (Player player: playersList) {
-            ClientNetwork activeClient = ServerNetwork.getInstance().getActiveClientByUUID(player.getUuid());
-            if(activeClient.getConnection().isConnected()) {
+            if(player.getConnection().isConnected()) {
                 executor.execute(() -> {
                     try {
-                        SynchronizeRequest request = RequestFactory.createSynchronizeInstructions(activeClient, networkQueue);
+                        SynchronizeRequest request = RequestFactory.createSynchronizeInstructions(player, networkQueue);
                         KryoMessage kryoMessage = KryoMessagePackager.packageSyncRequest(request);
-                        activeClient.getConnection().sendTCP(kryoMessage);
+                        player.getConnection().sendTCP(kryoMessage);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

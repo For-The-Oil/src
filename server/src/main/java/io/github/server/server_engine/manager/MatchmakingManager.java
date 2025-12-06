@@ -212,13 +212,12 @@ public final class MatchmakingManager {
             HashMap<String, String> myMap = new HashMap<>();
 
             for (Player p : serverGame.getPlayersList()) {
-                ClientNetwork activeClient = ServerNetwork.getInstance().getActiveClientByUUID(p.getUuid());
-                if (activeClient == null) {
+                if (p.getConnection() == null) {
                     System.out.println("?? Player " + p.getUsername() + " is no longer connected ? skipping.");
                     continue;
                 }
-                sendMatchmakingNotification(activeClient, "Game started !", serverGame.getGameMode(), MatchModeType.FOUND, myMap);
-                SyncManager.getInstance().syncPlayer(activeClient);
+                sendMatchmakingNotification(p, "Game started !", serverGame.getGameMode(), MatchModeType.FOUND, myMap);
+                SyncManager.getInstance().syncPlayer(p);
             }
             System.out.println("? All connected players notified for game: " + serverGame.getGAME_UUID());
 
