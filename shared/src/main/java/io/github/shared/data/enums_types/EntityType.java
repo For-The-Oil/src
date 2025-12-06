@@ -25,6 +25,10 @@ public enum EntityType {
         }}
     ),
 
+
+    // -------
+    // Buildings
+    // -------
     BASE(
         Type.Building,
         null,
@@ -92,7 +96,107 @@ public enum EntityType {
             put(ResourcesType.Steel, 400);
         }},
         null
+    ),
+
+
+    MINE(
+        Type.Building,
+        null,
+        DeckCardCategory.Industrial,
+        ShapeType.MINE,
+        null, 300f,
+        1,
+        0f,
+        3f,
+        18,
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Oil, 60);
+            put(ResourcesType.Steel, 100);
+        }},
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Steel, 10);
+        }}
+    ),
+
+
+    DERRICK(
+        Type.Building,
+        null,
+        DeckCardCategory.Industrial,
+        ShapeType.DERRICK,
+        null,
+        300f,
+        1,
+        0f,
+        3f,
+        18,
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Oil, 60);
+            put(ResourcesType.Steel, 100);
+        }},
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Oil, 10);
+        }}
+    ),
+
+
+
+
+    // -------
+    // Units
+    // -------
+
+    JEEP(
+        Type.Unit, //Type type,
+        GARAGE, //EntityType spawnFrom,
+        WeaponType.test,  //WeaponType weaponType,
+        200f, //float maxHealth,
+        1, //int armor,
+        0f,  //float passiveHeal,
+        15f, //float baseSpeed,
+        3f, //float freezeTime,
+        5f, //float createTime,
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Oil, 20);
+            put(ResourcesType.Steel, 40);
+        }} //HashMap<ResourcesType, Integer> cost
+    ),
+
+    BIKE(
+        Type.Unit, //Type type,
+        GARAGE, //EntityType spawnFrom,
+        WeaponType.test,  //WeaponType weaponType,
+        75f, //float maxHealth,
+            0, //int armor,
+            0f,  //float passiveHeal,
+            40f, //float baseSpeed,
+            1f, //float freezeTime,
+            5f, //float createTime,
+            new HashMap<ResourcesType, Integer>() {{
+        put(ResourcesType.Oil, 10);
+        put(ResourcesType.Steel, 20);
+    }} //HashMap<ResourcesType, Integer> cost
+    ),
+
+    TANK(
+        Type.Unit, //Type type,
+        FACTORY, //EntityType spawnFrom,
+        WeaponType.test,  //WeaponType weaponType,
+        450f, //float maxHealth,
+            2, //int armor,
+            0f,  //float passiveHeal,
+            10f, //float baseSpeed,
+            5f, //float freezeTime,
+            5f, //float createTime,
+            new HashMap<ResourcesType, Integer>() {{
+        put(ResourcesType.Oil, 100);
+        put(ResourcesType.Steel, 300);
+    }} //HashMap<ResourcesType, Integer> cost
     );
+
+
+
+
 
 
     private final Type type;
