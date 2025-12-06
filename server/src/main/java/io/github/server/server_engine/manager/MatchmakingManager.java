@@ -4,7 +4,11 @@ import static io.github.shared.data.enums_types.MatchModeType.CONFIRM;
 import static io.github.shared.data.enums_types.MatchModeType.LEAVE;
 
 import com.esotericsoftware.kryonet.Connection;
+
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 
 import io.github.server.data.ServerGame;
@@ -13,12 +17,16 @@ import io.github.server.game_engine.GameLauncher;
 import io.github.server.server_engine.factory.KryoMessagePackager;
 import io.github.server.server_engine.factory.RequestFactory;
 import io.github.server.server_engine.utils.GameMaker;
+import io.github.shared.data.enums_types.EventType;
 import io.github.shared.data.enums_types.GameModeType;
 import io.github.shared.data.enums_types.MatchModeType;
+import io.github.shared.data.instructions.EventsInstruction;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.network.Player;
 import io.github.shared.data.requests.MatchMakingRequest;
+
+import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -212,18 +220,21 @@ public final class MatchmakingManager {
                 sendMatchmakingNotification(activeClient, "Game started !", serverGame.getGameMode(), MatchModeType.FOUND, myMap);
                 SyncManager.getInstance().syncPlayer(activeClient);
             }
-
             System.out.println("? All connected players notified for game: " + serverGame.getGAME_UUID());
+
             scheduler.shutdown();
         }, 2000, TimeUnit.MILLISECONDS);
 
+        EventsInstruction eventsInstruction = new EventsInstruction(System.currentTimeMillis(), EventType.START);
         ScheduledExecutorService scheduler2 = Executors.newSingleThreadScheduledExecutor();
 
         scheduler2.schedule(() -> {
+            SyncManager.sendInstructions(new ArrayDeque<>(Collections.singleton(eventsInstruction)), serverGame.getPlayersList());
             gameLauncher.start();
             scheduler.shutdown();
         }, 5000, TimeUnit.MILLISECONDS);
 
     }
+
 
 }

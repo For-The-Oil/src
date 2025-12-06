@@ -46,7 +46,7 @@ public final class SyncManager {
                 break;
 
             case INSTRUCTION_SYNC:
-                
+
                 break;
 
             default:
@@ -89,9 +89,7 @@ public final class SyncManager {
         System.out.println("Sending Instructions to all players");
 
         for (Player player: playersList) {
-
             if(player.getConnection().isConnected()) {
-
                 executor.execute(() -> {
                     try {
                         SynchronizeRequest request = RequestFactory.createSynchronizeInstructions(player, networkQueue);
@@ -105,7 +103,6 @@ public final class SyncManager {
             }
 
         }
-
 
     }
 

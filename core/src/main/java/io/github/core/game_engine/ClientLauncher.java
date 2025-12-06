@@ -39,8 +39,10 @@ public class ClientLauncher extends Thread {
                 ClientGame.getInstance().getWorld().process();
 
                 //addInstruction
-                ClientGame.getInstance().addQueueInstruction(instructionSync);
-                instructionSync.clear();
+                if(!instructionSync.isEmpty()) {
+                    ClientGame.getInstance().addQueueInstruction(instructionSync);
+                    instructionSync.clear();
+                }
 
                 //Exécuter les instructions en attente
                 while (!ClientGame.getInstance().isEmptyExecutionQueue()) {
