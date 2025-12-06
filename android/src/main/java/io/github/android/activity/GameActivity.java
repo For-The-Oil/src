@@ -192,10 +192,8 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
                 case INSTRUCTION_SYNC:
                     Log.d("For The Oil","Instruction Request received :"+request.getType().toString());
-
                     Object obj = request.getMap().getOrDefault("instructions", null);
                     if(obj instanceof Queue){
-                        // WARNING THIS PART COULD BE DANGEROUS
                         Queue<Instruction> queue = (Queue<Instruction>) obj;
                         clientLauncher.addQueueInstruction(queue);
                     }
