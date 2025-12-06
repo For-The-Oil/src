@@ -43,7 +43,8 @@ public class ModelFactory {
         }
         am.finishLoading();
         for(Object o : HashMapPath.keySet()){
-            HashMapModel.put(HashMapPath.get(o),createSolModel(am,HashMapPath.get(o)));
+            if(o instanceof CellType) HashMapModel.put(HashMapPath.get(o),createSolModel(am,HashMapPath.get(o)));
+            else ;
         }
         am.finishLoading();
 
