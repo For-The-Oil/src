@@ -48,8 +48,8 @@ public class ModelFactory {
         ModelBuilder builder = new ModelBuilder();
         HashMapModel = new HashMap<>();
 
-        for(String path : HashMapPath.values()){
-            am.load(path,Texture.class);
+        for(Object o : HashMapPath.keySet()){
+            if(o instanceof CellType) am.load(HashMapPath.get(o),Texture.class);
         }
         am.finishLoading();
         for(Object o : HashMapPath.keySet()){
