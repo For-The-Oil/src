@@ -4,6 +4,7 @@ import com.artemis.World;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.DefaultSerializers;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Queue;
@@ -50,6 +51,7 @@ public final class KryoRegistry {
         kryo.register(Queue.class);
         kryo.register(ConcurrentLinkedQueue.class);
         kryo.register(UUID.class, new DefaultSerializers.UUIDSerializer());
+        kryo.register(ArrayDeque.class);
 
 
         //Network
