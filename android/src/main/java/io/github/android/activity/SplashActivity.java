@@ -257,6 +257,7 @@ public class SplashActivity extends BaseActivity {
 
         map.put(CellType.ROAD, "textures/concrete.png");
         map.put(CellType.GRASS, "textures/grass.png");
+        map.put(CellType.WATER, "textures/water.png");
 
         ModelFactory.initINSTANCE(map);
 
