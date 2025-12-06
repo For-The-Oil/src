@@ -43,7 +43,7 @@ public class ModelFactory {
         }
         am.finishLoading();
         for(Object o : HashMapPath.keySet()){
-            if(o instanceof CellType) HashMapModel.put(HashMapPath.get(o),createSolModel(am,HashMapPath.get(o)));
+            if(o instanceof CellType) HashMapModel.put(o,createSolModel(am,HashMapPath.get(o)));
             else ;
         }
         am.finishLoading();
@@ -54,9 +54,7 @@ public class ModelFactory {
             VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
         // Crée un modèle par défaut
-        defaultModelShape = builder.createBox(BaseGameConfig.CELL_SIZE, 1f, BaseGameConfig.CELL_SIZE,
-            new Material(ColorAttribute.createDiffuse(Color.MAGENTA)),
-            VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        defaultModelShape = createDefaultSolModel();
 
 
     }
@@ -116,6 +114,34 @@ public class ModelFactory {
 
         return mb.end();
     }
+
+    public static Model createDefaultSolModel() {
+        // Matériau uni magenta (pas de texture)
+        Material material = new Material(ColorAttribute.createDiffuse(Color.MAGENTA));
+
+        ModelBuilder mb = new ModelBuilder();
+        mb.begin();
+
+        long attrs = VertexAttributes.Usage.Position
+            | VertexAttributes.Usage.Normal; // plus de UV
+
+        MeshPartBuilder part = mb.part("sol", GL20.GL_TRIANGLES, attrs, material);
+
+        Vector3 up = new Vector3(0f, 1f, 0f);
+        float s = BaseGameConfig.CELL_SIZE;
+
+        // Origine = coin haut-gauche (0,0,0) ; plan jusqu'à (s, 0, s)
+        VertexInfo v1 = new VertexInfo().setPos(0f, 0f, 0f).setNor(up);
+        VertexInfo v2 = new VertexInfo().setPos(0f, 0f, s ).setNor(up);
+        VertexInfo v3 = new VertexInfo().setPos(s , 0f, s ).setNor(up);
+        VertexInfo v4 = new VertexInfo().setPos(s , 0f, 0f).setNor(up);
+
+        // Ordre CCW vu de dessus → normale +Y
+        part.rect(v1, v2, v3, v4);
+
+        return mb.end();
+    }
+
     public Model getDefaultModel() {
         return defaultModel;
     }
