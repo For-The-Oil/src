@@ -36,35 +36,35 @@ public class ClientLauncher extends Thread {
 
     @Override
     public void run() {
-        final ClientGame cg = ClientGame.getInstance();
-        System.out.println("Game loop started for game: " + cg.getGAME_UUID());
-        cg.setLastTime(System.nanoTime());
+        final ClientGame game = ClientGame.getInstance();
+        System.out.println("Game loop started for game: " + game.getGAME_UUID());
+        game.setLastTime(System.nanoTime());
 
         try {
-            while (cg.isRunning()) {
-                double frameTimeMs = getTimeSinceLastFrameMs(cg);
-                cg.setAccumulator(cg.getAccumulator() + (float) frameTimeMs);
+            while (game.isRunning()) {
+                double frameTimeMs = getTimeSinceLastFrameMs(game);
+                game.setAccumulator(game.getAccumulator() + (float) frameTimeMs);
 
-                while (cg.getAccumulator() >= FIXED_TIME_STEP) {
-                    if (cg.getWorld() != null) {
+                while (game.getAccumulator() >= FIXED_TIME_STEP) {
+                    if (game.getWorld() != null) {
                         // FIXED_TIME_STEP en millisecondes -> delta en secondes pour Artémis
-                        cg.getWorld().setDelta((float) (FIXED_TIME_STEP / 1000.0));
-                        cg.getWorld().process();
+                        game.getWorld().setDelta((float) (FIXED_TIME_STEP / 1000.0));
+                        game.getWorld().process();
                     }
 
                     // Drainer les instructions reçues côté réseau de façon thread-safe
                     for (Instruction instr; (instr = instructionSync.poll()) != null;) {
-                        cg.getExecutionQueue().add(instr);
+                        game.getExecutionQueue().add(instr);
                     }
 
                     // Exécuter la file
-                    while (!cg.isEmptyExecutionQueue()) {
-                        Instruction instruction = cg.getExecutionQueue().poll();
+                    while (!game.isEmptyExecutionQueue()) {
+                        Instruction instruction = game.getExecutionQueue().poll();
                         if (instruction == null) continue;
-                        InstructionManager.executeInstruction(instruction, cg);
+                        InstructionManager.executeInstruction(instruction, game);
                     }
 
-                    cg.setAccumulator(cg.getAccumulator() - (float) FIXED_TIME_STEP);
+                    game.setAccumulator(game.getAccumulator() - (float) FIXED_TIME_STEP);
                 }
 
                 // FullGameResync, exécuté en dehors du tick mais à un point sûr
@@ -74,7 +74,7 @@ public class ClientLauncher extends Thread {
                 }
 
                 // Petite pause pour éviter le busy-wait
-                if (cg.getAccumulator() < FIXED_TIME_STEP) {
+                if (game.getAccumulator() < FIXED_TIME_STEP) {
                     try {
                         Thread.sleep(0, 500_000); // ~0,5 ms
                     } catch (InterruptedException ie) {
@@ -86,7 +86,8 @@ public class ClientLauncher extends Thread {
         } catch (Throwable t) {
             t.printStackTrace(); // remplace par logger
         } finally {
-            System.out.println("Game loop stopped for game: " + cg.getGAME_UUID());
+            System.out.println("Game loop stopped for game: " + game.getGAME_UUID());
+            System.out.println("Game loop stopped for game: " + game.isRunning());
         }
     }
 
