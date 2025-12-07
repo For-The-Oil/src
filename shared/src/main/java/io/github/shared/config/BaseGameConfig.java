@@ -25,8 +25,4 @@ public final class BaseGameConfig {
         CLASSIC, ALPHA_TEST
     ));
 
-
-
-
-
 }

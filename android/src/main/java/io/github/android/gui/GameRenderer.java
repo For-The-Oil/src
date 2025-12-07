@@ -39,8 +39,8 @@ public class GameRenderer implements ApplicationListener {
 
         // Caméra perspective
         camera = new PerspectiveCamera(67f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(0f, 150f, (300f+10));
-        camera.lookAt(0f, 0f, 0f);
+        camera.position.set(500, 150*10, (300f*10));
+        camera.lookAt(500, 10f, 0f);
         camera.near = 0.1f;
         camera.far = BaseGameConfig.CELL_SIZE*1000f;
         camera.update();
