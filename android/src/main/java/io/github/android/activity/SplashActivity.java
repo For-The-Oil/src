@@ -255,9 +255,13 @@ public class SplashActivity extends BaseActivity {
 
         HashMap<Object, String> map = new HashMap<>();
 
+        //ground
         map.put(CellType.ROAD, "textures/concrete.png");
         map.put(CellType.GRASS, "textures/grass.png");
         map.put(CellType.WATER, "textures/water.png");
+
+        //units
+        map.put(EntityType.TANK, "models/default_tank.glb");
 
         ModelFactory.initINSTANCE(map);
 
