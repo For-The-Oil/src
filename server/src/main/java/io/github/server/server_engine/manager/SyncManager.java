@@ -42,7 +42,7 @@ public final class SyncManager {
         switch (type) {
             case FULL_RESYNC:
                 System.out.println("Client is asking for a full sync : " + client.getUsername() + " " + client.getIp() );
-                this.syncPlayer(client);
+                this.syncPlayer(client,PlayerChecker.getGameOfClient(client));
                 break;
 
             case INSTRUCTION_SYNC:
@@ -55,8 +55,7 @@ public final class SyncManager {
 
     }
 
-    public void syncPlayer(ClientNetwork client){
-        ServerGame sgame = PlayerChecker.getGameOfClient(client);
+    public void syncPlayer(ClientNetwork client,ServerGame sgame){
         if (sgame == null) {
             System.out.println("Player asking for Sync not found in any game !");
             return;

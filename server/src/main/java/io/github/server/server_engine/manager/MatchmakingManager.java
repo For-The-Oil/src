@@ -217,7 +217,7 @@ public final class MatchmakingManager {
                     continue;
                 }
                 sendMatchmakingNotification(p, "Game started !", serverGame.getGameMode(), MatchModeType.FOUND, myMap);
-                SyncManager.getInstance().syncPlayer(p);
+                SyncManager.getInstance().syncPlayer(p,serverGame);
             }
             System.out.println("? All connected players notified for game: " + serverGame.getGAME_UUID());
 
