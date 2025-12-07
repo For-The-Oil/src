@@ -20,6 +20,7 @@ import io.github.android.manager.ClientManager;
 import io.github.android.utils.PrefsUtils;
 import io.github.android.utils.RedirectUtils;
 import io.github.core.game_engine.factory.ModelFactory;
+import io.github.core.game_engine.factory.SceneFactory;
 import io.github.fortheoil.R;
 import io.github.shared.data.enums_types.CellType;
 import io.github.shared.data.enums_types.EntityType;
@@ -254,6 +255,7 @@ public class SplashActivity extends BaseActivity {
     private void initPath(){
 
         HashMap<Object, String> map = new HashMap<>();
+        HashMap<Object, String> map2 = new HashMap<>();
 
         //ground
         map.put(CellType.ROAD, "textures/concrete.png");
@@ -261,9 +263,10 @@ public class SplashActivity extends BaseActivity {
         map.put(CellType.WATER, "textures/water.png");
 
         //units
-        map.put(EntityType.TANK, "models/default_tank.glb");
+        map2.put(EntityType.TANK, "models/default_tank.glb");
 
         ModelFactory.initINSTANCE(map);
+        SceneFactory.initINSTANCE(map2);
 
     }
 

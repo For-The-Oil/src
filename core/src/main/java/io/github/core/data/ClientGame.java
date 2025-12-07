@@ -2,6 +2,8 @@ package io.github.core.data;
 
 import com.artemis.World;
 
+import net.mgsx.gltf.scene3d.scene.Scene;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,7 +12,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import io.github.core.game_engine.EcsClientGame;
-import io.github.core.game_engine.factory.ModelFactory;
 import io.github.shared.data.enums_types.EventType;
 import io.github.shared.data.enums_types.GameModeType;
 import io.github.shared.data.enums_types.MapName;
@@ -33,7 +34,7 @@ public class ClientGame implements IGame {
     private MapName mapName;
     private EventType currentEvent;
     private final Queue<Instruction> executionQueue;
-    private final Queue<ExtendedModelInstance> ModelInstanceQueue;
+    private final Queue<Scene> sceneQueue;
     private float accumulator;
     private long lastTime;
     private long timeLeft;  // seconds
@@ -48,13 +49,13 @@ public class ClientGame implements IGame {
         this.playersList = new ArrayList<>();
         this.running = true;
         this.executionQueue = new ConcurrentLinkedQueue<>();
-        this.ModelInstanceQueue = new ConcurrentLinkedQueue<>();
+        this.sceneQueue = new ConcurrentLinkedQueue<>();
         this.accumulator = 0f;
         this.lastTime = System.currentTimeMillis();
         this.timeLeft = timeLeft;
         this.currentEvent = eventType;
 
-        this.world = new World(EcsClientGame.serverWorldConfiguration(ModelInstanceQueue));// Important this line after anything else because dangerous overwise
+        this.world = new World(EcsClientGame.serverWorldConfiguration(sceneQueue));// Important this line after anything else because dangerous overwise
     }
 
     public static ClientGame getInstance() {
@@ -214,7 +215,7 @@ public class ClientGame implements IGame {
         executionQueue.addAll(instruction);
     }
 
-    public Queue<ExtendedModelInstance> getModelInstanceQueue() {
-        return ModelInstanceQueue;
+    public Queue<Scene> getSceneQueue() {
+        return sceneQueue;
     }
 }

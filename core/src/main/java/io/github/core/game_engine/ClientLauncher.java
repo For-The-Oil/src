@@ -87,7 +87,6 @@ public class ClientLauncher extends Thread {
             t.printStackTrace(); // remplace par logger
         } finally {
             System.out.println("Game loop stopped for game: " + game.getGAME_UUID());
-            System.out.println("Game loop stopped for game: " + game.isRunning());
         }
     }
 
