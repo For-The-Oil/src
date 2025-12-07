@@ -71,15 +71,16 @@ public class GameRenderer implements ApplicationListener {
 
         // Début/fin du batch
         modelBatch.begin(camera);
-        for(ModelInstance instance : shapeInstance){
-            if(instance != null){
+        for (int i = 0, n = shapeInstance.size(); i < n; i++) {
+            ModelInstance instance = shapeInstance.get(i);
+            if (instance != null) {
                 modelBatch.render(instance, environment);
             }
         }
-        for(ExtendedModelInstance instance : entityInstance){
-            //Log.d("For The Oil","instance received :"+instance);
-            float delta = Gdx.graphics.getDeltaTime();
-            if(instance != null){
+        for (int i = 0, n = entityInstance.size(); i < n; i++) {
+            ExtendedModelInstance instance = entityInstance.get(i);
+            if (instance != null) {
+                float delta = Gdx.graphics.getDeltaTime();
                 instance.update(delta);
                 modelBatch.render(instance, environment);
             }
