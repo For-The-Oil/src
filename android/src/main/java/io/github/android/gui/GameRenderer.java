@@ -1,6 +1,8 @@
 
 package io.github.android.gui;
 
+import android.util.Log;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -52,8 +54,8 @@ public class GameRenderer implements ApplicationListener {
     public void create() {
         // Camera
         camera = new PerspectiveCamera(67f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(700, 150 * 10f, 300f * 20f);
-        camera.lookAt(700, 10f, 0f);
+        camera.position.set(1500, 150 * 20f, 300f * 30f);
+        camera.lookAt(1500, 0f, 0f);
         camera.near = 0.1f;
         camera.far  = BaseGameConfig.CELL_SIZE * 1000f;
         camera.update();

@@ -22,4 +22,17 @@ public enum Direction {
             default:throw new IllegalArgumentException("Unknown direction: "+this);
         }
     }
+
+
+    /** 0° = NORTH, 90° = EAST, 180° = SOUTH, 270° = WEST (sens horaire) */
+    public int getAngleDegrees() {
+        switch (this) {
+            case NORTH: return 0;
+            case EAST:  return 90;
+            case SOUTH: return 180;
+            case WEST:  return 270;
+            default: throw new IllegalArgumentException("Unknown direction: " + this);
+        }
+    }
+
 }
