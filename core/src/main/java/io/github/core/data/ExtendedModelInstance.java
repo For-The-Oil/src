@@ -101,8 +101,8 @@ public class ExtendedModelInstance extends ModelInstance {
             animationController = animationControllerMelee;
             Node turretNode = this.getNode("Melee");
             if(weaponType.isTurret()) {
-                turretNode.rotation.set(new Quaternion(Vector3.Z, secondHorizontalRotation));
                 turretNode.rotation.set(new Quaternion(Vector3.X, secondVerticalRotation));
+                //turretNode.rotation.set(new Quaternion(Vector3.Z, secondHorizontalRotation).mul(new Quaternion(Vector3.X, secondVerticalRotation)));
             }
         }
         else if (weaponType.getType().equals(WeaponType.Type.Range)) {
@@ -145,9 +145,11 @@ public class ExtendedModelInstance extends ModelInstance {
     }
 
 
+
     private boolean hasAnimation(String animId) {
         if (this.animations == null) return false;
-        for (Animation a : this.animations) {
+        for (int i = 0, n = this.animations.size; i < n; i++) {
+            Animation a = this.animations.get(i);
             if (a != null && a.id != null && a.id.equals(animId)) return true;
         }
         return false;
