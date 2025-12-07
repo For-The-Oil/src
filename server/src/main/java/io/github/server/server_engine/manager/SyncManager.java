@@ -86,7 +86,7 @@ public final class SyncManager {
 
     public static void sendInstructions(Queue<Instruction> networkQueue, ArrayList<Player> playersList){
         if(networkQueue==null || playersList==null) return;
-        System.out.println("Sending Instructions to all players");
+        System.out.println(networkQueue);
 
         for (Player player: playersList) {
             if(player.getConnection().isConnected()) {

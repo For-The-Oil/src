@@ -1,6 +1,8 @@
 package io.github.android.gui;
 
 
+import android.util.Log;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -37,8 +39,8 @@ public class GameRenderer implements ApplicationListener {
 
         // Caméra perspective
         camera = new PerspectiveCamera(67f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(1500f, 150f*20, (300f+10)*30);
-        camera.lookAt(1500f, 0f, 0f);
+        camera.position.set(0f, 150f, (300f+10));
+        camera.lookAt(0f, 0f, 0f);
         camera.near = 0.1f;
         camera.far = BaseGameConfig.CELL_SIZE*1000f;
         camera.update();
@@ -75,6 +77,7 @@ public class GameRenderer implements ApplicationListener {
             }
         }
         for(ExtendedModelInstance instance : entityInstance){
+            //Log.d("For The Oil","instance received :"+instance);
             float delta = Gdx.graphics.getDeltaTime();
             if(instance != null){
                 instance.update(delta);

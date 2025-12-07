@@ -53,20 +53,12 @@ public class InstanceFactory {
         return instances;
     }
 
-    public static ExtendedModelInstance getExtendedModelInstance(WeaponType weaponType, int net, int e) {
-        return new ExtendedModelInstance(ModelFactory.getInstance().getModel(weaponType),net,e);
-    }
-
     public static ExtendedModelInstance getExtendedModelInstance(EntityType entityType, int net, int e) {
         return new ExtendedModelInstance(ModelFactory.getInstance().getModel(entityType),net,e);
     }
 
     public static ExtendedModelInstance getDefaultExtendedModelInstance(int e) {
         return new ExtendedModelInstance(ModelFactory.getInstance().getDefaultModel(),e);
-    }
-
-    public ModelInstance getDefaultModelInstance() {
-        return new ModelInstance(ModelFactory.getInstance().getDefaultModel());
     }
 }
 

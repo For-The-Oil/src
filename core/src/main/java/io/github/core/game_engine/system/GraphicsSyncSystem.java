@@ -58,8 +58,8 @@ public class GraphicsSyncSystem extends BaseSystem {
             ProjectileAttackComponent projectile = mProjAttack.get(e);
 
             if (mc == null) {
-                mc = new ModelComponent(net != null ? InstanceFactory.getExtendedModelInstance(net.entityType,net.netId,e) : InstanceFactory.getDefaultExtendedModelInstance(e));
-                world.edit(e).add(mc);
+                mc = mm.create(e);
+                mc.mapInstance = (net != null ? InstanceFactory.getExtendedModelInstance(net.entityType,net.netId,e) : InstanceFactory.getDefaultExtendedModelInstance(e));
             }
 
             // Mettre à jour instance

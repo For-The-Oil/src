@@ -28,6 +28,10 @@ import io.github.core.game_engine.ClientLauncher;
 import io.github.core.game_engine.manager.GameManager;
 import io.github.fortheoil.R;
 import io.github.shared.data.NetGame;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.EventType;
+import io.github.shared.data.instructions.CreateInstruction;
+import io.github.shared.data.instructions.EventsInstruction;
 import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.requests.SynchronizeRequest;
 
@@ -196,6 +200,13 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
                     if(obj instanceof Queue){
                         Queue<Instruction> queue = (Queue<Instruction>) obj;
                         clientLauncher.addQueueInstruction(queue);
+                        if(!clientLauncher.isAlive()){
+                            Instruction instruction = queue.poll();
+                            if(instruction instanceof EventsInstruction&&((EventsInstruction)instruction).getEventType().equals(EventType.START)){
+                                clientLauncher.start();
+                                Log.d("For The Oil","Instruction start received :");
+                            }
+                        }
                     }
                     break;
 

@@ -49,7 +49,6 @@ public final class KryoRegistry {
         kryo.register(HashMap.class);
         kryo.register(ArrayList.class);
         kryo.register(Queue.class);
-        kryo.register(ConcurrentLinkedQueue.class);
         kryo.register(UUID.class, new DefaultSerializers.UUIDSerializer());
         kryo.register(ArrayDeque.class);
 
