@@ -24,6 +24,7 @@ import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.utils.NetworkUtils;
 import io.github.core.data.ClientGame;
+import io.github.core.game_engine.CameraController;
 import io.github.core.game_engine.ClientLauncher;
 import io.github.core.game_engine.manager.GameManager;
 import io.github.fortheoil.R;
@@ -66,6 +67,7 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
         initListener();
         setupLoadingFragment();
+        setupCameraControls();
     }
 
     @Override
@@ -229,6 +231,24 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
         }), true);
     }
+
+    private void setupCameraControls() {
+        findViewById(R.id.camZoomIn).setOnClickListener(v ->
+            CameraController.get().zoomDelta = -50f);
+
+        findViewById(R.id.camZoomOut).setOnClickListener(v ->
+            CameraController.get().zoomDelta = 50f);
+
+        findViewById(R.id.camRotateLeft).setOnClickListener(v ->
+            CameraController.get().rotDelta = +2f);
+
+        findViewById(R.id.camRotateRight).setOnClickListener(v ->
+            CameraController.get().rotDelta = -2f);
+
+        findViewById(R.id.camReset).setOnClickListener(v ->
+            CameraController.get().resetRequested = true);
+    }
+
 
 
 

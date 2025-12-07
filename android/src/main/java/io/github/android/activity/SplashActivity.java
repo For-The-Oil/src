@@ -264,6 +264,8 @@ public class SplashActivity extends BaseActivity {
 
         //units
         map2.put(EntityType.TANK, "models/default_tank.glb");
+        map2.put(EntityType.BIKE, "models/default_bike.glb");
+        map2.put(EntityType.JEEP, "models/default_jeep.glb");
 
         ModelFactory.initINSTANCE(map);
         SceneFactory.initINSTANCE(map2);

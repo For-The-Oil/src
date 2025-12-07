@@ -12,12 +12,14 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import io.github.core.game_engine.CameraController;
 import io.github.core.game_engine.factory.InstanceFactoryScene;
 import io.github.core.game_engine.factory.SceneFactory;
 import io.github.core.game_engine.system.GraphicsSyncSystem;
@@ -50,15 +52,21 @@ public class GameRenderer implements ApplicationListener {
 
     private Queue<Scene> sharedSceneQueue; // alimentée par l’ECS
 
+    private Runnable onCameraReady;
+
     @Override
     public void create() {
         // Camera
         camera = new PerspectiveCamera(67f, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.position.set(1500, 150 * 20f, 300f * 30f);
-        camera.lookAt(1500, 0f, 0f);
+        camera.position.set(1500f, 2000f, 800f);
+        camera.lookAt(1500f, 0f, 800f);
+        //camera.up.set(Vector3.Y);
+        //camera.fieldOfView = 90f;
         camera.near = 0.1f;
         camera.far  = BaseGameConfig.CELL_SIZE * 1000f;
         camera.update();
+
+        if(onCameraReady != null) onCameraReady.run();
 
         // SceneManager PBR (config lights/bones)
         PBRShaderConfig cfg = new PBRShaderConfig();
@@ -71,7 +79,7 @@ public class GameRenderer implements ApplicationListener {
 
         // Lumière + IBL + skybox
         DirectionalLightEx sun = new DirectionalLightEx();
-        sun.direction.set(1f, -3f, 1f).nor(); sun.color.set(Color.WHITE);
+        sun.direction.set(1f, -3f, 1f).nor(); sun.color.set(Color.RED);
         sceneManager.environment.add(sun);
 
         IBLBuilder ibl = IBLBuilder.createOutdoor(sun);
@@ -81,7 +89,7 @@ public class GameRenderer implements ApplicationListener {
         brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
         ibl.dispose();
 
-        //sceneManager.setAmbientLight(1f); // augmente la visibilité globale
+        sceneManager.setAmbientLight(0.1f); // augmente la visibilité globale
         sceneManager.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
         sceneManager.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
         sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));
@@ -100,46 +108,63 @@ public class GameRenderer implements ApplicationListener {
 
     @Override
     public void render() {
-        GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
+        GraphicsSyncSystem gfx = ClientGame.getInstance()
+            .getWorld()
+            .getSystem(GraphicsSyncSystem.class);
         gfx.syncOnRenderThread();
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         Gdx.gl.glClearColor(0f, 0f, 0f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
-        // Map dirty -> régénère les scènes de tuiles
+        CameraController.get().applyToCamera(camera);
+
+
+        // -----------------------
+        // 1) MAP UPDATE
+        // -----------------------
         if (ClientGame.getInstance().isMapDirty()) {
             for (Scene s : mapScenes) if (s != null) sceneManager.removeScene(s);
             mapScenes.clear();
-            mapScenes.addAll(InstanceFactoryScene.getShapeScenes(ClientGame.getInstance().getMap(), new ArrayList<>()));
+
+            mapScenes.addAll(
+                InstanceFactoryScene.getShapeScenes(
+                    ClientGame.getInstance().getMap(), new ArrayList<>()
+                )
+            );
             for (Scene s : mapScenes) if (s != null) sceneManager.addScene(s);
             ClientGame.getInstance().setMapDirty(false);
         }
 
-        // Ingestion de la queue ECS -> entités visibles (ex. si tu veux rafraîchir la liste à l’écran)
+        // -----------------------
+        // 2) ENTITY UPDATE
+        // -----------------------
         if (!sharedSceneQueue.isEmpty()) {
+            for (Scene s : entityScenes) if (s != null) sceneManager.removeScene(s);
             entityScenes.clear();
             entityScenes.addAll(sharedSceneQueue);
             sharedSceneQueue.clear();
+            for (Scene s : entityScenes) if (s != null) sceneManager.addScene(s);
         }
 
-        Array<RenderableProvider> providers = sceneManager.getRenderableProviders();
-        providers.clear();
-        for (Scene s : mapScenes) providers.add(s);
-        for (Scene s : entityScenes) providers.add(s);
+        // -----------------------
+        // 3) UPDATE TRANSFORMS
+        // -----------------------
+        for (Scene s : entityScenes)
+            if (s != null && s.modelInstance != null) s.modelInstance.calculateTransforms();
 
-        for (Scene s : entityScenes){
-            if (s != null && s.modelInstance != null) {
-                s.modelInstance.calculateTransforms();  // <-- safety net
-            }
-        }
+        for (Scene s : mapScenes)
+            if (s != null && s.modelInstance != null) s.modelInstance.calculateTransforms();
 
-
-
+        // -----------------------
+        // 4) RENDER
+        // -----------------------
         float delta = Gdx.graphics.getDeltaTime();
         sceneManager.update(delta);
         sceneManager.render();
     }
+
+
 
     @Override public void resize(int w, int h) { camera.viewportWidth = w; camera.viewportHeight = h; camera.update(); }
     @Override public void pause() {}
@@ -152,5 +177,15 @@ public class GameRenderer implements ApplicationListener {
         if (environmentCubemap != null) environmentCubemap.dispose();
         if (specularCubemap != null) specularCubemap.dispose();
         if (brdfLUT != null) brdfLUT.dispose();
+    }
+
+
+    public PerspectiveCamera getCamera() {
+        return camera;
+    }
+
+
+    public void setOnCameraReady(Runnable callback) {
+        this.onCameraReady = callback;
     }
 }

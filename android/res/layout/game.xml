@@ -9,8 +9,50 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- === MENU CAMERA OVERLAY (nouveau) === -->
+    <LinearLayout
+        android:id="@+id/cameraControls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="top|end"
+        android:padding="12dp"
+        android:background="#55000000">
 
-    <!-- Barre d'informations / autres éléments Android au-dessus ou en dessous -->
+        <Button
+            android:id="@+id/camZoomIn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+ Zoom" />
+
+        <Button
+            android:id="@+id/camZoomOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="- Zoom" />
+
+        <Button
+            android:id="@+id/camRotateLeft"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⟲ Tourner" />
+
+        <Button
+            android:id="@+id/camRotateRight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⟳ Tourner" />
+
+        <Button
+            android:id="@+id/camReset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset Cam" />
+
+    </LinearLayout>
+    <!-- === FIN MENU CAMERA === -->
+
+    <!-- Barre d'informations -->
     <LinearLayout
         android:id="@+id/uiContainer"
         android:orientation="vertical"
@@ -19,7 +61,6 @@
         android:layout_gravity="bottom"
         android:padding="16dp">
 
-        <!-- Exemple : score, boutons, etc. -->
         <TextView
             android:id="@+id/scoreText"
             android:layout_width="wrap_content"
@@ -35,12 +76,11 @@
             android:text="Action" />
     </LinearLayout>
 
-    <!-- Overlay pour chargement / resynchro -->
+    <!-- Overlay chargement -->
     <FrameLayout
         android:id="@+id/loadingContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="visible" />
-
 
 </FrameLayout>
