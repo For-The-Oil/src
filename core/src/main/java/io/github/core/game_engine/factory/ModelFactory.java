@@ -59,7 +59,7 @@ public class ModelFactory {
         am.finishLoading();
 
         // Crée un modèle par défaut
-        defaultModel = builder.createBox(75f, 75f, 75f,
+        defaultModel = builder.createBox(BaseGameConfig.CELL_SIZE*0.75f, BaseGameConfig.CELL_SIZE*0.75f, BaseGameConfig.CELL_SIZE*0.75f,
             new Material(ColorAttribute.createDiffuse(Color.RED)),
             VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
 
