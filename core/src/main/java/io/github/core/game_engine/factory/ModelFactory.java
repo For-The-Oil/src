@@ -46,10 +46,11 @@ public class ModelFactory {
     private static HashMap<Object,Model> HashMapModel;
     private static HashMap<Object,String> HashMapPath;
 
-    private static AssetManager am = new AssetManager();
+    private static AssetManager am;
     private ModelFactory(){
         ModelBuilder builder = new ModelBuilder();
         HashMapModel = new HashMap<>();
+        am = new AssetManager();
 
         for(Object o : HashMapPath.keySet()){
             if(o instanceof CellType) am.load(HashMapPath.get(o),Texture.class);
