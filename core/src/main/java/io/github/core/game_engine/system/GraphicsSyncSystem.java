@@ -53,6 +53,30 @@ public class GraphicsSyncSystem extends BaseSystem {
         // no-op
     }
 
+    public int getEntity(Scene scene) {
+        if(scene == null)return -1;
+        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all()).getEntities();
+        for (int i = 0; i < entities.size(); i++) {
+            int e = entities.get(i);
+            ModelComponent mc = mm.get(e);
+            if (mc != null && mc.scene == scene) {
+                return e;
+            }
+        }
+        return -1;
+    }
+
+    public int getEntityNetID(Scene scene) {
+        int e = getEntity(scene);
+        if(e!=-1){
+            NetComponent net  = mNet.get(e);
+            if(net!=null&&net.netId>0){
+            return net.netId;
+            }
+        }
+        return -1;
+    }
+
     /** À appeler depuis GameRenderer.render() sur le GLThread, avant update()/render(). */
     public void syncOnRenderThread() {
         List<Scene> newRender = new ArrayList<>();
