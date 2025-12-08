@@ -100,6 +100,15 @@ public class GameRenderer implements ApplicationListener {
     }
 
 
+    public Iterable<Scene> getAllScenes() {
+        List<Scene> all = new ArrayList<>(mapScenes.size() + entityScenes.size());
+        all.addAll(mapScenes);
+        all.addAll(entityScenes);
+        return all;
+    }
+
+
+
     @Override
     public void render() {
         GraphicsSyncSystem gfx = ClientGame.getInstance()
