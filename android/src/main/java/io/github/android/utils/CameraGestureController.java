@@ -62,8 +62,8 @@ public class CameraGestureController extends InputAdapter {
     private final float PINCH_SENS = 1.0f;                  // 1 = natural, <1 = softer
 
     // Height-based clamps (independent of clicked object)
-    private final float MIN_HEIGHT = 300f;   // min camera Y above ground
-    private final float MAX_HEIGHT = 3500f;  // max camera Y above ground
+    private final float MIN_HEIGHT = 600f;   // min camera Y above ground
+    private final float MAX_HEIGHT = 5000f;  // max camera Y above ground
 
     /**
      * Constructs the plane-anchored gesture controller.
