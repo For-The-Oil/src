@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication;
+import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.Gdx;
 
@@ -25,8 +26,9 @@ public class LibGdxFragment extends AndroidFragmentApplication {
 
         GameRenderer renderer = new GameRenderer();
         renderer.setOnCameraReady(() -> {
+            Plane mapPlane = new Plane(new Vector3(0, 1, 0), 0f); // y = 0
             CameraGestureController gestureController =
-                new CameraGestureController(renderer.getCamera(), new Vector3(1500f, 0f, 800f));
+                new CameraGestureController(renderer.getCamera(), new Vector3(1500f, 0f, 800f),mapPlane);
             Gdx.input.setInputProcessor(gestureController);
         });
         return initializeForView(renderer, config);

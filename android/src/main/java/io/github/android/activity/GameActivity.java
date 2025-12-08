@@ -9,10 +9,6 @@ import android.widget.FrameLayout;
 
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -29,9 +25,7 @@ import io.github.core.game_engine.ClientLauncher;
 import io.github.core.game_engine.manager.GameManager;
 import io.github.fortheoil.R;
 import io.github.shared.data.NetGame;
-import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.EventType;
-import io.github.shared.data.instructions.CreateInstruction;
 import io.github.shared.data.instructions.EventsInstruction;
 import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.requests.SynchronizeRequest;

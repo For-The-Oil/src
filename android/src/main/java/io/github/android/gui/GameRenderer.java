@@ -1,7 +1,6 @@
 
 package io.github.android.gui;
 
-import android.util.Log;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -10,10 +9,7 @@ import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +17,9 @@ import java.util.Queue;
 
 import io.github.core.game_engine.CameraController;
 import io.github.core.game_engine.factory.InstanceFactoryScene;
-import io.github.core.game_engine.factory.SceneFactory;
 import io.github.core.game_engine.system.GraphicsSyncSystem;
 import io.github.shared.config.BaseGameConfig;
-import io.github.core.data.ClientGame; // suppose un getter de queue Scenes (voir patch plus bas)
-import io.github.shared.data.enums_types.EntityType;
+import io.github.core.data.ClientGame;
 
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.scene.Scene;
