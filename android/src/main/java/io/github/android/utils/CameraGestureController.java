@@ -175,16 +175,6 @@ public class CameraGestureController extends InputAdapter {
                 target.y += deltaY;
             }
 
-            // Correct so the anchored ground point stays under finger 1
-            if (hasAnchorGround) {
-                Vector3 ground1 = new Vector3();
-                if (screenToGround((int)curr1.x, (int)curr1.y, ground1)) {
-                    tmp.set(anchorGround).sub(ground1); // pure ground-plane delta
-                    camera.position.add(tmp);
-                    target.add(tmp);
-                }
-            }
-
             camera.lookAt(target);
             camera.update();
 
