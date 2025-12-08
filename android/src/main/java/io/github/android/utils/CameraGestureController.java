@@ -1,3 +1,4 @@
+
 package io.github.android.utils;
 
 import com.badlogic.gdx.InputAdapter;
@@ -6,28 +7,18 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 
-import net.mgsx.gltf.scene3d.scene.Scene;
-
-import java.util.ArrayList;
+import io.github.core.game_engine.CameraController;
 
 /**
- * Gesture controller for libGDX providing finger-anchored pan and pinch-zoom.
- * <p>
- * At every interaction, the world point under the finger is computed via a raycast.
- * If the pixel hits an object (e.g., a tank), the anchor is set on that object by
- * intersecting the ray with its world-space axis-aligned bounding box (AABB).
- * If nothing is hit, the anchor falls back to the map plane (e.g., {@code y = 0}).
- * By keeping this anchor under the finger, the touched world point stays
- * exactly under the finger while panning or zooming, regardless of the zoom level.
- *
- * <h3>Features</h3>
+ * Camera gestures anchored on the 2D map plane (e.g., y=0).
  * <ul>
- *   <li>Anchored pan: translate camera and look target so the anchor stays under the finger.</li>
- *   <li>Pinch-zoom: zoom along the view axis and then correct so the anchor remains under finger 1.</li>
- *   <li>Fast AABB ray-cast per scene with fallback to the map plane.</li>
+ *   <li><b>One-finger PAN</b>: compute the ground projection of the finger (ray ∩ plane),
+ *       and translate camera + look target so that the anchored ground point stays under the finger.</li>
+ *   <li><b>Two-finger PINCH-ZOOM</b>: multiplicative (ratio-based) zoom along the view axis,
+ *       clamped <b>only</b> by camera height above ground; then corrected so the anchored
+ *       ground point (projection) remains under finger 1.</li>
  * </ul>
  *
  * <h3>Usage</h3>
@@ -35,107 +26,112 @@ import java.util.ArrayList;
  * Plane mapPlane = new Plane(new Vector3(0, 1, 0), 0f); // y = 0
  * CameraGestureController gestures = new CameraGestureController(
  *     camera,
- *     new Vector3(1500f, 0f, 800f),     // initial look point
- *     mapPlane,
- *     renderer::getAllScenes            // provider of pickable scenes
+ *     new Vector3(1500f, 0f, 800f), // initial look point
+ *     mapPlane
  * );
  * Gdx.input.setInputProcessor(gestures);
  * }</pre>
  *
  * <h3>Notes</h3>
  * <ul>
- *   <li>No Y flip is applied here to keep screen coordinates consistent with
- *       {@link com.badlogic.gdx.InputProcessor} callbacks.</li>
+ *   <li>No Y flip here: we keep InputProcessor screen coords as-is.</li>
  *   <li>Ray creation uses {@link com.badlogic.gdx.graphics.Camera#getPickRay(float, float)}.</li>
- *   <li>Bounding boxes are obtained via
- *       {@link com.badlogic.gdx.graphics.g3d.ModelInstance#calculateBoundingBox(BoundingBox)}.
- *       Ensure transforms are up to date before rendering so AABBs are in world space.</li>
+ *   <li>Zoom clamps depend only on camera height (Y above the map plane), never on the clicked object.</li>
  * </ul>
- *
- * @author Saïd & Copilot
  */
 public class CameraGestureController extends InputAdapter {
-
-    /**
-     * Supplies scenes to be considered for picking (AABB ray tests).
-     * Typically: all map scenes plus all entity scenes.
-     */
-    public interface PickableSceneProvider {
-        /**
-         * @return iterable of pickable scenes (map + entities).
-         */
-        Iterable<Scene> getPickableScenes();
-    }
 
     private final Camera camera;
     private final Vector3 target;
     private final Plane mapPlane;
-    private final PickableSceneProvider provider;
+
+    // Optional global controller lock during gestures
+    private final CameraController cc = CameraController.get();
 
     // Pointer state
     private int pointer1 = -1, pointer2 = -1;
     private final Vector2 prev1 = new Vector2(), prev2 = new Vector2();
 
-    // Buffers
+    // Buffers / anchors (all on ground plane)
     private final Vector3 tmp = new Vector3();
-    private final Vector3 anchorWorld = new Vector3();
-    private boolean hasAnchor = false;
+    private final Vector3 anchorGround = new Vector3();   // ground projection at touchDown for pan & zoom correction
+    private boolean hasAnchorGround = false;
 
-    // Zoom params
-    private final float MIN_ZOOM = 500f;
-    private final float MAX_ZOOM = 5000f;
-    private final float ZOOM_SPEED_FACTOR = 10f;
+    // Pinch parameters
+    private final float MIN_RATIO = 0.2f, MAX_RATIO = 5f;   // per-frame clamp
+    private final float PINCH_SENS = 1.0f;                  // 1 = natural, <1 = softer
+
+    // Height-based clamps (independent of clicked object)
+    private final float MIN_HEIGHT = 300f;   // min camera Y above ground
+    private final float MAX_HEIGHT = 3500f;  // max camera Y above ground
 
     /**
-     * Constructs the anchored gesture controller.
+     * Constructs the plane-anchored gesture controller.
      *
-     * @param cam       libGDX camera (perspective or orthographic)
-     * @param target    initial world look point (will be updated on gestures)
-     * @param mapPlane  map plane (e.g., {@code y=0})
-     * @param provider  supplier of pickable scenes for AABB ray tests
+     * @param cam      libGDX camera (perspective or orthographic)
+     * @param target   initial world look point (updated on gestures)
+     * @param mapPlane map/ground plane (e.g., y=0)
      */
-    public CameraGestureController(Camera cam, Vector3 target, Plane mapPlane, PickableSceneProvider provider) {
+    public CameraGestureController(Camera cam, Vector3 target, Plane mapPlane) {
         this.camera = cam;
         this.target = target.cpy();
         this.mapPlane = mapPlane;
-        this.provider = provider;
     }
 
-    /** {@inheritDoc} */
+    /** Intersects the screen ray with the map plane; returns false if ray is parallel. */
+    private boolean screenToGround(int sx, int sy, Vector3 out) {
+        Ray ray = camera.getPickRay(sx, sy); // keep InputProcessor coords as-is
+        return Intersector.intersectRayPlane(ray, mapPlane, out);
+    }
+
+    // ------------------------------------------------------------------ //
+    // Input lifecycle
+    // ------------------------------------------------------------------ //
+
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
         if (pointer1 == -1) {
             pointer1 = pointer;
             prev1.set(x, y);
-            hasAnchor = screenToWorldUnderPixel(x, y, anchorWorld); // anchor on object or map
-        } else if (pointer2 == -1) {
+
+            // Anchor on ground projection (whatever you touched)
+            hasAnchorGround = screenToGround(x, y, anchorGround);
+
+            // Lock external camera changes during gesture
+            cc.setInputLock(true);
+        }
+        else if (pointer2 == -1) {
             pointer2 = pointer;
             prev2.set(x, y);
         }
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean touchUp(int x, int y, int pointer, int button) {
         if (pointer == pointer1) pointer1 = -1;
         else if (pointer == pointer2) pointer2 = -1;
-        if (pointer1 == -1 && pointer2 == -1) hasAnchor = false;
+
+        if (pointer1 == -1 && pointer2 == -1) {
+            hasAnchorGround = false;
+            cc.setInputLock(false);
+            cc.setLookTarget(target); // sync look point for external controller
+        }
         return true;
     }
 
-    /** {@inheritDoc} */
     @Override
     public boolean touchDragged(int x, int y, int pointer) {
         if (camera == null) return false;
 
-        // One finger: keep anchor under pointer1
+        // ------------------ One finger: PAN on ground projection ------------------
         if (pointer1 != -1 && pointer2 == -1) {
             Vector2 curr = (pointer == pointer1) ? new Vector2(x, y) : prev1.cpy();
-            Vector3 worldUnderFinger = new Vector3();
+            Vector3 groundNow = new Vector3();
 
-            if (hasAnchor && screenToWorldUnderPixel((int)curr.x, (int)curr.y, worldUnderFinger)) {
-                tmp.set(anchorWorld).sub(worldUnderFinger); // world delta
+            if (hasAnchorGround && screenToGround((int)curr.x, (int)curr.y, groundNow)) {
+                // Delta purely on ground plane: anchorGround - groundNow
+                tmp.set(anchorGround).sub(groundNow);
                 camera.position.add(tmp);
                 target.add(tmp);
                 camera.lookAt(target);
@@ -144,28 +140,49 @@ public class CameraGestureController extends InputAdapter {
             prev1.set(curr);
         }
 
-        // Two fingers: pinch-zoom + keep anchor under pointer1
+        // -------- Two fingers: multiplicative PINCH (height-clamped) + ground anchor correction --------
         else if (pointer1 != -1 && pointer2 != -1) {
             Vector2 curr1 = (pointer == pointer1) ? new Vector2(x, y) : prev1.cpy();
             Vector2 curr2 = (pointer == pointer2) ? new Vector2(x, y) : prev2.cpy();
 
-            // Zoom (clamped camera-target distance)
-            float prevDist = prev1.dst(prev2);
-            float currDist = curr1.dst(curr2);
-            float zoomAmount = (prevDist - currDist) * ZOOM_SPEED_FACTOR;
+            float prevDist = Math.max(1f, prev1.dst(prev2));
+            float currDist = Math.max(1f, curr1.dst(curr2));
+            float ratio = prevDist / currDist;                 // >1: zoom out, <1: zoom in
+            ratio = Math.max(MIN_RATIO, Math.min(MAX_RATIO, ratio));
 
-            Vector3 offset = tmp.set(camera.position).sub(target);
-            float currentDistance = offset.len();
-            float targetDistance = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, currentDistance + zoomAmount));
-            offset.nor().scl(targetDistance);
-            camera.position.set(target).add(offset);
+            // Direction from target to camera (normalized)
+            Vector3 dir = tmp.set(camera.position).sub(target).nor();
 
-            // Correct so the anchor stays under pointer1
-            Vector3 worldUnderFinger1 = new Vector3();
-            if (hasAnchor && screenToWorldUnderPixel((int)curr1.x, (int)curr1.y, worldUnderFinger1)) {
-                tmp.set(anchorWorld).sub(worldUnderFinger1);
-                camera.position.add(tmp);
-                target.add(tmp);
+            // Desired distance along view axis
+            float currentDistance = Math.max(1e-3f, camera.position.dst(target));
+            float newDistance = (float)(currentDistance * Math.pow(ratio, PINCH_SENS));
+
+            // --- Height clamp based ONLY on camera Y (above ground) ---
+            float candidateY = target.y + dir.y * newDistance;
+            float clampedY   = Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, candidateY));
+
+            if (Math.abs(dir.y) > 1e-6f) {
+                newDistance = (clampedY - target.y) / dir.y;
+            }
+
+            // Place camera on the ray from target
+            camera.position.set(target).mulAdd(dir, newDistance);
+
+            // If view is nearly horizontal, enforce height by vertical shift (keep direction)
+            if (Math.abs(dir.y) <= 1e-6f) {
+                float deltaY = clampedY - camera.position.y;
+                camera.position.y += deltaY;
+                target.y += deltaY;
+            }
+
+            // Correct so the anchored ground point stays under finger 1
+            if (hasAnchorGround) {
+                Vector3 ground1 = new Vector3();
+                if (screenToGround((int)curr1.x, (int)curr1.y, ground1)) {
+                    tmp.set(anchorGround).sub(ground1); // pure ground-plane delta
+                    camera.position.add(tmp);
+                    target.add(tmp);
+                }
             }
 
             camera.lookAt(target);
@@ -176,110 +193,5 @@ public class CameraGestureController extends InputAdapter {
         }
 
         return true;
-    }
-
-    // --------------------- Picking utilities ------------------------
-
-    /**
-     * Computes the world point under pixel ({@code sx, sy}).
-     * <ol>
-     *   <li>Raycasts against AABBs of the pickable scenes and returns the closest hit.</li>
-     *   <li>If no object is hit, falls back to intersection with {@code mapPlane}.</li>
-     * </ol>
-     *
-     * @param sx  screen X (as given by {@link com.badlogic.gdx.InputProcessor})
-     * @param sy  screen Y (as given by {@link com.badlogic.gdx.InputProcessor})
-     * @param out result vector: world point under the pixel
-     * @return {@code true} if a world point was found, {@code false} otherwise
-     */
-    private boolean screenToWorldUnderPixel(int sx, int sy, Vector3 out) {
-        Ray ray = camera.getPickRay(sx, sy); // no Y flip here for consistent dragging
-
-        // 1) Closest object under pixel
-        float bestT = Float.POSITIVE_INFINITY;
-        boolean hasHit = false;
-
-        for (Scene s : safeScenes()) {
-            if (s == null || s.modelInstance == null) continue;
-
-            // World-space bounding box (ensure transforms are updated before render)
-            BoundingBox bb = new BoundingBox();
-            s.modelInstance.calculateBoundingBox(bb);
-            bb.mul(s.modelInstance.transform); // robustness: world-space box
-
-            float t = intersectRayAABB(ray, bb);
-            if (t >= 0f && t < bestT) {
-                bestT = t;
-                hasHit = true;
-            }
-        }
-
-        if (hasHit) {
-            out.set(ray.origin).mulAdd(ray.direction, bestT);
-            return true;
-        }
-
-        // 2) Fallback: map plane intersection
-        return Intersector.intersectRayPlane(ray, mapPlane, out);
-    }
-
-    /**
-     * Ray vs AABB (slab method).
-     *
-     * @param ray  picking ray (origin + direction)
-     * @param box  axis-aligned bounding box in world space
-     * @return entry parameter {@code t} on the box (>=0), or {@code -1} if no intersection
-     */
-    private static float intersectRayAABB(Ray ray, BoundingBox box) {
-        Vector3 min = box.min, max = box.max;
-        float tmin = 0f;
-        float tmax = Float.POSITIVE_INFINITY;
-
-        // X
-        if (Math.abs(ray.direction.x) < 1e-8f) {
-            if (ray.origin.x < min.x || ray.origin.x > max.x) return -1f;
-        } else {
-            float tx1 = (min.x - ray.origin.x) / ray.direction.x;
-            float tx2 = (max.x - ray.origin.x) / ray.direction.x;
-            float txmin = Math.min(tx1, tx2);
-            float txmax = Math.max(tx1, tx2);
-            tmin = Math.max(tmin, txmin);
-            tmax = Math.min(tmax, txmax);
-            if (tmax < tmin) return -1f;
-        }
-
-        // Y
-        if (Math.abs(ray.direction.y) < 1e-8f) {
-            if (ray.origin.y < min.y || ray.origin.y > max.y) return -1f;
-        } else {
-            float ty1 = (min.y - ray.origin.y) / ray.direction.y;
-            float ty2 = (max.y - ray.origin.y) / ray.direction.y;
-            float tymin = Math.min(ty1, ty2);
-            float tymax = Math.max(ty1, ty2);
-            tmin = Math.max(tmin, tymin);
-            tmax = Math.min(tmax, tymax);
-            if (tmax < tmin) return -1f;
-        }
-
-        // Z
-        if (Math.abs(ray.direction.z) < 1e-8f) {
-            if (ray.origin.z < min.z || ray.origin.z > max.z) return -1f;
-        } else {
-            float tz1 = (min.z - ray.origin.z) / ray.direction.z;
-            float tz2 = (max.z - ray.origin.z) / ray.direction.z;
-            float tzmin = Math.min(tz1, tz2);
-            float tzmax = Math.max(tz1, tz2);
-            tmin = Math.max(tmin, tzmin);
-            tmax = Math.min(tmax, tzmax);
-            if (tmax < tmin) return -1f;
-        }
-
-        return tmin >= 0f ? tmin : (tmax >= 0f ? tmax : -1f);
-    }
-
-    /** @return pickable scenes, or an empty list if the provider is null */
-    private Iterable<Scene> safeScenes() {
-        if (provider == null) return new ArrayList<>();
-        return provider.getPickableScenes();
     }
 }

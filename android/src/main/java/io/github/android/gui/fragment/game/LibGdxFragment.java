@@ -27,14 +27,11 @@ public class LibGdxFragment extends AndroidFragmentApplication {
         GameRenderer renderer = new GameRenderer();
         renderer.setOnCameraReady(() -> {
             Plane mapPlane = new Plane(new Vector3(0, 1, 0), 0f); // y = 0
-            CameraGestureController gestureController =
-                new CameraGestureController(
-                    renderer.getCamera(),
+            CameraGestureController gestures =
+                new CameraGestureController(renderer.getCamera(),
                     new Vector3(1500f, 0f, 800f),
-                    mapPlane,
-                    renderer::getAllScenes // fournisseur des scènes "pickables"
-                );
-            Gdx.input.setInputProcessor(gestureController);
+                    mapPlane);
+            Gdx.input.setInputProcessor(gestures);
         });
 
         return initializeForView(renderer, config);
