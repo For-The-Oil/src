@@ -6,9 +6,13 @@ import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.IntBag;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.github.server.data.ServerGame;
+import io.github.shared.data.component.BuildingMapPositionComponent;
+import io.github.shared.data.component.MoveComponent;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.WeaponType;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
@@ -47,9 +51,11 @@ public class ProjectileAttackSystem extends IteratingSystem {
     // Artemis component mappers
     private ComponentMapper<ProjectileAttackComponent> mProjAttack;
     private ComponentMapper<PositionComponent> mPos;
+    private ComponentMapper<BuildingMapPositionComponent> bPos;
     private ComponentMapper<ProprietyComponent> mProp;
     private ComponentMapper<TargetComponent> mTarget;
     private ComponentMapper<NetComponent> mNet;
+    private ComponentMapper<MoveComponent> mMove;
 
     // Server reference to integrate projectile creation with your instruction system
     private final ServerGame server;
@@ -71,6 +77,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
         PositionComponent pos = mPos.get(e);// attacker position
         ProprietyComponent meP = mProp.get(e);// attacker team (ally/enemy checks)
         TargetComponent tgt = mTarget.get(e);// primary/secondary targets, force flag
+        MoveComponent move = mMove.get(e);
         NetComponent net = mNet.get(e);// netId
         float time = attack.currentCooldown-world.getDelta();
         float tmp = attack.horizontalRotation;
@@ -82,15 +89,40 @@ public class ProjectileAttackSystem extends IteratingSystem {
         //(1) PRIMARY target: check in-range (3D distance <= range)
         int candidateId = -1;
         boolean inRange = false;
+        boolean isTypeBuilding = false;
+        float BuildingPosx = -1;
+        float BuildingPosy = -1;
 
         if (tgt != null && tgt.hasTarget()) {
-            PositionComponent tPos = mPos.get(tgt.targetId);
-            if (tPos != null) {
+            int te = Utility.getIdByNetId(world,tgt.targetNetId, mNet);
+            PositionComponent tPos = mPos.get(te);
+            NetComponent tnet = mNet.get(te);
+            if(tnet != null && tnet.entityType.getType().equals(EntityType.Type.Building)){
+                BuildingMapPositionComponent bp = bPos.get(te);
+                ArrayList<Float> arrayList = Utility.isAttackValidForBuilding(pos,tPos,attack.range,tnet.entityType.getShapeType(),bp.direction);
+                if(!arrayList.isEmpty()) {
+                    BuildingPosx = arrayList.get(0);
+                    BuildingPosy = arrayList.get(1);
+                    candidateId = tgt.targetId;
+                    inRange = true;
+                    isTypeBuilding = true;
+                }
+            }
+            else if (tPos != null) {
                 float dx = tPos.x - pos.x, dy = tPos.y - pos.y, dz = tPos.z - pos.z;
                 float dist2 = dx*dx + dy*dy + dz*dz;
                 if (dist2 <= range2) {
                     candidateId = tgt.targetId;
                     inRange = true;
+                }
+                else if(move == null|| (!move.force && !move.targetRelated)){
+                    HashMap<String, Object> fields = new HashMap<>();
+                    fields.put("targetRelated", true);
+                    fields.put("destinationX", -1);
+                    fields.put("destinationY", -1);
+                    fields.put("force", false);
+                    ComponentSnapshot moveComponent = new ComponentSnapshot("MoveComponent", fields);
+                    server.getUpdateTracker().markComponentModified(world.getEntity(e), moveComponent);
                 }
             }
         }
@@ -99,8 +131,21 @@ public class ProjectileAttackSystem extends IteratingSystem {
 
         // ---- (2) SECONDARY target if primary wasn't in range ----
         if (!inRange && tgt != null && tgt.hasNextTarget()) {
-            PositionComponent tPos2 = mPos.get(tgt.nextTargetId);
-            if (tPos2 != null) {
+            int te2 = Utility.getIdByNetId(world,tgt.targetNetId, mNet);
+            PositionComponent tPos2 = mPos.get(te2);
+            NetComponent tnet2 = mNet.get(te2);
+            if(tnet2 != null && tnet2.entityType.getType().equals(EntityType.Type.Building)){
+                BuildingMapPositionComponent bp = bPos.get(te2);
+                ArrayList<Float> arrayList = Utility.isAttackValidForBuilding(pos,tPos2,attack.range,tnet2.entityType.getShapeType(),bp.direction);
+                if(!arrayList.isEmpty()) {
+                    BuildingPosx = arrayList.get(0);
+                    BuildingPosy = arrayList.get(1);
+                    candidateId = tgt.nextTargetId;
+                    inRange = true;
+                    isTypeBuilding = true;
+                }
+            }
+            else if (tPos2 != null) {
                 float dx = tPos2.x - pos.x, dy = tPos2.y - pos.y, dz = tPos2.z - pos.z;
                 float dist2 = dx*dx + dy*dy + dz*dz;
                 if (dist2 <= range2) {
@@ -128,17 +173,35 @@ public class ProjectileAttackSystem extends IteratingSystem {
                 ProprietyComponent oP = mProp.get(other);
                 if (oP == null || meP == null || oP.team == null || meP.team == null) continue;
                 if (oP.team.equals(meP.team)) continue; // ignore allies
+                NetComponent onet = mNet.get(other);
+                if(onet != null && onet.entityType.getType().equals(EntityType.Type.Building)){
+                    PositionComponent oPos = mPos.get(other);
+                    BuildingMapPositionComponent bp = bPos.get(other);
+                    ArrayList<Float> arrayList = Utility.isAttackValidForBuilding(pos,oPos,attack.range,onet.entityType.getShapeType(),bp.direction);
+                    if(!arrayList.isEmpty()) {
+                        float dx = arrayList.get(0) - pos.x;
+                        float dy = arrayList.get(1) - pos.y;
+                        float dz = oPos.z - pos.z;
+                        float dist2 = dx * dx + dy * dy + dz * dz;
+                        bestDist2 = dist2;
+                        candidateId = other;
+                        inRange = true;
+                        isTypeBuilding = true;
+                    }
+                }
+                else {
 
-                PositionComponent oPos = mPos.get(other);
-                if (oPos == null) continue;
+                    PositionComponent oPos = mPos.get(other);
+                    if (oPos == null) continue;
 
-                float dx = oPos.x - pos.x, dy = oPos.y - pos.y, dz = oPos.z - pos.z;
-                float dist2 = dx*dx + dy*dy + dz*dz;
+                    float dx = oPos.x - pos.x, dy = oPos.y - pos.y, dz = oPos.z - pos.z;
+                    float dist2 = dx * dx + dy * dy + dz * dz;
 
-                if (dist2 <= range2 && dist2 < bestDist2) {
-                    bestDist2 = dist2;
-                    candidateId = other;
-                    inRange = true;
+                    if (dist2 <= range2 && dist2 < bestDist2) {
+                        bestDist2 = dist2;
+                        candidateId = other;
+                        inRange = true;
+                    }
                 }
             }
         }
@@ -157,11 +220,21 @@ public class ProjectileAttackSystem extends IteratingSystem {
         // We can shoot only if we have a valid enemy candidate in range and cooldown is ready
         final boolean canShoot = (candidateId != -1 && inRange && isEnemy);
         if(canShoot){
+            float tPosx = -1;
+            float tPosy = -1;
             PositionComponent tPos = mPos.get(candidateId);
-            if (tPos != null) {
-                float dx = tPos.x - (pos.x+attack.weaponType.getTranslationX());
-                float dz = tPos.z - (pos.z+attack.weaponType.getTranslationZ());
-                tmp = pos.horizontalRotation + ((float) Math.atan2(dz, dx) - pos.horizontalRotation) * attack.weaponType.getTurn_speed() * world.getDelta();
+            if(isTypeBuilding){
+                tPosx = BuildingPosx;
+                tPosy = BuildingPosy;
+            }
+            else if(tPos!=null) {
+                tPosx = tPos.x;
+                tPosy = tPos.y;
+            }
+            if (tPosx != -1 && tPosy != -1 ) {
+                float dx = tPosx - pos.x;
+                float dy = tPosy - pos.y;
+                tmp = pos.horizontalRotation + ((float) Math.atan2(dy, dx) - pos.horizontalRotation) * attack.weaponType.getTurn_speed() * world.getDelta();
                 ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"ProjectileAttackComponent");
                 if(previousSnapshot != null){
                     previousSnapshot.getFields().put("horizontalRotation",tmp);
@@ -179,18 +252,18 @@ public class ProjectileAttackSystem extends IteratingSystem {
                     server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
                 }
                 if (!attack.weaponType.isHitAndMove()){
-                    dx = tPos.x - pos.x;
-                    dz = tPos.z - pos.z;
+                    dx = tPosx - pos.x;
+                    dy = tPosy - pos.y;
                     ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"PositionComponent");
                     if(previousSnapshot2 != null){
-                        previousSnapshot2.getFields().put("horizontalRotation",(float) Math.atan2(dz, dx));
+                        previousSnapshot2.getFields().put("horizontalRotation",(float) Math.atan2(dy, dx));
                     }
                     else {
                         HashMap<String, Object> fields = new HashMap<>();
                         fields.put("x", pos.x);
-                        fields.put("y", pos.z);
+                        fields.put("y", pos.y);
                         fields.put("z", pos.z);
-                        fields.put("horizontalRotation", (float) Math.atan2(dz, dx));
+                        fields.put("horizontalRotation", (float) Math.atan2(dy, dx));
                         fields.put("verticalRotation", pos.verticalRotation);
                         ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
                         server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);

@@ -1,7 +1,7 @@
 package io.github.shared.data.enums_types;
 
 public enum WeaponType {
-    test(Type.Melee,1,1,1,1,1,(float) Math.toRadians(360f),1,1,1,1,false,true);
+    test(Type.Melee,1,1,1,(float) Math.toRadians(360f),1,1,1,false,true);
     //RIFLE(Type.Range), SHOTGUN(Type.Range), BAZOOKA(Type.Range),
     //SWORD(Type.Melee), SPEAR(Type.Melee), CHAINSAW(Type.Melee);
 
@@ -27,14 +27,11 @@ public enum WeaponType {
 
     private final float turn_speed;
     private final float reach;
-    private final float translationX ;
-    private final float translationY ;
-    private final float translationZ ;
     private final boolean hitAndMove;
     private final boolean isTurret;
     private final EntityType projectileType;
 
-    WeaponType(Type type, int damage, int armorPenetration, float cooldown, float animationCooldown, float animationAndFocusCooldown, float turnSpeed, float reach, float translationX, float translationY, float translationZ, boolean hitAndMove, boolean isTurret) {
+    WeaponType(Type type, int damage, int armorPenetration, float cooldown, float animationCooldown, float animationAndFocusCooldown, float turnSpeed, float reach, boolean hitAndMove, boolean isTurret) {
         this.type = type;
         this.damage = damage;
         this.armorPenetration = armorPenetration;
@@ -43,9 +40,6 @@ public enum WeaponType {
         this.animationAndFocusCooldown = animationAndFocusCooldown;
         this.turn_speed = turnSpeed;
         this.reach = reach;
-        this.translationX = translationX;
-        this.translationY = translationY;
-        this.translationZ = translationZ;
         this.hitAndMove = hitAndMove;
         this.isTurret = isTurret;
         this.projectileType = null;
@@ -85,18 +79,6 @@ public enum WeaponType {
 
     public float getAnimationCooldown() {
         return animationCooldown;
-    }
-
-    public float getTranslationX() {
-        return translationX;
-    }
-
-    public float getTranslationY() {
-        return translationY;
-    }
-
-    public float getTranslationZ() {
-        return translationZ;
     }
 
     public boolean isTurret() {

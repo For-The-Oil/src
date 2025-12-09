@@ -13,13 +13,17 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.github.shared.config.BaseGameConfig;
+import io.github.shared.data.enums_types.CellType;
+import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.ResourcesType;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.PositionComponent;
+import io.github.shared.data.enums_types.ShapeType;
 import io.github.shared.data.gameobject.Cell;
 import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.network.Player;
 import io.github.shared.data.snapshot.EntitySnapshot;
+import io.github.shared.shared_engine.manager.ShapeManager;
 
 public class Utility {
     private static final AtomicInteger COUNTER = new AtomicInteger((int) System.currentTimeMillis());
@@ -146,12 +150,32 @@ public class Utility {
         return null; // pas trouvé
     }
 
+    public static int getIdByNetId(World world, int netId, ComponentMapper<NetComponent> mNet) {
+        if (world == null || netId < 0) return -1;
+
+        // Récupère tous les entités qui possèdent NetComponent
+        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class)).getEntities();
+
+        int[] ids = entities.getData();
+        for (int i = 0, size = entities.size(); i < size; i++) {
+            int eId = ids[i];
+            NetComponent net = mNet.get(eId);
+            if (net != null && net.netId == netId && net.isValid()) { // netId + validité
+                return eId;
+            }
+        }
+        return -1; // pas trouvé
+    }
+
     public static boolean isRangedDistanceValid(PositionComponent attackerPos, PositionComponent targetPos, float range, Shape map) {
+        return isRangedDistanceValid(attackerPos,targetPos.x,targetPos.y,targetPos.z,range,map);
+    }
+    public static boolean isRangedDistanceValid(PositionComponent attackerPos,float targetPosX,float targetPosY,float targetPosZ, float range, Shape map) {
         // Early-out: quick spherical range check in continuous 3D space.
         // If the target is farther than 'range', there's no need to perform an expensive line-of-sight (LoS) test.
-        final float dx = targetPos.x - attackerPos.x;
-        final float dy = targetPos.y - attackerPos.y;
-        final float dz = targetPos.z - attackerPos.z;
+        final float dx = targetPosX - attackerPos.x;
+        final float dy = targetPosY - attackerPos.y;
+        final float dz = targetPosZ - attackerPos.z;
         final float dist2 = dx*dx + dy*dy + dz*dz;
         if (dist2 > (range * range)) return false; // too far: reject immediately
 
@@ -160,8 +184,8 @@ public class Utility {
         // This step maps continuous positions into the grid used by Shape/Cell.
         final int sx = Utility.worldToCell(attackerPos.x); // start cell X (attacker)
         final int sy = Utility.worldToCell(attackerPos.y); // start cell Y (attacker)
-        final int tx = Utility.worldToCell(targetPos.x);   // target cell X
-        final int ty = Utility.worldToCell(targetPos.y);   // target cell Y
+        final int tx = Utility.worldToCell(targetPosX);   // target cell X
+        final int ty = Utility.worldToCell(targetPosY);   // target cell Y
 
         // Fetch the map (Shape) to query bounds and cells.
         // If either endpoint is outside the map, consider LoS blocked to avoid undefined accesses.
@@ -202,6 +226,63 @@ public class Utility {
 
         // All cells along the segment are traversable: the ranged shot is valid.
         return true;
+    }
+    public static ArrayList<Float> isRangedDistanceValidForBuilding(PositionComponent attackerPos, PositionComponent targetPos, float range,Shape map , ShapeType shapeType, Direction direction) {
+        Shape s = ShapeManager.rotateShape(shapeType.getShape(), direction);
+        ArrayList<Float> arrayList = new ArrayList<>();
+        float bestDist2 = Float.MAX_VALUE;
+        float range2 = range * range;
+        for(int i = 0; i < s.getWidth() ; i++){
+            for(int j = 0; j < s.getHeight() ; j++){
+                if(s.isValidPosition(i,j)&& !s.getCells(i,j).getCellType().equals(CellType.VOID)){
+                    float x = targetPos.x + cellToWorld(i);
+                    float y = targetPos.y + cellToWorld(j);
+                    float z = targetPos.z;
+                    if(isRangedDistanceValid(attackerPos,x,y,z,range,map)) {
+                        float dx = x - attackerPos.x;
+                        float dy = y - attackerPos.y;
+                        float dz = z - attackerPos.z;
+                        float dist2 = dx * dx + dy * dy + dz * dz;
+                        if (dist2 <= range2 && dist2 < bestDist2) {
+                            bestDist2 = dist2;
+                            ArrayList<Float> tmp = new ArrayList<>();
+                            tmp.add(x);
+                            tmp.add(y);
+                            arrayList = new ArrayList<>();
+                        }
+                    }
+                }
+            }
+        }
+        return arrayList;
+    }
+
+    public static ArrayList<Float> isAttackValidForBuilding(PositionComponent attackerPos, PositionComponent targetPos, float reach, ShapeType shapeType, Direction direction) {
+        Shape s = ShapeManager.rotateShape(shapeType.getShape(), direction);
+        ArrayList<Float> arrayList = new ArrayList<>();
+        float bestDist2 = Float.MAX_VALUE;
+        float reach2 = reach * reach;
+        for(int i = 0; i < s.getWidth() ; i++){
+            for(int j = 0; j < s.getHeight() ; j++){
+                if(s.isValidPosition(i,j)&& !s.getCells(i,j).getCellType().equals(CellType.VOID)){
+                    float x = targetPos.x + cellToWorld(i);
+                    float y = targetPos.y + cellToWorld(j);
+                    float z = targetPos.z;
+                    float dx = x - attackerPos.x;
+                    float dy = y - attackerPos.y;
+                    float dz = z - attackerPos.z;
+                    float dist2 = dx*dx + dy*dy + dz*dz;
+                    if (dist2 <= reach2 && dist2 < bestDist2){
+                        bestDist2 = dist2;
+                        ArrayList<Float> tmp = new ArrayList<>();
+                        tmp.add(x);
+                        tmp.add(y);
+                        arrayList = new ArrayList<>();
+                    }
+                }
+            }
+        }
+        return arrayList;
     }
 
 

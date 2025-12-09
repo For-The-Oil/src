@@ -6,20 +6,22 @@ import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 import com.artemis.utils.IntBag;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.github.server.data.ServerGame;
+import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
+import io.github.shared.data.component.MoveComponent;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.component.RangedAttackComponent;
 import io.github.shared.data.component.TargetComponent;
-import io.github.shared.data.gameobject.Cell;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.gameobject.DamageEntry;
-import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.shared_engine.Utility;
 
@@ -49,10 +51,12 @@ public class RangedAttackSystem extends IteratingSystem {
     // Artemis component mappers
     private ComponentMapper<RangedAttackComponent> mRanged;
     private ComponentMapper<PositionComponent> mPos;
+    private ComponentMapper<BuildingMapPositionComponent> bPos;
     private ComponentMapper<ProprietyComponent> mProp;
     private ComponentMapper<TargetComponent> mTarget;
-
     private ComponentMapper<NetComponent> mNet;
+    private ComponentMapper<MoveComponent> mMove;
+
 
     // Server handle to reach SnapshotTracker for aggregated updates
     private final ServerGame server;
@@ -73,6 +77,7 @@ public class RangedAttackSystem extends IteratingSystem {
         PositionComponent pos = mPos.get(e);    // attacker's world position
         ProprietyComponent meP = mProp.get(e);   // team (used to avoid friendly fire)
         TargetComponent tgt = mTarget.get(e); // primary/secondary targets + forced flag
+        MoveComponent move = mMove.get(e);
         NetComponent net = mNet.get(e);// netId
         float time = ranged.currentCooldown-world.getDelta();
         float tmp = ranged.horizontalRotation;
@@ -80,20 +85,59 @@ public class RangedAttackSystem extends IteratingSystem {
         // (1) PRIMARY target — validate via the specialized range function
         int candidateId = -1;
         boolean inRange = false;
+        boolean isTypeBuilding = false;
+        float BuildingPosx = -1;
+        float BuildingPosy = -1;
 
         if (tgt != null && tgt.hasTarget()) {
-            PositionComponent tPos = mPos.get(tgt.targetId);
-            // Placeholder function: replace with your real range/LoS/ballistics check
-            if (tPos != null && Utility.isRangedDistanceValid(pos, tPos, ranged.range, server.getMap())) {
-                candidateId = tgt.targetId;
-                inRange = true;
+            int te = Utility.getIdByNetId(world,tgt.targetNetId, mNet);
+            PositionComponent tPos = mPos.get(te);
+            NetComponent tnet = mNet.get(te);
+            if(tnet != null && tnet.entityType.getType().equals(EntityType.Type.Building)){
+                BuildingMapPositionComponent bp = bPos.get(te);
+                ArrayList<Float> arrayList = Utility.isRangedDistanceValidForBuilding(pos,tPos,ranged.range,server.getMap(),tnet.entityType.getShapeType(),bp.direction);
+                if(!arrayList.isEmpty()) {
+                    BuildingPosx = arrayList.get(0);
+                    BuildingPosy = arrayList.get(1);
+                    candidateId = tgt.targetId;
+                    inRange = true;
+                    isTypeBuilding = true;
+                }
+            }
+            else if (tPos != null){
+                if(Utility.isRangedDistanceValid(pos, tPos, ranged.range, server.getMap())) {
+                    candidateId = tgt.targetId;
+                    inRange = true;
+                }
+                else if(move == null|| (!move.force && !move.targetRelated)){
+                    HashMap<String, Object> fields = new HashMap<>();
+                    fields.put("targetRelated", true);
+                    fields.put("destinationX", -1);
+                    fields.put("destinationY", -1);
+                    fields.put("force", false);
+                    ComponentSnapshot moveComponent = new ComponentSnapshot("MoveComponent", fields);
+                    server.getUpdateTracker().markComponentModified(world.getEntity(e), moveComponent);
+                }
             }
         }
 
         // (2) SECONDARY target — only if primary is not valid/in range
         if (!inRange && tgt != null && tgt.hasNextTarget()) {
-            PositionComponent tPos2 = mPos.get(tgt.nextTargetId);
-            if (tPos2 != null && Utility.isRangedDistanceValid(pos, tPos2, ranged.range, server.getMap())) {
+            int te2 = Utility.getIdByNetId(world,tgt.targetNetId, mNet);
+            PositionComponent tPos2 = mPos.get(te2);
+            NetComponent tnet2 = mNet.get(te2);
+            if(tnet2 != null && tnet2.entityType.getType().equals(EntityType.Type.Building)){
+                BuildingMapPositionComponent bp = bPos.get(te2);
+                ArrayList<Float> arrayList = Utility.isRangedDistanceValidForBuilding(pos,tPos2,ranged.range,server.getMap(),tnet2.entityType.getShapeType(),bp.direction);
+                if(!arrayList.isEmpty()) {
+                    BuildingPosx = arrayList.get(0);
+                    BuildingPosy = arrayList.get(1);
+                    candidateId = tgt.nextTargetId;
+                    inRange = true;
+                    isTypeBuilding = true;
+                }
+            }
+            else if (tPos2 != null && Utility.isRangedDistanceValid(pos, tPos2, ranged.range, server.getMap())) {
                 candidateId = tgt.nextTargetId;
                 inRange = true;
             }
@@ -118,19 +162,36 @@ public class RangedAttackSystem extends IteratingSystem {
                 ProprietyComponent oP = mProp.get(other);
                 if (oP == null || meP == null || oP.team == null || meP.team == null) continue;
                 if (oP.team.equals(meP.team)) continue; // skip allies
-
-                PositionComponent oPos = mPos.get(other);
-                if (oPos == null) continue;
-
-                // Validate via your specialized check
-                if (Utility.isRangedDistanceValid(pos, oPos, ranged.range, server.getMap())) {
-                    // Choose nearest valid enemy (using squared distance)
-                    float dx = oPos.x - pos.x, dy = oPos.y - pos.y, dz = oPos.z - pos.z;
-                    float dist2 = dx*dx + dy*dy + dz*dz;
-                    if (dist2 < bestScore) {
+                NetComponent onet = mNet.get(other);
+                if(onet != null && onet.entityType.getType().equals(EntityType.Type.Building)){
+                    PositionComponent oPos = mPos.get(other);
+                    BuildingMapPositionComponent bp = bPos.get(other);
+                    ArrayList<Float> arrayList = Utility.isRangedDistanceValidForBuilding(pos,oPos,ranged.range,server.getMap(),onet.entityType.getShapeType(),bp.direction);
+                    if(!arrayList.isEmpty()) {
+                        float dx = arrayList.get(0) - pos.x;
+                        float dy = arrayList.get(1) - pos.y;
+                        float dz = oPos.z - pos.z;
+                        float dist2 = dx * dx + dy * dy + dz * dz;
                         bestScore = dist2;
                         candidateId = other;
                         inRange = true;
+                        isTypeBuilding = true;
+                    }
+                }
+                else {
+                    PositionComponent oPos = mPos.get(other);
+                    if (oPos == null) continue;
+
+                    // Validate via your specialized check
+                    if (Utility.isRangedDistanceValid(pos, oPos, ranged.range, server.getMap())) {
+                        // Choose nearest valid enemy (using squared distance)
+                        float dx = oPos.x - pos.x, dy = oPos.y - pos.y, dz = oPos.z - pos.z;
+                        float dist2 = dx * dx + dy * dy + dz * dz;
+                        if (dist2 < bestScore) {
+                            bestScore = dist2;
+                            candidateId = other;
+                            inRange = true;
+                        }
                     }
                 }
             }
@@ -151,11 +212,21 @@ public class RangedAttackSystem extends IteratingSystem {
         // Attack is permitted only when we have a valid enemy candidate in range and cooldown is ready
         final boolean foundAttackable = (candidateId != -1 && inRange && isEnemy);
         if(foundAttackable){
+            float tPosx = -1;
+            float tPosy = -1;
             PositionComponent tPos = mPos.get(candidateId);
-            if (tPos != null) {
-                float dx = tPos.x - (pos.x+ranged.weaponType.getTranslationX());
-                float dz = tPos.z - (pos.z+ranged.weaponType.getTranslationZ());
-                tmp = pos.horizontalRotation + ((float) Math.atan2(dz, dx) - pos.horizontalRotation) * ranged.weaponType.getTurn_speed() * world.getDelta();
+            if(isTypeBuilding){
+                tPosx = BuildingPosx;
+                tPosy = BuildingPosy;
+            }
+            else if(tPos!=null) {
+                tPosx = tPos.x;
+                tPosy = tPos.y;
+            }
+            if (tPosx != -1 && tPosy != -1 ) {
+                float dx = tPos.x - pos.x;
+                float dy = tPos.y - pos.y;
+                tmp = pos.horizontalRotation + ((float) Math.atan2(dy, dx) - pos.horizontalRotation) * ranged.weaponType.getTurn_speed() * world.getDelta();
                 ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"RangedAttackComponent");
                 if(previousSnapshot != null){
                     previousSnapshot.getFields().put("horizontalRotation",tmp);
@@ -173,18 +244,18 @@ public class RangedAttackSystem extends IteratingSystem {
                     server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
                 }
                 if (!ranged.weaponType.isHitAndMove()){
-                    dx = tPos.x - pos.x;
-                    dz = tPos.z - pos.z;
+                    dx = tPosx - pos.x;
+                    dy = tPosy - pos.y;
                     ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"PositionComponent");
                     if(previousSnapshot2 != null){
-                        previousSnapshot2.getFields().put("horizontalRotation",(float) Math.atan2(dz, dx));
+                        previousSnapshot2.getFields().put("horizontalRotation",(float) Math.atan2(dy, dx));
                     }
                     else {
                         HashMap<String, Object> fields = new HashMap<>();
                         fields.put("x", pos.x);
-                        fields.put("y", pos.z);
+                        fields.put("y", pos.y);
                         fields.put("z", pos.z);
-                        fields.put("horizontalRotation", (float) Math.atan2(dz, dx));
+                        fields.put("horizontalRotation", (float) Math.atan2(dy, dx));
                         fields.put("verticalRotation", pos.verticalRotation);
                         ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
                         server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);

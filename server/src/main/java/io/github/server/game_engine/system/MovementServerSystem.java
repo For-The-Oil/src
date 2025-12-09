@@ -133,8 +133,8 @@ public class MovementServerSystem extends IteratingSystem {
         if (path.getCount() < 2) return;
 
         MapNode temp = path.get(path.getCount() - 1);
-        int firstElementTarget = -1;
-        if (!temp.getLstNetId().isEmpty())firstElementTarget = temp.getLstNetId().get(0);
+        if (!temp.getLstNetId().isEmpty()){
+            int firstElementTarget = temp.getLstNetId().get(0);
 
         // Send nextTargetId update via snapshot
         HashMap<String, Object> fieldsTarget = new HashMap<>();
@@ -143,6 +143,7 @@ public class MovementServerSystem extends IteratingSystem {
         fieldsTarget.put("force", tgt.force);
         ComponentSnapshot snapTarget = new ComponentSnapshot("TargetComponent", fieldsTarget);
         server.getUpdateTracker().markComponentModified(world.getEntity(e), snapTarget);
+        }
 
         // Get next waypoint
         MapNode next = path.get(1);

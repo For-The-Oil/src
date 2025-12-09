@@ -8,24 +8,25 @@ import com.artemis.annotations.PooledWeaver;
 @PooledWeaver
 public class TargetComponent extends PooledComponent {
     public int targetId;
+    public int targetNetId;
     public int nextTargetId;
     public boolean force = false;
 
     @Override
     public void reset() {
-        targetId = -1;
+        targetNetId = -1;
         nextTargetId = -1;
         force = false;
     }
 
-    public void set(int targetId, int nextTargetId,boolean force) {
-        this.targetId = targetId;
+    public void set(int targetNetId, int nextTargetId,boolean force) {
+        this.targetNetId = targetNetId;
         this.nextTargetId = nextTargetId;
         this.force = force;
     }
 
     public boolean hasTarget() {
-        return targetId >= 0;
+        return targetNetId >= 0;
     }
     public boolean hasNextTarget() {
         return nextTargetId >= 0;

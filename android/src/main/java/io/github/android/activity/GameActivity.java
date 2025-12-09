@@ -213,6 +213,10 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
                     if(clientLauncher==null){
                         GameManager.fullGameResync(netGame);
                         clientLauncher = new ClientLauncher();
+                        if(ClientGame.getInstance().getCurrentEvent().equals(EventType.START)){
+                            clientLauncher.start();
+                            Log.d("For The Oil","ClientLauncher init and Instruction start received :");
+                        }
                     }
                     else clientLauncher.setResyncNetGame(netGame);
 
