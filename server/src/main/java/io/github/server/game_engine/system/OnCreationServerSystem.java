@@ -81,29 +81,29 @@ public class OnCreationServerSystem extends IteratingSystem {
 
             // Register the snapshot into the tracker for aggregation this frame
             server.getUpdateTracker().markComponentModified(world.getEntity(e), onCreationSnap);
-        }
 
-        if(newTime <= 0f &&net.entityType.getType().equals(EntityType.Type.Unit)){
-            float x = 0;
-            float y = 0;
-            PositionComponent positionComponent = Utility.getPositionByNetId(world,occ.fromNetId,mNet,mPos);
-            if(positionComponent!=null){
-                x = positionComponent.x;
-                y = positionComponent.y;
+            if (net.entityType.getType().equals(EntityType.Type.Unit)) {
+                float x = 0;
+                float y = 0;
+                PositionComponent positionComponent = Utility.getPositionByNetId(world, occ.fromNetId, mNet, mPos);
+                if (positionComponent != null) {
+                    x = positionComponent.x;
+                    y = positionComponent.y;
+                }
+
+                // Prepare a snapshot for PositionComponent (overwrite fields)
+                java.util.HashMap<String, Object> fieldsPosition = new java.util.HashMap<>();
+                fieldsPosition.put("x", x);
+                fieldsPosition.put("y", y);
+                fieldsPosition.put("z", 0f);
+                fieldsPosition.put("horizontalRotation", 0f);
+                fieldsPosition.put("verticalRotation", 0f);
+
+                ComponentSnapshot onCreationSnapPosition = new ComponentSnapshot("PositionComponent", fieldsPosition);
+
+                // Register the snapshot into the tracker for aggregation this frame
+                server.getUpdateTracker().markComponentModified(world.getEntity(e), onCreationSnapPosition);
             }
-
-            // Prepare a snapshot for PositionComponent (overwrite fields)
-            java.util.HashMap<String, Object> fieldsPosition = new java.util.HashMap<>();
-            fieldsPosition.put("x", x);
-            fieldsPosition.put("y", y);
-            fieldsPosition.put("z",0f);
-            fieldsPosition.put("horizontalRotation",0f );
-            fieldsPosition.put("verticalRotation",0f );
-
-            ComponentSnapshot onCreationSnapPosition = new ComponentSnapshot("PositionComponent", fieldsPosition);
-
-            // Register the snapshot into the tracker for aggregation this frame
-            server.getUpdateTracker().markComponentModified(world.getEntity(e), onCreationSnapPosition);
         }
     }
 
