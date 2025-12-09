@@ -61,6 +61,15 @@ public class MatchMakingFragment extends Fragment {
         view.setVisibility(View.GONE);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!MatchMakingManager.getInstance().isSearching()) {
+            hide();
+        }
+    }
+
+
     // -------------------------
     // Méthodes publiques
     // -------------------------

@@ -142,22 +142,31 @@ public class MainPageFragment extends Fragment {
     private void setupPlayButton() {
         btnPlay.setOnClickListener(v -> {
             String currentMode = activity.getGameMode();
-            // TODO : lancer l’activité ou la logique correspondant au mode
+            MatchMakingManager manager = MatchMakingManager.getInstance();
 
-            MatchMakingManager myMatchManager = MatchMakingManager.getInstance();
+            // Réinitialiser le matchmaking avant de relancer
+            manager.resetMatchmaking();
 
+            // Lancer le matchmaking
             switch (currentMode) {
                 case "MODE_0":
-                    myMatchManager.askMatchmaking(GameModeType.ALPHA_TEST);
+                    manager.askMatchmaking(GameModeType.ALPHA_TEST);
                     break;
                 case "MODE_1":
-                    myMatchManager.askMatchmaking(GameModeType.CLASSIC);
+                    manager.askMatchmaking(GameModeType.CLASSIC);
                     break;
                 case "MODE_2":
-                    myMatchManager.askMatchmaking(GameModeType.CLASSIC);
+                    manager.askMatchmaking(GameModeType.CLASSIC);
+                    break;
+                default:
+                    return;
             }
+
+            // Afficher l’overlay du matchmaking
+            if (activity != null) activity.showMatchmakingOverlay();
         });
     }
+
 
     /**
      * Méthode publique à appeler quand le deck courant a changé côté client

@@ -105,6 +105,36 @@ public class HomeActivity extends BaseActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // S'assurer que le fragment existe
+        MatchMakingFragment fragment = (MatchMakingFragment)
+            getSupportFragmentManager().findFragmentByTag("MATCHMAKING_FRAGMENT");
+
+        if (fragment == null) {
+            fragment = new MatchMakingFragment();
+            getSupportFragmentManager().beginTransaction()
+                .add(R.id.matchmakingOverlay, fragment, "MATCHMAKING_FRAGMENT")
+                .commitNow();
+        }
+
+        // Si aucune recherche en cours, cacher le fragment
+        if (!MatchMakingManager.getInstance().isSearching()) {
+            fragment.hide();
+        }
+
+
+        this.clientManager = ClientManager.getInstance();
+        this.clientManager.setCurrentContext(this);
+
+        initListener();
+        addMatchMakingListener();
+        addSessionUpdateListener();
+    }
+
+
 
     // -------------------------
     // Direct Link execution

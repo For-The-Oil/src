@@ -2,13 +2,26 @@ package io.github.android.activity;
 
 import static io.github.android.config.ClientDefaultConfig.INIT_WAITING_TIME;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication;
+import com.google.android.flexbox.FlexboxLayout;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,14 +31,22 @@ import io.github.android.gui.fragment.game.LibGdxFragment;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
+import io.github.android.manager.MatchMakingManager;
+import io.github.android.manager.SessionManager;
 import io.github.android.utils.NetworkUtils;
+import io.github.android.utils.UiUtils;
 import io.github.core.data.ClientGame;
-import io.github.core.game_engine.CameraController;
 import io.github.core.game_engine.ClientLauncher;
+import io.github.core.game_engine.factory.ModelFactory;
+import io.github.core.game_engine.factory.SceneFactory;
 import io.github.core.game_engine.manager.GameManager;
 import io.github.fortheoil.R;
 import io.github.shared.data.NetGame;
+import io.github.shared.data.enums_types.DeckCardCategory;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.EventType;
+import io.github.shared.data.enums_types.ResourcesType;
+import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.instructions.EventsInstruction;
 import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.requests.SynchronizeRequest;
@@ -42,6 +63,7 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
     private View loadingContainer;
     private FrameLayout libgdxContainer;
     private LoadingFragment loadingFragment;
+    private LibGdxFragment libGdxFragment;
     private ClientLauncher clientLauncher;
     private ClientManager clientManager = ClientManager.getInstance();
 
@@ -61,16 +83,17 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
         initListener();
         setupLoadingFragment();
-        setupCameraControls();
+        setupToggleMenuButton();
+        setupBuildingButton();
+        initSettings();
     }
+
+
 
     @Override
     public void exit() {
         finish();
     }
-
-
-
 
 
 
@@ -165,11 +188,13 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
     }
 
     private void libGdxInit() {
+        libGdxFragment = new LibGdxFragment();
         getSupportFragmentManager()
             .beginTransaction()
-            .replace(R.id.libgdxContainer, new LibGdxFragment())
+            .replace(R.id.libgdxContainer, libGdxFragment)
             .commit();
     }
+
 
 
     private void setupLoadingFragment(){
@@ -230,24 +255,168 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
         }), true);
     }
 
-    private void setupCameraControls() {
-        findViewById(R.id.camZoomIn).setOnClickListener(v ->
-            CameraController.get().zoomDelta = -50f);
 
-        findViewById(R.id.camZoomOut).setOnClickListener(v ->
-            CameraController.get().zoomDelta = 50f);
 
-        findViewById(R.id.camRotateLeft).setOnClickListener(v ->
-            CameraController.get().rotDelta = +2f);
+    private void setupToggleMenuButton() {
+        ImageButton btnToggleMenu = findViewById(R.id.btnToggleMenu);
+        LinearLayout bottomPanel = findViewById(R.id.bottomPanel);
 
-        findViewById(R.id.camRotateRight).setOnClickListener(v ->
-            CameraController.get().rotDelta = -2f);
+        btnToggleMenu.setOnClickListener(v -> {
+            if (bottomPanel.getVisibility() == View.VISIBLE) {
+                bottomPanel.setVisibility(View.GONE);
+                btnToggleMenu.setImageResource(R.drawable.keyboard_double_arrow_up_24px);
+            } else {
+                bottomPanel.setVisibility(View.VISIBLE);
+                btnToggleMenu.setImageResource(R.drawable.keyboard_double_arrow_down_24px);
+            }
+        });
 
-        findViewById(R.id.camReset).setOnClickListener(v ->
-            CameraController.get().resetRequested = true);
     }
 
 
+    private void setupBuildingButton(){
+        Button btnIndustry = findViewById(R.id.btnIndustry);
+        Button btnMilitary = findViewById(R.id.btnMilitary);
+        Button btnDefense  = findViewById(R.id.btnDefense);
+
+        btnIndustry.setOnClickListener(v ->
+            showCardsForCategory(DeckCardCategory.Industrial));
+
+        btnMilitary.setOnClickListener(v ->
+            showCardsForCategory(DeckCardCategory.Military));
+
+        btnDefense.setOnClickListener(v ->
+            showCardsForCategory(DeckCardCategory.Defense));
+
+    }
+
+
+    private void showCardsForCategory(DeckCardCategory category) {
+        Deck deck = SessionManager.getInstance().getCurrentDeck();
+
+        if (deck == null) {
+            Log.e("ForTheOil", "No current deck is selected!");
+            return;
+        }
+
+        List<EntityType> cards = deck.getCardsByCategory().get(category);
+
+        if (cards == null) cards = new ArrayList<>();
+
+        Log.d("ForTheOil", "Cards in " + category + ": " + cards.toString());
+
+        updateRightPanel(cards);
+    }
+
+
+    private void updateRightPanel(List<EntityType> cards) {
+        FlexboxLayout rightPanel = findViewById(R.id.contentContainer); // Flexbox pour multi-colonnes
+        rightPanel.removeAllViews();
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+        for (EntityType card : cards) {
+            View cardView = inflater.inflate(R.layout.right_panel_card, rightPanel, false);
+
+            ImageView img = cardView.findViewById(R.id.cardImage);
+            LinearLayout costsLayout = cardView.findViewById(R.id.cardCosts);
+
+            img.setImageResource(UiUtils.mapEntityTypeToDrawable(card));
+
+            // Ajouter chaque coût comme TextView
+            costsLayout.removeAllViews();
+            HashMap<ResourcesType, Integer> costMap = card.getCost();
+            if (costMap != null) {
+                for (Map.Entry<ResourcesType, Integer> entry : costMap.entrySet()) {
+                    TextView costView = new TextView(this);
+                    costView.setText(entry.getKey().name() + ": " + entry.getValue());
+                    costView.setTextSize(10f);
+                    costView.setTextColor(Color.BLACK);
+                    costView.setGravity(Gravity.CENTER);
+                    costsLayout.addView(costView);
+                }
+            }
+
+            rightPanel.addView(cardView);
+        }
+    }
+
+
+    private void initSettings(){
+        // Overlay complet
+        FrameLayout settingsOverlay = findViewById(R.id.gameSettingsOverlay);
+        LinearLayout settingsMenu = findViewById(R.id.settingsMenu);
+
+        // Boutons
+        Button btnToggleMusic = findViewById(R.id.btnToggleMusic);
+        Button btnToggleSfx = findViewById(R.id.btnToggleSfx);
+        Button btnQuit = findViewById(R.id.btnQuit);
+        Button btnAbandon = findViewById(R.id.btnAbandon);
+        Button btnReturn = findViewById(R.id.btnReturn);
+
+        // Bouton engrenage
+        ImageButton btnSettings = findViewById(R.id.btnSettings);
+
+
+        // Afficher le menu quand on clique sur l'engrenage
+        btnSettings.setOnClickListener(v -> settingsOverlay.setVisibility(View.VISIBLE));
+
+        // Fermer le menu si clic en dehors du menu central
+        settingsOverlay.setOnClickListener(v -> settingsOverlay.setVisibility(View.GONE));
+
+        // Éviter que le clic dans le menu ferme l'overlay
+        settingsMenu.setOnClickListener(v -> {
+            // Ne rien faire
+        });
+
+        // Actions des boutons
+        btnToggleMusic.setOnClickListener(v -> {
+            // TODO: activer/désactiver la musique
+        });
+
+        btnToggleSfx.setOnClickListener(v -> {
+            // TODO: activer/désactiver les effets sonores
+        });
+
+        // Dans GameActivity.java
+
+        btnQuit.setOnClickListener(v -> {
+            // 1. Masquer l'interface
+            if (libgdxContainer != null) {
+                libgdxContainer.setVisibility(View.GONE);
+            }
+
+            // 2. Supprimer le fragment proprement
+            if (libGdxFragment != null) {
+
+                ClientGame.getInstance().setRunning(false);
+
+                getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(libGdxFragment) // L'enlèvement du fragment appelle GameRenderer.dispose()
+                    .commitNowAllowingStateLoss(); // Force l'exécution immédiate
+            }
+
+            // 3. Nettoyer les managers
+            MatchMakingManager.getInstance().resetMatchmaking();
+
+            // 4. L'appel finish() sera fait APRES que GameRenderer.dispose() (maintenant synchrone)
+            // ait terminé son travail.
+            finish();
+        });
+
+        btnAbandon.setOnClickListener(v -> {
+            // TODO: abandonner la partie
+        });
+
+        btnReturn.setOnClickListener(v -> {
+            // Fermer le menu
+            settingsOverlay.setVisibility(View.GONE);
+        });
+
+
+
+    }
 
 
 

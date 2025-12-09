@@ -4,13 +4,25 @@
 
 plugins {
   id "application"
-  id "io.github.fourlastor.construo" version "2.0.1"
+  id "io.github.fourlastor.construo" version "2.1.0"
 }
 
 import io.github.fourlastor.construo.Target
 
 // --- Paramètres de base ---
-sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
+sourceSets {
+  main {
+    java {
+      // indique le vrai dossier source Java du desktop
+      srcDirs = ['src/main/java']
+    }
+    resources {
+      // indique le dossier assets
+      srcDirs = [rootProject.file('assets')]
+    }
+  }
+}
+
 
 // --- Nom de la classe principale ---
 application {

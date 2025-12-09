@@ -1,86 +1,196 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- Container LibGDX -->
+    <!-- LibGDX view -->
     <FrameLayout
         android:id="@+id/libgdxContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- === MENU CAMERA OVERLAY (nouveau) === -->
-    <LinearLayout
-        android:id="@+id/cameraControls"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="top|end"
-        android:padding="12dp"
-        android:background="#55000000">
-
-        <Button
-            android:id="@+id/camZoomIn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+ Zoom" />
-
-        <Button
-            android:id="@+id/camZoomOut"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="- Zoom" />
-
-        <Button
-            android:id="@+id/camRotateLeft"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="⟲ Tourner" />
-
-        <Button
-            android:id="@+id/camRotateRight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="⟳ Tourner" />
-
-        <Button
-            android:id="@+id/camReset"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reset Cam" />
-
-    </LinearLayout>
-    <!-- === FIN MENU CAMERA === -->
-
-    <!-- Barre d'informations -->
-    <LinearLayout
-        android:id="@+id/uiContainer"
-        android:orientation="vertical"
+    <!-- UI overlay -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:padding="16dp">
+        android:layout_height="match_parent">
 
+        <!-- SETTINGS BUTTON -->
+        <ImageButton
+            android:id="@+id/btnSettings"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/round_blue_button"
+            android:src="@drawable/settings_24px"
+            android:contentDescription="Settings"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <!-- INFO BOX (collé au TOP, centré) -->
         <TextView
-            android:id="@+id/scoreText"
+            android:id="@+id/infoBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Score: 0"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
+            android:minWidth="200dp"
+            android:padding="10dp"
+            android:textColor="#FFFFFF"
+            android:text="Infos…"
+            android:textSize="16sp"
+            android:background="#99000000"
+            android:gravity="center"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="6dp" />
 
-        <Button
-            android:id="@+id/actionButton"
-            android:layout_width="wrap_content"
+        <!-- RESOURCES BAR (au-dessus du bottom panel) -->
+        <LinearLayout
+            android:id="@+id/resourcesBar"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Action" />
-    </LinearLayout>
+            android:padding="0dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/bottomPanel">
 
-    <!-- Overlay chargement -->
+            <!-- Bloc des ressources avec fond gris -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="4dp"
+                android:background="#99000000"> <!-- fond uniquement ici -->
+
+                <TextView
+                    android:id="@+id/resourceOil"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Oil: 1200"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"/>
+
+                <TextView
+                    android:id="@+id/resourceGold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Gold: 540"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"/>
+
+                <TextView
+                    android:id="@+id/resourceRock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Stone: 310"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"/>
+            </LinearLayout>
+
+            <!-- Espace flexible pour pousser la flèche à droite -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Bouton flèche pour cacher/montrer le bottom panel -->
+            <ImageButton
+                android:id="@+id/btnToggleMenu"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@android:color/holo_green_dark"
+                android:src="@drawable/keyboard_double_arrow_down_24px"
+                android:contentDescription="Toggle Menu"
+                android:scaleType="centerInside"
+                android:layout_gravity="bottom"/>
+        </LinearLayout>
+
+
+        <!-- BOTTOM MENU PANEL -->
+        <LinearLayout
+            android:id="@+id/bottomPanel"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:background="#CC000000"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.25"
+            android:visibility="visible">
+
+            <!-- MENU VERTICAL À GAUCHE -->
+            <ScrollView
+                android:layout_width="90dp"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/menuContainer"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/btnIndustry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Industry" />
+
+                    <Button
+                        android:id="@+id/btnMilitary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Military" />
+
+                    <Button
+                        android:id="@+id/btnDefense"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Defense" />
+
+                    <Button
+                        android:id="@+id/btnUnits"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Units" />
+
+                </LinearLayout>
+
+            </ScrollView>
+
+            <!-- CONTENU VARIABLE À DROITE -->
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.flexbox.FlexboxLayout
+                    android:id="@+id/contentContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:flexWrap="wrap"
+                    app:justifyContent="flex_start"
+                    app:alignItems="flex_start"
+                    android:padding="8dp">
+                </com.google.android.flexbox.FlexboxLayout>
+            </ScrollView>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Loading overlay -->
     <FrameLayout
         android:id="@+id/loadingContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible" />
+        android:background="#88000000"
+        android:visibility="gone" />
+
+    <include
+        layout="@layout/game_settings"
+        />
 
 </FrameLayout>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/gameSettingsOverlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#88000000"
+    android:visibility="visible">
+
+    <!-- Menu central -->
+    <LinearLayout
+        android:id="@+id/settingsMenu"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_settings_menu"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btnToggleMusic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Toggle Music" />
+
+        <Button
+            android:id="@+id/btnToggleSfx"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Toggle Sound Effects"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnQuit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Quit Game"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnAbandon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Abandon Game"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnReturn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Return"
+            android:layout_marginTop="8dp" />
+
+    </LinearLayout>
+
+</FrameLayout>
