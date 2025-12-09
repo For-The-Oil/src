@@ -146,7 +146,7 @@ public final class EntityFactory {
                 }
 
                 world.delete(id); // Supprime l'entité
-                break; // On arrête après avoir trouvé et supprimé
+                return; // On arrête après avoir trouvé et supprimé
             }
         }
     }

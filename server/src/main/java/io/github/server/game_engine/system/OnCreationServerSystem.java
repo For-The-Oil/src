@@ -60,18 +60,28 @@ public class OnCreationServerSystem extends IteratingSystem {
         if (occ.time <= 0f)return;
         NetComponent net = mNet.get(e);// netId and type information for instruction routing
 
+        if(occ.fromNetId != -1){
+            int from = Utility.getIdByNetId(world,occ.fromNetId,mNet);
+            if(from == -1){
+                server.addDestroyInstruction(net.netId);
+                return;
+            }
+        }
+
         // --- Update path: still in "creation" state, tick down the timer and inform clients ---
         // Reduce the remaining time, clamped to zero
         float newTime = Math.max(occ.time - world.getDelta(), 0f);
 
-        // Prepare a snapshot for OnCreationComponent (overwrite fields)
-        java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
-        fields.put("time", newTime);// updated countdown
-        fields.put("fromNetId", occ.fromNetId); // optional: keep origin for visibility/debug
-        ComponentSnapshot onCreationSnap = new ComponentSnapshot("OnCreationComponent", fields);
+        if(newTime <= 0f) {
+            // Prepare a snapshot for OnCreationComponent (overwrite fields)
+            java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
+            fields.put("time", -1);// updated countdown
+            fields.put("fromNetId", occ.fromNetId); // optional: keep origin for visibility/debug
+            ComponentSnapshot onCreationSnap = new ComponentSnapshot("OnCreationComponent", fields);
 
-        // Register the snapshot into the tracker for aggregation this frame
-        server.getUpdateTracker().markComponentModified(world.getEntity(e), onCreationSnap);
+            // Register the snapshot into the tracker for aggregation this frame
+            server.getUpdateTracker().markComponentModified(world.getEntity(e), onCreationSnap);
+        }
 
         if(newTime <= 0f &&net.entityType.getType().equals(EntityType.Type.Unit)){
             float x = 0;

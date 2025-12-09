@@ -8,7 +8,7 @@ import net.mgsx.gltf.scene3d.scene.Scene;
 import java.util.Queue;
 
 import io.github.core.game_engine.system.GraphicsSyncSystem;
-import io.github.shared.shared_engine.system.DamageSystem;
+import io.github.shared.shared_engine.system.DamageAndHealSystem;
 import io.github.shared.shared_engine.system.FreezeSystem;
 import io.github.shared.shared_engine.system.MovementSystem;
 import io.github.shared.shared_engine.system.OnCreationSystem;
@@ -19,7 +19,7 @@ public class EcsClientGame {
         return new WorldConfigurationBuilder()
             .with(new OnCreationSystem())
             .with(new FreezeSystem())
-            .with(new DamageSystem())
+            .with(new DamageAndHealSystem())
             .with(new MovementSystem())
             .with(new VectorApplicationSystem())
             .with(new GraphicsSyncSystem(sceneQueue))

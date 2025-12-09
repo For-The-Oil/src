@@ -19,7 +19,7 @@ import io.github.shared.data.gameobject.DamageEntry;
  * Formula: finalDamage = damage * (ARMOR_COEF ^ max(armor - armorPenetration, 0))
  */
 @Wire
-public class DamageSystem extends IteratingSystem {
+public class DamageAndHealSystem extends IteratingSystem {
 
     /** Server used to enqueue deferred destroy instructions. */
 
@@ -27,7 +27,7 @@ public class DamageSystem extends IteratingSystem {
     private ComponentMapper<LifeComponent> mLife;
     private ComponentMapper<DamageComponent> mDamage;
 
-    public DamageSystem() {
+    public DamageAndHealSystem() {
         super(Aspect.all(LifeComponent.class, DamageComponent.class, NetComponent.class));
     }
 
@@ -44,8 +44,13 @@ public class DamageSystem extends IteratingSystem {
 
         float totalDamage = 0f;
         for (DamageEntry entry : dmg.entries) {
-            int armorResidual = Math.max(life.armor - Math.round(entry.armorPenetration), 0);
-            totalDamage += (float) (entry.damage * Math.pow(BaseGameConfig.ARMOR_COEF, armorResidual));
+            if(entry.damage < 0){
+                totalDamage += entry.damage;
+            }
+            else {
+                int armorResidual = Math.max(life.armor - Math.round(entry.armorPenetration), 0);
+                totalDamage += (float) (entry.damage * Math.pow(BaseGameConfig.ARMOR_COEF, armorResidual));
+            }
         }
 
         life.takeDamage(totalDamage);
