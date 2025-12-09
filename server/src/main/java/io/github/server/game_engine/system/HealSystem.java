@@ -53,7 +53,6 @@ public class HealSystem extends IteratingSystem {
         if (accumulator < PERIOD_SEC) return;
         // Only Buildings produce resources
         LifeComponent life = mLife.get(e);
-        life.heal(life.passiveHeal);
 
         NetComponent net = mNet.get(e);
         java.util.ArrayList<Object> entries = new java.util.ArrayList<>();

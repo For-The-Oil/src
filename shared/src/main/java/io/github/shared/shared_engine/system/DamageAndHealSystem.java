@@ -52,8 +52,8 @@ public class DamageAndHealSystem extends IteratingSystem {
                 totalDamage += (float) (entry.damage * Math.pow(BaseGameConfig.ARMOR_COEF, armorResidual));
             }
         }
-
-        life.takeDamage(totalDamage);
+        if(totalDamage < 0)life.heal(-totalDamage);
+        else life.takeDamage(totalDamage);
         dmg.clear();
     }
 }
