@@ -5,6 +5,9 @@ import com.artemis.Entity;
 
 import java.util.HashMap;
 
+import io.github.shared.data.component.MeleeAttackComponent;
+import io.github.shared.data.component.ProjectileAttackComponent;
+import io.github.shared.data.component.RangedAttackComponent;
 import io.github.shared.data.component.RessourceComponent;
 import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.EntityType;
@@ -18,6 +21,7 @@ import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.component.ProjectileComponent;
 import io.github.shared.data.component.ProprietyComponent;
+import io.github.shared.data.enums_types.WeaponType;
 import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.instructions.CreateInstruction;
 import io.github.shared.data.instructions.DestroyInstruction;
@@ -37,17 +41,8 @@ public class InstructionManager {
             switch (type) {
                 case "CreateInstruction":
                     CreateInstruction ci = (CreateInstruction) instruction;
-
                     ComponentMapper<NetComponent> netMapper = game.getWorld().getMapper(NetComponent.class);
-                    ComponentMapper<ProprietyComponent> proprietyMapper = game.getWorld().getMapper(ProprietyComponent.class);
-                    ComponentMapper<OnCreationComponent> onCreateMapper = game.getWorld().getMapper(OnCreationComponent.class);
                     ComponentMapper<PositionComponent> positionMapper = game.getWorld().getMapper(PositionComponent.class);
-                    ComponentMapper<BuildingMapPositionComponent> buildingMapPositionMapper = game.getWorld().getMapper(BuildingMapPositionComponent.class);
-                    ComponentMapper<LifeComponent> lifeMapper = game.getWorld().getMapper(LifeComponent.class);
-                    ComponentMapper<FreezeComponent> freezeMapper = game.getWorld().getMapper(FreezeComponent.class);
-                    ComponentMapper<ProjectileComponent> projectileMapper = game.getWorld().getMapper(ProjectileComponent.class);
-                    ComponentMapper<MoveComponent> moveMapper = game.getWorld().getMapper(MoveComponent.class);
-                    ComponentMapper<RessourceComponent> resMapper = game.getWorld().getMapper(RessourceComponent.class);
 
                     for (int i = 0; i < ci.getToSpawn().size(); i++) {
                         float x = ci.getPosX().get(i);
@@ -60,12 +55,15 @@ public class InstructionManager {
 
                         Player player = Utility.findPlayerByUuid(game.getPlayersList(), ci.getPlayer().get(i));
                         if (player != null) {
+                            ComponentMapper<ProprietyComponent> proprietyMapper = game.getWorld().getMapper(ProprietyComponent.class);
                             Utility.subtractResourcesInPlace(player.getResources(), entityType.getCost());
                             ProprietyComponent prc = proprietyMapper.create(entity);
                             prc.set(player.getUuid(), Utility.findTeamByPlayer(player, game.getPlayerTeam()));
                         }
 
                         if (entityType.getType().equals(EntityType.Type.Building)) {
+                            ComponentMapper<BuildingMapPositionComponent> buildingMapPositionMapper = game.getWorld().getMapper(BuildingMapPositionComponent.class);
+                            ComponentMapper<RessourceComponent> resMapper = game.getWorld().getMapper(RessourceComponent.class);
                             Shape overlay = new Shape(entityType.getShapeType().getShape(), netId);
                             ShapeManager.overlayShape(game.getMap(), ShapeManager.rotateShape(overlay, direction), (int) x, (int) y, 0, 0, overlay.getWidth(), overlay.getHeight());
                             game.setMapDirty(true);
@@ -84,7 +82,12 @@ public class InstructionManager {
                         }
 
                         if(entityType.getType().equals(EntityType.Type.Building)||entityType.getType().equals(EntityType.Type.Unit)){
-
+                            ComponentMapper<OnCreationComponent> onCreateMapper = game.getWorld().getMapper(OnCreationComponent.class);
+                            ComponentMapper<MeleeAttackComponent> meleeAttackMapper = game.getWorld().getMapper(MeleeAttackComponent.class);
+                            ComponentMapper<RangedAttackComponent> rangedAttackMapper = game.getWorld().getMapper(RangedAttackComponent.class);
+                            ComponentMapper<ProjectileAttackComponent> projectileAttackMapper = game.getWorld().getMapper(ProjectileAttackComponent.class);
+                            ComponentMapper<LifeComponent> lifeMapper = game.getWorld().getMapper(LifeComponent.class);
+                            ComponentMapper<FreezeComponent> freezeMapper = game.getWorld().getMapper(FreezeComponent.class);
                             FreezeComponent fc= freezeMapper.create(entity);
                             fc.freeze_time = entityType.getFreeze_time();
 
@@ -94,10 +97,30 @@ public class InstructionManager {
                             OnCreationComponent occ = onCreateMapper.create(entity);
                             occ.set(from, entityType.getCreate_time());
 
+                            for(WeaponType weaponType : entityType.getWeaponType()){
+                                if(weaponType.getType().equals(WeaponType.Type.Melee)){
+                                    MeleeAttackComponent melee = meleeAttackMapper.get(entity);
+                                    if(melee == null)melee = meleeAttackMapper.create(entity);
+                                    melee.set(weaponType,weaponType.getDamage(),weaponType.getCooldown(), weaponType.getReach());
+                                }
+                                else if(weaponType.getType().equals(WeaponType.Type.Range)){
+                                    RangedAttackComponent ranged = rangedAttackMapper.get(entity);
+                                    if(ranged == null)ranged = rangedAttackMapper.create(entity);
+                                    ranged.set(weaponType,weaponType.getDamage(),weaponType.getCooldown(), weaponType.getReach());
+                                }
+                                else if(weaponType.getType().equals(WeaponType.Type.ProjectileLauncher)){
+                                    ProjectileAttackComponent projectile = projectileAttackMapper.get(entity);
+                                    if(projectile == null)projectile = projectileAttackMapper.create(entity);
+                                    projectile.set(weaponType,weaponType.getCooldown(), weaponType.getReach(),weaponType.getProjectileType());
+                                }
+                            }
+
                         }
 
                         if(entityType.getType().equals(EntityType.Type.Projectile)){
+                            ComponentMapper<ProjectileComponent> projectileMapper = game.getWorld().getMapper(ProjectileComponent.class);
                             PositionComponent posFromC = Utility.getPositionByNetId(game.getWorld(), from,netMapper,positionMapper);
+                            ComponentMapper<MoveComponent> moveMapper = game.getWorld().getMapper(MoveComponent.class);
 
                             PositionComponent posC = positionMapper.create(entity);
                             posC.set(posFromC.x, posFromC.y,0);
