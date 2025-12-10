@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.gameobject.Deck;
@@ -27,6 +28,7 @@ public class SessionManager {
     private ArrayList<EntityType> unlockedCards;
     private Deck currentDeck;
     private String currentDeckName;
+    private UUID uuidClient;
     private Boolean isActive=false;
 
     // Constructeur privé pour empêcher l’instanciation directe
@@ -46,6 +48,7 @@ public class SessionManager {
         this.username = null;
         this.decks = null;
         this.isActive = false;
+        this.uuidClient = null;
     }
 
 
@@ -127,6 +130,14 @@ public class SessionManager {
 
     public void setCurrentDeckName(String currentDeckName) {
         this.currentDeckName = currentDeckName;
+    }
+
+    public UUID getUuidClient() {
+        return uuidClient;
+    }
+
+    public void setUuidClient(UUID uuidClient) {
+        this.uuidClient = uuidClient;
     }
 }
 

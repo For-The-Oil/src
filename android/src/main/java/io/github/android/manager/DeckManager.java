@@ -15,6 +15,7 @@ import io.github.core.client_engine.factory.RequestFactory;
 import io.github.shared.data.enums_types.DeckCardCategory;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.ResourcesType;
+import io.github.shared.data.enums_types.WeaponType;
 import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.DeckRequest;
@@ -167,8 +168,10 @@ public final class DeckManager {
             info.append("Shape : ").append(type.getShapeType()).append("\n");
         }
 
-        if (type.getWeaponType() != null) {
-            info.append("Weapon : ").append(type.getWeaponType()).append("\n");
+        if (!type.getWeaponType().isEmpty()) {
+            info.append("Weapon : ");
+            for (WeaponType weaponType : type.getWeaponType()) info.append(type.getWeaponType()).append(", ");
+            info.append("\n");
         }
 
         info.append("Max Health : ").append(type.getMaxHealth()).append("\n");

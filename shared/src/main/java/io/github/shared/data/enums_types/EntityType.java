@@ -1,6 +1,7 @@
 package io.github.shared.data.enums_types;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 public enum EntityType {
@@ -149,7 +150,7 @@ public enum EntityType {
     JEEP(
         Type.Unit, //Type type,
         GARAGE, //EntityType spawnFrom,
-        WeaponType.test,  //WeaponType weaponType,
+        new ArrayList<>(Collections.singleton(WeaponType.test)),  //WeaponType weaponType,
         200f, //float maxHealth,
         1, //int armor,
         0f,  //float passiveHeal,
@@ -165,7 +166,7 @@ public enum EntityType {
     BIKE(
         Type.Unit, //Type type,
         GARAGE, //EntityType spawnFrom,
-        WeaponType.test,  //WeaponType weaponType,
+        new ArrayList<>(Collections.singleton(WeaponType.test)),  //WeaponType weaponType,
         75f, //float maxHealth,
             0, //int armor,
             0f,  //float passiveHeal,
@@ -181,7 +182,7 @@ public enum EntityType {
     TANK(
         Type.Unit, //Type type,
         FACTORY, //EntityType spawnFrom,
-        WeaponType.test,  //WeaponType weaponType,
+        new ArrayList<>(Collections.singleton(WeaponType.test)),  //WeaponType weaponType,
         450f, //float maxHealth,
             2, //int armor,
             0f,  //float passiveHeal,
@@ -204,7 +205,7 @@ public enum EntityType {
     private final EntityType spawnFrom;
     private final ShapeType shapeType;
     private final ArrayList<Float> projectileData;
-    private final WeaponType weaponType;
+    private final ArrayList<WeaponType> weaponType;
     private final float maxHealth;
     private final int armor;
     private final float passiveHeal;
@@ -214,7 +215,7 @@ public enum EntityType {
     private final HashMap<ResourcesType, Integer> cost;
     private final HashMap<ResourcesType, Integer> production;
 
-    EntityType(Type type, EntityType spawnFrom, DeckCardCategory category, ShapeType shapeType, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, float createTime, HashMap<ResourcesType, Integer> cost, HashMap<ResourcesType, Integer> production) {
+    EntityType(Type type, EntityType spawnFrom, DeckCardCategory category, ShapeType shapeType, ArrayList<WeaponType> weaponType, float maxHealth, int armor, float passiveHeal, float freezeTime, float createTime, HashMap<ResourcesType, Integer> cost, HashMap<ResourcesType, Integer> production) {
         this.type = type;
         this.category = category;
         this.spawnFrom = spawnFrom;
@@ -231,7 +232,7 @@ public enum EntityType {
         this.base_speed = 0;
     }
 
-    EntityType(Type type, EntityType spawnFrom, WeaponType weaponType, float maxHealth, int armor, float passiveHeal, float baseSpeed, float freezeTime, float createTime, HashMap<ResourcesType, Integer> cost) {
+    EntityType(Type type, EntityType spawnFrom, ArrayList<WeaponType> weaponType, float maxHealth, int armor, float passiveHeal, float baseSpeed, float freezeTime, float createTime, HashMap<ResourcesType, Integer> cost) {
         this.type = type;
         this.category = null;
         this.spawnFrom = spawnFrom;
@@ -296,7 +297,7 @@ public enum EntityType {
         return freeze_time;
     }
 
-    public WeaponType getWeaponType() {
+    public ArrayList<WeaponType> getWeaponType() {
         return weaponType;
     }
 

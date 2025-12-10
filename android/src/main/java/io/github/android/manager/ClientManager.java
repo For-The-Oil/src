@@ -7,6 +7,8 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.UUID;
+
 import io.github.android.activity.SplashActivity;
 import io.github.android.activity.HomeActivity;
 import io.github.android.gui.fragment.launcher.LoginFragment;
@@ -15,7 +17,6 @@ import io.github.android.gui.fragment.launcher.ServerFragment;
 import io.github.core.client_engine.factory.KryoMessagePackager;
 import io.github.core.client_engine.factory.RequestFactory;
 import io.github.core.client_engine.manager.KryoClientManager;
-import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.AuthRequest;
 
@@ -123,6 +124,16 @@ public class ClientManager {
         String username = myRequest.getKeys().get("username");
         String decksJson = myRequest.getKeys().get("decks");
         String unlockedsJson = myRequest.getKeys().get("unlocked");
+        String uuidString = myRequest.getKeys().get("uuid");
+
+        if(uuidString != null && !uuidString.isEmpty()){
+            try {
+                sessionManager.setUuidClient(UUID.fromString(uuidString));
+              } catch (IllegalArgumentException e) {
+                Log.e("ClientManager", "Chaîne UUID invalide : " + uuidString);
+            }
+
+        }
 
         // Remplit la session
         sessionManager.setToken(token);
@@ -132,7 +143,7 @@ public class ClientManager {
             decksJson = "{}";
         }
         sessionManager.setDecksFromJson(decksJson);
-        SessionManager.getInstance().setCurrentDeck(SessionManager.getInstance().getDecks().entrySet().iterator().next().getValue(),SessionManager.getInstance().getDecks().entrySet().iterator().next().getKey());
+        sessionManager.setCurrentDeck(sessionManager.getDecks().entrySet().iterator().next().getValue(),sessionManager.getDecks().entrySet().iterator().next().getKey());
 
         // Gestion des cartes débloquées
         if (unlockedsJson == null || unlockedsJson.isEmpty()) {

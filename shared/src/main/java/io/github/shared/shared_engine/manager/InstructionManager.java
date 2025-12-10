@@ -75,7 +75,7 @@ public class InstructionManager {
 
                             PositionComponent posC = positionMapper.create(entity);
                             posC.set(x,y,0);
-                            posC.horizontalRotation = direction.getAngleDegrees();
+                            posC.horizontalRotation = direction.getAngleRadians();
 
                             if(entityType.getProduction()!= null){
                                 RessourceComponent res = resMapper.create(entity);

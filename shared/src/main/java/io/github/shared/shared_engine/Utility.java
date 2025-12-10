@@ -13,6 +13,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.github.shared.config.BaseGameConfig;
+import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.enums_types.CellType;
 import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.ResourcesType;

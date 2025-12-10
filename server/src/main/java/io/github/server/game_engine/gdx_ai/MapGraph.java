@@ -275,22 +275,34 @@ public class MapGraph implements IndexedGraph<MapNode> {
         if (lifeComponent == null) return Float.POSITIVE_INFINITY;
 
         // Weapon power of the moving entity (projectile variant if present, else base weapon)
-        float damage, armorPenetration;
-        if (entityType.getWeaponType().getType().equals(WeaponType.Type.ProjectileLauncher)
-            && entityType.getWeaponType().getProjectileType() != null) {
-            damage = entityType.getWeaponType().getProjectileType().getDamage();
-            armorPenetration = entityType.getWeaponType().getProjectileType().getArmorPenetration();
-        } else {
-            damage = entityType.getWeaponType().getDamage();
-            armorPenetration = entityType.getWeaponType().getArmorPenetration();
+        float bestDamage = 0;
+        float bestArmorPenetration = 0;
+        for (WeaponType weaponType : entityType.getWeaponType()) {
+            if (weaponType.getType().equals(WeaponType.Type.ProjectileLauncher) && weaponType.getProjectileType() != null) {
+
+                float damage = weaponType.getProjectileType().getDamage();
+                float armorPenetration = weaponType.getProjectileType().getArmorPenetration();
+                if(armorPenetration>bestArmorPenetration){
+                    bestDamage = damage;
+                    bestArmorPenetration = armorPenetration;
+                }
+
+            } else {
+                float damage = weaponType.getDamage();
+                float armorPenetration = weaponType.getArmorPenetration();
+                if(armorPenetration>bestArmorPenetration){
+                    bestDamage = damage;
+                    bestArmorPenetration = armorPenetration;
+                }
+            }
         }
 
         // Cost formula:
         return (float) (
             BaseGameConfig.DESTROY_PATH_COST *
                 (lifeComponent.health / (
-                    damage * Math.pow(BaseGameConfig.ARMOR_COEF,
-                        (armorPenetration >= lifeComponent.armor ? 0 : (lifeComponent.armor - armorPenetration)))))
+                    bestDamage * Math.pow(BaseGameConfig.ARMOR_COEF,
+                        (bestArmorPenetration >= lifeComponent.armor ? 0 : (lifeComponent.armor - bestArmorPenetration)))))
 
         );
     }

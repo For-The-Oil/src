@@ -139,6 +139,7 @@ public final class ClientAuthManager {
         response.put("decks", decksJson);
         response.put("unlocked", unlockedJson);
         response.put("token", client.getToken());
+        response.put("uuid", client.getUuid().toString());
 
         respondToClient(connection, true, response, AuthModeType.LOGIN_SUCCESS);
     }
@@ -225,6 +226,7 @@ public final class ClientAuthManager {
             response.put("decks", decksJson);
             response.put("unlocked", unlockedJson);
             response.put("token", client.getToken());
+            response.put("uuid", client.getUuid().toString());
 
             respondToClient(connection, true, response, AuthModeType.REGISTER_SUCCESS);
 

@@ -23,16 +23,17 @@ public enum Direction {
         }
     }
 
-
-    /** 0° = NORTH, 90° = EAST, 180° = SOUTH, 270° = WEST (sens horaire) */
-    public int getAngleDegrees() {
+    /** 0 rad = NORTH, π/2 rad = EAST, π rad = SOUTH, 3π/2 rad = WEST (sens horaire) */
+    public float getAngleRadians() {
         switch (this) {
-            case NORTH: return 0;
-            case EAST:  return 90;
-            case SOUTH: return 180;
-            case WEST:  return 270;
+            case NORTH: return 0.0f;
+            case EAST:  return (float) (Math.PI / 2);
+            case SOUTH: return (float) Math.PI;
+            case WEST:  return (float) (3 * Math.PI / 2);
             default: throw new IllegalArgumentException("Unknown direction: " + this);
         }
     }
+
+
 
 }
