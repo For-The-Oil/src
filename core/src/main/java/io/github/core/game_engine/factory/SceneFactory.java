@@ -44,8 +44,10 @@ public class SceneFactory {
     }
 
     public static void disposeINSTANCE(){
-        for(SceneAsset model : cache.values()){
-            model.dispose();
+        if(cache != null) {
+            for (SceneAsset model : cache.values()) {
+                model.dispose();
+            }
         }
         cache = null;
         INSTANCE = null;

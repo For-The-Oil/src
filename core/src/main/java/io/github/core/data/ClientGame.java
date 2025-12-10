@@ -69,7 +69,7 @@ public class ClientGame implements IGame {
         INSTANCE = new ClientGame(gameMode,mapName,map,uuid,timeLeft,eventType);
     }
 
-    public static void removeInstance() {
+    public static void disposeInstance() {
         INSTANCE = null;
     }
 

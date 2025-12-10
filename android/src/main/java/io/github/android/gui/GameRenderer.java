@@ -2,6 +2,8 @@
 package io.github.android.gui;
 
 
+import android.util.Log;
+
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -111,9 +113,7 @@ public class GameRenderer implements ApplicationListener {
 
     @Override
     public void render() {
-        GraphicsSyncSystem gfx = ClientGame.getInstance()
-            .getWorld()
-            .getSystem(GraphicsSyncSystem.class);
+        GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
         gfx.syncOnRenderThread();
 
         Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -129,11 +129,8 @@ public class GameRenderer implements ApplicationListener {
         if (ClientGame.getInstance().isMapDirty()) {
             for (Scene s : mapScenes) if (s != null) sceneManager.removeScene(s);
             mapScenes.clear();
-
-            mapScenes.addAll(
-                InstanceFactoryScene.getShapeScenes(
-                    ClientGame.getInstance().getMap(), new ArrayList<>()
-                )
+            mapScenes.addAll(InstanceFactoryScene.getShapeScenes(
+                ClientGame.getInstance().getMap(), new ArrayList<>())
             );
             for (Scene s : mapScenes) if (s != null) sceneManager.addScene(s);
             ClientGame.getInstance().setMapDirty(false);

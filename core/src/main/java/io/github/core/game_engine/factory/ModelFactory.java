@@ -30,6 +30,7 @@ import net.mgsx.gltf.scene3d.attributes.PBRFloatAttribute;
 import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -84,13 +85,15 @@ public class ModelFactory {
     }
 
     public static void disposeINSTANCE(){
-        for(Model model : HashMapModel.values()){
-            model.dispose();
+        if(HashMapModel != null) {
+            for (Model model : HashMapModel.values()) {
+                model.dispose();
+            }
         }
-        HashMapModel.clear();
-        defaultModel.dispose();
-        defaultModelShape.dispose();
-        am.dispose();
+        if(HashMapModel != null)HashMapModel.clear();
+        if(defaultModel != null)defaultModel.dispose();
+        if(defaultModelShape != null)defaultModelShape.dispose();
+        if(am != null)am.dispose();
         HashMapModel = null;
         defaultModel = null;
         defaultModelShape = null;

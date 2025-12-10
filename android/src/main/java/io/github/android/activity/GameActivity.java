@@ -27,6 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import io.github.android.gui.GameRenderer;
 import io.github.android.gui.fragment.game.LibGdxFragment;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
@@ -388,17 +389,15 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
             // 2. Supprimer le fragment proprement
             if (libGdxFragment != null) {
-
                 ClientGame.getInstance().setRunning(false);
-
                 getSupportFragmentManager()
                     .beginTransaction()
                     .remove(libGdxFragment) // L'enlèvement du fragment appelle GameRenderer.dispose()
                     .commitNowAllowingStateLoss(); // Force l'exécution immédiate
             }
-
-            // 3. Nettoyer les managers
-            MatchMakingManager.getInstance().resetMatchmaking();
+            SceneFactory.disposeINSTANCE();
+            ModelFactory.disposeINSTANCE();
+            if(!ClientGame.isInstanceNull())ClientGame.disposeInstance();
 
             // 4. L'appel finish() sera fait APRES que GameRenderer.dispose() (maintenant synchrone)
             // ait terminé son travail.

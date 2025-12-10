@@ -23,6 +23,7 @@ public class MatchMakingManager {
     public static MatchMakingManager INSTANCE;
     private final ExecutorService networkExecutor = Executors.newSingleThreadExecutor();
     private GameModeType gameMode;
+    private boolean isSearching;
 
     private MatchMakingManager(){}
 
@@ -76,9 +77,17 @@ public class MatchMakingManager {
     }
 
 
+    public boolean isSearching() {
+        return isSearching;
+    }
 
+    public void setSearching(boolean searching) {
+        isSearching = searching;
+    }
 
+    public void resetMatchmaking() {
+        isSearching = false;
+        gameMode = null;
 
-
-
+    }
 }
