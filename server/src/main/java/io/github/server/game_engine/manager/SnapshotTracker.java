@@ -10,12 +10,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 
+import io.github.shared.data.component.VelocityComponent;
 import io.github.shared.data.enums_types.ResourcesType;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.instructions.UpdateEntityInstruction;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.data.snapshot.EntitySnapshot;
+import io.github.shared.shared_engine.Utility;
 
 /**
  * SnapshotTracker
@@ -229,8 +231,24 @@ public class SnapshotTracker {
      * @param timestamp instruction timestamp in milliseconds
      * @return a populated UpdateEntityInstruction
      */
-    public UpdateEntityInstruction consumeUpdateInstruction(long timestamp) {
+    public UpdateEntityInstruction consumeUpdateInstruction(long timestamp,World world) {
         Collection<EntitySnapshot> snapshots = this.consumeSnapshots();
+        Collection<EntitySnapshot> removeSnapshots = new ArrayList<>();
+        for (EntitySnapshot entitySnapshot : snapshots){
+            for (ComponentSnapshot componentSnapshot : entitySnapshot.getComponentSnapshot()) {
+                if(componentSnapshot.getType().equals("VelocityComponent")){
+                    int e = Utility.getIdByNetId(world,entitySnapshot.getNetId(),world.getMapper(NetComponent.class));
+                    VelocityComponent vc = world.getMapper(VelocityComponent.class).get(e);
+                    if(vc != null &&
+                        (vc.vx == (float)componentSnapshot.getFields().get("vx")) &&
+                        (vc.vy == (float)componentSnapshot.getFields().get("vy")) &&
+                        (vc.vz == (float)componentSnapshot.getFields().get("vz"))) {
+                        removeSnapshots.add(entitySnapshot);
+                    }
+                }
+            }
+        }
+        snapshots.removeAll(removeSnapshots);
         UpdateEntityInstruction instruction = new UpdateEntityInstruction(timestamp);
         instruction.setToUpdate(new ArrayList<>(snapshots));
         return instruction;

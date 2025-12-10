@@ -41,7 +41,7 @@ public class GameLauncher extends Thread {
                     serverGame.getWorld().setDelta((float) (FIXED_TIME_STEP / 1000.0));
                     serverGame.getWorld().process();
 
-                    if (!serverGame.getUpdateTracker().snapshotsIsEmpty()) serverGame.addQueueInstruction(serverGame.getUpdateTracker().consumeUpdateInstruction(System.currentTimeMillis()));
+                    if (!serverGame.getUpdateTracker().snapshotsIsEmpty()) serverGame.addQueueInstruction(serverGame.getUpdateTracker().consumeUpdateInstruction(System.currentTimeMillis(),serverGame.getWorld()));
                     if (!serverGame.destroyInstructionIsEmpty()) serverGame.addQueueInstruction(serverGame.consumeDestroyInstruction(System.currentTimeMillis()));
                     if (!serverGame.createInstructionIsEmpty()) serverGame.addQueueInstruction(serverGame.consumeCreateInstruction(System.currentTimeMillis()));
 

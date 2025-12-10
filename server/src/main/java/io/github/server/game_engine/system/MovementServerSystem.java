@@ -62,7 +62,7 @@ public class MovementServerSystem extends IteratingSystem {
      * Excludes frozen entities, buildings, and projectiles.
      */
     public MovementServerSystem(ServerGame server) {
-        super(Aspect.all(PositionComponent.class, VelocityComponent.class, SpeedComponent.class, NetComponent.class).exclude(FreezeComponent.class, BuildingMapPositionComponent.class, ProjectileComponent.class));
+        super(Aspect.all(PositionComponent.class, SpeedComponent.class, NetComponent.class).exclude(FreezeComponent.class, BuildingMapPositionComponent.class, ProjectileComponent.class));
         this.server = server;
     }
 
@@ -84,12 +84,10 @@ public class MovementServerSystem extends IteratingSystem {
         NetComponent net = mNet.get(e);
         TargetComponent tgt = mTarget.get(e);
 
-        if (pos == null || vel == null) return;
+        if (pos == null) return;
 
-        // If velocity is flagged as stopped, skip
-        if (vel.isStop())return;
         // Apply damping to gradually reduce velocity toward zero
-        else zeroVelocity(vel, pos, e);
+        if (vel != null && !vel.isStop())zeroVelocity(vel, pos, e);
 
 
         // No movement intent -> nothing else to do
