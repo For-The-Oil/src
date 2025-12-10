@@ -7,8 +7,8 @@ import io.github.shared.data.requests.Request;
 public class BuildRequest extends Request {
     private EntityType type;
     private int from;
-    private int posX;
-    private int posY;
+    private float posX;
+    private float posY;
     private Direction direction;
 
     public BuildRequest(){
@@ -31,7 +31,7 @@ public class BuildRequest extends Request {
         this.type = type;
     }
 
-    public int getPosX() {
+    public float getPosX() {
         return posX;
     }
 
@@ -39,7 +39,7 @@ public class BuildRequest extends Request {
         this.posX = posX;
     }
 
-    public int getPosY() {
+    public float getPosY() {
         return posY;
     }
 

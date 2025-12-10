@@ -95,7 +95,7 @@ public class RequestGameManager {
             NetComponent netMove = game.getWorld().getMapper(NetComponent.class).get(entityMove);
 
             HashMap<String,Object> fields = new HashMap<>();
-            fields.put("targetRelated",moveGroupRequest.isTargetRelated());
+            fields.put("targetRelated",false);
             fields.put("destinationX",moveGroupRequest.getPosX());
             fields.put("destinationY",moveGroupRequest.getPosY());
             fields.put("nextX1",-1);fields.put("nextY1",-1);fields.put("nextX2",-1);fields.put("nextY2",-1);
@@ -116,7 +116,7 @@ public class RequestGameManager {
         Shape shape = entityTypeBuild.getShapeType().getShape();
         Direction direction = buildRequest.getDirection();
 
-        if(!ShapeManager.canOverlayShape(game.getMap(), ShapeManager.rotateShape(shape, direction), buildRequest.getPosX(), buildRequest.getPosY(), 0, 0, shape.getWidth(), shape.getHeight(),entityTypeBuild.getShapeType().getCanBePlacedOn())
+        if(!ShapeManager.canOverlayShape(game.getMap(), ShapeManager.rotateShape(shape, direction), Utility.worldToCell(buildRequest.getPosX()), Utility.worldToCell(buildRequest.getPosY()), 0, 0, shape.getWidth(), shape.getHeight(),entityTypeBuild.getShapeType().getCanBePlacedOn())
             || !Utility.canSubtractResources(entityTypeBuild.getCost(), entityTypeBuild.getCost())
             || (entityTypeBuild.getFrom()!=null
             && EcsManager.findEntityByNetIdPlayerAndEntityType(game.getWorld(), buildRequest.getFrom(), buildRequest.getPlayer(), entityTypeBuild.getFrom()) == null)) return null;
