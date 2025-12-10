@@ -13,7 +13,6 @@ import io.github.server.data.ServerGame;
 import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.MoveComponent;
 import io.github.shared.data.enums_types.EntityType;
-import io.github.shared.data.enums_types.WeaponType;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.NetComponent;
@@ -59,6 +58,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
 
     // Server reference to integrate projectile creation with your instruction system
     private final ServerGame server;
+    final float EPS = 1e-4f;
 
     /**
      * Requires ServerGame to route projectile creation to your server pipeline.
@@ -90,6 +90,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
         int candidateId = -1;
         boolean inRange = false;
         boolean isTypeBuilding = false;
+        boolean sendCurrentCooldown = false;
         float BuildingPosx = -1;
         float BuildingPosy = -1;
 
@@ -219,66 +220,66 @@ public class ProjectileAttackSystem extends IteratingSystem {
 
         // We can shoot only if we have a valid enemy candidate in range and cooldown is ready
         final boolean canShoot = (candidateId != -1 && inRange && isEnemy);
-        if(canShoot){
+        if(canShoot) {
             float tPosx = -1;
             float tPosy = -1;
             PositionComponent tPos = mPos.get(candidateId);
-            if(isTypeBuilding){
+            if (isTypeBuilding) {
                 tPosx = BuildingPosx;
                 tPosy = BuildingPosy;
-            }
-            else if(tPos!=null) {
+            } else if (tPos != null) {
                 tPosx = tPos.x;
                 tPosy = tPos.y;
             }
-            if (tPosx != -1 && tPosy != -1 ) {
+            if (tPosx != -1 && tPosy != -1) {
                 float dx = tPosx - pos.x;
                 float dy = tPosy - pos.y;
-                tmp = pos.horizontalRotation + ((float) Math.atan2(dy, dx) - pos.horizontalRotation) * attack.weaponType.getTurn_speed() * world.getDelta();
-                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"ProjectileAttackComponent");
-                if(previousSnapshot != null){
-                    previousSnapshot.getFields().put("horizontalRotation",tmp);
-                }
-                else {
-                    HashMap<String, Object> fields = new HashMap<>();
-                    fields.put("weaponType", attack.weaponType);
-                    fields.put("cooldown", attack.cooldown);
-                    fields.put("currentCooldown", attack.currentCooldown);
-                    fields.put("range", attack.range);
-                    fields.put("EntityType", attack.projectileType);
-                    fields.put("horizontalRotation", tmp);
-                    fields.put("verticalRotation", attack.verticalRotation);
-                    ComponentSnapshot positionComponent = new ComponentSnapshot("ProjectileAttackComponent", fields);
-                    server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
-                }
-                if (!attack.weaponType.isHitAndMove()){
-                    dx = tPosx - pos.x;
-                    dy = tPosy - pos.y;
-                    ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"PositionComponent");
-                    if(previousSnapshot2 != null){
-                        previousSnapshot2.getFields().put("horizontalRotation",(float) Math.atan2(dy, dx));
-                    }
-                    else {
+                float target = (float) Math.atan2(dy, dx);
+                float delta = (float) Math.atan2(Math.sin(target - pos.horizontalRotation), Math.cos(target - pos.horizontalRotation));
+                float alpha = attack.weaponType.getTurn_speed() * world.getDelta(); // ex. 0..1/frame
+                alpha = Math.max(0f, Math.min(1f, alpha));
+                tmp = pos.horizontalRotation + delta * alpha;
+                tmp = (float) Math.atan2(Math.sin(tmp), Math.cos(tmp));
+
+                // Seuil de changement pour éviter des updates inutiles
+                boolean changed = Math.abs(tmp - pos.horizontalRotation) > EPS;
+
+                if (changed) {
+                    ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "ProjectileAttackComponent");
+                    if (previousSnapshot != null) {
+                        previousSnapshot.getFields().put("horizontalRotation", tmp);
+                    } else {
                         HashMap<String, Object> fields = new HashMap<>();
-                        fields.put("x", pos.x);
-                        fields.put("y", pos.y);
-                        fields.put("z", pos.z);
-                        fields.put("horizontalRotation", (float) Math.atan2(dy, dx));
-                        fields.put("verticalRotation", pos.verticalRotation);
-                        ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
-                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                        fields.put("weaponType", attack.weaponType);
+                        fields.put("cooldown", attack.cooldown);
+                        fields.put("currentCooldown", attack.currentCooldown);
+                        fields.put("range", attack.range);
+                        fields.put("EntityType", attack.projectileType);
+                        fields.put("horizontalRotation", tmp);
+                        fields.put("verticalRotation", attack.verticalRotation);
+                        ComponentSnapshot atkComp = new ComponentSnapshot("ProjectileAttackComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), atkComp);
                     }
-                }
+                    if (!attack.weaponType.isHitAndMove()) {
+                        ComponentSnapshot prevPos = server.getUpdateTracker()
+                            .getPreviousSnapshot(world.getEntity(e), "PositionComponent");
+                        if (prevPos != null) {
+                            prevPos.getFields().put("horizontalRotation", Math.atan2(dy, dx));
+                        } else {
+                            HashMap<String, Object> fields2 = new HashMap<>();
+                            fields2.put("x", pos.x);
+                            fields2.put("y", pos.y);
+                            fields2.put("z", pos.z);
+                            fields2.put("horizontalRotation", Math.atan2(dy, dx));
+                            fields2.put("verticalRotation", pos.verticalRotation);
+                            ComponentSnapshot posComp = new ComponentSnapshot("PositionComponent", fields2);
+                            server.getUpdateTracker().markComponentModified(world.getEntity(e), posComp);
+                        }
+                    }
+                }else pos.horizontalRotation = tmp;
             }
         }
-
         if (ready && canShoot) {
-            // === Spawn projectile (no direct damage) via placeholder ===
-
-            // Read weapon metadata: animation/focus extra to add to cooldown
-            WeaponType wt = attack.weaponType;
-            float extra = (wt != null ? wt.getAnimationAndFocusCooldown() : 0f);
-
             PositionComponent tPos = mPos.get(candidateId); // target position for projectile trajectory
             if (tPos != null && meP != null) {
                 // Delegate projectile creation to your server-side creation pipeline
@@ -286,22 +287,25 @@ public class ProjectileAttackSystem extends IteratingSystem {
                 server.addCreateInstruction(attack.projectileType,null, Utility.getNetId(),net.netId,tPos.x,tPos.y,meP.player);
             }
 
-            // Reset cooldown to base + animation/focus extra
-            time = attack.cooldown + extra;
+            // Reset cooldown to base
+            time = attack.weaponType.getCooldown();
+            sendCurrentCooldown = true;
 
-        } else {
+        } else if(!canShoot) {
             // No shot this frame: enforce animation/focus minimum or tick down
-            WeaponType wt = attack.weaponType;
-            float extra   = (wt != null ? wt.getAnimationAndFocusCooldown() : 0f);
-
-            boolean noEntityFound = (candidateId == -1);
-            if (noEntityFound && attack.currentCooldown < extra) {
+            float extra = attack.weaponType.getAnimationAndFocusCooldown();
+            if (attack.currentCooldown < extra) {
                 // Raise cooldown to the animation/focus threshold (penalize shooting without targets)
                 time = extra;
-                // Do NOT tick down this frame.
+                sendCurrentCooldown = true;
             }
         }
-        if(time!=0f){
+
+        if(sendCurrentCooldown ||
+            attack.currentCooldown > attack.weaponType.getAnimationCooldown() && time < attack.weaponType.getAnimationCooldown() ||
+            attack.currentCooldown > attack.weaponType.getAnimationAndFocusCooldown() && time < attack.weaponType.getAnimationAndFocusCooldown() ||
+            time <= 0f)
+        {
             ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"ProjectileAttackComponent");
             if(previousSnapshot != null){
                 previousSnapshot.getFields().put("currentCooldown",time);

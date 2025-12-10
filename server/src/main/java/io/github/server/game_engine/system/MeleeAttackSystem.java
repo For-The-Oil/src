@@ -58,6 +58,7 @@ public class MeleeAttackSystem extends IteratingSystem {
 
     // Server needed to access the SnapshotTracker (aggregation of component snapshots)
     private final ServerGame server;
+    final float EPS = 1e-4f;
 
     /**
      * Constructor requires the ServerGame instance so we can register snapshots.
@@ -87,6 +88,7 @@ public class MeleeAttackSystem extends IteratingSystem {
         int candidateId = -1;
         boolean inReach = false;
         boolean isTypeBuilding = false;
+        boolean sendCurrentCooldown = false;
         float BuildingPosx = -1;
         float BuildingPosy = -1;
 
@@ -232,42 +234,49 @@ public class MeleeAttackSystem extends IteratingSystem {
                 tPosx = tPos.x;
                 tPosy = tPos.y;
             }
-            if (tPosx != -1 && tPosy != -1 ) {
+            if (tPosx != -1 && tPosy != -1) {
                 float dx = tPosx - pos.x;
                 float dy = tPosy - pos.y;
-                tmp = pos.horizontalRotation + ((float) Math.atan2(dy, dx) - pos.horizontalRotation) * melee.weaponType.getTurn_speed() * world.getDelta();
-                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"MeleeAttackComponent");
-                if(previousSnapshot != null){
-                    previousSnapshot.getFields().put("horizontalRotation",tmp);
-                }
-                else {
-                    HashMap<String, Object> fields = new HashMap<>();
-                    fields.put("weaponType", melee.weaponType);
-                    fields.put("damage", melee.damage);
-                    fields.put("cooldown", melee.cooldown);
-                    fields.put("currentCooldown", melee.currentCooldown);
-                    fields.put("reach", melee.reach);
-                    fields.put("horizontalRotation", tmp);
-                    fields.put("verticalRotation", melee.verticalRotation);
-                    ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
-                    server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
-                }
-                if (!melee.weaponType.isHitAndMove()){
-                    dx = tPosx - pos.x;
-                    dy = tPosy - pos.y;
-                    ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"PositionComponent");
-                    if(previousSnapshot2 != null){
-                        previousSnapshot2.getFields().put("horizontalRotation",(float) Math.atan2(dy, dx));
-                    }
-                    else {
+                float target = (float) Math.atan2(dy, dx);
+                float delta = (float) Math.atan2(Math.sin(target - pos.horizontalRotation), Math.cos(target - pos.horizontalRotation));
+                float alpha = melee.weaponType.getTurn_speed() * world.getDelta(); // ex. 0..1/frame
+                alpha = Math.max(0f, Math.min(1f, alpha));
+                tmp = pos.horizontalRotation + delta * alpha;
+                tmp = (float) Math.atan2(Math.sin(tmp), Math.cos(tmp));
+
+                // Seuil de changement pour éviter des updates inutiles
+                boolean changed = Math.abs(tmp - pos.horizontalRotation) > EPS;
+
+                if (changed) {
+                    ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "MeleeAttackComponent");
+                    if (previousSnapshot != null) {
+                        previousSnapshot.getFields().put("horizontalRotation", tmp);
+                    } else {
                         HashMap<String, Object> fields = new HashMap<>();
-                        fields.put("x", pos.x);
-                        fields.put("y", pos.y);
-                        fields.put("z", pos.z);
-                        fields.put("horizontalRotation", (float) Math.atan2(dy, dx));
-                        fields.put("verticalRotation", pos.verticalRotation);
-                        ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
-                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                        fields.put("weaponType", melee.weaponType);
+                        fields.put("damage", melee.damage);
+                        fields.put("cooldown", melee.cooldown);
+                        fields.put("currentCooldown", melee.currentCooldown);
+                        fields.put("reach", melee.reach);
+                        fields.put("horizontalRotation", tmp);
+                        fields.put("verticalRotation", melee.verticalRotation);
+                        ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
+                    }
+                    if (!melee.weaponType.isHitAndMove()) {
+                        ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "PositionComponent");
+                        if (previousSnapshot2 != null) {
+                            previousSnapshot2.getFields().put("horizontalRotation", (float) Math.atan2(dy, dx));
+                        } else {
+                            HashMap<String, Object> fields = new HashMap<>();
+                            fields.put("x", pos.x);
+                            fields.put("y", pos.y);
+                            fields.put("z", pos.z);
+                            fields.put("horizontalRotation", (float) Math.atan2(dy, dx));
+                            fields.put("verticalRotation", pos.verticalRotation);
+                            ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
+                            server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                        }
                     }
                 }
             }
@@ -296,23 +305,27 @@ public class MeleeAttackSystem extends IteratingSystem {
 
             // Locally finalize the attack by resetting the cooldown
             time = melee.weaponType.getCooldown();
+            sendCurrentCooldown = true;
 
         }
-        else {
+        else if(!foundAttackable) {
             // No attack performed this frame
             // If NO attackable entity was found at all, raise cooldown to at least animation/focus threshold.
             // Otherwise, tick down normally.
-
             float extra = melee.weaponType.getAnimationAndFocusCooldown();
-
-            boolean noEntityFound = (candidateId == -1); // nothing in reach after all checks
-            if (noEntityFound && melee.currentCooldown < extra) {
+            if ( melee.currentCooldown < extra) {
                 // Raise to the animation/focus minimum (explicit penalty for not having a target)
                 time = extra;
+                sendCurrentCooldown = true;
                 // Intentionally do NOT tick down this frame.
             }
         }
-        if(time!=0f){
+
+        if(sendCurrentCooldown ||
+            melee.currentCooldown > melee.weaponType.getAnimationCooldown() && time < melee.weaponType.getAnimationCooldown() ||
+            melee.currentCooldown > melee.weaponType.getAnimationAndFocusCooldown() && time < melee.weaponType.getAnimationAndFocusCooldown() ||
+            time <= 0f)
+        {
             ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"MeleeAttackComponent");
             if(previousSnapshot != null){
                 previousSnapshot.getFields().put("currentCooldown",time);
@@ -329,6 +342,6 @@ public class MeleeAttackSystem extends IteratingSystem {
                 ComponentSnapshot damageSnap = new ComponentSnapshot("MeleeAttackComponent", fields);
                 server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
             }
-        }
+        } else melee.updateCooldown(world.getDelta());
     }
 }

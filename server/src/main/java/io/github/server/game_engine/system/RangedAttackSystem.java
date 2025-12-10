@@ -60,6 +60,7 @@ public class RangedAttackSystem extends IteratingSystem {
 
     // Server handle to reach SnapshotTracker for aggregated updates
     private final ServerGame server;
+    final float EPS = 1e-4f;
 
     /**
      * Requires ServerGame to register snapshots each frame.
@@ -86,6 +87,7 @@ public class RangedAttackSystem extends IteratingSystem {
         int candidateId = -1;
         boolean inRange = false;
         boolean isTypeBuilding = false;
+        boolean sendCurrentCooldown = false;
         float BuildingPosx = -1;
         float BuildingPosy = -1;
 
@@ -224,43 +226,54 @@ public class RangedAttackSystem extends IteratingSystem {
                 tPosy = tPos.y;
             }
             if (tPosx != -1 && tPosy != -1 ) {
-                float dx = tPos.x - pos.x;
-                float dy = tPos.y - pos.y;
-                tmp = pos.horizontalRotation + ((float) Math.atan2(dy, dx) - pos.horizontalRotation) * ranged.weaponType.getTurn_speed() * world.getDelta();
-                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"RangedAttackComponent");
-                if(previousSnapshot != null){
-                    previousSnapshot.getFields().put("horizontalRotation",tmp);
-                }
-                else {
-                    HashMap<String, Object> fields = new HashMap<>();
-                    fields.put("weaponType", ranged.weaponType);
-                    fields.put("damage", ranged.damage);
-                    fields.put("cooldown", ranged.cooldown);
-                    fields.put("currentCooldown", ranged.currentCooldown);
-                    fields.put("range", ranged.range);
-                    fields.put("horizontalRotation", tmp);
-                    fields.put("verticalRotation", ranged.verticalRotation);
-                    ComponentSnapshot positionComponent = new ComponentSnapshot("RangedAttackComponent", fields);
-                    server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
-                }
-                if (!ranged.weaponType.isHitAndMove()){
-                    dx = tPosx - pos.x;
-                    dy = tPosy - pos.y;
-                    ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"PositionComponent");
-                    if(previousSnapshot2 != null){
-                        previousSnapshot2.getFields().put("horizontalRotation",(float) Math.atan2(dy, dx));
+                float dx = tPosx - pos.x;
+                float dy = tPosy - pos.y;
+                float target = (float) Math.atan2(dy, dx);
+                float delta = (float) Math.atan2(Math.sin(target - pos.horizontalRotation), Math.cos(target - pos.horizontalRotation));
+                float alpha = ranged.weaponType.getTurn_speed() * world.getDelta(); // ex. 0..1/frame
+                alpha = Math.max(0f, Math.min(1f, alpha));
+                tmp = pos.horizontalRotation + delta * alpha;
+                tmp = (float) Math.atan2(Math.sin(tmp), Math.cos(tmp));
+
+                // Seuil de changement pour éviter des updates inutiles
+                boolean changed = Math.abs(tmp - pos.horizontalRotation) > EPS;
+
+                if(changed){
+                    ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"RangedAttackComponent");
+                    if(previousSnapshot != null){
+                        previousSnapshot.getFields().put("horizontalRotation",tmp);
                     }
                     else {
                         HashMap<String, Object> fields = new HashMap<>();
-                        fields.put("x", pos.x);
-                        fields.put("y", pos.y);
-                        fields.put("z", pos.z);
-                        fields.put("horizontalRotation", (float) Math.atan2(dy, dx));
-                        fields.put("verticalRotation", pos.verticalRotation);
-                        ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
-                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                        fields.put("weaponType", ranged.weaponType);
+                        fields.put("damage", ranged.damage);
+                        fields.put("cooldown", ranged.cooldown);
+                        fields.put("currentCooldown", ranged.currentCooldown);
+                        fields.put("range", ranged.range);
+                        fields.put("horizontalRotation", tmp);
+                        fields.put("verticalRotation", ranged.verticalRotation);
+                        ComponentSnapshot positionComponent = new ComponentSnapshot("RangedAttackComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
                     }
-                }
+                    if (!ranged.weaponType.isHitAndMove()){
+                        dx = tPosx - pos.x;
+                        dy = tPosy - pos.y;
+                        ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"PositionComponent");
+                        if(previousSnapshot2 != null){
+                            previousSnapshot2.getFields().put("horizontalRotation",(float) Math.atan2(dy, dx));
+                        }
+                        else {
+                            HashMap<String, Object> fields = new HashMap<>();
+                            fields.put("x", pos.x);
+                            fields.put("y", pos.y);
+                            fields.put("z", pos.z);
+                            fields.put("horizontalRotation", (float) Math.atan2(dy, dx));
+                            fields.put("verticalRotation", pos.verticalRotation);
+                            ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
+                            server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                        }
+                    }
+                }else pos.horizontalRotation = tmp;
             }
         }
 
@@ -284,39 +297,43 @@ public class RangedAttackSystem extends IteratingSystem {
 
             // Reset cooldown: base ranged cooldown + animation/focus extra
             time = ranged.weaponType.getCooldown();
+            sendCurrentCooldown = true;
         }
-         else {
+         else if(!foundAttackable) {
                 // No attack performed this frame
                 // If NO attackable entity was found at all, raise cooldown to at least animation/focus threshold.
                 // Otherwise, tick down normally.
 
                 float extra = ranged.weaponType.getAnimationAndFocusCooldown();
-
-                boolean noEntityFound = (candidateId == -1); // nothing in reach after all checks
-                if (noEntityFound && ranged.currentCooldown < extra) {
+                if (ranged.currentCooldown < extra) {
                     // Raise to the animation/focus minimum (explicit penalty for not having a target)
                     time = extra;
-                    // Intentionally do NOT tick down this frame.
+                    sendCurrentCooldown = true;
                 }
             }
-            if(time!=0f){
-                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"RangedAttackComponent");
-                if(previousSnapshot != null){
-                    previousSnapshot.getFields().put("currentCooldown",time);
-                }
-                else {
-                    java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
-                    fields.put("weaponType", ranged.weaponType);
-                    fields.put("damage", ranged.damage);
-                    fields.put("cooldown", ranged.cooldown);
-                    fields.put("currentCooldown", time);
-                    fields.put("reach", ranged.range);
-                    fields.put("horizontalRotation", tmp);
-                    fields.put("verticalRotation", ranged.verticalRotation);
-                    ComponentSnapshot damageSnap = new ComponentSnapshot("RangedAttackComponent", fields);
-                    server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
-                }
+
+        if(sendCurrentCooldown ||
+            ranged.currentCooldown > ranged.weaponType.getAnimationCooldown() && time < ranged.weaponType.getAnimationCooldown() ||
+            ranged.currentCooldown > ranged.weaponType.getAnimationAndFocusCooldown() && time < ranged.weaponType.getAnimationAndFocusCooldown() ||
+            time <= 0f)
+        {
+            ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"RangedAttackComponent");
+            if(previousSnapshot != null){
+                previousSnapshot.getFields().put("currentCooldown",time);
             }
+            else {
+                java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
+                fields.put("weaponType", ranged.weaponType);
+                fields.put("damage", ranged.damage);
+                fields.put("cooldown", ranged.cooldown);
+                fields.put("currentCooldown", time);
+                fields.put("reach", ranged.range);
+                fields.put("horizontalRotation", tmp);
+                fields.put("verticalRotation", ranged.verticalRotation);
+                ComponentSnapshot damageSnap = new ComponentSnapshot("RangedAttackComponent", fields);
+                server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
+            }
+        }
     }
 }
 
