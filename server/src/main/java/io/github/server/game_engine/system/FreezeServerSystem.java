@@ -55,17 +55,18 @@ public class FreezeServerSystem extends IteratingSystem {
         // Reduce the remaining freeze time, clamped to [0, +inf)
         float newTime = Math.max(fc.freeze_time - world.getDelta(), 0f);
 
-        // Prepare a snapshot describing the new FreezeComponent state.
-        // SnapshotTracker merges FreezeComponent via overwrite of fields, so we only send "freeze_time".
-        java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
-        fields.put("freeze_time", newTime);
+        if(newTime <= 0f) {
+            // Prepare a snapshot describing the new FreezeComponent state.
+            // SnapshotTracker merges FreezeComponent via overwrite of fields, so we only send "freeze_time".
+            java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
+            fields.put("freeze_time", newTime);
+            // Type name must match the component you want the tracker to update/merge
+            ComponentSnapshot snap = new ComponentSnapshot("FreezeComponent", fields);
 
-        // Type name must match the component you want the tracker to update/merge
-        ComponentSnapshot snap = new ComponentSnapshot("FreezeComponent", fields);
-
-        // Register the change in the server's SnapshotTracker:
-        // it resolves netId/entityType via NetComponent and aggregates per-entity diffs.
-        server.getUpdateTracker().markComponentModified(world.getEntity(e), snap);
+            // Register the change in the server's SnapshotTracker:
+            // it resolves netId/entityType via NetComponent and aggregates per-entity diffs.
+            server.getUpdateTracker().markComponentModified(world.getEntity(e), snap);
+        }
     }
 }
 

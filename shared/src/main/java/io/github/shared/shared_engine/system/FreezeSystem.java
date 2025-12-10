@@ -41,8 +41,10 @@ public class FreezeSystem extends IteratingSystem {
     protected void process(int e) {
         FreezeComponent fc = mFreeze.get(e);
 
+        fc.freeze_time = Math.max(fc.freeze_time - world.getDelta(), 0f);
+
         // If the freeze time has expired or is zero, unfreeze by removing the component
-        if (fc.freeze_time <= 0f) {
+        if (fc.freeze_time < 0f) {
             // Detach the FreezeComponent from the entity; it will no longer be matched by this system
             world.getEntity(e).edit().remove(FreezeComponent.class);
             return; // Nothing else to do for this entity

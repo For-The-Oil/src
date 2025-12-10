@@ -300,31 +300,29 @@ public class MovementServerSystem extends IteratingSystem {
     private void AttackMovingPenalty(WeaponType weaponType,Component component, int e){
         if(!weaponType.isHitAndMove()){
             if (weaponType.getType().equals(WeaponType.Type.Melee)) {
+                MeleeAttackComponent meleeAttackComponent = (MeleeAttackComponent) component;
                 ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"MeleeAttackComponent");
-                if(previousSnapshot != null){
-                    previousSnapshot.getFields().put("currentCooldown",weaponType.getAnimationAndFocusCooldown());
-                }
-                else {
-                    MeleeAttackComponent meleeAttackComponent = (MeleeAttackComponent) component;
+                if (previousSnapshot != null) {
+                    previousSnapshot.getFields().put("currentCooldown", weaponType.getAnimationAndFocusCooldown());
+                } else if(weaponType.getAnimationAndFocusCooldown() > meleeAttackComponent.cooldown) {
                     HashMap<String, Object> fields = new HashMap<>();
                     fields.put("weaponType", weaponType);
                     fields.put("damage", meleeAttackComponent.damage);
                     fields.put("cooldown", weaponType.getCooldown());
                     fields.put("currentCooldown", weaponType.getAnimationAndFocusCooldown());
                     fields.put("reach", meleeAttackComponent.reach);
-                    fields.put("horizontalRotation",meleeAttackComponent.horizontalRotation);
-                    fields.put("verticalRotation",meleeAttackComponent.verticalRotation);
+                    fields.put("horizontalRotation", meleeAttackComponent.horizontalRotation);
+                    fields.put("verticalRotation", meleeAttackComponent.verticalRotation);
                     ComponentSnapshot snap = new ComponentSnapshot("MeleeAttackComponent", fields);
                     server.getUpdateTracker().markComponentModified(world.getEntity(e), snap);
-                }
+                }else meleeAttackComponent.cooldown = weaponType.getAnimationAndFocusCooldown();
             }
             if (weaponType.getType().equals(WeaponType.Type.Range)) {
-                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"RangedAttackComponent");
-                if(previousSnapshot != null){
-                    previousSnapshot.getFields().put("currentCooldown",weaponType.getAnimationAndFocusCooldown());
-                }
-                else {
-                    RangedAttackComponent rangedAttackComponent = (RangedAttackComponent) component;
+                RangedAttackComponent rangedAttackComponent = (RangedAttackComponent) component;
+                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "RangedAttackComponent");
+                if (previousSnapshot != null) {
+                    previousSnapshot.getFields().put("currentCooldown", weaponType.getAnimationAndFocusCooldown());
+                } else if(weaponType.getAnimationAndFocusCooldown() > rangedAttackComponent.cooldown) {
                     HashMap<String, Object> fields = new HashMap<>();
                     fields.put("weaponType", weaponType);
                     fields.put("damage", rangedAttackComponent.damage);
@@ -335,15 +333,14 @@ public class MovementServerSystem extends IteratingSystem {
                     fields.put("verticalRotation", rangedAttackComponent.verticalRotation);
                     ComponentSnapshot snap = new ComponentSnapshot("RangedAttackComponent", fields);
                     server.getUpdateTracker().markComponentModified(world.getEntity(e), snap);
-                }
+                }else rangedAttackComponent.cooldown = weaponType.getAnimationAndFocusCooldown();
             }
             if (weaponType.getType().equals(WeaponType.Type.ProjectileLauncher)) {
-                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"RangedAttackComponent");
-                if(previousSnapshot != null){
-                    previousSnapshot.getFields().put("currentCooldown",weaponType.getAnimationAndFocusCooldown());
-                }
-                else {
-                    ProjectileAttackComponent projectileAttackComponent = (ProjectileAttackComponent) component;
+                ProjectileAttackComponent projectileAttackComponent = (ProjectileAttackComponent) component;
+                ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "RangedAttackComponent");
+                if (previousSnapshot != null) {
+                    previousSnapshot.getFields().put("currentCooldown", weaponType.getAnimationAndFocusCooldown());
+                } else if(weaponType.getAnimationAndFocusCooldown() > projectileAttackComponent.cooldown) {
                     HashMap<String, Object> fields = new HashMap<>();
                     fields.put("weaponType", weaponType);
                     fields.put("cooldown", weaponType.getCooldown());
@@ -354,7 +351,7 @@ public class MovementServerSystem extends IteratingSystem {
                     fields.put("verticalRotation", projectileAttackComponent.verticalRotation);
                     ComponentSnapshot snap = new ComponentSnapshot("ProjectileAttackComponent", fields);
                     server.getUpdateTracker().markComponentModified(world.getEntity(e), snap);
-                }
+                }else projectileAttackComponent.cooldown = weaponType.getAnimationAndFocusCooldown();
             }
         }
     }

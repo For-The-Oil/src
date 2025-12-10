@@ -31,6 +31,7 @@ public class EcsServerEngine {
         return new WorldConfigurationBuilder()
             // Register systems here:
             .with(new ProductionResourcesSystem(game))
+            .with(new MovementServerSystem(game))
             .with(new DamageServerSystem(game))
             .with(new MeleeAttackSystem(game))
             .with(new RangedAttackSystem(game))
@@ -38,7 +39,6 @@ public class EcsServerEngine {
             .with(new ProjectileImpactSystem(game))
             .with(new OnCreationServerSystem(game))
             .with(new FreezeServerSystem(game))
-            .with(new MovementServerSystem(game))
             .with(new ProjectileMovementSystem(game))
             .with(new HealSystem(game))
             .with(new MovementSystem())
