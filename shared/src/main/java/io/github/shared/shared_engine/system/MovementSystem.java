@@ -75,7 +75,7 @@ public class MovementSystem extends IteratingSystem {
         }
 
         // Case 2: Movement is destination-based (not target-related)
-        if (!move.targetRelated) {
+        if (!move.targetRelated && !move.force) {
             float destX = move.destinationX;
             float destY = move.destinationY;
 

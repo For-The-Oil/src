@@ -99,8 +99,7 @@ public class RequestGameManager {
             fields.put("destinationX",moveGroupRequest.getPosX());
             fields.put("destinationY",moveGroupRequest.getPosY());
             fields.put("nextX1",-1);fields.put("nextY1",-1);fields.put("nextX2",-1);fields.put("nextY2",-1);
-            fields.put("force",true);
-
+            fields.put("force",moveGroupRequest.isForce());
             updateEntityMove.getToUpdate().add(new EntitySnapshot(netId, netMove.entityType, new ArrayList<>(Collections.singleton(new ComponentSnapshot("MoveComponent", fields)))));
         }
 
