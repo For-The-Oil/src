@@ -27,11 +27,6 @@ public class ClientLauncher extends Thread {
     }
 
     private void init() {
-        CreateInstruction createInstruction = new CreateInstruction(System.currentTimeMillis());
-        for (int i = 0; i < 1; i++) {
-            createInstruction.add(EntityType.TANK, null, i, -1, 80 * i, 80 * i, null);
-        }
-        ClientGame.getInstance().addQueueInstruction(Collections.singleton(createInstruction));
     }
 
     @Override

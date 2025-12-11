@@ -3,12 +3,15 @@ package io.github.server.game_engine;
 import static io.github.shared.config.BaseGameConfig.FIXED_TIME_STEP;
 
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import io.github.server.data.ServerGame;
 import io.github.server.game_engine.manager.RequestGameManager;
 import io.github.server.server_engine.manager.SyncManager;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.instructions.CreateInstruction;
 import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.requests.Request;
 import io.github.shared.shared_engine.system.InstructionSystem;
@@ -25,6 +28,11 @@ public class GameLauncher extends Thread {
     }
 
     private void init() {
+        CreateInstruction createInstruction = new CreateInstruction(System.currentTimeMillis());
+        for (int i = 0; i < 1; i++) {
+            createInstruction.add(EntityType.TANK, null, i, -1, 80 * i, 80 * i, null);
+        }
+        serverGame.addQueueInstruction(createInstruction);
     }
 
     @Override

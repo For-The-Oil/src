@@ -5,6 +5,7 @@ import com.artemis.Component;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.EntitySubscription;
+import com.artemis.PooledComponent;
 import com.artemis.World;
 import com.artemis.utils.IntBag;
 
@@ -52,14 +53,13 @@ public final class EntityFactory {
 
         for (ComponentSnapshot cs : snapshot.getComponentSnapshot()) {
             try {
-                Class<?> clazz = Class.forName("io.github.shared.local.data.component." + cs.getType());
-                ComponentMapper<?> mapper = world.getMapper(clazz.asSubclass(Component.class));
-                Component component;
-                if (mapper.has(entity)) {
-                    component = mapper.get(entity); // composant existant
-                } else {
-                    component = (Component) clazz.getDeclaredConstructor().newInstance(); // nouveau composant
-                }
+                Class<?> raw = Class.forName("io.github.shared.data.component." + cs.getType());
+                Class<? extends Component> clazz = raw.asSubclass(Component.class);
+                ComponentMapper<? extends Component> mapper = world.getMapper(clazz);
+                Component component = mapper.has(entity) ? mapper.get(entity)
+                    : (PooledComponent.class.isAssignableFrom(clazz)
+                    ? ((ComponentMapper<? extends PooledComponent>) mapper).create(entity)
+                    : world.edit(entity.getId()).create(clazz));
 
                 String type = cs.getType();
 
@@ -113,10 +113,9 @@ public final class EntityFactory {
                         throw new IllegalArgumentException("Composant non pris en charge : " + type);
                 }
 
-                entity.edit().add(component);
-
             } catch (Exception e) {
-                System.err.println("Erreur lors de l'application du snapshot pour le composant : " + cs.getType());
+                System.err.println("Erreur lors de l'application du snapshot pour le composant : " + cs.getType() +"\n Exception : "+e);
+                System.err.println(e.getMessage());
             }
         }
         return entity;

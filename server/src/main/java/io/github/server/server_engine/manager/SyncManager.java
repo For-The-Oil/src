@@ -2,6 +2,7 @@ package io.github.server.server_engine.manager;
 
 import com.esotericsoftware.kryonet.Connection;
 
+import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
@@ -11,16 +12,20 @@ import java.util.concurrent.TimeUnit;
 
 import io.github.server.data.ServerGame;
 import io.github.server.data.network.ServerNetwork;
+import io.github.server.game_engine.manager.SnapshotTracker;
 import io.github.server.server_engine.factory.KryoMessagePackager;
 import io.github.server.server_engine.factory.RequestFactory;
 import io.github.server.server_engine.utils.PlayerChecker;
 import io.github.shared.data.enums_types.SyncType;
 import io.github.shared.data.NetGame;
 import io.github.shared.data.instructions.Instruction;
+import io.github.shared.data.instructions.UpdateEntityInstruction;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.network.Player;
 import io.github.shared.data.requests.SynchronizeRequest;
+import io.github.shared.data.snapshot.ComponentSnapshot;
+import io.github.shared.data.snapshot.EntitySnapshot;
 
 public final class SyncManager {
 

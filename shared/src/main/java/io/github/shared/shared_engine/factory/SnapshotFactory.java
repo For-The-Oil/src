@@ -3,6 +3,7 @@ package io.github.shared.shared_engine.factory;
 import com.artemis.Component;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
+import com.artemis.PooledComponent;
 import com.artemis.World;
 
 import java.lang.reflect.Field;
@@ -35,8 +36,21 @@ public final class SnapshotFactory {
         for (ComponentSnapshot cs : snapshot.getComponentSnapshot()) {
             try {
                 String type = cs.getType();
-                Class<?> clazz = Class.forName("io.github.shared.local.data.component." + type);
-                Component component = (Component) clazz.getDeclaredConstructor().newInstance();
+
+                // Résolution + typage sûr
+                Class<?> raw = Class.forName("io.github.shared.data.component." + type);
+                if (!Component.class.isAssignableFrom(raw)) {
+                    throw new IllegalArgumentException(type + " n'est pas un Component Artemis");
+                }
+                Class<? extends Component> clazz = raw.asSubclass(Component.class);
+
+                ComponentMapper<? extends Component> mapper = world.getMapper(clazz);
+                Component component = mapper.has(entity)
+                    ? mapper.get(entity) // déjà attaché
+                    : (PooledComponent.class.isAssignableFrom(clazz)
+                    ? ((ComponentMapper<? extends PooledComponent>) mapper).create(entity) // pooled
+                    : world.edit(entity.getId()).create(clazz)); // non-pooled
+
 
                 switch (type) {
                     case "FreezeComponent":
@@ -73,7 +87,6 @@ public final class SnapshotFactory {
                                 rc.add(typeKey, amount);
                             }
                         }
-                        component = rc;
                         break;
 
                     case "DamageComponent":
@@ -83,14 +96,11 @@ public final class SnapshotFactory {
                             List<?> list = (List<?>) rawList;
                             for (Object obj : list) if (obj instanceof DamageEntry) dc.addDamage((DamageEntry) obj);
                         }
-                        component = dc;
                         break;
 
                     default:
                         throw new IllegalArgumentException("Composant non pris en charge : " + type);
                 }
-
-                entity.edit().add(component);
 
             } catch (Exception e) {
                 System.out.print("toEntity err "+e);

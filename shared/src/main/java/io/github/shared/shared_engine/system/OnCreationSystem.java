@@ -50,16 +50,12 @@ public class OnCreationSystem extends IteratingSystem {
         // Fetch the required components for this entity
         OnCreationComponent occ = mOnCreation.get(e);// creation metadata and countdown
 
-        // --- Update path: still in "creation" state, tick down the timer and inform clients ---
-        // Reduce the remaining time, clamped to zero
-        occ.time = Math.max(occ.time - world.getDelta(), 0f);
-
         // --- Expiration path: remove OnCreation and add a Freeze snapshot ---
         if (occ.time < 0f) {
             // Remove OnCreationComponent: entity is no longer in "creation" state
             world.getEntity(e).edit().remove(OnCreationComponent.class);
             // Nothing more to do for this entity this frame
             return;
-        }
+        }else occ.time = Math.max(occ.time - world.getDelta(), 0f); // Reduce the remaining time, clamped to zero
     }
 }

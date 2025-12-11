@@ -211,7 +211,7 @@ public class SnapshotTracker {
      * @return collection of snapshots to be processed or sent
      */
     public Collection<EntitySnapshot> consumeSnapshots() {
-        Collection<EntitySnapshot> result = pendingSnapshots.values();
+        Collection<EntitySnapshot> result = new ArrayList<>(pendingSnapshots.values());
         pendingSnapshots.clear();
         return result;
     }

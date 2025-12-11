@@ -24,6 +24,7 @@ import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.MeleeAttackComponent;
 import io.github.shared.data.component.NetComponent;
+import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.component.ProjectileAttackComponent;
 import io.github.shared.data.component.ProprietyComponent;
@@ -146,7 +147,7 @@ public class GraphicsSyncSystem extends BaseSystem {
         List<Scene> newRender = new ArrayList<>();
 
         // Récupère toutes les entités ; boucles indexées (pas d’itérateurs imbriqués)
-        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all()).getEntities();
+        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all().exclude(OnCreationComponent.class)).getEntities();
         for (int i = 0; i < entities.size(); i++) {
             int e = entities.get(i);
 
