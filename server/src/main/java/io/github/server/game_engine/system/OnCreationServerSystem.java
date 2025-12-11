@@ -12,6 +12,7 @@ import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.shared_engine.Utility;
+import io.github.shared.shared_engine.manager.EcsManager;
 
 /**
  * OnCreationSystem
@@ -61,7 +62,7 @@ public class OnCreationServerSystem extends IteratingSystem {
         NetComponent net = mNet.get(e);// netId and type information for instruction routing
 
         if(occ.fromNetId != -1){
-            int from = Utility.getIdByNetId(world,occ.fromNetId,mNet);
+            int from = EcsManager.getIdByNetId(world,occ.fromNetId,mNet);
             if(from == -1){
                 server.addDestroyInstruction(net.netId);
                 return;
@@ -85,7 +86,7 @@ public class OnCreationServerSystem extends IteratingSystem {
             if (net.entityType.getType().equals(EntityType.Type.Unit)) {
                 float x = 0;
                 float y = 0;
-                PositionComponent positionComponent = Utility.getPositionByNetId(world, occ.fromNetId, mNet, mPos);
+                PositionComponent positionComponent = EcsManager.getPositionByNetId(world, occ.fromNetId, mNet, mPos);
                 if (positionComponent != null) {
                     x = positionComponent.x;
                     y = positionComponent.y;

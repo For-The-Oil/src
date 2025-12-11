@@ -13,7 +13,7 @@ import io.github.shared.data.NetGame;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.instructions.CreateInstruction;
 import io.github.shared.data.instructions.Instruction;
-import io.github.shared.shared_engine.manager.InstructionManager;
+import io.github.shared.shared_engine.system.InstructionSystem;
 
 public class ClientLauncher extends Thread {
     private final Queue<Instruction> instructionSync;
@@ -39,8 +39,8 @@ public class ClientLauncher extends Thread {
         final ClientGame game = ClientGame.getInstance();
         System.out.println("Game loop started for game: " + game.getGAME_UUID());
         game.setLastTime(System.nanoTime());
-
         try {
+            InstructionSystem instructionSystem = ClientGame.getInstance().getWorld().getSystem(InstructionSystem.class);
             while (game.isRunning()) {
                 double frameTimeMs = getTimeSinceLastFrameMs(game);
                 game.setAccumulator(game.getAccumulator() + (float) frameTimeMs);
@@ -61,7 +61,7 @@ public class ClientLauncher extends Thread {
                     while (!game.isEmptyExecutionQueue()) {
                         Instruction instruction = game.getExecutionQueue().poll();
                         if (instruction == null) continue;
-                        InstructionManager.executeInstruction(instruction, game);
+                        instructionSystem.executeInstruction(instruction,game);
                     }
 
                     game.setAccumulator(game.getAccumulator() - (float) FIXED_TIME_STEP);

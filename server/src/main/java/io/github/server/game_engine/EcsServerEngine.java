@@ -15,6 +15,7 @@ import io.github.server.game_engine.system.ProjectileAttackSystem;
 import io.github.server.game_engine.system.ProjectileImpactSystem;
 import io.github.server.game_engine.system.ProjectileMovementSystem;
 import io.github.server.game_engine.system.RangedAttackSystem;
+import io.github.shared.shared_engine.system.InstructionSystem;
 import io.github.shared.shared_engine.system.MovementSystem;
 import io.github.shared.shared_engine.system.VectorApplicationSystem;
 import io.github.shared.shared_engine.system.DamageAndHealSystem;
@@ -30,6 +31,7 @@ public class EcsServerEngine {
     public static WorldConfiguration serverWorldConfiguration(ServerGame game) {
         return new WorldConfigurationBuilder()
             // Register systems here:
+            .with(new InstructionSystem())
             .with(new ProductionResourcesSystem(game))
             .with(new MovementServerSystem(game))
             .with(new DamageServerSystem(game))

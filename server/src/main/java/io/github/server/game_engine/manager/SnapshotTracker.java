@@ -18,6 +18,7 @@ import io.github.shared.data.instructions.UpdateEntityInstruction;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.data.snapshot.EntitySnapshot;
 import io.github.shared.shared_engine.Utility;
+import io.github.shared.shared_engine.manager.EcsManager;
 
 /**
  * SnapshotTracker
@@ -237,7 +238,7 @@ public class SnapshotTracker {
         for (EntitySnapshot entitySnapshot : snapshots){
             for (ComponentSnapshot componentSnapshot : entitySnapshot.getComponentSnapshot()) {
                 if(componentSnapshot.getType().equals("VelocityComponent")){
-                    int e = Utility.getIdByNetId(world,entitySnapshot.getNetId(),world.getMapper(NetComponent.class));
+                    int e = EcsManager.getIdByNetId(world,entitySnapshot.getNetId(),world.getMapper(NetComponent.class));
                     VelocityComponent vc = world.getMapper(VelocityComponent.class).get(e);
                     if(vc != null &&
                         (vc.vx == (float)componentSnapshot.getFields().get("vx")) &&

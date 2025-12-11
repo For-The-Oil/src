@@ -13,7 +13,7 @@ public class GameManager {
         if(ClientGame.isInstanceNull() || !netGame.getGameMode().equals(ClientGame.getInstance().getGameMode()) || !netGame.getMapName().equals(ClientGame.getInstance().getMapName())){
             ClientGame.setInstance(netGame.getGameMode(), netGame.getMapName(), netGame.getMap(), netGame.getGAME_UUID(),netGame.getTime_left(),netGame.getCurrentEvent());
         }
-        EcsManager.filterEntitiesByNetId(ClientGame.getInstance().getWorld(),Utility.extractNetIds(netGame.getEntities()));
+        EcsManager.filterEntitiesByNetId(ClientGame.getInstance().getWorld(),EcsManager.extractNetIds(netGame.getEntities()));
         for(EntitySnapshot es : netGame.getEntities())EntityFactory.applySnapshotToEntity(ClientGame.getInstance().getWorld(),es);
 
         ClientGame.getInstance().setMap(netGame.getMap());

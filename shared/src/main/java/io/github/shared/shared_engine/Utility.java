@@ -109,63 +109,14 @@ public class Utility {
         return true; // toutes les soustractions restent >= 0
     }
 
-
-    public static ArrayList<Integer> extractNetIds(ArrayList<EntitySnapshot> snapshots) {
-        ArrayList<Integer> netIds = new ArrayList<>();
-        if (snapshots == null) return netIds;
-
-        for (EntitySnapshot snapshot : snapshots) {
-            if (snapshot != null) {
-                netIds.add(snapshot.getNetId());
-            }
-        }
-        return netIds;
-    }
-
-
     /** Convert world coordinate (float) to cell index (int). */
     public static int worldToCell(float worldCoordinate) {
-
         return (int) Math.floor(worldCoordinate / BaseGameConfig.CELL_SIZE);
     }
 
     /** Convert cell index (int) to world coordinate (float). */
     public static float cellToWorld(int cellIndex) {
         return cellIndex * BaseGameConfig.CELL_SIZE;
-    }
-
-    public static PositionComponent getPositionByNetId(World world, int netId, ComponentMapper<NetComponent> mNet, ComponentMapper<PositionComponent> mPos) {
-        if (world == null || netId < 0) return null;
-
-        // Récupère tous les entités qui possèdent NetComponent
-        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class,PositionComponent.class)).getEntities();
-
-        int[] ids = entities.getData();
-        for (int i = 0, size = entities.size(); i < size; i++) {
-            int eId = ids[i];
-            NetComponent net = mNet.get(eId);
-            if (net != null && net.netId == netId && net.isValid()) { // netId + validité
-                return mPos.get(eId);
-            }
-        }
-        return null; // pas trouvé
-    }
-
-    public static int getIdByNetId(World world, int netId, ComponentMapper<NetComponent> mNet) {
-        if (world == null || netId < 0) return -1;
-
-        // Récupère tous les entités qui possèdent NetComponent
-        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class)).getEntities();
-
-        int[] ids = entities.getData();
-        for (int i = 0, size = entities.size(); i < size; i++) {
-            int eId = ids[i];
-            NetComponent net = mNet.get(eId);
-            if (net != null && net.netId == netId && net.isValid()) { // netId + validité
-                return eId;
-            }
-        }
-        return -1; // pas trouvé
     }
 
     public static boolean isRangedDistanceValid(PositionComponent attackerPos, PositionComponent targetPos, float range, Shape map) {

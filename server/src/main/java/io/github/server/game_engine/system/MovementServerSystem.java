@@ -20,6 +20,7 @@ import io.github.shared.data.component.*;
 import io.github.shared.data.gameobject.Cell;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.shared_engine.Utility;
+import io.github.shared.shared_engine.manager.EcsManager;
 
 /**
  * MovementServerSystem
@@ -102,7 +103,7 @@ public class MovementServerSystem extends IteratingSystem {
 
         if (move.targetRelated) {
             // Get target position using network ID
-            PositionComponent tPos = Utility.getPositionByNetId(world, tgt.targetId, mNet, mPos);
+            PositionComponent tPos = EcsManager.getPositionByNetId(world, tgt.targetId, mNet, mPos);
             if (tPos == null) return;
 
             destX = tPos.x;
@@ -123,7 +124,7 @@ public class MovementServerSystem extends IteratingSystem {
                 return;
             }
         }
-        if(canAttack(e, pos, Utility.getPositionByNetId(world, tgt.nextTargetId, mNet, mPos))){
+        if(canAttack(e, pos, EcsManager.getPositionByNetId(world, tgt.nextTargetId, mNet, mPos))){
             return;
         }
 

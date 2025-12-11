@@ -11,7 +11,7 @@ import io.github.server.game_engine.manager.RequestGameManager;
 import io.github.server.server_engine.manager.SyncManager;
 import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.requests.Request;
-import io.github.shared.shared_engine.manager.InstructionManager;
+import io.github.shared.shared_engine.system.InstructionSystem;
 
 public class GameLauncher extends Thread {
     private final ServerGame serverGame;
@@ -32,6 +32,7 @@ public class GameLauncher extends Thread {
         System.out.println("Game loop started for game: " + serverGame.getGAME_UUID());
         serverGame.setLastTime(System.nanoTime());
         try {
+            InstructionSystem instructionSystem = serverGame.getWorld().getSystem(InstructionSystem.class);
             while (serverGame.isRunning()) {
                 double frameTimeMs = getTimeSinceLastFrameMs();
                 serverGame.setAccumulator(serverGame.getAccumulator() + (float) frameTimeMs);
@@ -48,7 +49,7 @@ public class GameLauncher extends Thread {
                     while (!serverGame.isEmptyExecutionQueue()) {
                         Instruction instruction = serverGame.getExecutionQueue().poll();
                         if (instruction == null) continue;
-                        InstructionManager.executeInstruction(instruction, serverGame);
+                        instructionSystem.executeInstruction(instruction, serverGame);
                     }
 
                     serverGame.setAccumulator(serverGame.getAccumulator() - (float) FIXED_TIME_STEP);
@@ -69,7 +70,7 @@ public class GameLauncher extends Thread {
                     if (instruction == null) continue;
                     serverGame.getHistoricQueue().add(instruction);
                     serverGame.getNetworkQueue().add(instruction);
-                    InstructionManager.executeInstruction(instruction, serverGame);
+                    instructionSystem.executeInstruction(instruction, serverGame);
                 }
 
                 if (!serverGame.isEmptyNetworkQueue()) {

@@ -23,6 +23,7 @@ import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.component.TargetComponent;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.shared_engine.Utility;
+import io.github.shared.shared_engine.manager.EcsManager;
 
 /**
  * Projectile Attack System — spawns a projectile instead of applying direct damage.
@@ -95,7 +96,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
         float BuildingPosy = -1;
 
         if (tgt != null && tgt.hasTarget()) {
-            int te = Utility.getIdByNetId(world,tgt.targetNetId, mNet);
+            int te = EcsManager.getIdByNetId(world,tgt.targetNetId, mNet);
             PositionComponent tPos = mPos.get(te);
             NetComponent tnet = mNet.get(te);
             if(tnet != null && tnet.entityType.getType().equals(EntityType.Type.Building)){
@@ -132,7 +133,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
 
         // ---- (2) SECONDARY target if primary wasn't in range ----
         if (!inRange && tgt != null && tgt.hasNextTarget()) {
-            int te2 = Utility.getIdByNetId(world,tgt.targetNetId, mNet);
+            int te2 = EcsManager.getIdByNetId(world,tgt.targetNetId, mNet);
             PositionComponent tPos2 = mPos.get(te2);
             NetComponent tnet2 = mNet.get(te2);
             if(tnet2 != null && tnet2.entityType.getType().equals(EntityType.Type.Building)){

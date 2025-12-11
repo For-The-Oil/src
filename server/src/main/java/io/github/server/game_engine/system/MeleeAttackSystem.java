@@ -24,6 +24,7 @@ import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.gameobject.DamageEntry;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.shared_engine.Utility;
+import io.github.shared.shared_engine.manager.EcsManager;
 
 /**
  * Melee Attack System — strict order and server-friendly updates
@@ -93,7 +94,7 @@ public class MeleeAttackSystem extends IteratingSystem {
         float BuildingPosy = -1;
 
         if (tgt != null && tgt.hasTarget()) {
-            int te = Utility.getIdByNetId(world,tgt.targetNetId, mNet);
+            int te = EcsManager.getIdByNetId(world,tgt.targetNetId, mNet);
             PositionComponent tPos = mPos.get(te);
             NetComponent tnet = mNet.get(te);
             if(tnet != null && tnet.entityType.getType().equals(EntityType.Type.Building)){
@@ -130,7 +131,7 @@ public class MeleeAttackSystem extends IteratingSystem {
 
         // (2) SECONDARY target: only if primary is not in reach
         if (!inReach && tgt != null && tgt.hasNextTarget()) {
-            int te2 = Utility.getIdByNetId(world,tgt.targetNetId, mNet);
+            int te2 = EcsManager.getIdByNetId(world,tgt.targetNetId, mNet);
             PositionComponent tPos2 = mPos.get(te2);
             NetComponent tnet2 = mNet.get(te2);
             if(tnet2 != null && tnet2.entityType.getType().equals(EntityType.Type.Building)){

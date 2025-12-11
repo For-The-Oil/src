@@ -1,26 +1,28 @@
-package io.github.shared.shared_engine.manager;
 
+package io.github.shared.shared_engine.system;
+
+import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 
 import java.util.HashMap;
 
-import io.github.shared.data.component.MeleeAttackComponent;
-import io.github.shared.data.component.ProjectileAttackComponent;
-import io.github.shared.data.component.RangedAttackComponent;
-import io.github.shared.data.component.RessourceComponent;
-import io.github.shared.data.enums_types.Direction;
-import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.IGame;
 import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
+import io.github.shared.data.component.MeleeAttackComponent;
 import io.github.shared.data.component.MoveComponent;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
+import io.github.shared.data.component.ProjectileAttackComponent;
 import io.github.shared.data.component.ProjectileComponent;
 import io.github.shared.data.component.ProprietyComponent;
+import io.github.shared.data.component.RangedAttackComponent;
+import io.github.shared.data.component.RessourceComponent;
+import io.github.shared.data.enums_types.Direction;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.WeaponType;
 import io.github.shared.data.gameobject.Shape;
 import io.github.shared.data.instructions.CreateInstruction;
@@ -33,16 +35,36 @@ import io.github.shared.data.network.Player;
 import io.github.shared.data.snapshot.EntitySnapshot;
 import io.github.shared.shared_engine.Utility;
 import io.github.shared.shared_engine.factory.EntityFactory;
+import io.github.shared.shared_engine.manager.EcsManager;
+import io.github.shared.shared_engine.manager.ShapeManager;
 
-public class InstructionManager {
-    public static void executeInstruction(Instruction instruction, IGame game) {
+public class InstructionSystem extends BaseSystem {
+    private ComponentMapper<NetComponent> netMapper;
+    private ComponentMapper<PositionComponent> positionMapper;
+    private ComponentMapper<ProprietyComponent> proprietyMapper;
+    private ComponentMapper<BuildingMapPositionComponent> buildingMapPositionMapper;
+    private ComponentMapper<RessourceComponent> resMapper;
+    private ComponentMapper<OnCreationComponent> onCreateMapper;
+    private ComponentMapper<MeleeAttackComponent> meleeAttackMapper;
+    private ComponentMapper<RangedAttackComponent> rangedAttackMapper;
+    private ComponentMapper<ProjectileAttackComponent> projectileAttackMapper;
+    private ComponentMapper<LifeComponent> lifeMapper;
+    private ComponentMapper<FreezeComponent> freezeMapper;
+
+    private ComponentMapper<ProjectileComponent> projectileMapper;
+    private ComponentMapper<MoveComponent> moveMapper;
+
+    public InstructionSystem() {}
+    @Override
+    protected void processSystem() {
+        // no-op
+    }
+    public void executeInstruction(Instruction instruction,IGame game) {
         String type = instruction.getClass().getSimpleName();
         try {
             switch (type) {
                 case "CreateInstruction":
                     CreateInstruction ci = (CreateInstruction) instruction;
-                    ComponentMapper<NetComponent> netMapper = game.getWorld().getMapper(NetComponent.class);
-                    ComponentMapper<PositionComponent> positionMapper = game.getWorld().getMapper(PositionComponent.class);
 
                     for (int i = 0; i < ci.getToSpawn().size(); i++) {
                         float x = ci.getPosX().get(i);
@@ -51,19 +73,16 @@ public class InstructionManager {
                         int from = ci.getFrom().get(i);
                         Direction direction = ci.getDirections().get(i);
                         EntityType entityType = ci.getToSpawn().get(i);
-                        Entity entity = game.getWorld().createEntity();
+                        Entity entity = world.createEntity();
 
                         Player player = Utility.findPlayerByUuid(game.getPlayersList(), ci.getPlayer().get(i));
                         if (player != null) {
-                            ComponentMapper<ProprietyComponent> proprietyMapper = game.getWorld().getMapper(ProprietyComponent.class);
                             Utility.subtractResourcesInPlace(player.getResources(), entityType.getCost());
                             ProprietyComponent prc = proprietyMapper.create(entity);
                             prc.set(player.getUuid(), Utility.findTeamByPlayer(player, game.getPlayerTeam()));
                         }
 
                         if (entityType.getType().equals(EntityType.Type.Building)) {
-                            ComponentMapper<BuildingMapPositionComponent> buildingMapPositionMapper = game.getWorld().getMapper(BuildingMapPositionComponent.class);
-                            ComponentMapper<RessourceComponent> resMapper = game.getWorld().getMapper(RessourceComponent.class);
                             Shape overlay = new Shape(entityType.getShapeType().getShape(), netId);
                             ShapeManager.overlayShape(game.getMap(), ShapeManager.rotateShape(overlay, direction), (int) x, (int) y, 0, 0, overlay.getWidth(), overlay.getHeight());
                             game.setMapDirty(true);
@@ -82,12 +101,6 @@ public class InstructionManager {
                         }
 
                         if(entityType.getType().equals(EntityType.Type.Building)||entityType.getType().equals(EntityType.Type.Unit)){
-                            ComponentMapper<OnCreationComponent> onCreateMapper = game.getWorld().getMapper(OnCreationComponent.class);
-                            ComponentMapper<MeleeAttackComponent> meleeAttackMapper = game.getWorld().getMapper(MeleeAttackComponent.class);
-                            ComponentMapper<RangedAttackComponent> rangedAttackMapper = game.getWorld().getMapper(RangedAttackComponent.class);
-                            ComponentMapper<ProjectileAttackComponent> projectileAttackMapper = game.getWorld().getMapper(ProjectileAttackComponent.class);
-                            ComponentMapper<LifeComponent> lifeMapper = game.getWorld().getMapper(LifeComponent.class);
-                            ComponentMapper<FreezeComponent> freezeMapper = game.getWorld().getMapper(FreezeComponent.class);
                             FreezeComponent fc= freezeMapper.create(entity);
                             fc.freeze_time = entityType.getFreeze_time();
 
@@ -118,9 +131,7 @@ public class InstructionManager {
                         }
 
                         if(entityType.getType().equals(EntityType.Type.Projectile)){
-                            ComponentMapper<ProjectileComponent> projectileMapper = game.getWorld().getMapper(ProjectileComponent.class);
-                            PositionComponent posFromC = Utility.getPositionByNetId(game.getWorld(), from,netMapper,positionMapper);
-                            ComponentMapper<MoveComponent> moveMapper = game.getWorld().getMapper(MoveComponent.class);
+                            PositionComponent posFromC = EcsManager.getPositionByNetId(world, from,netMapper,positionMapper);
 
                             PositionComponent posC = positionMapper.create(entity);
                             posC.set(posFromC.x, posFromC.y,0);
@@ -139,12 +150,12 @@ public class InstructionManager {
 
                 case "UpdateEntityInstruction":
                     for (EntitySnapshot snapshot : ((UpdateEntityInstruction) (instruction)).getToUpdate()) {
-                        EntityFactory.applySnapshotToEntity(game.getWorld(), snapshot);
+                        EntityFactory.applySnapshotToEntity(world, snapshot);
                     }
                     break;
                 case "DestroyInstruction":
                     for (int netId : ((DestroyInstruction) (instruction)).getToKill()) {
-                        EntityFactory.destroyEntityByNetId(game.getWorld(), netId, game);
+                        EntityFactory.destroyEntityByNetId(world, netId, game);
                     }
                     break;
                 case "ResourcesInstruction":
@@ -169,8 +180,4 @@ public class InstructionManager {
             System.err.print("executeInstruction err " + e);
         }
     }
-
 }
-
-
-
