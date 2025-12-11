@@ -77,9 +77,6 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
         setupBuildingButton();
         initSettings();
         initListener();
-
-        // Start the loading tree
-        startLoadingTree();
     }
 
     @Override
@@ -88,10 +85,6 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
     }
 
     /* ===================== Loading Decision Tree ===================== */
-
-    private void startLoadingTree() {
-        stepInitialization();
-    }
 
     private void stepInitialization() {
         loadingFragment.animateProgress(0, 25, INIT_WAITING_TIME, "Initialisation", null, this::stepPrepareSync);
@@ -103,31 +96,20 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
     private void stepRequestSync() {
         if (ClientGame.isInstanceNull()) {
+            Log.d("For The Oil", "We are asking the server for synchronization !");
             NetworkUtils.askForFullGameSync();
         } else {
+            Log.d("For The Oil", "There is no need to request for synchronization !");
             stepSyncSuccess();
         }
     }
 
-
-    private void waitForSyncResponse() {
-        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.schedule(() -> {
-            if (!ClientGame.isInstanceNull()) {
-                runOnUiThread(this::stepSyncSuccess);
-            } else {
-                runOnUiThread(this::stepSyncFailure);
-            }
-            scheduler.shutdown();
-        }, 1, TimeUnit.SECONDS);
-    }
-
     private void stepSyncSuccess() {
-        loadingFragment.animateProgress(75, 80, INIT_WAITING_TIME, "Sync succeed", null, this::stepLoadTextures);
+        loadingFragment.animateProgress(50, 80, INIT_WAITING_TIME, "Sync succeed", null, this::stepLoadTextures);
     }
 
     private void stepSyncFailure() {
-        loadingFragment.animateProgress(75, 100, INIT_WAITING_TIME, "Sync failed! Retrying...", null, this::stepRequestSync);
+        loadingFragment.animateProgress(50, 100, INIT_WAITING_TIME, "Sync failed! Retrying...", null, this::stepRequestSync);
     }
 
     private void stepLoadTextures() {
@@ -166,6 +148,7 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
         loadingFragment = new LoadingFragment();
         getSupportFragmentManager().beginTransaction()
             .add(R.id.loadingContainer, loadingFragment, "LOADING_FRAGMENT")
+            .runOnCommit(this::stepInitialization)
             .commit();
         FrameLayout overlay = findViewById(R.id.loadingContainer);
         overlay.setOnTouchListener((v, event) -> overlay.getVisibility() == View.VISIBLE);
@@ -266,7 +249,7 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
                         }
                     }
                     else clientLauncher.setResyncNetGame(netGame);
-                    if(loadingFragment.isVisible()) stepSyncSuccess();
+                    if(loadingFragment.isVisible() && loadingFragment.getSplashProgress().getProgress() >= 50) stepSyncSuccess();
                     break;
 
                 default:

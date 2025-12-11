@@ -122,8 +122,11 @@ public class LoadingFragment extends Fragment {
     }
 
 
+    public ProgressBar getSplashProgress() {
+        return splashProgress;
+    }
 
-
-
-
+    public void setSplashProgress(ProgressBar splashProgress) {
+        this.splashProgress = splashProgress;
+    }
 }
