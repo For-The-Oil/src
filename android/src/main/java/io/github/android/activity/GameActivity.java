@@ -105,16 +105,11 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
     }
 
     private void stepSyncSuccess() {
-        loadingFragment.animateProgress(50, 80, INIT_WAITING_TIME, "Sync succeed", null, this::stepLoadTextures);
+        loadingFragment.animateProgress(50, 65, INIT_WAITING_TIME, "Sync succeed", null, this::stepCreateLibGdx);
     }
 
     private void stepSyncFailure() {
         loadingFragment.animateProgress(50, 100, INIT_WAITING_TIME, "Sync failed! Retrying...", null, this::stepRequestSync);
-    }
-
-    private void stepLoadTextures() {
-        // Here we can load textures/metadata if needed
-        loadingFragment.animateProgress(80, 95, INIT_WAITING_TIME, "Loading assets", null, this::stepCreateLibGdx);
     }
 
     private void stepCreateLibGdx() {
@@ -126,7 +121,7 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
     }
 
     private void stepOpenGLReady() {
-        loadingFragment.animateProgress(95, 100, INIT_WAITING_TIME, "OpenGL ready!", null, this::finishLoading);
+        loadingFragment.animateProgress(65, 100, INIT_WAITING_TIME, "Loading game", null, this::finishLoading);
     }
 
     private void finishLoading() {
@@ -306,6 +301,12 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
             if (!ClientGame.isInstanceNull()) ClientGame.disposeInstance();
             finish();
         });
+    }
+
+
+
+    public void updateUI(){
+        //TODO : Update the value in the UI
     }
 
 }
