@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 public enum GameModeType {
-    CLASSIC(new ArrayList<>(Arrays.asList(BASIC, BEACH, VOLCAN, GLACIER, TRAINING_GROUND, WASTELAND)), 2,2, 3600),
+    CLASSIC(new ArrayList<>(Arrays.asList(BASIC, BEACH, VOLCAN, GLACIER, TRAINING_GROUND, WASTELAND)), 2,2, 999999),
     ALPHA_TEST(new ArrayList<>(Collections.singletonList(BETA_TEST)), 1,1, 999999);
 
     private final ArrayList<MapName> associated_map;
