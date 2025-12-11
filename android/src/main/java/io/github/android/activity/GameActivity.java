@@ -27,12 +27,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import io.github.android.gui.GameRenderer;
 import io.github.android.gui.fragment.game.LibGdxFragment;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
-import io.github.android.manager.MatchMakingManager;
 import io.github.android.manager.SessionManager;
 import io.github.android.utils.NetworkUtils;
 import io.github.android.utils.UiUtils;
@@ -48,18 +46,14 @@ import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.EventType;
 import io.github.shared.data.enums_types.ResourcesType;
 import io.github.shared.data.gameobject.Deck;
-import io.github.shared.data.instructions.EventsInstruction;
 import io.github.shared.data.instructions.Instruction;
+import io.github.shared.data.instructions.EventsInstruction;
 import io.github.shared.data.requests.SynchronizeRequest;
 
-
 /**
- * <h1>Game Activity</h1>
- *
- * Activity that starts when the client join a game.
- *
+ * <h1>Game Activity - Full Rework with DecisionTree Loading</h1>
  */
-public class GameActivity extends BaseActivity implements AndroidFragmentApplication.Callbacks{
+public class GameActivity extends BaseActivity implements AndroidFragmentApplication.Callbacks {
 
     private View loadingContainer;
     private FrameLayout libgdxContainer;
@@ -72,196 +66,114 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game);
+
         clientManager.setCurrentContext(this);
         libgdxContainer = findViewById(R.id.libgdxContainer);
         loadingContainer = findViewById(R.id.loadingContainer);
 
-        // Récupérer les infos de la game depuis l'Intent
-        Bundle extras = getIntent().getExtras();
-
-        Log.d("For The Oil", "Game started");
-
-
-        initListener();
+        showLoadingContainer();
         setupLoadingFragment();
         setupToggleMenuButton();
         setupBuildingButton();
         initSettings();
+        initListener();
+
+        // Start the loading tree
+        startLoadingTree();
     }
-
-
 
     @Override
     public void exit() {
         finish();
     }
 
+    /* ===================== Loading Decision Tree ===================== */
 
+    private void startLoadingTree() {
+        stepInitialization();
+    }
 
+    private void stepInitialization() {
+        loadingFragment.animateProgress(0, 25, INIT_WAITING_TIME, "Initialisation", null, this::stepPrepareSync);
+    }
 
-    // ----------
-    // Launch Game
-    // ----------
+    private void stepPrepareSync() {
+        loadingFragment.animateProgress(25, 50, INIT_WAITING_TIME, "Preparing sync", null, this::stepRequestSync);
+    }
 
-    private void beginGameStart(){
-        loadingFragment.animateProgress(0,25,INIT_WAITING_TIME,"Initialisation",null,() -> {
-            fullSyncAnimated();
-        });
+    private void stepRequestSync() {
+        if (ClientGame.isInstanceNull()) {
+            NetworkUtils.askForFullGameSync();
+        } else {
+            stepSyncSuccess();
+        }
     }
 
 
-
-    // ----------
-    // Full-Resync animations
-    // ----------
-
-
-    private void fullSyncAnimated(){
-        loadingFragment.animateProgress(50, 75, INIT_WAITING_TIME, "Synchronizing", null, this::actualSync);
-    }
-
-    private void actualSync(){
+    private void waitForSyncResponse() {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.schedule(() -> {
-            if(ClientGame.isInstanceNull()) {
-                Log.d("For The Oil", "We are asking the server for synchronization !");
-                NetworkUtils.askForFullGameSync();
-            }else Log.d("For The Oil", "There is no need to request for synchronization !");
+            if (!ClientGame.isInstanceNull()) {
+                runOnUiThread(this::stepSyncSuccess);
+            } else {
+                runOnUiThread(this::stepSyncFailure);
+            }
             scheduler.shutdown();
-        }, 1000, TimeUnit.MILLISECONDS);
+        }, 1, TimeUnit.SECONDS);
     }
 
-
-    private void successSync(){
-        loadingFragment.animateProgress(75,80,INIT_WAITING_TIME,"Sync succeed", null, this::loadTexture);
+    private void stepSyncSuccess() {
+        loadingFragment.animateProgress(75, 80, INIT_WAITING_TIME, "Sync succeed", null, this::stepLoadTextures);
     }
 
-    private void failureSync(){
-        loadingFragment.animateProgress(75,100,INIT_WAITING_TIME,"Sync failure !", null, null);
+    private void stepSyncFailure() {
+        loadingFragment.animateProgress(75, 100, INIT_WAITING_TIME, "Sync failed! Retrying...", null, this::stepRequestSync);
     }
 
-
-
-
-
-    // ----------
-    // Textures & assets loadings
-    // ----------
-
-    private void loadTexture(){
-        loadingFragment.animateProgress(80,95,INIT_WAITING_TIME,"Loading assets",null, this::gameStarting);
+    private void stepLoadTextures() {
+        // Here we can load textures/metadata if needed
+        loadingFragment.animateProgress(80, 95, INIT_WAITING_TIME, "Loading assets", null, this::stepCreateLibGdx);
     }
 
-
-    private void gameStarting(){
-        libGdxInit();
-        loadingFragment.animateProgress(95,100,INIT_WAITING_TIME,"Starting !",null, () -> {
-            hideloadingContainer();
-        });
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * Affiche l’overlay de chargement (XML)
-     */
-    public void showloadingContainer() {
-        if (loadingContainer != null) loadingContainer.setVisibility(View.VISIBLE);
-    }
-
-    /**
-     * Masque l’overlay de chargement (XML)
-     */
-    public void hideloadingContainer() {
-        if (loadingContainer != null) loadingContainer.setVisibility(View.GONE);
-    }
-
-    private void libGdxInit() {
+    private void stepCreateLibGdx() {
         libGdxFragment = new LibGdxFragment();
-        getSupportFragmentManager()
-            .beginTransaction()
+        libGdxFragment.setOnLibGdxReady(() -> runOnUiThread(this::stepOpenGLReady));
+        getSupportFragmentManager().beginTransaction()
             .replace(R.id.libgdxContainer, libGdxFragment)
             .commit();
     }
 
+    private void stepOpenGLReady() {
+        loadingFragment.animateProgress(95, 100, INIT_WAITING_TIME, "OpenGL ready!", null, this::finishLoading);
+    }
 
+    private void finishLoading() {
+        hideLoadingContainer();
+        Log.d("GameActivity", "Game fully loaded and ready!");
+    }
 
-    private void setupLoadingFragment(){
+    /* ===================== UI Helpers ===================== */
+
+    private void showLoadingContainer() {
+        if (loadingContainer != null) loadingContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void hideLoadingContainer() {
+        if (loadingContainer != null) loadingContainer.setVisibility(View.GONE);
+    }
+
+    private void setupLoadingFragment() {
         loadingFragment = new LoadingFragment();
         getSupportFragmentManager().beginTransaction()
             .add(R.id.loadingContainer, loadingFragment, "LOADING_FRAGMENT")
             .commit();
         FrameLayout overlay = findViewById(R.id.loadingContainer);
         overlay.setOnTouchListener((v, event) -> overlay.getVisibility() == View.VISIBLE);
-        overlay.post(this::beginGameStart);
     }
-
-
-    private void initListener(){
-        ClientListener.getInstance().clearCallbacks();
-        ClientListener.getInstance().setCurrentActivity(this);
-        ClientListener.getInstance().onMessage(SynchronizeRequest.class, (request -> {
-
-            switch (request.getType()) {
-
-                case INSTRUCTION_SYNC:
-                    Log.d("For The Oil","Instruction Request received :"+request.getType().toString());
-                    Object obj = request.getMap().getOrDefault("instructions", null);
-                    if(obj instanceof Queue){
-                        Queue<Instruction> queue = (Queue<Instruction>) obj;
-                        clientLauncher.addQueueInstruction(queue);
-                        if(!clientLauncher.isAlive()){
-                            Instruction instruction = queue.poll();
-                            if(instruction instanceof EventsInstruction&&((EventsInstruction)instruction).getEventType().equals(EventType.START)){
-                                clientLauncher.start();
-                                Log.d("For The Oil","Instruction start received :");
-                            }
-                        }
-                    }
-                    break;
-
-                case FULL_RESYNC:
-                    Log.d("For The Oil","FullSynchronizeRequest received :"+request.getType().toString());
-                    NetGame netGame = (NetGame) request.getMap().get("game");
-
-                    if(clientLauncher==null){
-                        GameManager.fullGameResync(netGame);
-                        clientLauncher = new ClientLauncher();
-                        if(ClientGame.getInstance().getCurrentEvent().equals(EventType.START)){
-                            clientLauncher.start();
-                            Log.d("For The Oil","ClientLauncher init and Instruction start received :");
-                        }
-                    }
-                    else clientLauncher.setResyncNetGame(netGame);
-
-                    if(loadingFragment.isVisible()) successSync();
-                    break;
-
-                default:
-                    break;
-            }
-
-        }), true);
-    }
-
-
 
     private void setupToggleMenuButton() {
         ImageButton btnToggleMenu = findViewById(R.id.btnToggleMenu);
         LinearLayout bottomPanel = findViewById(R.id.bottomPanel);
-
         btnToggleMenu.setOnClickListener(v -> {
             if (bottomPanel.getVisibility() == View.VISIBLE) {
                 bottomPanel.setVisibility(View.GONE);
@@ -271,62 +183,40 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
                 btnToggleMenu.setImageResource(R.drawable.keyboard_double_arrow_down_24px);
             }
         });
-
     }
 
-
-    private void setupBuildingButton(){
+    private void setupBuildingButton() {
         Button btnIndustry = findViewById(R.id.btnIndustry);
         Button btnMilitary = findViewById(R.id.btnMilitary);
         Button btnDefense  = findViewById(R.id.btnDefense);
 
-        btnIndustry.setOnClickListener(v ->
-            showCardsForCategory(DeckCardCategory.Industrial));
-
-        btnMilitary.setOnClickListener(v ->
-            showCardsForCategory(DeckCardCategory.Military));
-
-        btnDefense.setOnClickListener(v ->
-            showCardsForCategory(DeckCardCategory.Defense));
-
+        btnIndustry.setOnClickListener(v -> showCardsForCategory(DeckCardCategory.Industrial));
+        btnMilitary.setOnClickListener(v -> showCardsForCategory(DeckCardCategory.Military));
+        btnDefense.setOnClickListener(v -> showCardsForCategory(DeckCardCategory.Defense));
     }
-
 
     private void showCardsForCategory(DeckCardCategory category) {
         Deck deck = SessionManager.getInstance().getCurrentDeck();
-
-        if (deck == null) {
-            Log.e("ForTheOil", "No current deck is selected!");
-            return;
-        }
-
+        if (deck == null) return;
         List<EntityType> cards = deck.getCardsByCategory().get(category);
-
         if (cards == null) cards = new ArrayList<>();
-
-        Log.d("ForTheOil", "Cards in " + category + ": " + cards.toString());
-
         updateRightPanel(cards);
     }
 
-
     private void updateRightPanel(List<EntityType> cards) {
-        FlexboxLayout rightPanel = findViewById(R.id.contentContainer); // Flexbox pour multi-colonnes
+        FlexboxLayout rightPanel = findViewById(R.id.contentContainer);
         rightPanel.removeAllViews();
-
         LayoutInflater inflater = LayoutInflater.from(this);
 
         for (EntityType card : cards) {
             View cardView = inflater.inflate(R.layout.right_panel_card, rightPanel, false);
-
             ImageView img = cardView.findViewById(R.id.cardImage);
             LinearLayout costsLayout = cardView.findViewById(R.id.cardCosts);
 
             img.setImageResource(UiUtils.mapEntityTypeToDrawable(card));
-
-            // Ajouter chaque coût comme TextView
             costsLayout.removeAllViews();
             HashMap<ResourcesType, Integer> costMap = card.getCost();
+
             if (costMap != null) {
                 for (Map.Entry<ResourcesType, Integer> entry : costMap.entrySet()) {
                     TextView costView = new TextView(this);
@@ -342,102 +232,92 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
         }
     }
 
+    private void initListener() {
+        ClientListener.getInstance().clearCallbacks();
+        ClientListener.getInstance().setCurrentActivity(this);
 
-    private void initSettings(){
-        // Overlay complet
+        ClientListener.getInstance().onMessage(SynchronizeRequest.class, request -> {
+            switch (request.getType()) {
+                case INSTRUCTION_SYNC:
+                    Object obj = request.getMap().getOrDefault("instructions", null);
+                    if (obj instanceof Queue) {
+                        Queue<Instruction> queue = (Queue<Instruction>) obj;
+                        if (clientLauncher != null) clientLauncher.addQueueInstruction(queue);
+                        if (clientLauncher == null) {
+                            GameManager.fullGameResync((NetGame) request.getMap().get("game"));
+                            clientLauncher = new ClientLauncher();
+                        }
+                    }
+                    break;
+
+                case FULL_RESYNC:
+                    NetGame netGame = (NetGame) request.getMap().get("game");
+                    if(clientLauncher == null){
+                        GameManager.fullGameResync(netGame);
+                        clientLauncher = new ClientLauncher();
+                        if(ClientGame.getInstance().getCurrentEvent().equals(EventType.START)){
+                            clientLauncher.start();
+                        }
+                    } else clientLauncher.setResyncNetGame(netGame);
+
+                    runOnUiThread(this::stepSyncSuccess);
+                    break;
+
+
+                default:
+                    break;
+            }
+        }, true);
+    }
+
+    private void initSettings() {
         FrameLayout settingsOverlay = findViewById(R.id.gameSettingsOverlay);
         LinearLayout settingsMenu = findViewById(R.id.settingsMenu);
 
-        // Boutons
         Button btnToggleMusic = findViewById(R.id.btnToggleMusic);
         Button btnToggleSfx = findViewById(R.id.btnToggleSfx);
         Button btnQuit = findViewById(R.id.btnQuit);
         Button btnAbandon = findViewById(R.id.btnAbandon);
         Button btnReturn = findViewById(R.id.btnReturn);
-
-        // Bouton engrenage
         ImageButton btnSettings = findViewById(R.id.btnSettings);
 
-
-        // Afficher le menu quand on clique sur l'engrenage
-        btnSettings.setOnClickListener(v -> settingsOverlay.setVisibility(View.VISIBLE));
-
-        // Fermer le menu si clic en dehors du menu central
-        settingsOverlay.setOnClickListener(v -> settingsOverlay.setVisibility(View.GONE));
-
-        // Éviter que le clic dans le menu ferme l'overlay
-        settingsMenu.setOnClickListener(v -> {
-            // Ne rien faire
+        btnSettings.setOnClickListener(v -> {
+            settingsOverlay.setVisibility(View.VISIBLE);
         });
 
-        // Actions des boutons
-        btnToggleMusic.setOnClickListener(v -> {
-            // TODO: activer/désactiver la musique
+        settingsOverlay.setOnClickListener(v -> {
+            settingsOverlay.setVisibility(View.GONE);
         });
+        settingsMenu.setOnClickListener(v -> { /* noop */ });
 
-        btnToggleSfx.setOnClickListener(v -> {
-            // TODO: activer/désactiver les effets sonores
-        });
-
-        // Dans GameActivity.java
+        btnToggleMusic.setOnClickListener(v -> { /* toggle music */ });
+        btnToggleSfx.setOnClickListener(v -> { /* toggle sfx */ });
 
         btnQuit.setOnClickListener(v -> {
-            // 1. Masquer l'interface
-            if (libgdxContainer != null) {
-                libgdxContainer.setVisibility(View.GONE);
-            }
+            settingsOverlay.setVisibility(View.GONE);
+            quitGame();
+        });
 
-            // 2. Supprimer le fragment proprement
+        btnAbandon.setOnClickListener(v -> { /* TODO: abandon */ });
+
+        btnReturn.setOnClickListener(v -> settingsOverlay.setVisibility(View.GONE));
+    }
+
+    private void quitGame() {
+
+        showLoadingContainer();
+        loadingFragment.animateProgress(0, 100, INIT_WAITING_TIME, "Retour au menu principal", null, () -> {
+            if (libgdxContainer != null) libgdxContainer.setVisibility(View.GONE);
             if (libGdxFragment != null) {
                 ClientGame.getInstance().setRunning(false);
-                getSupportFragmentManager()
-                    .beginTransaction()
-                    .remove(libGdxFragment) // L'enlèvement du fragment appelle GameRenderer.dispose()
-                    .commitNowAllowingStateLoss(); // Force l'exécution immédiate
+                getSupportFragmentManager().beginTransaction().remove(libGdxFragment).commitNowAllowingStateLoss();
+                libGdxFragment = null;
             }
             SceneFactory.disposeINSTANCE();
             ModelFactory.disposeINSTANCE();
-            if(!ClientGame.isInstanceNull())ClientGame.disposeInstance();
-
-            // 4. L'appel finish() sera fait APRES que GameRenderer.dispose() (maintenant synchrone)
-            // ait terminé son travail.
+            if (!ClientGame.isInstanceNull()) ClientGame.disposeInstance();
             finish();
         });
-
-        btnAbandon.setOnClickListener(v -> {
-            // TODO: abandonner la partie
-        });
-
-        btnReturn.setOnClickListener(v -> {
-            // Fermer le menu
-            settingsOverlay.setVisibility(View.GONE);
-        });
-
-
-
     }
-
-
-
-
-
-
-
-
-
-    // -----
-    // Getters & setters
-    // -----
-
-
-    public ClientLauncher getClientLauncher() {
-        return clientLauncher;
-    }
-
-    public void setClientLauncher(ClientLauncher clientLauncher) {
-        this.clientLauncher = clientLauncher;
-    }
-
-
 
 }

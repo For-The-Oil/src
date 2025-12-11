@@ -17,6 +17,7 @@ import io.github.android.utils.CameraGestureController;
 public class LibGdxFragment extends AndroidFragmentApplication {
 
     private GameRenderer renderer;
+    private Runnable pendingReadyCallback;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -35,6 +36,8 @@ public class LibGdxFragment extends AndroidFragmentApplication {
         // Si tu réutilises une instance Java d'un renderer qui contient des Textures d'un ancien contexte GL, ça crash.
         renderer = new GameRenderer();
         renderer.setOnCameraReady(this::setupCameraGestures);
+
+        if (pendingReadyCallback != null) renderer.setOnLibGdxReady(pendingReadyCallback);
 
         return initializeForView(renderer, config);
     }
@@ -72,5 +75,11 @@ public class LibGdxFragment extends AndroidFragmentApplication {
 
     public GameRenderer getRenderer() {
         return renderer;
+    }
+
+    public void setOnLibGdxReady(Runnable r) {
+        this.pendingReadyCallback = r;
+        if (renderer != null)
+            renderer.setOnLibGdxReady(r);
     }
 }

@@ -49,6 +49,7 @@ public class GameRenderer implements ApplicationListener {
     private Queue<Scene> sharedSceneQueue; // alimentée par l’ECS
 
     private Runnable onCameraReady;
+    private Runnable onLibGdxReady;
 
     @Override
     public void create() {
@@ -99,6 +100,12 @@ public class GameRenderer implements ApplicationListener {
         mapScenes.clear();
         mapScenes.addAll(InstanceFactoryScene.getShapeScenes(ClientGame.getInstance().getMap(), new ArrayList<>()));
         for (Scene s : mapScenes) if (s != null) sceneManager.addScene(s);
+
+
+
+
+        //Dernière action à éxécuter pour activer un runnable à la fin du chargement :
+        if (onLibGdxReady != null) onLibGdxReady.run();
     }
 
 
@@ -188,4 +195,9 @@ public class GameRenderer implements ApplicationListener {
     public void setOnCameraReady(Runnable callback) {
         this.onCameraReady = callback;
     }
+
+    public void setOnLibGdxReady(Runnable r) {
+        onLibGdxReady = r;
+    }
+
 }
