@@ -33,7 +33,7 @@ public class ProjectileAttackComponent extends PooledComponent {
         this.cooldown = cooldown;
         this.range = range;
         this.projectileType = projectileType;
-        this.currentCooldown = 0f;
+        this.currentCooldown = cooldown;
         this.horizontalRotation = 0f;
         this.verticalRotation = 0f;
     }

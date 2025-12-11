@@ -197,10 +197,9 @@ public class Utility {
                         float dist2 = dx * dx + dy * dy + dz * dz;
                         if (dist2 <= range2 && dist2 < bestDist2) {
                             bestDist2 = dist2;
-                            ArrayList<Float> tmp = new ArrayList<>();
-                            tmp.add(x);
-                            tmp.add(y);
-                            arrayList = new ArrayList<>();
+                            arrayList.clear();
+                            arrayList.add(x);
+                            arrayList.add(y);
                         }
                     }
                 }
@@ -226,15 +225,34 @@ public class Utility {
                     float dist2 = dx*dx + dy*dy + dz*dz;
                     if (dist2 <= reach2 && dist2 < bestDist2){
                         bestDist2 = dist2;
-                        ArrayList<Float> tmp = new ArrayList<>();
-                        tmp.add(x);
-                        tmp.add(y);
-                        arrayList = new ArrayList<>();
+                        arrayList.clear();
+                        arrayList.add(x);
+                        arrayList.add(y);
                     }
                 }
             }
         }
         return arrayList;
+    }
+
+    // Intervalles: (0, A] ; (A, AF] ; (AF, ∞)
+    public static boolean inSameCooldownBand(double currentCooldown, double time, double animationCooldownA, double animationAndFocusAF) {
+        // si time <= 0, on considère directement "pas le même" (ou invalide)
+        if (time <= 0) return false;
+        return bucket(currentCooldown, animationCooldownA, animationAndFocusAF)
+            == bucket(time,            animationCooldownA, animationAndFocusAF);
+    }
+
+    private static int bucket(double v, double a, double af) {
+        if (v <= 0)  return 0;  // invalide / hors bornes
+        if (v <= a)  return 1;  // (0, A]
+        if (v <= af) return 2;  // (A, AF]
+        return 3;               // (> AF)
+    }
+
+    public static float normAngle(float a) {
+        // Normalise dans [-π, π]
+        return (float) Math.atan2(Math.sin(a), Math.cos(a));
     }
 
 

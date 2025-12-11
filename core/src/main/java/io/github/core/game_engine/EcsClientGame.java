@@ -18,13 +18,18 @@ import io.github.shared.shared_engine.system.VectorApplicationSystem;
 public class EcsClientGame {
     public static WorldConfiguration serverWorldConfiguration(Queue<Scene> sceneQueue){
         return new WorldConfigurationBuilder()
+            // Register systems here:
             .with(new InstructionSystem())
-            .with(new OnCreationSystem())
-            .with(new FreezeSystem())
+
             .with(new DamageAndHealSystem())
+            .with(new FreezeSystem())
+            .with(new OnCreationSystem())
+
             .with(new MovementSystem())
             .with(new VectorApplicationSystem())
+
             .with(new GraphicsSyncSystem(sceneQueue))
+
             .build();
     }
 }

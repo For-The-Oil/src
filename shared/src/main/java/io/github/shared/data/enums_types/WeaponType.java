@@ -1,7 +1,7 @@
 package io.github.shared.data.enums_types;
 
 public enum WeaponType {
-    test(Type.Melee,10000000,1,3,1,2, (float) Math.toRadians(360f),300000,false,true);
+    test(Type.Melee,10000000,1,3,1,2, (float) Math.toRadians(360f),300000,false,false);
     //RIFLE(Type.Range), SHOTGUN(Type.Range), BAZOOKA(Type.Range),
     //SWORD(Type.Melee), SPEAR(Type.Melee), CHAINSAW(Type.Melee);
 

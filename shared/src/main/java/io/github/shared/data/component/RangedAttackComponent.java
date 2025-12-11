@@ -32,7 +32,7 @@ public class RangedAttackComponent extends PooledComponent {
         this.damage = damage;
         this.cooldown = cooldown;
         this.range = range;
-        this.currentCooldown = 0f;
+        this.currentCooldown = cooldown;
         this.horizontalRotation = 0f;
         this.verticalRotation = 0f;
     }

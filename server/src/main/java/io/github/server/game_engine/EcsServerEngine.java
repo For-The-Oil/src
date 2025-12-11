@@ -32,22 +32,26 @@ public class EcsServerEngine {
         return new WorldConfigurationBuilder()
             // Register systems here:
             .with(new InstructionSystem())
-            .with(new ProductionResourcesSystem(game))
-            .with(new MovementServerSystem(game))
+
+            .with(new DamageAndHealSystem())
             .with(new DamageServerSystem(game))
+            .with(new HealSystem(game))
+            .with(new FreezeSystem())
+            .with(new FreezeServerSystem(game))
+            .with(new OnCreationSystem())
+            .with(new OnCreationServerSystem(game))
+
+            .with(new ProductionResourcesSystem(game))
+            .with(new MovementSystem())
+            .with(new MovementServerSystem(game))
+            .with(new ProjectileMovementSystem(game))
+            .with(new VectorApplicationSystem())
+
             .with(new MeleeAttackSystem(game))
             .with(new RangedAttackSystem(game))
             .with(new ProjectileAttackSystem(game))
             .with(new ProjectileImpactSystem(game))
-            .with(new OnCreationServerSystem(game))
-            .with(new FreezeServerSystem(game))
-            .with(new ProjectileMovementSystem(game))
-            .with(new HealSystem(game))
-            .with(new MovementSystem())
-            .with(new DamageAndHealSystem())
-            .with(new FreezeSystem())
-            .with(new OnCreationSystem())
-            .with(new VectorApplicationSystem())
+
             .build();
     }
 }

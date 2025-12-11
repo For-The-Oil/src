@@ -180,6 +180,8 @@ public class ProjectileAttackSystem extends IteratingSystem {
                     BuildingMapPositionComponent bp = bPos.get(other);
                     ArrayList<Float> arrayList = Utility.isAttackValidForBuilding(pos,oPos,attack.range,onet.entityType.getShapeType(),bp.direction);
                     if(!arrayList.isEmpty()) {
+                        BuildingPosx = arrayList.get(0);
+                        BuildingPosy = arrayList.get(1);
                         float dx = arrayList.get(0) - pos.x;
                         float dy = arrayList.get(1) - pos.y;
                         float dz = oPos.z - pos.z;
@@ -234,51 +236,55 @@ public class ProjectileAttackSystem extends IteratingSystem {
             if (tPosx != -1 && tPosy != -1) {
                 float dx = tPosx - pos.x;
                 float dy = tPosy - pos.y;
-                float target = (float) Math.atan2(dy, dx);
-                float delta = (float) Math.atan2(Math.sin(target - pos.horizontalRotation), Math.cos(target - pos.horizontalRotation));
-                float alpha = attack.weaponType.getTurn_speed() * world.getDelta(); // ex. 0..1/frame
-                alpha = Math.max(0f, Math.min(1f, alpha));
-                tmp = pos.horizontalRotation + delta * alpha;
-                tmp = (float) Math.atan2(Math.sin(tmp), Math.cos(tmp));
+                float rawTarget = (float) Math.atan2(dy, dx);
+                float target = Utility.normAngle((float) (rawTarget + Math.PI));
 
-                // Seuil de changement pour éviter des updates inutiles
-                boolean changed = Math.abs(tmp - pos.horizontalRotation) > EPS;
+                if (attack.weaponType.isTurret()) {
+                    float delta = Utility.normAngle(target - pos.horizontalRotation);
+                    float alpha = attack.weaponType.getTurn_speed() * world.getDelta(); // 0..1/frame
+                    alpha = Math.max(0f, Math.min(1f, alpha));
 
-                if (changed) {
-                    ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "ProjectileAttackComponent");
-                    if (previousSnapshot != null) {
-                        previousSnapshot.getFields().put("horizontalRotation", tmp);
-                    } else {
-                        HashMap<String, Object> fields = new HashMap<>();
-                        fields.put("weaponType", attack.weaponType);
-                        fields.put("cooldown", attack.cooldown);
-                        fields.put("currentCooldown", attack.currentCooldown);
-                        fields.put("range", attack.range);
-                        fields.put("EntityType", attack.projectileType);
-                        fields.put("horizontalRotation", tmp);
-                        fields.put("verticalRotation", attack.verticalRotation);
-                        ComponentSnapshot atkComp = new ComponentSnapshot("ProjectileAttackComponent", fields);
-                        server.getUpdateTracker().markComponentModified(world.getEntity(e), atkComp);
-                    }
-                    if (!attack.weaponType.isHitAndMove()) {
-                        ComponentSnapshot prevPos = server.getUpdateTracker()
-                            .getPreviousSnapshot(world.getEntity(e), "PositionComponent");
-                        if (prevPos != null) {
-                            prevPos.getFields().put("horizontalRotation", Math.atan2(dy, dx));
+                    tmp = Utility.normAngle(pos.horizontalRotation + delta * alpha);
+
+                    // Seuil de changement pour éviter des updates inutiles
+                    boolean changed = Math.abs(tmp - pos.horizontalRotation) > EPS;
+                    if(changed) {
+                        ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "ProjectileAttackComponent");
+                        if (previousSnapshot != null) {
+                            previousSnapshot.getFields().put("horizontalRotation", tmp);
                         } else {
-                            HashMap<String, Object> fields2 = new HashMap<>();
-                            fields2.put("x", pos.x);
-                            fields2.put("y", pos.y);
-                            fields2.put("z", pos.z);
-                            fields2.put("horizontalRotation", Math.atan2(dy, dx));
-                            fields2.put("verticalRotation", pos.verticalRotation);
-                            ComponentSnapshot posComp = new ComponentSnapshot("PositionComponent", fields2);
-                            server.getUpdateTracker().markComponentModified(world.getEntity(e), posComp);
+                            HashMap<String, Object> fields = new HashMap<>();
+                            fields.put("weaponType", attack.weaponType);
+                            fields.put("cooldown", attack.cooldown);
+                            fields.put("currentCooldown", attack.currentCooldown);
+                            fields.put("range", attack.range);
+                            fields.put("EntityType", attack.projectileType);
+                            fields.put("horizontalRotation", tmp);
+                            fields.put("verticalRotation", attack.verticalRotation);
+                            ComponentSnapshot atkComp = new ComponentSnapshot("ProjectileAttackComponent", fields);
+                            server.getUpdateTracker().markComponentModified(world.getEntity(e), atkComp);
                         }
                     }
-                }else pos.horizontalRotation = tmp;
+                }
+                if (!attack.weaponType.isHitAndMove() && (Math.abs(Utility.normAngle(target - pos.horizontalRotation)) > EPS)) {
+                    ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "PositionComponent");
+                    if (previousSnapshot2 != null) {
+                        previousSnapshot2.getFields().put("horizontalRotation", target);
+                    } else {
+                        HashMap<String, Object> fields = new HashMap<>();
+                        fields.put("x", pos.x);
+                        fields.put("y", pos.y);
+                        fields.put("z", pos.z);
+                        fields.put("horizontalRotation", target);
+                        fields.put("verticalRotation", pos.verticalRotation);
+                        ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                    }
+                }
             }
         }
+
+
         if (ready && canShoot) {
             PositionComponent tPos = mPos.get(candidateId); // target position for projectile trajectory
             if (tPos != null && meP != null) {
@@ -299,11 +305,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
             }
         }
 
-        if((attack.currentCooldown > attack.weaponType.getAnimationAndFocusCooldown() && time < attack.weaponType.getAnimationAndFocusCooldown()) ||
-            (attack.currentCooldown > attack.weaponType.getAnimationCooldown() && (time < attack.weaponType.getAnimationCooldown()|| time >= attack.weaponType.getAnimationAndFocusCooldown())) ||
-            (attack.currentCooldown < attack.weaponType.getAnimationCooldown() && time > attack.weaponType.getAnimationCooldown()) ||
-            time <= 0f)
-        {
+        if(!Utility.inSameCooldownBand(attack.currentCooldown,time,attack.weaponType.getAnimationCooldown(),attack.weaponType.getAnimationAndFocusCooldown())) {
             ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"ProjectileAttackComponent");
             if(previousSnapshot != null){
                 previousSnapshot.getFields().put("currentCooldown",time);

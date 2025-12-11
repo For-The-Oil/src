@@ -169,7 +169,6 @@ public class MeleeAttackSystem extends IteratingSystem {
             for (int i = 0, n = bag.size(); i < n; i++) {
                 int other = ids[i];
                 if (other == e) continue; // skip self
-
                 // Must be an enemy (different team)
                 ProprietyComponent oP = mProp.get(other);
                 if (oP == null || meP == null || oP.team == null || meP.team == null) continue;
@@ -180,6 +179,8 @@ public class MeleeAttackSystem extends IteratingSystem {
                     BuildingMapPositionComponent bp = bPos.get(other);
                     ArrayList<Float> arrayList = Utility.isAttackValidForBuilding(pos,oPos,melee.reach,onet.entityType.getShapeType(),bp.direction);
                     if(!arrayList.isEmpty()) {
+                        BuildingPosx = arrayList.get(0);
+                        BuildingPosy = arrayList.get(1);
                         float dx = arrayList.get(0) - pos.x;
                         float dy = arrayList.get(1) - pos.y;
                         float dz = oPos.z - pos.z;
@@ -236,46 +237,49 @@ public class MeleeAttackSystem extends IteratingSystem {
             if (tPosx != -1 && tPosy != -1) {
                 float dx = tPosx - pos.x;
                 float dy = tPosy - pos.y;
-                float target = (float) Math.atan2(dy, dx);
-                float delta = (float) Math.atan2(Math.sin(target - pos.horizontalRotation), Math.cos(target - pos.horizontalRotation));
-                float alpha = melee.weaponType.getTurn_speed() * world.getDelta(); // ex. 0..1/frame
-                alpha = Math.max(0f, Math.min(1f, alpha));
-                tmp = pos.horizontalRotation + delta * alpha;
-                tmp = (float) Math.atan2(Math.sin(tmp), Math.cos(tmp));
+                float rawTarget = (float) Math.atan2(dy, dx);
+                float target = Utility.normAngle((float) (rawTarget + Math.PI));
 
-                // Seuil de changement pour éviter des updates inutiles
-                boolean changed = Math.abs(tmp - pos.horizontalRotation) > EPS;
+                if (melee.weaponType.isTurret()) {
+                    float delta = Utility.normAngle(target - pos.horizontalRotation);
+                    float alpha = melee.weaponType.getTurn_speed() * world.getDelta(); // 0..1/frame
+                    alpha = Math.max(0f, Math.min(1f, alpha));
 
-                if (changed) {
-                    ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "MeleeAttackComponent");
-                    if (previousSnapshot != null) {
-                        previousSnapshot.getFields().put("horizontalRotation", tmp);
-                    } else {
-                        HashMap<String, Object> fields = new HashMap<>();
-                        fields.put("weaponType", melee.weaponType);
-                        fields.put("damage", melee.damage);
-                        fields.put("cooldown", melee.cooldown);
-                        fields.put("currentCooldown", melee.currentCooldown);
-                        fields.put("reach", melee.reach);
-                        fields.put("horizontalRotation", tmp);
-                        fields.put("verticalRotation", melee.verticalRotation);
-                        ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
-                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
-                    }
-                    if (!melee.weaponType.isHitAndMove()) {
-                        ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "PositionComponent");
-                        if (previousSnapshot2 != null) {
-                            previousSnapshot2.getFields().put("horizontalRotation", (float) Math.atan2(dy, dx));
+                    tmp = Utility.normAngle(pos.horizontalRotation + delta * alpha);
+
+                    // Seuil de changement pour éviter des updates inutiles
+                    boolean changed = Math.abs(tmp - pos.horizontalRotation) > EPS;
+                    if(changed) {
+                        ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "MeleeAttackComponent");
+                        if (previousSnapshot != null) {
+                            previousSnapshot.getFields().put("horizontalRotation", tmp);
                         } else {
                             HashMap<String, Object> fields = new HashMap<>();
-                            fields.put("x", pos.x);
-                            fields.put("y", pos.y);
-                            fields.put("z", pos.z);
-                            fields.put("horizontalRotation", (float) Math.atan2(dy, dx));
-                            fields.put("verticalRotation", pos.verticalRotation);
-                            ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
-                            server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                            fields.put("weaponType", melee.weaponType);
+                            fields.put("damage", melee.damage);
+                            fields.put("cooldown", melee.cooldown);
+                            fields.put("currentCooldown", melee.currentCooldown);
+                            fields.put("reach", melee.reach);
+                            fields.put("horizontalRotation", tmp);
+                            fields.put("verticalRotation", melee.verticalRotation);
+                            ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
+                            server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
                         }
+                    }
+                }
+                if (!melee.weaponType.isHitAndMove() && (Math.abs(Utility.normAngle(target - pos.horizontalRotation)) > EPS)) {
+                    ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "PositionComponent");
+                    if (previousSnapshot2 != null) {
+                        previousSnapshot2.getFields().put("horizontalRotation", target);
+                    } else {
+                        HashMap<String, Object> fields = new HashMap<>();
+                        fields.put("x", pos.x);
+                        fields.put("y", pos.y);
+                        fields.put("z", pos.z);
+                        fields.put("horizontalRotation", target);
+                        fields.put("verticalRotation", pos.verticalRotation);
+                        ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
                     }
                 }
             }
@@ -317,11 +321,7 @@ public class MeleeAttackSystem extends IteratingSystem {
                 // Intentionally do NOT tick down this frame.
             }
         }
-        if((melee.currentCooldown > melee.weaponType.getAnimationAndFocusCooldown() && time < melee.weaponType.getAnimationAndFocusCooldown()) ||
-            (melee.currentCooldown > melee.weaponType.getAnimationCooldown() && (time < melee.weaponType.getAnimationCooldown()|| time >= melee.weaponType.getAnimationAndFocusCooldown())) ||
-            (melee.currentCooldown < melee.weaponType.getAnimationCooldown() && time > melee.weaponType.getAnimationCooldown()) ||
-            time <= 0f)
-        {
+        if(!Utility.inSameCooldownBand(melee.currentCooldown,time,melee.weaponType.getAnimationCooldown(),melee.weaponType.getAnimationAndFocusCooldown())) {
             ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"MeleeAttackComponent");
             if(previousSnapshot != null){
                 previousSnapshot.getFields().put("currentCooldown",time);
@@ -340,4 +340,5 @@ public class MeleeAttackSystem extends IteratingSystem {
             }
         } else if(foundAttackable || melee.currentCooldown != melee.weaponType.getAnimationAndFocusCooldown())melee.updateCooldown(world.getDelta());
     }
+
 }

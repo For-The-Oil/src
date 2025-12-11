@@ -180,7 +180,7 @@ public class GraphicsSyncSystem extends BaseSystem {
             if (pos != null) {
                 Matrix4 t = new Matrix4().idt()
                     .translate(pos.x, pos.z, pos.y)
-                    .rotate(Vector3.Z, pos.horizontalRotation* MathUtils.radiansToDegrees)
+                    .rotate(Vector3.Y, pos.horizontalRotation* MathUtils.radiansToDegrees)
                     .rotate(Vector3.X, pos.verticalRotation* MathUtils.radiansToDegrees);
                 s.modelInstance.transform.set(t);
             }

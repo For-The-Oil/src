@@ -32,7 +32,7 @@ public class MeleeAttackComponent extends PooledComponent {
         this.damage = damage;
         this.cooldown = cooldown;
         this.reach = reach;
-        this.currentCooldown = 0f;
+        this.currentCooldown = cooldown;
         this.horizontalRotation = 0f;
         this.verticalRotation = 0f;
     }
