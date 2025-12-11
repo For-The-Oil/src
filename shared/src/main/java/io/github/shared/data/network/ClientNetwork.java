@@ -9,7 +9,7 @@ import io.github.shared.data.gameobject.Deck;
 
 public class ClientNetwork {
     private transient String token;
-    private transient UUID uuid;
+    private UUID uuid;
     private String username;
     private long lastActivityTimestamp;
     private HashMap<String, Deck> decks;

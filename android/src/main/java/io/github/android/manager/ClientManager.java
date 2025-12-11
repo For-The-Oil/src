@@ -1,6 +1,5 @@
 package io.github.android.manager;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
@@ -17,6 +16,7 @@ import io.github.android.gui.fragment.launcher.ServerFragment;
 import io.github.core.client_engine.factory.KryoMessagePackager;
 import io.github.core.client_engine.factory.RequestFactory;
 import io.github.core.client_engine.manager.KryoClientManager;
+import io.github.core.client_engine.manager.SessionManager;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.AuthRequest;
 

@@ -10,7 +10,7 @@ import com.esotericsoftware.kryonet.Listener;
 import io.github.android.activity.BaseActivity;
 import io.github.android.activity.LoginActivity;
 import io.github.android.manager.ClientManager;
-import io.github.android.manager.SessionManager;
+import io.github.core.client_engine.manager.SessionManager;
 import io.github.android.utils.RedirectUtils;
 import io.github.shared.data.network.KryoMessage;
 

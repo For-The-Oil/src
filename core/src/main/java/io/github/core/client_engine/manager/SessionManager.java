@@ -1,4 +1,4 @@
-package io.github.android.manager;
+package io.github.core.client_engine.manager;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

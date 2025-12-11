@@ -5,7 +5,7 @@ import android.util.Log;
 import java.util.HashMap;
 
 import io.github.android.manager.ClientManager;
-import io.github.android.manager.SessionManager;
+import io.github.core.client_engine.manager.SessionManager;
 import io.github.shared.data.enums_types.KryoMessageType;
 import io.github.shared.data.enums_types.SyncType;
 import io.github.shared.data.network.KryoMessage;

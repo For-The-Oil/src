@@ -23,15 +23,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import io.github.android.gui.fragment.game.LibGdxFragment;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
-import io.github.android.manager.SessionManager;
+import io.github.core.client_engine.manager.SessionManager;
 import io.github.android.utils.NetworkUtils;
 import io.github.android.utils.UiUtils;
 import io.github.core.data.ClientGame;

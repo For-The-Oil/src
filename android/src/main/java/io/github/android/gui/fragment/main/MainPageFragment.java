@@ -21,7 +21,7 @@ import io.github.android.gui.adapter.CarouselAdapter;
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.MatchMakingManager;
 import io.github.fortheoil.R;
-import io.github.android.manager.SessionManager;
+import io.github.core.client_engine.manager.SessionManager;
 import io.github.shared.data.enums_types.GameModeType;
 import io.github.shared.data.gameobject.Deck;
 

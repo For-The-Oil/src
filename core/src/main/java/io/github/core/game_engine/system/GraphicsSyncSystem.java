@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 
+import io.github.core.client_engine.manager.SessionManager;
 import io.github.core.data.component.ModelComponent;
 import io.github.core.game_engine.factory.SceneFactory;
 import io.github.shared.data.component.BuildingMapPositionComponent;
@@ -74,26 +75,26 @@ public class GraphicsSyncSystem extends BaseSystem {
         }
         return -1;
     }
-    public ArrayList<Integer> getEntityBuildingIndustry(UUID player) {
+    public ArrayList<Integer> getEntityBuildingIndustry() {
         ArrayList<Integer> arrayList = new ArrayList<>();
         IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class,BuildingMapPositionComponent.class,RessourceComponent.class)).getEntities();
         for (int i = 0; i < entities.size(); i++) {
             int e = entities.get(i);
             ProprietyComponent meP = mProp.get(e);
-            if(meP.player != player)continue;
+            if(meP.player != SessionManager.getInstance().getUuidClient())continue;
             arrayList.add(e);
         }
         return arrayList;
     }
 
-    public ArrayList<Integer> getEntityBuildingMilitary(UUID player) {
+    public ArrayList<Integer> getEntityBuildingMilitary() {
         ArrayList<Integer> arrayList = new ArrayList<>();
         IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class, BuildingMapPositionComponent.class)).getEntities();
         for (int i = 0; i < entities.size(); i++) {
             int e = entities.get(i);
             NetComponent net  = mNet.get(e);
             ProprietyComponent meP = mProp.get(e);
-            if(meP.player != player)continue;
+            if(meP.player != SessionManager.getInstance().getUuidClient())continue;
             for (EntityType entityType : EntityType.values()){
                 if(entityType.getFrom().equals(net.entityType)){
                     arrayList.add(e);
@@ -104,26 +105,26 @@ public class GraphicsSyncSystem extends BaseSystem {
         return arrayList;
     }
 
-    public ArrayList<Integer> getEntityBuildingDefense(UUID player) {
+    public ArrayList<Integer> getEntityBuildingDefense() {
         ArrayList<Integer> arrayList = new ArrayList<>();
         IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class, BuildingMapPositionComponent.class)).getEntities();
         for (int i = 0; i < entities.size(); i++) {
             int e = entities.get(i);
             ProprietyComponent meP = mProp.get(e);
-            if(meP.player != player)continue;
+            if(meP.player != SessionManager.getInstance().getUuidClient())continue;
             if(mMelee.get(e) != null || mRanged.get(e) != null || mProjAttack.get(e) != null)arrayList.add(e);
         }
         return arrayList;
     }
 
-    public ArrayList<Integer> getEntityUnit(UUID player) {
+    public ArrayList<Integer> getEntityUnit() {
         ArrayList<Integer> arrayList = new ArrayList<>();
         IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class)).getEntities();
         for (int i = 0; i < entities.size(); i++) {
             int e = entities.get(i);
             NetComponent net  = mNet.get(e);
             ProprietyComponent meP = mProp.get(e);
-            if(meP.player != player)continue;
+            if(meP.player != SessionManager.getInstance().getUuidClient())continue;
             if(net != null && net.entityType.getType().equals(EntityType.Type.Unit))arrayList.add(e);
         }
         return arrayList;

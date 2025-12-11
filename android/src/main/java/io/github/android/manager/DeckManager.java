@@ -12,6 +12,7 @@ import io.github.android.gui.Card;
 import io.github.android.utils.JsonUtils;
 import io.github.core.client_engine.factory.KryoMessagePackager;
 import io.github.core.client_engine.factory.RequestFactory;
+import io.github.core.client_engine.manager.SessionManager;
 import io.github.shared.data.enums_types.DeckCardCategory;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.ResourcesType;

@@ -38,7 +38,7 @@ import io.github.android.gui.Card;
 import io.github.android.gui.adapter.CardListAdapter;
 import io.github.android.gui.adapter.DeckAdapter;
 import io.github.android.manager.DeckManager;
-import io.github.android.manager.SessionManager;
+import io.github.core.client_engine.manager.SessionManager;
 import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
 import io.github.shared.data.enums_types.DeckCardCategory;

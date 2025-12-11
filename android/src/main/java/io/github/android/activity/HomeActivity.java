@@ -24,7 +24,7 @@ import io.github.android.gui.fragment.main.MatchMakingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.android.manager.MatchMakingManager;
-import io.github.android.manager.SessionManager;
+import io.github.core.client_engine.manager.SessionManager;
 import io.github.android.utils.RedirectUtils;
 import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
