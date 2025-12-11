@@ -239,30 +239,35 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
         ClientListener.getInstance().onMessage(SynchronizeRequest.class, request -> {
             switch (request.getType()) {
                 case INSTRUCTION_SYNC:
+                    Log.d("For The Oil","Instruction Request received :"+request.getType().toString());
                     Object obj = request.getMap().getOrDefault("instructions", null);
-                    if (obj instanceof Queue) {
+                    if(obj instanceof Queue){
                         Queue<Instruction> queue = (Queue<Instruction>) obj;
-                        if (clientLauncher != null) clientLauncher.addQueueInstruction(queue);
-                        if (clientLauncher == null) {
-                            GameManager.fullGameResync((NetGame) request.getMap().get("game"));
-                            clientLauncher = new ClientLauncher();
+                        clientLauncher.addQueueInstruction(queue);
+                        if(!clientLauncher.isAlive()){
+                            Instruction instruction = queue.poll();
+                            if(instruction instanceof EventsInstruction&&((EventsInstruction)instruction).getEventType().equals(EventType.START)){
+                                clientLauncher.start();
+                                Log.d("For The Oil","Instruction start received :");
+                            }
                         }
                     }
                     break;
 
                 case FULL_RESYNC:
+                    Log.d("For The Oil","FullSynchronizeRequest received :"+request.getType().toString());
                     NetGame netGame = (NetGame) request.getMap().get("game");
-                    if(clientLauncher == null){
+                    if(clientLauncher==null){
                         GameManager.fullGameResync(netGame);
                         clientLauncher = new ClientLauncher();
                         if(ClientGame.getInstance().getCurrentEvent().equals(EventType.START)){
                             clientLauncher.start();
+                            Log.d("For The Oil","ClientLauncher init and Instruction start received :");
                         }
-                    } else clientLauncher.setResyncNetGame(netGame);
-
-                    runOnUiThread(this::stepSyncSuccess);
+                    }
+                    else clientLauncher.setResyncNetGame(netGame);
+                    if(loadingFragment.isVisible()) stepSyncSuccess();
                     break;
-
 
                 default:
                     break;
