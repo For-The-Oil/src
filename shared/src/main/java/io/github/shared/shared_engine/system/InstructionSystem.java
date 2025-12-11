@@ -5,6 +5,7 @@ import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.github.shared.data.IGame;
@@ -84,7 +85,7 @@ public class InstructionSystem extends BaseSystem {
 
                         if (entityType.getType().equals(EntityType.Type.Building)) {
                             Shape overlay = new Shape(entityType.getShapeType().getShape(), netId);
-                            ShapeManager.overlayShape(game.getMap(), ShapeManager.rotateShape(overlay, direction), (int) x, (int) y, 0, 0, overlay.getWidth(), overlay.getHeight());
+                            ShapeManager.overlayShape(game.getMap(), ShapeManager.rotateShape(overlay, direction), Utility.worldToCell(x), Utility.worldToCell(y), 0, 0, overlay.getWidth(), overlay.getHeight());
                             game.setMapDirty(true);
 
                             BuildingMapPositionComponent bpc = buildingMapPositionMapper.create(entity);
@@ -109,22 +110,25 @@ public class InstructionSystem extends BaseSystem {
 
                             OnCreationComponent occ = onCreateMapper.create(entity);
                             occ.set(from, entityType.getCreate_time());
+                            ArrayList<WeaponType> weaponTypeList = entityType.getWeaponType();
+                            if(weaponTypeList != null) {
+                                for (WeaponType weaponType : weaponTypeList) {
+                                    if (weaponType.getType().equals(WeaponType.Type.Melee)) {
 
-                            for(WeaponType weaponType : entityType.getWeaponType()){
-                                if(weaponType.getType().equals(WeaponType.Type.Melee)){
-                                    MeleeAttackComponent melee = meleeAttackMapper.get(entity);
-                                    if(melee == null)melee = meleeAttackMapper.create(entity);
-                                    melee.set(weaponType,weaponType.getDamage(),weaponType.getCooldown(), weaponType.getReach());
-                                }
-                                else if(weaponType.getType().equals(WeaponType.Type.Range)){
-                                    RangedAttackComponent ranged = rangedAttackMapper.get(entity);
-                                    if(ranged == null)ranged = rangedAttackMapper.create(entity);
-                                    ranged.set(weaponType,weaponType.getDamage(),weaponType.getCooldown(), weaponType.getReach());
-                                }
-                                else if(weaponType.getType().equals(WeaponType.Type.ProjectileLauncher)){
-                                    ProjectileAttackComponent projectile = projectileAttackMapper.get(entity);
-                                    if(projectile == null)projectile = projectileAttackMapper.create(entity);
-                                    projectile.set(weaponType,weaponType.getCooldown(), weaponType.getReach(),weaponType.getProjectileType());
+                                        MeleeAttackComponent melee = meleeAttackMapper.create(entity);
+                                        melee.set(weaponType, weaponType.getDamage(), weaponType.getCooldown(), weaponType.getReach());
+
+                                    } else if (weaponType.getType().equals(WeaponType.Type.Range)) {
+
+                                        RangedAttackComponent ranged = rangedAttackMapper.create(entity);
+                                        ranged.set(weaponType, weaponType.getDamage(), weaponType.getCooldown(), weaponType.getReach());
+
+                                    } else if (weaponType.getType().equals(WeaponType.Type.ProjectileLauncher)) {
+
+                                        ProjectileAttackComponent projectile = projectileAttackMapper.create(entity);
+                                        projectile.set(weaponType, weaponType.getCooldown(), weaponType.getReach(), weaponType.getProjectileType());
+
+                                    }
                                 }
                             }
 

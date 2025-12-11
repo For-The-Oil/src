@@ -65,7 +65,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
      * Requires ServerGame to route projectile creation to your server pipeline.
      */
     public ProjectileAttackSystem(ServerGame server) {
-        super(Aspect.all(ProjectileAttackComponent.class, PositionComponent.class, ProprietyComponent.class, TargetComponent.class,NetComponent.class).exclude(FreezeComponent.class, OnCreationComponent.class));
+        super(Aspect.all(ProjectileAttackComponent.class, PositionComponent.class, ProprietyComponent.class,NetComponent.class).exclude(FreezeComponent.class, OnCreationComponent.class));
         this.server = server;
     }
 
@@ -91,7 +91,6 @@ public class ProjectileAttackSystem extends IteratingSystem {
         int candidateId = -1;
         boolean inRange = false;
         boolean isTypeBuilding = false;
-        boolean sendCurrentCooldown = false;
         float BuildingPosx = -1;
         float BuildingPosy = -1;
 
@@ -290,7 +289,6 @@ public class ProjectileAttackSystem extends IteratingSystem {
 
             // Reset cooldown to base
             time = attack.weaponType.getCooldown();
-            sendCurrentCooldown = true;
 
         } else if(!canShoot) {
             // No shot this frame: enforce animation/focus minimum or tick down
@@ -298,13 +296,12 @@ public class ProjectileAttackSystem extends IteratingSystem {
             if (attack.currentCooldown < extra) {
                 // Raise cooldown to the animation/focus threshold (penalize shooting without targets)
                 time = extra;
-                sendCurrentCooldown = true;
             }
         }
 
-        if(sendCurrentCooldown ||
-            attack.currentCooldown > attack.weaponType.getAnimationCooldown() && time < attack.weaponType.getAnimationCooldown() ||
-            attack.currentCooldown > attack.weaponType.getAnimationAndFocusCooldown() && time < attack.weaponType.getAnimationAndFocusCooldown() ||
+        if((attack.currentCooldown > attack.weaponType.getAnimationAndFocusCooldown() && time < attack.weaponType.getAnimationAndFocusCooldown()) ||
+            (attack.currentCooldown > attack.weaponType.getAnimationCooldown() && (time < attack.weaponType.getAnimationCooldown()|| time >= attack.weaponType.getAnimationAndFocusCooldown())) ||
+            (attack.currentCooldown < attack.weaponType.getAnimationCooldown() && time > attack.weaponType.getAnimationCooldown()) ||
             time <= 0f)
         {
             ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"ProjectileAttackComponent");
@@ -323,7 +320,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
                 ComponentSnapshot damageSnap = new ComponentSnapshot("ProjectileAttackComponent", fields);
                 server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
             }
-        }
+        }else if(canShoot || attack.currentCooldown != attack.weaponType.getAnimationAndFocusCooldown())attack.updateCooldown(world.getDelta());
     }
 }
 

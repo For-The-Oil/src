@@ -10,12 +10,12 @@ public enum EntityType {
         null,
         DeckCardCategory.Industrial,
         ShapeType.Base,
-        null,
+        new ArrayList<>(),
         2000f,
         2,
         0f,
         5f,
-        20,
+        1,
         new HashMap<ResourcesType, Integer>() {{
             put(ResourcesType.Oil, 100);
             put(ResourcesType.Steel, 500);
@@ -35,7 +35,7 @@ public enum EntityType {
         null,
         DeckCardCategory.Industrial,
         ShapeType.Base,
-        null,
+        new ArrayList<>(),
         2000f,
         2,
         0f,
@@ -52,7 +52,7 @@ public enum EntityType {
         null,
         DeckCardCategory.Military,
         ShapeType.Barrack,
-        null,
+        new ArrayList<>(),
         1500f,
         3,
         0f,
@@ -69,7 +69,7 @@ public enum EntityType {
         null,
         DeckCardCategory.Military,
         ShapeType.Factory,
-        null,
+        new ArrayList<>(),
         2500f,
         2,
         0f,
@@ -86,7 +86,7 @@ public enum EntityType {
         null,
         DeckCardCategory.Military,
         ShapeType.Garage,
-        null,
+        new ArrayList<>(),
         1800f,
         2,
         0f,
@@ -105,7 +105,8 @@ public enum EntityType {
         null,
         DeckCardCategory.Industrial,
         ShapeType.MINE,
-        null, 300f,
+        new ArrayList<>(),
+        300f,
         1,
         0f,
         3f,
@@ -125,7 +126,7 @@ public enum EntityType {
         null,
         DeckCardCategory.Industrial,
         ShapeType.DERRICK,
-        null,
+        new ArrayList<>(),
         300f,
         1,
         0f,
@@ -220,7 +221,7 @@ public enum EntityType {
         this.category = category;
         this.spawnFrom = spawnFrom;
         this.shapeType = shapeType;
-        this.weaponType = weaponType;
+        this.weaponType = new ArrayList<>(weaponType);
         this.production = production;
         this.projectileData = new ArrayList<>();
         this.maxHealth = maxHealth;
@@ -238,7 +239,7 @@ public enum EntityType {
         this.spawnFrom = spawnFrom;
         this.shapeType = null;
         this.projectileData = new ArrayList<>();
-        this.weaponType = weaponType;
+        this.weaponType = new ArrayList<>(weaponType);
         this.production = null;
         this.maxHealth = maxHealth;
         this.armor = armor;
@@ -246,7 +247,7 @@ public enum EntityType {
         this.base_speed = baseSpeed;
         this.freeze_time = freezeTime;
         this.create_time = createTime;
-        this.cost = cost;
+        this.cost = new HashMap<>(cost);
     }
 
     EntityType(Type type, EntityType spawnFrom,float damage, int armorPenetration, float aoe, float maxHeight, float baseSpeed, HashMap<ResourcesType, Integer> cost) {

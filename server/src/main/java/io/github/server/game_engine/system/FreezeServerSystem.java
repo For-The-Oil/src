@@ -59,7 +59,7 @@ public class FreezeServerSystem extends IteratingSystem {
             // Prepare a snapshot describing the new FreezeComponent state.
             // SnapshotTracker merges FreezeComponent via overwrite of fields, so we only send "freeze_time".
             java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
-            fields.put("freeze_time", newTime);
+            fields.put("freeze_time", -1);
             // Type name must match the component you want the tracker to update/merge
             ComponentSnapshot snap = new ComponentSnapshot("FreezeComponent", fields);
 

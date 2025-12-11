@@ -67,7 +67,7 @@ public class RangedAttackSystem extends IteratingSystem {
      * Requires ServerGame to register snapshots each frame.
      */
     public RangedAttackSystem(ServerGame server) {
-        super(Aspect.all(RangedAttackComponent.class, PositionComponent.class, ProprietyComponent.class, TargetComponent.class,NetComponent.class).exclude(FreezeComponent.class, OnCreationComponent.class));
+        super(Aspect.all(RangedAttackComponent.class, PositionComponent.class, ProprietyComponent.class,NetComponent.class).exclude(FreezeComponent.class, OnCreationComponent.class));
         this.server = server;
     }
 
@@ -88,7 +88,6 @@ public class RangedAttackSystem extends IteratingSystem {
         int candidateId = -1;
         boolean inRange = false;
         boolean isTypeBuilding = false;
-        boolean sendCurrentCooldown = false;
         float BuildingPosx = -1;
         float BuildingPosy = -1;
 
@@ -298,7 +297,6 @@ public class RangedAttackSystem extends IteratingSystem {
 
             // Reset cooldown: base ranged cooldown + animation/focus extra
             time = ranged.weaponType.getCooldown();
-            sendCurrentCooldown = true;
         }
          else if(!foundAttackable) {
                 // No attack performed this frame
@@ -309,13 +307,12 @@ public class RangedAttackSystem extends IteratingSystem {
                 if (ranged.currentCooldown < extra) {
                     // Raise to the animation/focus minimum (explicit penalty for not having a target)
                     time = extra;
-                    sendCurrentCooldown = true;
                 }
             }
 
-        if(sendCurrentCooldown ||
-            ranged.currentCooldown > ranged.weaponType.getAnimationCooldown() && time < ranged.weaponType.getAnimationCooldown() ||
-            ranged.currentCooldown > ranged.weaponType.getAnimationAndFocusCooldown() && time < ranged.weaponType.getAnimationAndFocusCooldown() ||
+        if((ranged.currentCooldown > ranged.weaponType.getAnimationAndFocusCooldown() && time < ranged.weaponType.getAnimationAndFocusCooldown()) ||
+            (ranged.currentCooldown > ranged.weaponType.getAnimationCooldown() && (time < ranged.weaponType.getAnimationCooldown()|| time >= ranged.weaponType.getAnimationAndFocusCooldown())) ||
+            (ranged.currentCooldown < ranged.weaponType.getAnimationCooldown() && time > ranged.weaponType.getAnimationCooldown()) ||
             time <= 0f)
         {
             ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"RangedAttackComponent");
@@ -334,7 +331,7 @@ public class RangedAttackSystem extends IteratingSystem {
                 ComponentSnapshot damageSnap = new ComponentSnapshot("RangedAttackComponent", fields);
                 server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
             }
-        }
+        }else if(foundAttackable || ranged.currentCooldown != ranged.weaponType.getAnimationAndFocusCooldown())ranged.updateCooldown(world.getDelta());
     }
 }
 

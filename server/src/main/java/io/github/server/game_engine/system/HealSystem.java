@@ -53,16 +53,18 @@ public class HealSystem extends IteratingSystem {
         if (accumulator < PERIOD_SEC) return;
         // Only Buildings produce resources
         LifeComponent life = mLife.get(e);
+        if(life.passiveHeal > 0 && life.health != life.maxHealth) {
 
-        NetComponent net = mNet.get(e);
-        java.util.ArrayList<Object> entries = new java.util.ArrayList<>();
-        entries.add(new DamageEntry(net.netId, -life.passiveHeal, 0)); // attackerId, raw damage, armor penetration
+            NetComponent net = mNet.get(e);
+            java.util.ArrayList<Object> entries = new java.util.ArrayList<>();
+            entries.add(new DamageEntry(net.netId, -life.passiveHeal, 0)); // attackerId, raw damage, armor penetration
 
-        java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
-        fields.put("entries", entries); // tracker will merge lists of entries per target
+            java.util.HashMap<String, Object> fields = new java.util.HashMap<>();
+            fields.put("entries", entries); // tracker will merge lists of entries per target
 
-        ComponentSnapshot damageSnap = new ComponentSnapshot("DamageComponent", fields);
-        server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
+            ComponentSnapshot damageSnap = new ComponentSnapshot("DamageComponent", fields);
+            server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
+        }
     }
 
     /**

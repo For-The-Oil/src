@@ -28,7 +28,7 @@ import io.github.shared.shared_engine.manager.ShapeManager;
 
 public final class EntityFactory {
 
-
+    @SuppressWarnings("unchecked")
     public static Entity applySnapshotToEntity(World world, EntitySnapshot snapshot) {
         Entity entity = null;
         ComponentMapper<NetComponent> netMapper = world.getMapper(NetComponent.class);

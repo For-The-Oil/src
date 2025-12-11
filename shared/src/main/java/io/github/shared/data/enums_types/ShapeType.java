@@ -3,6 +3,7 @@ package io.github.shared.data.enums_types;
 import static io.github.shared.data.enums_types.CellType.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import io.github.shared.data.gameobject.Cell;
 import io.github.shared.data.gameobject.Shape;
@@ -48,13 +49,9 @@ public enum ShapeType {
         }), new ArrayList<>()),
 
     Base( new Shape(new Cell[][]{
-        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
-        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
-        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
-        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
-        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
-        {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
-    }), new ArrayList<>()),
+        {new Cell(WATER),new Cell(WATER)},
+        {new Cell(WATER),new Cell(WATER)}
+    }), new ArrayList<>(Collections.singleton(GRASS))),
     Barrack(new Shape(new Cell[][]{
         {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
         {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},

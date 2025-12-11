@@ -24,7 +24,7 @@ import io.github.shared.data.snapshot.EntitySnapshot;
 
 public final class SnapshotFactory {
 
-
+    @SuppressWarnings("unchecked")
     public static Entity toEntity(World world, EntitySnapshot snapshot) {
         Entity entity = world.createEntity();
 

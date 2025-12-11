@@ -65,13 +65,12 @@ public class MeleeAttackSystem extends IteratingSystem {
      * Constructor requires the ServerGame instance so we can register snapshots.
      */
     public MeleeAttackSystem(ServerGame server) {
-        super(Aspect.all(MeleeAttackComponent.class, PositionComponent.class, ProprietyComponent.class, TargetComponent.class,NetComponent.class).exclude(FreezeComponent.class, OnCreationComponent.class));
+        super(Aspect.all(MeleeAttackComponent.class, PositionComponent.class, ProprietyComponent.class,NetComponent.class).exclude(FreezeComponent.class, OnCreationComponent.class));
         this.server = server;
     }
 
     @Override
     protected void process(int e) {
-
         // Attacker components
         MeleeAttackComponent melee = mMelee.get(e);// provides reach, cooldown fields and helpers
         PositionComponent pos = mPos.get(e);// 3D position (x,y,z)
@@ -89,7 +88,6 @@ public class MeleeAttackSystem extends IteratingSystem {
         int candidateId = -1;
         boolean inReach = false;
         boolean isTypeBuilding = false;
-        boolean sendCurrentCooldown = false;
         float BuildingPosx = -1;
         float BuildingPosy = -1;
 
@@ -306,7 +304,6 @@ public class MeleeAttackSystem extends IteratingSystem {
 
             // Locally finalize the attack by resetting the cooldown
             time = melee.weaponType.getCooldown();
-            sendCurrentCooldown = true;
 
         }
         else if(!foundAttackable) {
@@ -317,14 +314,12 @@ public class MeleeAttackSystem extends IteratingSystem {
             if ( melee.currentCooldown < extra) {
                 // Raise to the animation/focus minimum (explicit penalty for not having a target)
                 time = extra;
-                sendCurrentCooldown = true;
                 // Intentionally do NOT tick down this frame.
             }
         }
-
-        if(sendCurrentCooldown ||
-            melee.currentCooldown > melee.weaponType.getAnimationCooldown() && time < melee.weaponType.getAnimationCooldown() ||
-            melee.currentCooldown > melee.weaponType.getAnimationAndFocusCooldown() && time < melee.weaponType.getAnimationAndFocusCooldown() ||
+        if((melee.currentCooldown > melee.weaponType.getAnimationAndFocusCooldown() && time < melee.weaponType.getAnimationAndFocusCooldown()) ||
+            (melee.currentCooldown > melee.weaponType.getAnimationCooldown() && (time < melee.weaponType.getAnimationCooldown()|| time >= melee.weaponType.getAnimationAndFocusCooldown())) ||
+            (melee.currentCooldown < melee.weaponType.getAnimationCooldown() && time > melee.weaponType.getAnimationCooldown()) ||
             time <= 0f)
         {
             ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"MeleeAttackComponent");
@@ -343,6 +338,6 @@ public class MeleeAttackSystem extends IteratingSystem {
                 ComponentSnapshot damageSnap = new ComponentSnapshot("MeleeAttackComponent", fields);
                 server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
             }
-        } else melee.updateCooldown(world.getDelta());
+        } else if(foundAttackable || melee.currentCooldown != melee.weaponType.getAnimationAndFocusCooldown())melee.updateCooldown(world.getDelta());
     }
 }
