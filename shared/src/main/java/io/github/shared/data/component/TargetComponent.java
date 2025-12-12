@@ -7,7 +7,6 @@ import com.artemis.annotations.PooledWeaver;
 
 @PooledWeaver
 public class TargetComponent extends PooledComponent {
-    public int targetId;
     public int targetNetId;
     public int nextTargetId;
     public boolean force = false;

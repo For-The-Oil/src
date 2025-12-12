@@ -85,7 +85,7 @@ public class RangedAttackSystem extends IteratingSystem {
         float tmp = ranged.horizontalRotation;
 
         // (1) PRIMARY target — validate via the specialized range function
-        int candidateId = -1;
+        int candidateNetId = -1;
         boolean inRange = false;
         boolean isTypeBuilding = false;
         float BuildingPosx = -1;
@@ -101,14 +101,14 @@ public class RangedAttackSystem extends IteratingSystem {
                 if(!arrayList.isEmpty()) {
                     BuildingPosx = arrayList.get(0);
                     BuildingPosy = arrayList.get(1);
-                    candidateId = tgt.targetId;
+                    candidateNetId = tgt.targetNetId;
                     inRange = true;
                     isTypeBuilding = true;
                 }
             }
             else if (tPos != null){
                 if(Utility.isRangedDistanceValid(pos, tPos, ranged.range, server.getMap())) {
-                    candidateId = tgt.targetId;
+                    candidateNetId = tgt.targetNetId;
                     inRange = true;
                 }
                 else if(move == null|| (!move.force && !move.targetRelated)){
@@ -134,13 +134,13 @@ public class RangedAttackSystem extends IteratingSystem {
                 if(!arrayList.isEmpty()) {
                     BuildingPosx = arrayList.get(0);
                     BuildingPosy = arrayList.get(1);
-                    candidateId = tgt.nextTargetId;
+                    candidateNetId = tgt.nextTargetId;
                     inRange = true;
                     isTypeBuilding = true;
                 }
             }
             else if (tPos2 != null && Utility.isRangedDistanceValid(pos, tPos2, ranged.range, server.getMap())) {
-                candidateId = tgt.nextTargetId;
+                candidateNetId = tgt.nextTargetId;
                 inRange = true;
             }
         }
@@ -177,12 +177,12 @@ public class RangedAttackSystem extends IteratingSystem {
                         float dz = oPos.z - pos.z;
                         float dist2 = dx * dx + dy * dy + dz * dz;
                         bestScore = dist2;
-                        candidateId = other;
+                        candidateNetId = onet.netId;
                         inRange = true;
                         isTypeBuilding = true;
                     }
                 }
-                else {
+                else if(onet != null) {
                     PositionComponent oPos = mPos.get(other);
                     if (oPos == null) continue;
 
@@ -193,7 +193,7 @@ public class RangedAttackSystem extends IteratingSystem {
                         float dist2 = dx * dx + dy * dy + dz * dz;
                         if (dist2 < bestScore) {
                             bestScore = dist2;
-                            candidateId = other;
+                            candidateNetId = onet.netId;
                             inRange = true;
                         }
                     }
@@ -208,17 +208,17 @@ public class RangedAttackSystem extends IteratingSystem {
 
         // Prevent friendly fire: ensure candidate is an enemy
         boolean isEnemy = false;
-        if (candidateId != -1) {
-            ProprietyComponent tP = mProp.get(candidateId);
+        if (candidateNetId != -1) {
+            ProprietyComponent tP = mProp.get(EcsManager.getIdByNetId(world,candidateNetId,mNet));
             isEnemy = (tP == null || meP == null || tP.team == null || meP.team == null || !tP.team.equals(meP.team));
         }
 
         // Attack is permitted only when we have a valid enemy candidate in range and cooldown is ready
-        final boolean foundAttackable = (candidateId != -1 && inRange && isEnemy);
+        final boolean foundAttackable = (candidateNetId != -1 && inRange && isEnemy);
         if(foundAttackable){
             float tPosx = -1;
             float tPosy = -1;
-            PositionComponent tPos = mPos.get(candidateId);
+            PositionComponent tPos = mPos.get(EcsManager.getIdByNetId(world,candidateNetId,mNet));
             if(isTypeBuilding){
                 tPosx = BuildingPosx;
                 tPosy = BuildingPosy;
@@ -285,7 +285,7 @@ public class RangedAttackSystem extends IteratingSystem {
             ComponentSnapshot damageSnap = new ComponentSnapshot("DamageComponent", fields);
 
             // Register snapshot for the target; aggregated later into a single UpdateEntityInstruction
-            server.getUpdateTracker().markComponentModified(world.getEntity(candidateId), damageSnap);
+            server.getUpdateTracker().markComponentModified(world.getEntity(EcsManager.getIdByNetId(world,candidateNetId,mNet)), damageSnap);
 
             // Reset cooldown: base ranged cooldown + animation/focus extra
             time = ranged.weaponType.getCooldown();

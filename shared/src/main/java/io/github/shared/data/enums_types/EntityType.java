@@ -331,7 +331,7 @@ public enum EntityType {
         return 0f;
     }
 
-    public Float getSpeed() {
+    public Float getProjectileSpeed() {
         if(type.equals(Type.Projectile))return projectileData.get(4);
         return 0f;
     }

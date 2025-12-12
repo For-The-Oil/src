@@ -26,7 +26,7 @@
      }
 
      public boolean isStop(){
-         return vx == 0 || vy == 0 || vz == 0;
+         return vx == 0 && vy == 0 && vz == 0;
      }
 
  }

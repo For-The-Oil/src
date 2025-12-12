@@ -3,7 +3,9 @@ package io.github.server.game_engine;
 import static io.github.shared.config.BaseGameConfig.FIXED_TIME_STEP;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -15,7 +17,10 @@ import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.instructions.CreateInstruction;
 import io.github.shared.data.instructions.Instruction;
+import io.github.shared.data.instructions.UpdateEntityInstruction;
 import io.github.shared.data.requests.Request;
+import io.github.shared.data.snapshot.ComponentSnapshot;
+import io.github.shared.data.snapshot.EntitySnapshot;
 import io.github.shared.shared_engine.system.InstructionSystem;
 
 public class GameLauncher extends Thread {
@@ -32,10 +37,19 @@ public class GameLauncher extends Thread {
     private void init() {
         CreateInstruction createInstruction = new CreateInstruction(System.currentTimeMillis());
         createInstruction.add(EntityType.TANK, null, 0, -1, 0, 0, UUID.randomUUID());
-        for (int i = 0; i < 1; i++) {
-            createInstruction.add(EntityType.test, Direction.NORTH, i+1, -1, 100 * (i+3), 100 * (i+3), UUID.randomUUID());
-        }
+        UpdateEntityInstruction updateEntityInstruction = new UpdateEntityInstruction(System.currentTimeMillis());
+        HashMap<String, Object> fields = new HashMap<>();
+        fields.put("targetRelated", false);
+        fields.put("destinationX", 1500);
+        fields.put("destinationY", 200);
+        fields.put("force", true);
+        ComponentSnapshot moveComponent = new ComponentSnapshot("MoveComponent", fields);
+        updateEntityInstruction.getToUpdate().add(new EntitySnapshot(0,EntityType.TANK,new ArrayList<>(Collections.singleton(moveComponent))));
+//        for (int i = 0; i < 1; i++) {
+//            createInstruction.add(EntityType.test, Direction.NORTH, i+1, -1, 100 * (i+3), 100 * (i+3), UUID.randomUUID());
+//        }
         serverGame.addQueueInstruction(createInstruction);
+        serverGame.addQueueInstruction(updateEntityInstruction);
     }
 
     @Override
@@ -53,7 +67,10 @@ public class GameLauncher extends Thread {
                     serverGame.getWorld().setDelta((float) (FIXED_TIME_STEP / 1000.0));
                     serverGame.getWorld().process();
 
-                    if (!serverGame.getUpdateTracker().snapshotsIsEmpty()) serverGame.addQueueInstruction(serverGame.getUpdateTracker().consumeUpdateInstruction(System.currentTimeMillis(),serverGame.getWorld()));
+                    if (!serverGame.getUpdateTracker().snapshotsIsEmpty()){
+                        UpdateEntityInstruction updateEntityInstruction = serverGame.getUpdateTracker().consumeUpdateInstruction(System.currentTimeMillis(),serverGame.getWorld());
+                        if(!updateEntityInstruction.getToUpdate().isEmpty()) serverGame.addQueueInstruction(updateEntityInstruction);
+                    }
                     if (!serverGame.destroyInstructionIsEmpty()) serverGame.addQueueInstruction(serverGame.consumeDestroyInstruction(System.currentTimeMillis()));
                     if (!serverGame.createInstructionIsEmpty()) serverGame.addQueueInstruction(serverGame.consumeCreateInstruction(System.currentTimeMillis()));
 

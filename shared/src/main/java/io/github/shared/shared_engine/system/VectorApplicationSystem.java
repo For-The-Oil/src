@@ -59,7 +59,7 @@ public class VectorApplicationSystem extends IteratingSystem {
         VelocityComponent vel = mVel.get(entityId);
 
         // Delta time from the ECS world (seconds)
-        float dt = world.getDelta();
+        float dt = world.getDelta()*10;
 
         // --- (1) Position integration in 3D) ---
         // x += vx * dt; y += vy * dt; z += vz * dt
@@ -79,7 +79,7 @@ public class VectorApplicationSystem extends IteratingSystem {
             // --- (3) Smoothly rotate toward targets ---
             // Limit per-frame rotation to TURN_SPEED * dt
             float step = TURN_SPEED * dt;
-            pos.horizontalRotation = rotateTowards(pos.horizontalRotation, targetYaw, step);
+            pos.horizontalRotation = rotateTowards(pos.horizontalRotation, targetYaw + (float) Math.PI, step);
             pos.verticalRotation   = rotateTowards(pos.verticalRotation,   targetPitch, step);
         }
         // If not moving, keep current rotations as-is.

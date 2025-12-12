@@ -88,7 +88,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
         final float range2 = attack.range * attack.range;
 
         //(1) PRIMARY target: check in-range (3D distance <= range)
-        int candidateId = -1;
+        int candidateNetId = -1;
         boolean inRange = false;
         boolean isTypeBuilding = false;
         float BuildingPosx = -1;
@@ -104,7 +104,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
                 if(!arrayList.isEmpty()) {
                     BuildingPosx = arrayList.get(0);
                     BuildingPosy = arrayList.get(1);
-                    candidateId = tgt.targetId;
+                    candidateNetId = tgt.targetNetId;
                     inRange = true;
                     isTypeBuilding = true;
                 }
@@ -113,7 +113,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
                 float dx = tPos.x - pos.x, dy = tPos.y - pos.y, dz = tPos.z - pos.z;
                 float dist2 = dx*dx + dy*dy + dz*dz;
                 if (dist2 <= range2) {
-                    candidateId = tgt.targetId;
+                    candidateNetId = tgt.targetNetId;
                     inRange = true;
                 }
                 else if(move == null|| (!move.force && !move.targetRelated)){
@@ -141,7 +141,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
                 if(!arrayList.isEmpty()) {
                     BuildingPosx = arrayList.get(0);
                     BuildingPosy = arrayList.get(1);
-                    candidateId = tgt.nextTargetId;
+                    candidateNetId = tgt.nextTargetId;
                     inRange = true;
                     isTypeBuilding = true;
                 }
@@ -150,7 +150,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
                 float dx = tPos2.x - pos.x, dy = tPos2.y - pos.y, dz = tPos2.z - pos.z;
                 float dist2 = dx*dx + dy*dy + dz*dz;
                 if (dist2 <= range2) {
-                    candidateId = tgt.nextTargetId;
+                    candidateNetId = tgt.nextTargetId;
                     inRange = true;
                 }
             }
@@ -187,12 +187,12 @@ public class ProjectileAttackSystem extends IteratingSystem {
                         float dz = oPos.z - pos.z;
                         float dist2 = dx * dx + dy * dy + dz * dz;
                         bestDist2 = dist2;
-                        candidateId = other;
+                        candidateNetId = onet.netId;;
                         inRange = true;
                         isTypeBuilding = true;
                     }
                 }
-                else {
+                else if(onet != null) {
 
                     PositionComponent oPos = mPos.get(other);
                     if (oPos == null) continue;
@@ -202,7 +202,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
 
                     if (dist2 <= range2 && dist2 < bestDist2) {
                         bestDist2 = dist2;
-                        candidateId = other;
+                        candidateNetId = onet.netId;
                         inRange = true;
                     }
                 }
@@ -215,17 +215,17 @@ public class ProjectileAttackSystem extends IteratingSystem {
 
         // Friendly-fire prevention: double-check candidate is an enemy
         boolean isEnemy = false;
-        if (candidateId != -1) {
-            ProprietyComponent tP = mProp.get(candidateId);
+        if (candidateNetId != -1) {
+            ProprietyComponent tP = mProp.get(candidateNetId);
             isEnemy = (tP == null || meP == null || tP.team == null || meP.team == null || !tP.team.equals(meP.team));
         }
 
         // We can shoot only if we have a valid enemy candidate in range and cooldown is ready
-        final boolean canShoot = (candidateId != -1 && inRange && isEnemy);
+        final boolean canShoot = (candidateNetId != -1 && inRange && isEnemy);
         if(canShoot) {
             float tPosx = -1;
             float tPosy = -1;
-            PositionComponent tPos = mPos.get(candidateId);
+            PositionComponent tPos = mPos.get(EcsManager.getIdByNetId(world,candidateNetId,mNet));
             if (isTypeBuilding) {
                 tPosx = BuildingPosx;
                 tPosy = BuildingPosy;
@@ -277,7 +277,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
 
 
         if (ready && canShoot) {
-            PositionComponent tPos = mPos.get(candidateId); // target position for projectile trajectory
+            PositionComponent tPos = mPos.get(EcsManager.getIdByNetId(world,candidateNetId,mNet)); // target position for projectile trajectory
             if (tPos != null && meP != null) {
                 // Delegate projectile creation to your server-side creation pipeline
                 // Implement createProjectile(...) to use CreateInstruction or your factory

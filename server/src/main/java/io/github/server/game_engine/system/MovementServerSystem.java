@@ -63,7 +63,7 @@ public class MovementServerSystem extends IteratingSystem {
      * Excludes frozen entities, buildings, and projectiles.
      */
     public MovementServerSystem(ServerGame server) {
-        super(Aspect.all(PositionComponent.class, SpeedComponent.class, NetComponent.class).exclude(FreezeComponent.class, BuildingMapPositionComponent.class, ProjectileComponent.class));
+        super(Aspect.all(PositionComponent.class, SpeedComponent.class, NetComponent.class,MoveComponent.class).exclude(OnCreationComponent.class, FreezeComponent.class, BuildingMapPositionComponent.class, ProjectileComponent.class));
         this.server = server;
     }
 
@@ -86,24 +86,20 @@ public class MovementServerSystem extends IteratingSystem {
         TargetComponent tgt = mTarget.get(e);
 
         if (pos == null) return;
-
         // Apply damping to gradually reduce velocity toward zero
         if (vel != null && !vel.isStop())zeroVelocity(vel, pos, e);
 
 
         // No movement intent -> nothing else to do
         if (move == null) return;
-
         // Target-related movement but target is missing -> stop
         if (move.targetRelated && (tgt == null || !tgt.hasTarget())) {
             return;
         }
-
         float destX, destY;
-
         if (move.targetRelated) {
             // Get target position using network ID
-            PositionComponent tPos = EcsManager.getPositionByNetId(world, tgt.targetId, mNet, mPos);
+            PositionComponent tPos = EcsManager.getPositionByNetId(world, tgt.targetNetId, mNet, mPos);
             if (tPos == null) return;
 
             destX = tPos.x;
@@ -124,24 +120,34 @@ public class MovementServerSystem extends IteratingSystem {
                 return;
             }
         }
-        if(canAttack(e, pos, EcsManager.getPositionByNetId(world, tgt.nextTargetId, mNet, mPos))){
+
+        if(tgt != null && canAttack(e, pos, EcsManager.getPositionByNetId(world, tgt.nextTargetId, mNet, mPos))){
             return;
         }
-
         GraphPath<MapNode> path = computePath(pos.x, pos.y, destX, destY, net.entityType);
         if (path.getCount() < 2) return;
-
         MapNode temp = path.get(path.getCount() - 1);
-        if (!temp.getLstNetId().isEmpty()){
+        if (!temp.getLstNetId().isEmpty()) {
             int firstElementTarget = temp.getLstNetId().get(0);
-
-        // Send nextTargetId update via snapshot
-        HashMap<String, Object> fieldsTarget = new HashMap<>();
-        fieldsTarget.put("targetId", tgt.targetId);
-        fieldsTarget.put("nextTargetId", firstElementTarget);
-        fieldsTarget.put("force", tgt.force);
-        ComponentSnapshot snapTarget = new ComponentSnapshot("TargetComponent", fieldsTarget);
-        server.getUpdateTracker().markComponentModified(world.getEntity(e), snapTarget);
+            if(tgt != null) {
+                if (firstElementTarget != tgt.nextTargetId) {
+                    // Send nextTargetId update via snapshot
+                    HashMap<String, Object> fieldsTarget = new HashMap<>();
+                    fieldsTarget.put("targetNetId", tgt.targetNetId);
+                    fieldsTarget.put("nextTargetId", firstElementTarget);
+                    fieldsTarget.put("force", tgt.force);
+                    ComponentSnapshot snapTarget = new ComponentSnapshot("TargetComponent", fieldsTarget);
+                    server.getUpdateTracker().markComponentModified(world.getEntity(e), snapTarget);
+                }
+            }else {
+                // Send nextTargetId update via snapshot
+                HashMap<String, Object> fieldsTarget = new HashMap<>();
+                fieldsTarget.put("targetNetId", -1);
+                fieldsTarget.put("nextTargetId", firstElementTarget);
+                fieldsTarget.put("force", false);
+                ComponentSnapshot snapTarget = new ComponentSnapshot("TargetComponent", fieldsTarget);
+                server.getUpdateTracker().markComponentModified(world.getEntity(e), snapTarget);
+            }
         }
 
         // Get next waypoint
@@ -164,12 +170,11 @@ public class MovementServerSystem extends IteratingSystem {
         float finalSpeed = base * terrainMul;
 
         // Apply delta for frame-rate independence
-        float delta = world.getDelta();
 
         // Send velocity update via snapshot
         HashMap<String, Object> fields = new HashMap<>();
-        fields.put("vx", dx * finalSpeed * delta);
-        fields.put("vy", dy * finalSpeed * delta);
+        fields.put("vx", dx * finalSpeed);
+        fields.put("vy", dy * finalSpeed);
         fields.put("vz", 0f);
         ComponentSnapshot snap = new ComponentSnapshot("VelocityComponent", fields);
         server.getUpdateTracker().markComponentModified(world.getEntity(e), snap);
@@ -227,13 +232,12 @@ public class MovementServerSystem extends IteratingSystem {
         float vy = vel.vy;
         float vz = vel.vz;
 
-        float delta = world.getDelta();
-        float dampingRate = 5f; // Higher = faster stop
+        float dampingRate = 0.5f; // Higher = faster stop
 
         // Apply damping
-        vx -= vx * dampingRate * delta;
-        vy -= vy * dampingRate * delta;
-        vz -= vz * dampingRate * delta;
+        vx -= vel.vx * dampingRate;
+        vy -= vel.vy * dampingRate;
+        vz -= vel.vz * dampingRate;
 
         // Snap to zero if speed is very low
         float speed = (float) Math.sqrt(vx * vx + vy * vy + vz * vz);

@@ -85,7 +85,7 @@ public class MeleeAttackSystem extends IteratingSystem {
         final float reach2 = melee.reach * melee.reach;
 
         // (1) PRIMARY target: is it within melee reach?
-        int candidateId = -1;
+        int candidateNetId = -1;
         boolean inReach = false;
         boolean isTypeBuilding = false;
         float BuildingPosx = -1;
@@ -101,7 +101,7 @@ public class MeleeAttackSystem extends IteratingSystem {
                 if(!arrayList.isEmpty()) {
                     BuildingPosx = arrayList.get(0);
                     BuildingPosy = arrayList.get(1);
-                    candidateId = tgt.targetId;
+                    candidateNetId = tgt.targetNetId;
                     inReach = true;
                     isTypeBuilding = true;
                 }
@@ -112,7 +112,7 @@ public class MeleeAttackSystem extends IteratingSystem {
                 float dz = tPos.z - pos.z;
                 float dist2 = dx*dx + dy*dy + dz*dz;
                 if (dist2 <= reach2) {
-                    candidateId = tgt.targetId;
+                    candidateNetId = tgt.targetNetId;
                     inReach = true;
                 }
                 else if(move == null|| (!move.force && !move.targetRelated)){
@@ -138,7 +138,7 @@ public class MeleeAttackSystem extends IteratingSystem {
                 if(!arrayList.isEmpty()) {
                     BuildingPosx = arrayList.get(0);
                     BuildingPosy = arrayList.get(1);
-                    candidateId = tgt.nextTargetId;
+                    candidateNetId = tgt.nextTargetId;
                     inReach = true;
                     isTypeBuilding = true;
                 }
@@ -149,7 +149,7 @@ public class MeleeAttackSystem extends IteratingSystem {
                 float dz = tPos2.z - pos.z;
                 float dist2 = dx*dx + dy*dy + dz*dz;
                 if (dist2 <= reach2) {
-                    candidateId = tgt.nextTargetId;
+                    candidateNetId = tgt.nextTargetId;
                     inReach = true;
                 }
             }
@@ -186,12 +186,12 @@ public class MeleeAttackSystem extends IteratingSystem {
                         float dz = oPos.z - pos.z;
                         float dist2 = dx * dx + dy * dy + dz * dz;
                         bestDist2 = dist2;
-                        candidateId = other;
+                        candidateNetId = onet.netId;
                         inReach = true;
                         isTypeBuilding = true;
                     }
                 }
-                else {
+                else if(onet != null) {
                     PositionComponent oPos = mPos.get(other);
                     if (oPos == null) continue;
 
@@ -203,7 +203,7 @@ public class MeleeAttackSystem extends IteratingSystem {
                     // Accept enemies within reach and keep the nearest one
                     if (dist2 <= reach2 && dist2 < bestDist2) {
                         bestDist2 = dist2;
-                        candidateId = other;
+                        candidateNetId = onet.netId;
                         inReach = true; // by construction this "around" enemy is within reach
                         isTypeBuilding = false;
                     }
@@ -216,16 +216,16 @@ public class MeleeAttackSystem extends IteratingSystem {
 
         // Friendly-fire prevention: ensure candidate is an enemy (different team)
         boolean isEnemy = false;
-        if (candidateId != -1) {
-            ProprietyComponent tP = mProp.get(candidateId);
+        if (candidateNetId != -1) {
+            ProprietyComponent tP = mProp.get(EcsManager.getIdByNetId(world,candidateNetId,mNet));
             isEnemy = (tP == null || meP == null || tP.team == null || meP.team == null || !tP.team.equals(meP.team));
         }
         // We can attack only if we have a valid enemy candidate in reach and cooldown is ready
-        final boolean foundAttackable = (candidateId != -1 && inReach && isEnemy);
+        final boolean foundAttackable = (candidateNetId != -1 && inReach && isEnemy);
         if(foundAttackable){
             float tPosx = -1;
             float tPosy = -1;
-            PositionComponent tPos = mPos.get(candidateId);
+            PositionComponent tPos = mPos.get(EcsManager.getIdByNetId(world,candidateNetId,mNet));
             if(isTypeBuilding){
                 tPosx = BuildingPosx;
                 tPosy = BuildingPosy;
@@ -295,7 +295,7 @@ public class MeleeAttackSystem extends IteratingSystem {
 
             // Register this component change for the target.
             // SnapshotTracker resolves NetComponent (netId, entityType) and aggregates per-entity snapshots.
-            server.getUpdateTracker().markComponentModified(world.getEntity(candidateId), damageSnap);
+            server.getUpdateTracker().markComponentModified(world.getEntity(EcsManager.getIdByNetId(world,candidateNetId,mNet)), damageSnap);
 
             // Locally finalize the attack by resetting the cooldown
             time = melee.weaponType.getCooldown();

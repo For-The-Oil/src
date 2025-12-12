@@ -159,9 +159,9 @@ public class SnapshotTracker {
                     Float newVy  = asFloat(newSnapshot.getFields().get("vy"));
                     Float newVz  = asFloat(newSnapshot.getFields().get("vz"));
 
-                    float mergedVx = (prevVx != null ? prevVx : 0f) + (newVx != null ? newVx : 0f);
-                    float mergedVy = (prevVy != null ? prevVy : 0f) + (newVy != null ? newVy : 0f);
-                    float mergedVz = (prevVz != null ? prevVz : 0f) + (newVz != null ? newVz : 0f);
+                    float mergedVx = ((prevVx != null ? prevVx : 0f) + (newVx != null ? newVx : 0f)/2);
+                    float mergedVy = ((prevVy != null ? prevVy : 0f) + (newVy != null ? newVy : 0f)/2);
+                    float mergedVz = ((prevVz != null ? prevVz : 0f) + (newVz != null ? newVz : 0f)/2);
 
                     previousSnapshot.getFields().put("vx", mergedVx);
                     previousSnapshot.getFields().put("vy", mergedVy);
@@ -241,9 +241,9 @@ public class SnapshotTracker {
                     int e = EcsManager.getIdByNetId(world,entitySnapshot.getNetId(),world.getMapper(NetComponent.class));
                     VelocityComponent vc = world.getMapper(VelocityComponent.class).get(e);
                     if(vc != null &&
-                        (vc.vx == (float)componentSnapshot.getFields().get("vx")) &&
-                        (vc.vy == (float)componentSnapshot.getFields().get("vy")) &&
-                        (vc.vz == (float)componentSnapshot.getFields().get("vz"))) {
+                        !(Math.abs(vc.vx - (float)componentSnapshot.getFields().get("vx")) > 0.005) &&
+                        !(Math.abs(vc.vy - (float)componentSnapshot.getFields().get("vy")) > 0.005) &&
+                        !(Math.abs(vc.vz - (float)componentSnapshot.getFields().get("vz")) > 0.005)) {
                         removeSnapshots.add(entitySnapshot);
                     }
                 }

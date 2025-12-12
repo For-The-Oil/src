@@ -22,6 +22,7 @@ import io.github.shared.data.component.ProjectileComponent;
 import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.component.RangedAttackComponent;
 import io.github.shared.data.component.RessourceComponent;
+import io.github.shared.data.component.SpeedComponent;
 import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.WeaponType;
@@ -51,7 +52,7 @@ public class InstructionSystem extends BaseSystem {
     private ComponentMapper<ProjectileAttackComponent> projectileAttackMapper;
     private ComponentMapper<LifeComponent> lifeMapper;
     private ComponentMapper<FreezeComponent> freezeMapper;
-
+    private ComponentMapper<SpeedComponent> mSpeed;
     private ComponentMapper<ProjectileComponent> projectileMapper;
     private ComponentMapper<MoveComponent> moveMapper;
 
@@ -99,6 +100,11 @@ public class InstructionSystem extends BaseSystem {
                                 RessourceComponent res = resMapper.create(entity);
                                 res.set(new HashMap<>(entityType.getProduction()));
                             }
+                        }
+
+                        if(entityType.getType().equals(EntityType.Type.Unit)){
+                            SpeedComponent speed = mSpeed.create(entity);
+                            speed.set(entityType.getBase_speed());
                         }
 
                         if(entityType.getType().equals(EntityType.Type.Building)||entityType.getType().equals(EntityType.Type.Unit)){

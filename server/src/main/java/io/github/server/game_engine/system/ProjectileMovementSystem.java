@@ -79,7 +79,7 @@ public class ProjectileMovementSystem extends IteratingSystem {
         float delta = world.getDelta();
 
         // Base speed from entity type
-        float baseSpeed = net.entityType.getSpeed();
+        float baseSpeed = net.entityType.getProjectileSpeed();
 
         // Horizontal velocity (X, Y)
         float vx = dx * baseSpeed * delta;

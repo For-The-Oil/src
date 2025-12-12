@@ -31,7 +31,7 @@ import io.github.shared.data.component.VelocityComponent;
 public class MovementSystem extends IteratingSystem {
 
     /** Tolerance for considering an entity as having reached its destination. */
-    private static final float EPSILON = 0.25f;
+    private static final float EPSILON = 5f;
 
     // Component mappers for quick access to entity components
     private ComponentMapper<PositionComponent> mPos;
@@ -75,7 +75,7 @@ public class MovementSystem extends IteratingSystem {
         }
 
         // Case 2: Movement is destination-based (not target-related)
-        if (!move.targetRelated && !move.force) {
+        if (!move.targetRelated) {
             float destX = move.destinationX;
             float destY = move.destinationY;
 
@@ -85,7 +85,12 @@ public class MovementSystem extends IteratingSystem {
             // If entity is close enough to destination, reset movement
             if (reached(pos.x, pos.y, destX, destY, EPSILON)) {
                 MoveComponent moveComp = mMove.get(e);
-                if (moveComp != null) moveComp.reset();
+                if (moveComp != null) {
+                    moveComp.reset();
+                    if (move.force) {
+                        moveComp.force = true;
+                    }
+                }
             }
         }
     }
