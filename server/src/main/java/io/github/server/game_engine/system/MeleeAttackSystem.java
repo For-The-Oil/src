@@ -56,6 +56,7 @@ public class MeleeAttackSystem extends IteratingSystem {
     private ComponentMapper<TargetComponent> mTarget;
     private ComponentMapper<NetComponent> mNet;
     private ComponentMapper<MoveComponent> mMove;
+    private ComponentMapper<OnCreationComponent> mOnCreation;
 
     // Server needed to access the SnapshotTracker (aggregation of component snapshots)
     private final ServerGame server;
@@ -165,7 +166,6 @@ public class MeleeAttackSystem extends IteratingSystem {
             IntBag bag = world.getAspectSubscriptionManager().get(Aspect.all(PositionComponent.class, ProprietyComponent.class, LifeComponent.class)).getEntities();
             int[] ids = bag.getData();
             float bestDist2 = Float.MAX_VALUE;
-
             for (int i = 0, n = bag.size(); i < n; i++) {
                 int other = ids[i];
                 if (other == e) continue; // skip self
@@ -174,6 +174,7 @@ public class MeleeAttackSystem extends IteratingSystem {
                 if (oP == null || meP == null || oP.team == null || meP.team == null) continue;
                 if (oP.team.equals(meP.team)) continue; // skip allies
                 NetComponent onet = mNet.get(other);
+                if(mOnCreation.get(e) != null && onet!=null && !onet.entityType.getType().equals(EntityType.Type.Building))continue;
                 if(onet != null && onet.entityType.getType().equals(EntityType.Type.Building)){
                     PositionComponent oPos = mPos.get(other);
                     BuildingMapPositionComponent bp = bPos.get(other);

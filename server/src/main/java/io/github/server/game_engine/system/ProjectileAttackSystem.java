@@ -56,6 +56,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
     private ComponentMapper<TargetComponent> mTarget;
     private ComponentMapper<NetComponent> mNet;
     private ComponentMapper<MoveComponent> mMove;
+    private ComponentMapper<OnCreationComponent> mOnCreation;
 
     // Server reference to integrate projectile creation with your instruction system
     private final ServerGame server;
@@ -175,6 +176,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
                 if (oP == null || meP == null || oP.team == null || meP.team == null) continue;
                 if (oP.team.equals(meP.team)) continue; // ignore allies
                 NetComponent onet = mNet.get(other);
+                if(mOnCreation.get(e) != null && onet!=null && !onet.entityType.getType().equals(EntityType.Type.Building))continue;
                 if(onet != null && onet.entityType.getType().equals(EntityType.Type.Building)){
                     PositionComponent oPos = mPos.get(other);
                     BuildingMapPositionComponent bp = bPos.get(other);

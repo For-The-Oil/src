@@ -51,6 +51,7 @@ public class GraphicsSyncSystem extends BaseSystem {
     private ComponentMapper<ProjectileAttackComponent> mProjAttack;
     private ComponentMapper<BuildingMapPositionComponent> bPos;
     private ComponentMapper<ProprietyComponent> mProp;
+    private ComponentMapper<OnCreationComponent> mOnCreation;
 
     private final Queue<Scene> sharedRenderQueue;
 
@@ -147,7 +148,7 @@ public class GraphicsSyncSystem extends BaseSystem {
         List<Scene> newRender = new ArrayList<>();
 
         // Récupère toutes les entités ; boucles indexées (pas d’itérateurs imbriqués)
-        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all().exclude(OnCreationComponent.class)).getEntities();
+        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all()).getEntities();
         for (int i = 0; i < entities.size(); i++) {
             int e = entities.get(i);
 
@@ -160,6 +161,8 @@ public class GraphicsSyncSystem extends BaseSystem {
             RangedAttackComponent ranged = mRanged.get(e);
             ProjectileAttackComponent proj = mProjAttack.get(e);
             BuildingMapPositionComponent bp = bPos.get(e);
+
+            if(mOnCreation.get(e) != null && net!=null && !net.entityType.getType().equals(EntityType.Type.Building))continue;
 
             // Création de la Scene (.glb)
             if (mc == null) {

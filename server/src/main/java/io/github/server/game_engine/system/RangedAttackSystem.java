@@ -57,7 +57,7 @@ public class RangedAttackSystem extends IteratingSystem {
     private ComponentMapper<TargetComponent> mTarget;
     private ComponentMapper<NetComponent> mNet;
     private ComponentMapper<MoveComponent> mMove;
-
+    private ComponentMapper<OnCreationComponent> mOnCreation;
 
     // Server handle to reach SnapshotTracker for aggregated updates
     private final ServerGame server;
@@ -165,6 +165,7 @@ public class RangedAttackSystem extends IteratingSystem {
                 if (oP == null || meP == null || oP.team == null || meP.team == null) continue;
                 if (oP.team.equals(meP.team)) continue; // skip allies
                 NetComponent onet = mNet.get(other);
+                if(mOnCreation.get(e) != null && onet!=null && !onet.entityType.getType().equals(EntityType.Type.Building))continue;
                 if(onet != null && onet.entityType.getType().equals(EntityType.Type.Building)){
                     PositionComponent oPos = mPos.get(other);
                     BuildingMapPositionComponent bp = bPos.get(other);

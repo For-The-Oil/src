@@ -36,10 +36,10 @@ public class EcsServerEngine {
             .with(new DamageAndHealSystem())
             .with(new DamageServerSystem(game))
             .with(new HealSystem(game))
-            .with(new FreezeSystem())
             .with(new FreezeServerSystem(game))
-            .with(new OnCreationSystem())
+            .with(new FreezeSystem())
             .with(new OnCreationServerSystem(game))
+            .with(new OnCreationSystem())
 
             .with(new ProductionResourcesSystem(game))
             .with(new MovementSystem())

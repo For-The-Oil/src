@@ -50,7 +50,7 @@ public class FreezeServerSystem extends IteratingSystem {
     protected void process(int e) {
         // Fetch the component for this entity
         FreezeComponent fc = mFreeze.get(e);
-        if (fc.freeze_time <= 0f) return;// If the freeze time has expired or is zero, unfreeze by removing the component
+        if (fc.freeze_time < 0f) return;// If the freeze time has expired, unfreeze by removing the component
 
         // Reduce the remaining freeze time, clamped to [0, +inf)
         float newTime = Math.max(fc.freeze_time - world.getDelta(), 0f);

@@ -58,7 +58,7 @@ public class OnCreationServerSystem extends IteratingSystem {
 
         // Fetch the required components for this entity
         OnCreationComponent occ = mOnCreation.get(e);// creation metadata and countdown
-        if (occ.time <= 0f)return;
+        if (occ.time < 0f)return;
         NetComponent net = mNet.get(e);// netId and type information for instruction routing
 
         if(occ.fromNetId != -1){
