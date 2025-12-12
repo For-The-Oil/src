@@ -28,10 +28,9 @@ import io.github.shared.shared_engine.Utility;
 
 @Wire
 public class VectorApplicationSystem extends IteratingSystem {
-
-    private static final float TURN_SPEED = (float) Math.toRadians(360f);
     private static final float EPS = 1e-5f;
-    private static final float EPS_PITCH = (float) Math.toRadians(0.1f);
+
+    final float MAX_TURN_RATE = (float) Math.toRadians(360f);
 
     private ComponentMapper<PositionComponent> mPos;
     private ComponentMapper<VelocityComponent> mVel;
@@ -41,23 +40,36 @@ public class VectorApplicationSystem extends IteratingSystem {
     }
 
 
+
     @Override
     protected void process(int entityId) {
         PositionComponent pos = mPos.get(entityId);
         VelocityComponent vel = mVel.get(entityId);
 
-        float dt = world.getDelta()*20;
+        float dt = world.getDelta();
+        float moveDt = dt * 20f;
 
-        // (1) Intégration position
-        pos.translate(vel.vx * dt, vel.vy * dt, vel.vz * dt);
+        pos.translate(vel.vx * moveDt, vel.vy * moveDt, vel.vz * moveDt);
 
-        // (2) Calcul des angles cibles
+        // (2) Orientation lissée vers la direction de vitesse
         float speedSq = vel.vx * vel.vx + vel.vy * vel.vy + vel.vz * vel.vz;
         if (speedSq > EPS) {
-            float raw = (float) Math.atan2(-vel.vy, vel.vx);
-            float facingOffset = (float) -Math.PI/2;
-            pos.horizontalRotation = Utility.normAngle(raw + facingOffset);
+            float raw = (float) Math.atan2(-vel.vy, vel.vx);              // Y écran vers le bas
+            float target = Utility.normAngle(raw - (float) Math.PI / 2f); // ton offset
+            // Différence sur l’arc le plus court [-π, π]
+            float delta = shortestAngle(target - pos.horizontalRotation);
+
+            // Pas de rotation borné par la vitesse max
+            float maxStep = MAX_TURN_RATE * dt;
+            float step = Math.copySign(Math.min(Math.abs(delta), maxStep), delta);
+
+            pos.horizontalRotation = Utility.normAngle(pos.horizontalRotation + step);
         }
+    }
+
+    // Helper: différence d’angle la plus courte [-π, π]
+    private static float shortestAngle(float a) {
+        return (float) Math.atan2(Math.sin(a), Math.cos(a));
     }
 }
 
