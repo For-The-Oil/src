@@ -45,9 +45,7 @@ public class GameLauncher extends Thread {
         fields.put("force", true);
         ComponentSnapshot moveComponent = new ComponentSnapshot("MoveComponent", fields);
         updateEntityInstruction.getToUpdate().add(new EntitySnapshot(0,EntityType.TANK,new ArrayList<>(Collections.singleton(moveComponent))));
-//        for (int i = 0; i < 1; i++) {
-//            createInstruction.add(EntityType.test, Direction.NORTH, i+1, -1, 100 * (i+3), 100 * (i+3), UUID.randomUUID());
-//        }
+        createInstruction.add(EntityType.test, Direction.NORTH, 1, -1, 300, 1000, UUID.randomUUID());
         serverGame.addQueueInstruction(createInstruction);
         serverGame.addQueueInstruction(updateEntityInstruction);
     }

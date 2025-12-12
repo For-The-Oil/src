@@ -12,6 +12,7 @@ import java.util.HashMap;
 import io.github.server.data.ServerGame;
 import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.MoveComponent;
+import io.github.shared.data.component.VelocityComponent;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
@@ -57,6 +58,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
     private ComponentMapper<NetComponent> mNet;
     private ComponentMapper<MoveComponent> mMove;
     private ComponentMapper<OnCreationComponent> mOnCreation;
+    private ComponentMapper<VelocityComponent> mVel;
 
     // Server reference to integrate projectile creation with your instruction system
     private final ServerGame server;
@@ -81,223 +83,224 @@ public class ProjectileAttackSystem extends IteratingSystem {
         TargetComponent tgt = mTarget.get(e);// primary/secondary targets, force flag
         MoveComponent move = mMove.get(e);
         NetComponent net = mNet.get(e);// netId
+        VelocityComponent vel = mVel.get(e);
         float time = attack.currentCooldown-world.getDelta();
         float tmp = attack.horizontalRotation;
+        boolean foundAttackable = false;
 
+        if(vel == null || vel.isStop() || attack.weaponType.isHitAndMove()) {
+            // Helper: squared range to avoid sqrt while comparing distances
+            final float range2 = attack.range * attack.range;
 
-        // Helper: squared range to avoid sqrt while comparing distances
-        final float range2 = attack.range * attack.range;
+            //(1) PRIMARY target: check in-range (3D distance <= range)
+            int candidateNetId = -1;
+            boolean inRange = false;
+            boolean isTypeBuilding = false;
+            float BuildingPosx = -1;
+            float BuildingPosy = -1;
 
-        //(1) PRIMARY target: check in-range (3D distance <= range)
-        int candidateNetId = -1;
-        boolean inRange = false;
-        boolean isTypeBuilding = false;
-        float BuildingPosx = -1;
-        float BuildingPosy = -1;
-
-        if (tgt != null && tgt.hasTarget()) {
-            int te = EcsManager.getIdByNetId(world,tgt.targetNetId, mNet);
-            PositionComponent tPos = mPos.get(te);
-            NetComponent tnet = mNet.get(te);
-            if(tnet != null && tnet.entityType.getType().equals(EntityType.Type.Building)){
-                BuildingMapPositionComponent bp = bPos.get(te);
-                ArrayList<Float> arrayList = Utility.isAttackValidForBuilding(pos,tPos,attack.range,tnet.entityType.getShapeType(),bp.direction);
-                if(!arrayList.isEmpty()) {
-                    BuildingPosx = arrayList.get(0);
-                    BuildingPosy = arrayList.get(1);
-                    candidateNetId = tgt.targetNetId;
-                    inRange = true;
-                    isTypeBuilding = true;
-                }
-            }
-            else if (tPos != null) {
-                float dx = tPos.x - pos.x, dy = tPos.y - pos.y, dz = tPos.z - pos.z;
-                float dist2 = dx*dx + dy*dy + dz*dz;
-                if (dist2 <= range2) {
-                    candidateNetId = tgt.targetNetId;
-                    inRange = true;
-                }
-                else if(move == null|| (!move.force && !move.targetRelated)){
-                    HashMap<String, Object> fields = new HashMap<>();
-                    fields.put("targetRelated", true);
-                    fields.put("destinationX", -1);
-                    fields.put("destinationY", -1);
-                    fields.put("force", false);
-                    ComponentSnapshot moveComponent = new ComponentSnapshot("MoveComponent", fields);
-                    server.getUpdateTracker().markComponentModified(world.getEntity(e), moveComponent);
-                }
-            }
-        }
-
-
-
-        // ---- (2) SECONDARY target if primary wasn't in range ----
-        if (!inRange && tgt != null && tgt.hasNextTarget()) {
-            int te2 = EcsManager.getIdByNetId(world,tgt.targetNetId, mNet);
-            PositionComponent tPos2 = mPos.get(te2);
-            NetComponent tnet2 = mNet.get(te2);
-            if(tnet2 != null && tnet2.entityType.getType().equals(EntityType.Type.Building)){
-                BuildingMapPositionComponent bp = bPos.get(te2);
-                ArrayList<Float> arrayList = Utility.isAttackValidForBuilding(pos,tPos2,attack.range,tnet2.entityType.getShapeType(),bp.direction);
-                if(!arrayList.isEmpty()) {
-                    BuildingPosx = arrayList.get(0);
-                    BuildingPosy = arrayList.get(1);
-                    candidateNetId = tgt.nextTargetId;
-                    inRange = true;
-                    isTypeBuilding = true;
-                }
-            }
-            else if (tPos2 != null) {
-                float dx = tPos2.x - pos.x, dy = tPos2.y - pos.y, dz = tPos2.z - pos.z;
-                float dist2 = dx*dx + dy*dy + dz*dz;
-                if (dist2 <= range2) {
-                    candidateNetId = tgt.nextTargetId;
-                    inRange = true;
-                }
-            }
-        }
-
-
-        // Forced behavior: do NOT switch to "around" if forced is true
-        final boolean forced = (tgt != null && tgt.force);
-
-        //(3) ENEMIES AROUND — nearest enemy passing the validity check (only if NOT forced)
-        if (!forced && !inRange) {
-            IntBag bag = world.getAspectSubscriptionManager().get(Aspect.all(PositionComponent.class, ProprietyComponent.class, LifeComponent.class)).getEntities();
-            int[] ids = bag.getData();
-            float bestDist2 = Float.MAX_VALUE;
-
-            for (int i = 0, n = bag.size(); i < n; i++) {
-                int other = ids[i];
-                if (other == e) continue; // skip self
-
-                // Enemy-only: teams must differ
-                ProprietyComponent oP = mProp.get(other);
-                if (oP == null || meP == null || oP.team == null || meP.team == null) continue;
-                if (oP.team.equals(meP.team)) continue; // ignore allies
-                NetComponent onet = mNet.get(other);
-                if(mOnCreation.get(e) != null && onet!=null && !onet.entityType.getType().equals(EntityType.Type.Building))continue;
-                if(onet != null && onet.entityType.getType().equals(EntityType.Type.Building)){
-                    PositionComponent oPos = mPos.get(other);
-                    BuildingMapPositionComponent bp = bPos.get(other);
-                    ArrayList<Float> arrayList = Utility.isAttackValidForBuilding(pos,oPos,attack.range,onet.entityType.getShapeType(),bp.direction);
-                    if(!arrayList.isEmpty()) {
+            if (tgt != null && tgt.hasTarget()) {
+                int te = EcsManager.getIdByNetId(world, tgt.targetNetId, mNet);
+                PositionComponent tPos = mPos.get(te);
+                NetComponent tnet = mNet.get(te);
+                if (tnet != null && tnet.entityType.getType().equals(EntityType.Type.Building)) {
+                    BuildingMapPositionComponent bp = bPos.get(te);
+                    ArrayList<Float> arrayList = Utility.isAttackValidForBuilding(pos, tPos, attack.range, tnet.entityType.getShapeType(), bp.direction);
+                    if (!arrayList.isEmpty()) {
                         BuildingPosx = arrayList.get(0);
                         BuildingPosy = arrayList.get(1);
-                        float dx = arrayList.get(0) - pos.x;
-                        float dy = arrayList.get(1) - pos.y;
-                        float dz = oPos.z - pos.z;
-                        float dist2 = dx * dx + dy * dy + dz * dz;
-                        bestDist2 = dist2;
-                        candidateNetId = onet.netId;;
+                        candidateNetId = tgt.targetNetId;
                         inRange = true;
                         isTypeBuilding = true;
                     }
-                }
-                else if(onet != null) {
-
-                    PositionComponent oPos = mPos.get(other);
-                    if (oPos == null) continue;
-
-                    float dx = oPos.x - pos.x, dy = oPos.y - pos.y, dz = oPos.z - pos.z;
+                } else if (tPos != null) {
+                    float dx = tPos.x - pos.x, dy = tPos.y - pos.y, dz = tPos.z - pos.z;
                     float dist2 = dx * dx + dy * dy + dz * dz;
+                    if (dist2 <= range2) {
+                        candidateNetId = tgt.targetNetId;
+                        inRange = true;
+                    } else if (move == null || (!move.force && !move.targetRelated)) {
+                        HashMap<String, Object> fields = new HashMap<>();
+                        fields.put("targetRelated", true);
+                        fields.put("destinationX", -1);
+                        fields.put("destinationY", -1);
+                        fields.put("force", false);
+                        ComponentSnapshot moveComponent = new ComponentSnapshot("MoveComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), moveComponent);
+                    }
+                }
+            }
 
-                    if (dist2 <= range2 && dist2 < bestDist2) {
-                        bestDist2 = dist2;
-                        candidateNetId = onet.netId;
+
+            // ---- (2) SECONDARY target if primary wasn't in range ----
+            if (!inRange && tgt != null && tgt.hasNextTarget()) {
+                int te2 = EcsManager.getIdByNetId(world, tgt.targetNetId, mNet);
+                PositionComponent tPos2 = mPos.get(te2);
+                NetComponent tnet2 = mNet.get(te2);
+                if (tnet2 != null && tnet2.entityType.getType().equals(EntityType.Type.Building)) {
+                    BuildingMapPositionComponent bp = bPos.get(te2);
+                    ArrayList<Float> arrayList = Utility.isAttackValidForBuilding(pos, tPos2, attack.range, tnet2.entityType.getShapeType(), bp.direction);
+                    if (!arrayList.isEmpty()) {
+                        BuildingPosx = arrayList.get(0);
+                        BuildingPosy = arrayList.get(1);
+                        candidateNetId = tgt.nextTargetId;
+                        inRange = true;
+                        isTypeBuilding = true;
+                    }
+                } else if (tPos2 != null) {
+                    float dx = tPos2.x - pos.x, dy = tPos2.y - pos.y, dz = tPos2.z - pos.z;
+                    float dist2 = dx * dx + dy * dy + dz * dz;
+                    if (dist2 <= range2) {
+                        candidateNetId = tgt.nextTargetId;
                         inRange = true;
                     }
                 }
             }
-        }
 
 
-        // ---- (4) Cooldown & final decision ----
-        final boolean ready = attack.isReady(); // is cooldown ready this frame?
+            // Forced behavior: do NOT switch to "around" if forced is true
+            final boolean forced = (tgt != null && tgt.force);
 
-        // Friendly-fire prevention: double-check candidate is an enemy
-        boolean isEnemy = false;
-        if (candidateNetId != -1) {
-            ProprietyComponent tP = mProp.get(candidateNetId);
-            isEnemy = (tP == null || meP == null || tP.team == null || meP.team == null || !tP.team.equals(meP.team));
-        }
+            //(3) ENEMIES AROUND — nearest enemy passing the validity check (only if NOT forced)
+            if (!forced && !inRange) {
+                IntBag bag = world.getAspectSubscriptionManager().get(Aspect.all(PositionComponent.class, ProprietyComponent.class, LifeComponent.class)).getEntities();
+                int[] ids = bag.getData();
+                float bestDist2 = Float.MAX_VALUE;
 
-        // We can shoot only if we have a valid enemy candidate in range and cooldown is ready
-        final boolean canShoot = (candidateNetId != -1 && inRange && isEnemy);
-        if(canShoot) {
-            float tPosx = -1;
-            float tPosy = -1;
-            PositionComponent tPos = mPos.get(EcsManager.getIdByNetId(world,candidateNetId,mNet));
-            if (isTypeBuilding) {
-                tPosx = BuildingPosx;
-                tPosy = BuildingPosy;
-            } else if (tPos != null) {
-                tPosx = tPos.x;
-                tPosy = tPos.y;
-            }
-            if (tPosx != -1 && tPosy != -1) {
-                float dx = tPosx - pos.x;
-                float dy = tPosy - pos.y;
-                float rawTarget = (float) Math.atan2(dy, dx);
-                float target = Utility.normAngle((float) (rawTarget + Math.PI));
+                for (int i = 0, n = bag.size(); i < n; i++) {
+                    int other = ids[i];
+                    if (other == e) continue; // skip self
 
-                if (attack.weaponType.isTurret() && (Math.abs(Utility.normAngle(target - attack.horizontalRotation)) > EPS)) {
-                    tmp = target;
-                    ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "ProjectileAttackComponent");
-                    if (previousSnapshot != null) {
-                        previousSnapshot.getFields().put("horizontalRotation", tmp);
-                    } else {
-                        HashMap<String, Object> fields = new HashMap<>();
-                        fields.put("weaponType", attack.weaponType);
-                        fields.put("cooldown", attack.cooldown);
-                        fields.put("currentCooldown", attack.currentCooldown);
-                        fields.put("range", attack.range);
-                        fields.put("EntityType", attack.projectileType);
-                        fields.put("horizontalRotation", tmp);
-                        fields.put("verticalRotation", attack.verticalRotation);
-                        ComponentSnapshot atkComp = new ComponentSnapshot("ProjectileAttackComponent", fields);
-                        server.getUpdateTracker().markComponentModified(world.getEntity(e), atkComp);
-                    }
-                }
-                if (!attack.weaponType.isHitAndMove() && (Math.abs(Utility.normAngle(target - pos.horizontalRotation)) > EPS)) {
-                    ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "PositionComponent");
-                    if (previousSnapshot2 != null) {
-                        previousSnapshot2.getFields().put("horizontalRotation", target);
-                    } else {
-                        HashMap<String, Object> fields = new HashMap<>();
-                        fields.put("x", pos.x);
-                        fields.put("y", pos.y);
-                        fields.put("z", pos.z);
-                        fields.put("horizontalRotation", target);
-                        fields.put("verticalRotation", pos.verticalRotation);
-                        ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
-                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                    // Enemy-only: teams must differ
+                    ProprietyComponent oP = mProp.get(other);
+                    if (oP == null || meP == null || oP.team == null || meP.team == null) continue;
+                    if (oP.team.equals(meP.team)) continue; // ignore allies
+                    NetComponent onet = mNet.get(other);
+                    if (mOnCreation.get(e) != null && onet != null && !onet.entityType.getType().equals(EntityType.Type.Building))
+                        continue;
+                    if (onet != null && onet.entityType.getType().equals(EntityType.Type.Building)) {
+                        PositionComponent oPos = mPos.get(other);
+                        BuildingMapPositionComponent bp = bPos.get(other);
+                        ArrayList<Float> arrayList = Utility.isAttackValidForBuilding(pos, oPos, attack.range, onet.entityType.getShapeType(), bp.direction);
+                        if (!arrayList.isEmpty()) {
+                            BuildingPosx = arrayList.get(0);
+                            BuildingPosy = arrayList.get(1);
+                            float dx = arrayList.get(0) - pos.x;
+                            float dy = arrayList.get(1) - pos.y;
+                            float dz = oPos.z - pos.z;
+                            float dist2 = dx * dx + dy * dy + dz * dz;
+                            bestDist2 = dist2;
+                            candidateNetId = onet.netId;
+                            ;
+                            inRange = true;
+                            isTypeBuilding = true;
+                        }
+                    } else if (onet != null) {
+
+                        PositionComponent oPos = mPos.get(other);
+                        if (oPos == null) continue;
+
+                        float dx = oPos.x - pos.x, dy = oPos.y - pos.y, dz = oPos.z - pos.z;
+                        float dist2 = dx * dx + dy * dy + dz * dz;
+
+                        if (dist2 <= range2 && dist2 < bestDist2) {
+                            bestDist2 = dist2;
+                            candidateNetId = onet.netId;
+                            inRange = true;
+                        }
                     }
                 }
             }
-        }
 
 
-        if (ready && canShoot) {
-            PositionComponent tPos = mPos.get(EcsManager.getIdByNetId(world,candidateNetId,mNet)); // target position for projectile trajectory
-            if (tPos != null && meP != null) {
-                // Delegate projectile creation to your server-side creation pipeline
-                // Implement createProjectile(...) to use CreateInstruction or your factory
-                server.addCreateInstruction(attack.projectileType,null, Utility.getNetId(),net.netId,tPos.x,tPos.y,meP.player);
+            // ---- (4) Cooldown & final decision ----
+            final boolean ready = attack.isReady(); // is cooldown ready this frame?
+
+            // Friendly-fire prevention: double-check candidate is an enemy
+            boolean isEnemy = false;
+            if (candidateNetId != -1) {
+                ProprietyComponent tP = mProp.get(candidateNetId);
+                isEnemy = (tP == null || meP == null || tP.team == null || meP.team == null || !tP.team.equals(meP.team));
             }
 
-            // Reset cooldown to base
-            time = attack.weaponType.getCooldown();
+            // We can shoot only if we have a valid enemy candidate in range and cooldown is ready
+            foundAttackable = (candidateNetId != -1 && inRange && isEnemy);
+            if (foundAttackable) {
+                float tPosx = -1;
+                float tPosy = -1;
+                PositionComponent tPos = mPos.get(EcsManager.getIdByNetId(world, candidateNetId, mNet));
+                if (isTypeBuilding) {
+                    tPosx = BuildingPosx;
+                    tPosy = BuildingPosy;
+                } else if (tPos != null) {
+                    tPosx = tPos.x;
+                    tPosy = tPos.y;
+                }
+                if (tPosx != -1 && tPosy != -1) {
+                    float dx = tPosx - pos.x;
+                    float dy = tPosy - pos.y;
+                    float rawTarget = (float) Math.atan2(-dy, dx);
+                    float facingOffset = (float) -Math.PI / 2f;
+                    float target = Utility.normAngle(rawTarget + facingOffset);
 
-        } else if(!canShoot) {
-            // No shot this frame: enforce animation/focus minimum or tick down
-            float extra = attack.weaponType.getAnimationAndFocusCooldown();
-            if (attack.currentCooldown < extra) {
-                // Raise cooldown to the animation/focus threshold (penalize shooting without targets)
-                time = extra;
+                    if (attack.weaponType.isTurret() && (Math.abs(Utility.normAngle(target - attack.horizontalRotation)) > EPS)) {
+                        tmp = target;
+                        ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "ProjectileAttackComponent");
+                        if (previousSnapshot != null) {
+                            previousSnapshot.getFields().put("horizontalRotation", tmp);
+                        } else {
+                            HashMap<String, Object> fields = new HashMap<>();
+                            fields.put("weaponType", attack.weaponType);
+                            fields.put("cooldown", attack.cooldown);
+                            fields.put("currentCooldown", attack.currentCooldown);
+                            fields.put("range", attack.range);
+                            fields.put("EntityType", attack.projectileType);
+                            fields.put("horizontalRotation", tmp);
+                            fields.put("verticalRotation", attack.verticalRotation);
+                            ComponentSnapshot atkComp = new ComponentSnapshot("ProjectileAttackComponent", fields);
+                            server.getUpdateTracker().markComponentModified(world.getEntity(e), atkComp);
+                        }
+                    }
+                    if (!attack.weaponType.isHitAndMove() && (Math.abs(Utility.normAngle(target - pos.horizontalRotation)) > EPS)) {
+                        ComponentSnapshot previousSnapshot2 = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "PositionComponent");
+                        if (previousSnapshot2 != null) {
+                            previousSnapshot2.getFields().put("horizontalRotation", target);
+                        } else {
+                            HashMap<String, Object> fields = new HashMap<>();
+                            fields.put("x", pos.x);
+                            fields.put("y", pos.y);
+                            fields.put("z", pos.z);
+                            fields.put("horizontalRotation", target);
+                            fields.put("verticalRotation", pos.verticalRotation);
+                            ComponentSnapshot positionComponent2 = new ComponentSnapshot("PositionComponent", fields);
+                            server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent2);
+                        }
+                    }
+                }
+            }
+
+
+            if (ready && foundAttackable) {
+                PositionComponent tPos = mPos.get(EcsManager.getIdByNetId(world, candidateNetId, mNet)); // target position for projectile trajectory
+                if (tPos != null && meP != null) {
+                    // Delegate projectile creation to your server-side creation pipeline
+                    // Implement createProjectile(...) to use CreateInstruction or your factory
+                    server.addCreateInstruction(attack.projectileType, null, Utility.getNetId(), net.netId, tPos.x, tPos.y, meP.player);
+                }
+
+                // Reset cooldown to base
+                time = attack.weaponType.getCooldown();
+
+            } else if (!foundAttackable) {
+                // No shot this frame: enforce animation/focus minimum or tick down
+                float extra = attack.weaponType.getAnimationAndFocusCooldown();
+                if (attack.currentCooldown < extra) {
+                    // Raise cooldown to the animation/focus threshold (penalize shooting without targets)
+                    time = extra;
+                }
             }
         }
-
+        else if(attack.weaponType.getAnimationAndFocusCooldown() >= attack.currentCooldown)return;
         if(!Utility.inSameCooldownBand(attack.currentCooldown,time,attack.weaponType.getAnimationCooldown(),attack.weaponType.getAnimationAndFocusCooldown())) {
             ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e),"ProjectileAttackComponent");
             if(previousSnapshot != null){
@@ -315,7 +318,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
                 ComponentSnapshot damageSnap = new ComponentSnapshot("ProjectileAttackComponent", fields);
                 server.getUpdateTracker().markComponentModified(world.getEntity(e), damageSnap);
             }
-        }else if(canShoot || attack.currentCooldown != attack.weaponType.getAnimationAndFocusCooldown())attack.updateCooldown(world.getDelta());
+        }else if(foundAttackable || attack.currentCooldown != attack.weaponType.getAnimationAndFocusCooldown())attack.updateCooldown(world.getDelta());
     }
 }
 
