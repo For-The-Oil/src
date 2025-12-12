@@ -240,31 +240,22 @@ public class MeleeAttackSystem extends IteratingSystem {
                 float rawTarget = (float) Math.atan2(dy, dx);
                 float target = Utility.normAngle((float) (rawTarget + Math.PI));
 
-                if (melee.weaponType.isTurret()) {
-                    float delta = Utility.normAngle(target - pos.horizontalRotation);
-                    float alpha = melee.weaponType.getTurn_speed() * world.getDelta(); // 0..1/frame
-                    alpha = Math.max(0f, Math.min(1f, alpha));
-
-                    tmp = Utility.normAngle(pos.horizontalRotation + delta * alpha);
-
-                    // Seuil de changement pour éviter des updates inutiles
-                    boolean changed = Math.abs(tmp - pos.horizontalRotation) > EPS;
-                    if(changed) {
-                        ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "MeleeAttackComponent");
-                        if (previousSnapshot != null) {
-                            previousSnapshot.getFields().put("horizontalRotation", tmp);
-                        } else {
-                            HashMap<String, Object> fields = new HashMap<>();
-                            fields.put("weaponType", melee.weaponType);
-                            fields.put("damage", melee.damage);
-                            fields.put("cooldown", melee.cooldown);
-                            fields.put("currentCooldown", melee.currentCooldown);
-                            fields.put("reach", melee.reach);
-                            fields.put("horizontalRotation", tmp);
-                            fields.put("verticalRotation", melee.verticalRotation);
-                            ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
-                            server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
-                        }
+                if (melee.weaponType.isTurret() && (Math.abs(Utility.normAngle(target - melee.horizontalRotation)) > EPS)) {
+                    tmp = target;
+                    ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "MeleeAttackComponent");
+                    if (previousSnapshot != null) {
+                        previousSnapshot.getFields().put("horizontalRotation", tmp);
+                    } else {
+                        HashMap<String, Object> fields = new HashMap<>();
+                        fields.put("weaponType", melee.weaponType);
+                        fields.put("damage", melee.damage);
+                        fields.put("cooldown", melee.cooldown);
+                        fields.put("currentCooldown", melee.currentCooldown);
+                        fields.put("reach", melee.reach);
+                        fields.put("horizontalRotation", tmp);
+                        fields.put("verticalRotation", melee.verticalRotation);
+                        ComponentSnapshot positionComponent = new ComponentSnapshot("MeleeAttackComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
                     }
                 }
                 if (!melee.weaponType.isHitAndMove() && (Math.abs(Utility.normAngle(target - pos.horizontalRotation)) > EPS)) {

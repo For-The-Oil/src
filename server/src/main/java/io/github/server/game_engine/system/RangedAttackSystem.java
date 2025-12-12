@@ -233,31 +233,22 @@ public class RangedAttackSystem extends IteratingSystem {
                 float rawTarget = (float) Math.atan2(dy, dx);
                 float target = Utility.normAngle((float) (rawTarget + Math.PI));
 
-                if (ranged.weaponType.isTurret()) {
-                    float delta = Utility.normAngle(target - pos.horizontalRotation);
-                    float alpha = ranged.weaponType.getTurn_speed() * world.getDelta(); // 0..1/frame
-                    alpha = Math.max(0f, Math.min(1f, alpha));
-
-                    tmp = Utility.normAngle(pos.horizontalRotation + delta * alpha);
-
-                    // Seuil de changement pour éviter des updates inutiles
-                    boolean changed = Math.abs(tmp - pos.horizontalRotation) > EPS;
-                    if(changed) {
-                        ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "RangedAttackComponent");
-                        if (previousSnapshot != null) {
-                            previousSnapshot.getFields().put("horizontalRotation", tmp);
-                        } else {
-                            HashMap<String, Object> fields = new HashMap<>();
-                            fields.put("weaponType", ranged.weaponType);
-                            fields.put("damage", ranged.damage);
-                            fields.put("cooldown", ranged.cooldown);
-                            fields.put("currentCooldown", ranged.currentCooldown);
-                            fields.put("range", ranged.range);
-                            fields.put("horizontalRotation", tmp);
-                            fields.put("verticalRotation", ranged.verticalRotation);
-                            ComponentSnapshot positionComponent = new ComponentSnapshot("RangedAttackComponent", fields);
-                            server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
-                        }
+                if (ranged.weaponType.isTurret() && (Math.abs(Utility.normAngle(target - ranged.horizontalRotation)) > EPS)) {
+                    tmp = target;
+                    ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "RangedAttackComponent");
+                    if (previousSnapshot != null) {
+                        previousSnapshot.getFields().put("horizontalRotation", tmp);
+                    } else {
+                        HashMap<String, Object> fields = new HashMap<>();
+                        fields.put("weaponType", ranged.weaponType);
+                        fields.put("damage", ranged.damage);
+                        fields.put("cooldown", ranged.cooldown);
+                        fields.put("currentCooldown", ranged.currentCooldown);
+                        fields.put("range", ranged.range);
+                        fields.put("horizontalRotation", tmp);
+                        fields.put("verticalRotation", ranged.verticalRotation);
+                        ComponentSnapshot positionComponent = new ComponentSnapshot("RangedAttackComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), positionComponent);
                     }
                 }
                 if (!ranged.weaponType.isHitAndMove() && (Math.abs(Utility.normAngle(target - pos.horizontalRotation)) > EPS)) {

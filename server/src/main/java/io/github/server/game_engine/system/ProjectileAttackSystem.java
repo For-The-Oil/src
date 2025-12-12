@@ -239,31 +239,22 @@ public class ProjectileAttackSystem extends IteratingSystem {
                 float rawTarget = (float) Math.atan2(dy, dx);
                 float target = Utility.normAngle((float) (rawTarget + Math.PI));
 
-                if (attack.weaponType.isTurret()) {
-                    float delta = Utility.normAngle(target - pos.horizontalRotation);
-                    float alpha = attack.weaponType.getTurn_speed() * world.getDelta(); // 0..1/frame
-                    alpha = Math.max(0f, Math.min(1f, alpha));
-
-                    tmp = Utility.normAngle(pos.horizontalRotation + delta * alpha);
-
-                    // Seuil de changement pour éviter des updates inutiles
-                    boolean changed = Math.abs(tmp - pos.horizontalRotation) > EPS;
-                    if(changed) {
-                        ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "ProjectileAttackComponent");
-                        if (previousSnapshot != null) {
-                            previousSnapshot.getFields().put("horizontalRotation", tmp);
-                        } else {
-                            HashMap<String, Object> fields = new HashMap<>();
-                            fields.put("weaponType", attack.weaponType);
-                            fields.put("cooldown", attack.cooldown);
-                            fields.put("currentCooldown", attack.currentCooldown);
-                            fields.put("range", attack.range);
-                            fields.put("EntityType", attack.projectileType);
-                            fields.put("horizontalRotation", tmp);
-                            fields.put("verticalRotation", attack.verticalRotation);
-                            ComponentSnapshot atkComp = new ComponentSnapshot("ProjectileAttackComponent", fields);
-                            server.getUpdateTracker().markComponentModified(world.getEntity(e), atkComp);
-                        }
+                if (attack.weaponType.isTurret() && (Math.abs(Utility.normAngle(target - attack.horizontalRotation)) > EPS)) {
+                    tmp = target;
+                    ComponentSnapshot previousSnapshot = server.getUpdateTracker().getPreviousSnapshot(world.getEntity(e), "ProjectileAttackComponent");
+                    if (previousSnapshot != null) {
+                        previousSnapshot.getFields().put("horizontalRotation", tmp);
+                    } else {
+                        HashMap<String, Object> fields = new HashMap<>();
+                        fields.put("weaponType", attack.weaponType);
+                        fields.put("cooldown", attack.cooldown);
+                        fields.put("currentCooldown", attack.currentCooldown);
+                        fields.put("range", attack.range);
+                        fields.put("EntityType", attack.projectileType);
+                        fields.put("horizontalRotation", tmp);
+                        fields.put("verticalRotation", attack.verticalRotation);
+                        ComponentSnapshot atkComp = new ComponentSnapshot("ProjectileAttackComponent", fields);
+                        server.getUpdateTracker().markComponentModified(world.getEntity(e), atkComp);
                     }
                 }
                 if (!attack.weaponType.isHitAndMove() && (Math.abs(Utility.normAngle(target - pos.horizontalRotation)) > EPS)) {
