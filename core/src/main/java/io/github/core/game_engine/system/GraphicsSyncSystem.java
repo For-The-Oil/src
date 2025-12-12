@@ -6,6 +6,7 @@ import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
+import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
@@ -15,7 +16,6 @@ import com.badlogic.gdx.utils.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.UUID;
 
 import io.github.core.client_engine.manager.SessionManager;
 import io.github.core.data.component.ModelComponent;
@@ -206,11 +206,10 @@ public class GraphicsSyncSystem extends BaseSystem {
                     s.animationController.animate("Attack", 1, 1f, null, 0);
                 }
             }
-
             // Rotation des nœuds d’armes (si tourelle)
-            if (melee  != null) rotateNode(s, "Melee",              melee.horizontalRotation,  melee.verticalRotation,  melee.weaponType.isTurret());
-            if (ranged != null) rotateNode(s, "Range",              ranged.horizontalRotation, ranged.verticalRotation, ranged.weaponType.isTurret());
-            if (proj   != null) rotateNode(s, "ProjectileLauncher", proj.horizontalRotation,   proj.verticalRotation,   proj.weaponType.isTurret());
+            if (melee  != null) rotateNode(s, "Melee",              melee.horizontalRotation,  melee.verticalRotation,  melee.weaponType.isTurret(),melee.weaponType.getTurn_speed(), world.delta);
+            if (ranged != null) rotateNode(s, "Range",              ranged.horizontalRotation, ranged.verticalRotation, ranged.weaponType.isTurret(),ranged.weaponType.getTurn_speed(), world.delta);
+            if (proj   != null) rotateNode(s, "ProjectileLauncher", proj.horizontalRotation,   proj.verticalRotation,   proj.weaponType.isTurret(),proj.weaponType.getTurn_speed(), world.delta);
 
             // Recalcul des transforms pour un culling correct
             s.modelInstance.calculateTransforms();
@@ -236,12 +235,41 @@ public class GraphicsSyncSystem extends BaseSystem {
         return false;
     }
 
-    private static void rotateNode(Scene s, String nodeName, float horiz, float vert, boolean isTurret){
-        if (!isTurret || s.modelInstance == null) return;
-        com.badlogic.gdx.graphics.g3d.model.Node node = s.modelInstance.getNode(nodeName, true);
-        if (node != null) {
-            node.rotation.set(new Quaternion(Vector3.Z, horiz));
-            node.rotation.mul(new Quaternion(Vector3.X, vert));
+    private static void rotateNode(Scene s, String nodeName, float horizontalRotation, float verticalRotation, boolean isTurret, float turn_speed, float delta) {
+        if (!isTurret || s == null || s.modelInstance == null) return;
+
+        final Node node = s.modelInstance.getNode(nodeName, true);
+        if (node == null || turn_speed <= 0f || delta <= 0f) return;
+
+        // Cible : yaw (Y) puis pitch (X) — angles absolus demandés
+        final Quaternion target = new Quaternion(Vector3.Y, horizontalRotation)
+            .mul(new Quaternion(Vector3.X, verticalRotation))
+            .nor();
+
+        // État actuel
+        final Quaternion current = node.rotation.nor();
+
+        // Distance angulaire actuelle (degrés)
+        float dot = MathUtils.clamp(current.dot(target), -1f, 1f);
+        if (dot < 0f) { // plus court chemin
+            // inverser la cible conserve la même rotation et évite un chemin plus long
+            target.mul(-1f);
+            dot = -dot;
         }
+        float angleRad = (float)(2.0 * Math.acos(dot));
+        float angleDeg = angleRad * MathUtils.radiansToDegrees;
+
+        // Pas max autorisé cette frame (°)
+        float stepDeg = turn_speed * delta;
+
+        // Anti-overshoot : si le pas >= écart, on pose la cible
+        if (stepDeg >= angleDeg) {
+            current.set(target);
+        } else {
+            float alpha = stepDeg / angleDeg; // 0..1
+            current.slerp(target, alpha).nor();
+        }
+
+        s.modelInstance.calculateTransforms();
     }
 }
