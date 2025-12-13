@@ -76,7 +76,7 @@ public class GameRenderer implements ApplicationListener {
 
         // Lumière + IBL + skybox
         DirectionalLightEx sun = new DirectionalLightEx();
-        sun.direction.set(1f, -3f, 1f).nor(); sun.color.set(Color.RED);
+        sun.direction.set(1f, -3f, 1f).nor(); sun.color.set(Color.WHITE);
         sceneManager.environment.add(sun);
 
         IBLBuilder ibl = IBLBuilder.createOutdoor(sun);
@@ -86,7 +86,7 @@ public class GameRenderer implements ApplicationListener {
         brdfLUT = new Texture(Gdx.files.classpath("net/mgsx/gltf/shaders/brdfLUT.png"));
         ibl.dispose();
 
-        sceneManager.setAmbientLight(0.1f); // augmente la visibilité globale
+        sceneManager.setAmbientLight(0.2f); // augmente la visibilité globale
         sceneManager.environment.set(PBRCubemapAttribute.createSpecularEnv(specularCubemap));
         sceneManager.environment.set(PBRCubemapAttribute.createDiffuseEnv(diffuseCubemap));
         sceneManager.environment.set(new PBRTextureAttribute(PBRTextureAttribute.BRDFLUTTexture, brdfLUT));

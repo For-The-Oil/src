@@ -5,6 +5,13 @@ import com.artemis.Aspect;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.utils.IntBag;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.graphics.g3d.model.Node;
 import com.badlogic.gdx.math.MathUtils;
@@ -21,6 +28,7 @@ import io.github.core.client_engine.manager.SessionManager;
 import io.github.core.data.component.ModelComponent;
 import io.github.core.game_engine.factory.SceneFactory;
 import io.github.shared.data.component.BuildingMapPositionComponent;
+import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.MeleeAttackComponent;
 import io.github.shared.data.component.NetComponent;
@@ -52,6 +60,7 @@ public class GraphicsSyncSystem extends BaseSystem {
     private ComponentMapper<BuildingMapPositionComponent> bPos;
     private ComponentMapper<ProprietyComponent> mProp;
     private ComponentMapper<OnCreationComponent> mOnCreation;
+    private ComponentMapper<FreezeComponent> mFreeze;
 
     private final Queue<Scene> sharedRenderQueue;
 
@@ -161,8 +170,10 @@ public class GraphicsSyncSystem extends BaseSystem {
             RangedAttackComponent ranged = mRanged.get(e);
             ProjectileAttackComponent proj = mProjAttack.get(e);
             BuildingMapPositionComponent bp = bPos.get(e);
+            FreezeComponent fc = mFreeze.get(e);
+            OnCreationComponent occ = mOnCreation.get(e);
 
-            if(mOnCreation.get(e) != null && net!=null && !net.entityType.getType().equals(EntityType.Type.Building))continue;
+            if(occ != null && net!=null && !net.entityType.getType().equals(EntityType.Type.Building))continue;
 
             // Création de la Scene (.glb)
             if (mc == null) {
@@ -216,6 +227,17 @@ public class GraphicsSyncSystem extends BaseSystem {
             // Recalcul des transforms pour un culling correct
             s.modelInstance.calculateTransforms();
 
+            if (fc != null && net != null && occ == null) {
+                float alpha = MathUtils.clamp(fc.freeze_time / net.entityType.getFreeze_time(), 0f, 1f);
+                Scene outline = createBlueOutlineScene(s, 1.00f, alpha,Color.BLUE);
+                if (outline != null) newRender.add(outline);
+            }
+            else if (occ != null && net != null) {
+                float alpha = MathUtils.clamp(occ.time / net.entityType.getCreate_time(), 0f, 1f);
+                Scene outline = createBlueOutlineScene(s, 1.00f, alpha,Color.WHITE);
+                if (outline != null) newRender.add(outline);
+            }
+
             newRender.add(s);
         }
 
@@ -225,6 +247,39 @@ public class GraphicsSyncSystem extends BaseSystem {
     }
 
     // --- Utilitaires ---
+    private static Scene createBlueOutlineScene(Scene base, float scale, float alpha, Color color) {
+        if (base == null || base.modelInstance == null) return null;
+
+        // Clone + transform identique
+        ModelInstance mi = new ModelInstance(base.modelInstance.model);
+        mi.transform.set(base.modelInstance.transform);
+
+        // Épaissir : scale léger
+        Matrix4 t = new Matrix4(mi.transform);
+        t.scale(scale, scale, scale);
+        mi.transform.set(t);
+
+        // Matériaux outline : bleu émissif + semi-transparent + culling désactivé
+        for (Material mat : mi.materials) {
+            mat.clear();
+
+            // Couleur (émissif) pour rester lisible, l’alpha est géré par le blending
+            mat.set(ColorAttribute.createEmissive(color));
+
+            // Blending (alpha 0..1) — half transparent
+            mat.set(new BlendingAttribute(true, Math.max(0f, Math.min(1f, alpha))));
+
+            // Rendre les deux côtés (évite la disparition sur faces horizontales)
+            mat.set(new IntAttribute(IntAttribute.CullFace, GL20.GL_NONE));
+
+            // Optionnel : test Z ON, écriture Z OFF (si ton shader lit l’attribut)
+            // mat.set(new DepthTestAttribute(GL20.GL_LEQUAL, false));
+        }
+
+        Scene outline = new Scene(mi);
+        outline.modelInstance.calculateTransforms();
+        return outline;
+    }
 
     private static boolean hasAnim(Scene s, String id){
         if (s == null || s.modelInstance == null) return false;
