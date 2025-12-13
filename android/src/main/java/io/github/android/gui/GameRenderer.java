@@ -1,8 +1,10 @@
 package io.github.android.gui;
 
 
+import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.World;
+import com.artemis.utils.IntBag;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import io.github.core.data.component.ModelComponent;
 import io.github.core.game_engine.CameraController;
 import io.github.core.game_engine.factory.InstanceFactoryScene;
 import io.github.core.game_engine.system.GraphicsSyncSystem;
@@ -66,7 +69,7 @@ public class GameRenderer implements ApplicationListener {
     private static final float MIN_SQUARE_SIZE    = 16f;
     private static final float SPACING            = 8f;
     private static final float BASE_HP_PER_SQUARE = 50f;   // HP for Square
-    private static final float HEIGHT_OFFSET      = 0.25f;  // Décalage au-dessus de l’unité
+    private static final float HEIGHT_OFFSET      = 0.2f;  // Décalage au-dessus de l’unité
     private static final Color SQUARE_COLOR = new Color(0f,1f,0f,1f);
 
 
@@ -120,6 +123,10 @@ public class GameRenderer implements ApplicationListener {
         pm.fill();
         white = new Texture(pm);
         pm.dispose();
+
+        // Filtrage net + wrap
+        white.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        white.setWrap(Texture.TextureWrap.ClampToEdge, Texture.TextureWrap.ClampToEdge);
     }
 
     public Iterable<Scene> getAllScenes() {
@@ -176,18 +183,15 @@ public class GameRenderer implements ApplicationListener {
 
         World world = ClientGame.getInstance().getWorld();
         ComponentMapper<LifeComponent> lifeMapper = world.getMapper(LifeComponent.class);
+        ComponentMapper<ModelComponent> modelMapper = world.getMapper(ModelComponent.class);
 
         hudBatch.begin();
-
-        for (Scene s : entityScenes) {
-            if (s == null || s.modelInstance == null) continue;
-
-            int entityId = gfx.getEntity(s);
-            if (entityId < 0) continue;
-
-            LifeComponent life = lifeMapper.get(entityId);
-            if (life == null) continue;
-
+        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(LifeComponent.class, ModelComponent.class)).getEntities();
+        for (int i = 0; i < entities.size(); i++) {
+            int e = entities.get(i);
+            Scene s = modelMapper.get(e).scene;
+            LifeComponent life = lifeMapper.get(e);
+            if (life == null || s == null || s.modelInstance == null) continue;
             float hp    = Math.max(0f, life.health);
             float hpMax = Math.max(1f, life.maxHealth);
 
