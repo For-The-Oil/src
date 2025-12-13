@@ -15,7 +15,7 @@ public enum EntityType {
         2,
         0f,
         5f,
-        1,
+        2f,
         new HashMap<ResourcesType, Integer>() {{
             put(ResourcesType.Oil, 100);
             put(ResourcesType.Steel, 500);
