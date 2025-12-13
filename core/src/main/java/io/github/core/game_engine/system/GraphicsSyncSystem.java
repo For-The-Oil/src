@@ -192,8 +192,7 @@ public class GraphicsSyncSystem extends BaseSystem {
             if (s.animationController != null) {
                 boolean moving = vel != null && !vel.isStop();
                 if (moving && hasAnim(s, "Move")) {
-                    if (s.animationController.current == null
-                        || !"Move".equals(s.animationController.current.animation.id)) {
+                    if (s.animationController.current == null || !"Move".equals(s.animationController.current.animation.id)) {
                         s.animationController.setAnimation("Move", -1);
                     }
                 } else if (s.animationController.current != null
@@ -202,10 +201,10 @@ public class GraphicsSyncSystem extends BaseSystem {
                 }
 
                 boolean doAttack =
-                    (melee   != null && melee.currentCooldown   <= melee.weaponType.getAnimationCooldown()) ||
-                        (ranged  != null && ranged.currentCooldown  <= ranged.weaponType.getAnimationCooldown()) ||
-                        (proj    != null && proj.currentCooldown    <= proj.weaponType.getAnimationCooldown());
-                if (doAttack && hasAnim(s, "Attack")) {
+                    (melee != null && melee.currentCooldown <= melee.weaponType.getAnimationCooldown()) ||
+                        (ranged != null && ranged.currentCooldown <= ranged.weaponType.getAnimationCooldown()) ||
+                        (proj != null && proj.currentCooldown <= proj.weaponType.getAnimationCooldown());
+                if (doAttack && hasAnim(s, "Attack") && !"Attack".equals(s.animationController.current.animation.id)) {
                     s.animationController.animate("Attack", 1, 1f, null, 0);
                 }
             }
