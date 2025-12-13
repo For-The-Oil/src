@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import io.github.android.activity.GameActivity;
 import io.github.core.game_engine.CameraController;
 import io.github.core.game_engine.factory.InstanceFactoryScene;
 import io.github.core.game_engine.system.GraphicsSyncSystem;
@@ -169,6 +170,7 @@ public class GameRenderer implements ApplicationListener {
         float delta = Gdx.graphics.getDeltaTime();
         sceneManager.update(delta);
         sceneManager.render();
+        GameActivity.updateUI();
     }
 
 

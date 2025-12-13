@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import io.github.android.gui.fragment.game.BottomFragment;
 import io.github.android.gui.fragment.game.LibGdxFragment;
+import io.github.android.gui.fragment.game.SettingsFragment;
 import io.github.android.gui.fragment.launcher.LoadingFragment;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
@@ -36,6 +38,7 @@ import io.github.core.game_engine.ClientLauncher;
 import io.github.core.game_engine.factory.ModelFactory;
 import io.github.core.game_engine.factory.SceneFactory;
 import io.github.core.game_engine.manager.GameManager;
+import io.github.core.game_engine.system.GraphicsSyncSystem;
 import io.github.fortheoil.R;
 import io.github.shared.data.NetGame;
 import io.github.shared.data.enums_types.DeckCardCategory;
@@ -70,10 +73,8 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
         showLoadingContainer();
         setupLoadingFragment();
-        setupToggleMenuButton();
-        setupBuildingButton();
-        initSettings();
         initListener();
+        initUI();
     }
 
     @Override
@@ -110,7 +111,7 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
     }
 
     private void stepCreateLibGdx() {
-        libGdxFragment = new LibGdxFragment();
+        libGdxFragment = new LibGdxFragment(this);
         libGdxFragment.setOnLibGdxReady(() -> runOnUiThread(this::stepOpenGLReady));
         getSupportFragmentManager().beginTransaction()
             .replace(R.id.libgdxContainer, libGdxFragment)
@@ -146,66 +147,7 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
         overlay.setOnTouchListener((v, event) -> overlay.getVisibility() == View.VISIBLE);
     }
 
-    private void setupToggleMenuButton() {
-        ImageButton btnToggleMenu = findViewById(R.id.btnToggleMenu);
-        LinearLayout bottomPanel = findViewById(R.id.bottomPanel);
-        btnToggleMenu.setOnClickListener(v -> {
-            if (bottomPanel.getVisibility() == View.VISIBLE) {
-                bottomPanel.setVisibility(View.GONE);
-                btnToggleMenu.setImageResource(R.drawable.keyboard_double_arrow_up_24px);
-            } else {
-                bottomPanel.setVisibility(View.VISIBLE);
-                btnToggleMenu.setImageResource(R.drawable.keyboard_double_arrow_down_24px);
-            }
-        });
-    }
 
-    private void setupBuildingButton() {
-        Button btnIndustry = findViewById(R.id.btnIndustry);
-        Button btnMilitary = findViewById(R.id.btnMilitary);
-        Button btnDefense  = findViewById(R.id.btnDefense);
-
-        btnIndustry.setOnClickListener(v -> showCardsForCategory(DeckCardCategory.Industrial));
-        btnMilitary.setOnClickListener(v -> showCardsForCategory(DeckCardCategory.Military));
-        btnDefense.setOnClickListener(v -> showCardsForCategory(DeckCardCategory.Defense));
-    }
-
-    private void showCardsForCategory(DeckCardCategory category) {
-        Deck deck = SessionManager.getInstance().getCurrentDeck();
-        if (deck == null) return;
-        List<EntityType> cards = deck.getCardsByCategory().get(category);
-        if (cards == null) cards = new ArrayList<>();
-        updateRightPanel(cards);
-    }
-
-    private void updateRightPanel(List<EntityType> cards) {
-        FlexboxLayout rightPanel = findViewById(R.id.contentContainer);
-        rightPanel.removeAllViews();
-        LayoutInflater inflater = LayoutInflater.from(this);
-
-        for (EntityType card : cards) {
-            View cardView = inflater.inflate(R.layout.right_panel_card, rightPanel, false);
-            ImageView img = cardView.findViewById(R.id.cardImage);
-            LinearLayout costsLayout = cardView.findViewById(R.id.cardCosts);
-
-            img.setImageResource(UiUtils.mapEntityTypeToDrawable(card));
-            costsLayout.removeAllViews();
-            HashMap<ResourcesType, Integer> costMap = card.getCost();
-
-            if (costMap != null) {
-                for (Map.Entry<ResourcesType, Integer> entry : costMap.entrySet()) {
-                    TextView costView = new TextView(this);
-                    costView.setText(entry.getKey().name() + ": " + entry.getValue());
-                    costView.setTextSize(10f);
-                    costView.setTextColor(Color.BLACK);
-                    costView.setGravity(Gravity.CENTER);
-                    costsLayout.addView(costView);
-                }
-            }
-
-            rightPanel.addView(cardView);
-        }
-    }
 
     private void initListener() {
         ClientListener.getInstance().clearCallbacks();
@@ -250,41 +192,33 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
         }, true);
     }
 
-    private void initSettings() {
-        FrameLayout settingsOverlay = findViewById(R.id.gameSettingsOverlay);
-        LinearLayout settingsMenu = findViewById(R.id.settingsMenu);
+    private void openSettingsFragment() {
+        FrameLayout container = findViewById(R.id.settingsFragmentContainer);
+        container.setVisibility(View.VISIBLE);
 
-        Button btnToggleMusic = findViewById(R.id.btnToggleMusic);
-        Button btnToggleSfx = findViewById(R.id.btnToggleSfx);
-        Button btnQuit = findViewById(R.id.btnQuit);
-        Button btnAbandon = findViewById(R.id.btnAbandon);
-        Button btnReturn = findViewById(R.id.btnReturn);
-        ImageButton btnSettings = findViewById(R.id.btnSettings);
+        getSupportFragmentManager().beginTransaction()
+            .replace(R.id.settingsFragmentContainer, new SettingsFragment())
+            .commit();
 
-        btnSettings.setOnClickListener(v -> {
-            settingsOverlay.setVisibility(View.VISIBLE);
-        });
-
-        settingsOverlay.setOnClickListener(v -> {
-            settingsOverlay.setVisibility(View.GONE);
-        });
-        settingsMenu.setOnClickListener(v -> { /* noop */ });
-
-        btnToggleMusic.setOnClickListener(v -> { /* toggle music */ });
-        btnToggleSfx.setOnClickListener(v -> { /* toggle sfx */ });
-
-        btnQuit.setOnClickListener(v -> {
-            settingsOverlay.setVisibility(View.GONE);
-            quitGame();
-        });
-
-        btnAbandon.setOnClickListener(v -> { /* TODO: abandon */ });
-
-        btnReturn.setOnClickListener(v -> settingsOverlay.setVisibility(View.GONE));
+        // Fermer si on clique sur l’overlay
+        container.setOnClickListener(v -> closeSettingsFragment());
     }
 
-    private void quitGame() {
 
+    public void closeSettingsFragment() {
+        FrameLayout container = findViewById(R.id.settingsFragmentContainer);
+
+        getSupportFragmentManager().beginTransaction()
+            .remove(getSupportFragmentManager().findFragmentById(R.id.settingsFragmentContainer))
+            .commit();
+
+        container.setVisibility(View.GONE);
+    }
+
+
+
+
+    public void quitGame() {
         showLoadingContainer();
         loadingFragment.animateProgress(0, 100, INIT_WAITING_TIME, "Retour au menu principal", null, () -> {
             if (libgdxContainer != null) libgdxContainer.setVisibility(View.GONE);
@@ -302,7 +236,25 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
 
 
-    public void updateUI(){
+    public void initUI() {
+        initSettingsButton();
+        initBottomFragment();
+    }
+
+    private void initBottomFragment() {
+        BottomFragment bottomFragment = new BottomFragment();
+        getSupportFragmentManager().beginTransaction()
+            .replace(R.id.bottomFragmentContainer, bottomFragment)
+            .commit();
+    }
+
+    public void initSettingsButton(){
+        ImageButton btnSettings = findViewById(R.id.btnSettings);
+        btnSettings.setOnClickListener(v -> openSettingsFragment());
+    }
+
+
+    public static void updateUI(){
         //TODO : Update the value in the UI
     }
 

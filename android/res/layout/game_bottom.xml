@@ -1,0 +1,81 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottomFragmentRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Zone des boutons verticaux collés en bas à gauche -->
+    <LinearLayout
+        android:id="@+id/sideButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="bottom"
+        android:padding="4dp">
+
+        <ImageButton
+            android:id="@+id/btnMenu1"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/round_blue_button"
+            android:src="@drawable/helmet"
+            android:scaleType="centerInside" />
+
+        <ImageButton
+            android:id="@+id/btnMenu2"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/round_blue_button"
+            android:src="@drawable/oilrefinery"
+            android:scaleType="centerInside" />
+
+        <ImageButton
+            android:id="@+id/btnMenu3"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/round_blue_button"
+            android:src="@drawable/towerobservation"
+            android:scaleType="centerInside" />
+
+        <ImageButton
+            android:id="@+id/btnMenu4"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/round_blue_button"
+            android:src="@drawable/turret"
+            android:scaleType="centerInside" />
+
+        <ImageButton
+            android:id="@+id/btnMenu5"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/round_blue_button"
+            android:src="@drawable/missile"
+            android:scaleType="centerInside" />
+
+        <ImageButton
+            android:id="@+id/btnMenu6"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="6dp"
+            android:background="@drawable/round_blue_button"
+            android:src="@drawable/mapregularfull"
+            android:scaleType="centerInside" />
+
+    </LinearLayout>
+
+    <!-- Menu déroulant au bas de l'écran -->
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/bottomMenuContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="bottom"
+        android:visibility="gone"
+        android:background="#DD000000"/>
+
+
+</FrameLayout>

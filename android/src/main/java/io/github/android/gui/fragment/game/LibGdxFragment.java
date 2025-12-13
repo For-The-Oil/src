@@ -11,6 +11,7 @@ import com.badlogic.gdx.backends.android.AndroidFragmentApplication;
 import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Vector3;
 
+import io.github.android.activity.GameActivity;
 import io.github.android.gui.GameRenderer;
 import io.github.android.utils.CameraGestureController;
 
@@ -18,6 +19,13 @@ public class LibGdxFragment extends AndroidFragmentApplication {
 
     private GameRenderer renderer;
     private Runnable pendingReadyCallback;
+    private GameActivity gameActivity;
+
+    public LibGdxFragment(GameActivity activity){
+        super();
+        gameActivity = activity;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
