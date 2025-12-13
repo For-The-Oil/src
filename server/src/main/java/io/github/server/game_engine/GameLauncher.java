@@ -21,6 +21,7 @@ import io.github.shared.data.instructions.UpdateEntityInstruction;
 import io.github.shared.data.requests.Request;
 import io.github.shared.data.snapshot.ComponentSnapshot;
 import io.github.shared.data.snapshot.EntitySnapshot;
+import io.github.shared.shared_engine.manager.RobotUUID;
 import io.github.shared.shared_engine.system.InstructionSystem;
 
 public class GameLauncher extends Thread {
@@ -36,7 +37,7 @@ public class GameLauncher extends Thread {
 
     private void init() {
         CreateInstruction createInstruction = new CreateInstruction(System.currentTimeMillis());
-        createInstruction.add(EntityType.TANK, null, 0, -1, 0, 0, UUID.randomUUID());
+        createInstruction.add(EntityType.TANK, null, 0, -1, 0, 0, RobotUUID.generate(1));
         UpdateEntityInstruction updateEntityInstruction = new UpdateEntityInstruction(System.currentTimeMillis());
         HashMap<String, Object> fields = new HashMap<>();
         fields.put("targetRelated", false);
@@ -45,7 +46,7 @@ public class GameLauncher extends Thread {
         fields.put("force", true);
         ComponentSnapshot moveComponent = new ComponentSnapshot("MoveComponent", fields);
         updateEntityInstruction.getToUpdate().add(new EntitySnapshot(0,EntityType.TANK,new ArrayList<>(Collections.singleton(moveComponent))));
-        createInstruction.add(EntityType.test, Direction.NORTH, 1, -1, 300, 1000, UUID.randomUUID());
+        createInstruction.add(EntityType.test, Direction.NORTH, 1, -1, 300, 1000, RobotUUID.generate(2));
         serverGame.addQueueInstruction(createInstruction);
         serverGame.addQueueInstruction(updateEntityInstruction);
     }

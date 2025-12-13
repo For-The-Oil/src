@@ -7,6 +7,7 @@ import com.artemis.Entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 import io.github.shared.data.IGame;
 import io.github.shared.data.component.BuildingMapPositionComponent;
@@ -38,6 +39,7 @@ import io.github.shared.data.snapshot.EntitySnapshot;
 import io.github.shared.shared_engine.Utility;
 import io.github.shared.shared_engine.factory.EntityFactory;
 import io.github.shared.shared_engine.manager.EcsManager;
+import io.github.shared.shared_engine.manager.RobotUUID;
 import io.github.shared.shared_engine.manager.ShapeManager;
 
 public class InstructionSystem extends BaseSystem {
@@ -77,11 +79,16 @@ public class InstructionSystem extends BaseSystem {
                         EntityType entityType = ci.getToSpawn().get(i);
                         Entity entity = world.createEntity();
 
-                        Player player = Utility.findPlayerByUuid(game.getPlayersList(), ci.getPlayer().get(i));
+                        UUID uuid = ci.getPlayer().get(i);
+                        Player player = Utility.findPlayerByUuid(game.getPlayersList(),uuid);
                         if (player != null) {
                             Utility.subtractResourcesInPlace(player.getResources(), entityType.getCost());
                             ProprietyComponent prc = proprietyMapper.create(entity);
                             prc.set(player.getUuid(), Utility.findTeamByPlayer(player, game.getPlayerTeam()));
+                        }
+                        else if (RobotUUID.isRobot(uuid)) {
+                            ProprietyComponent prc = proprietyMapper.create(entity);
+                            prc.set(uuid, String.valueOf(RobotUUID.getTeam(uuid)));
                         }
 
                         if (entityType.getType().equals(EntityType.Type.Building)) {
