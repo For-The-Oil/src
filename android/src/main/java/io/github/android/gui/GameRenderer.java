@@ -63,7 +63,7 @@ public class GameRenderer implements ApplicationListener {
     private Texture white; // 1x1 blanche
 
     // Style SC2
-    private static final float MAX_BAR_WIDTH      = 300f;
+    private static final float MAX_BAR_WIDTH      = 500f;
     private static final float BAR_HEIGHT         = 20f;
     private static final float BASE_SQUARE_SIZE   = 40f;
     private static final float MIN_SQUARE_SIZE    = 16f;
