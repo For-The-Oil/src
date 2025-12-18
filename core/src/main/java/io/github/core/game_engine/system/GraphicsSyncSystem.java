@@ -182,7 +182,7 @@ public class GraphicsSyncSystem extends BaseSystem {
                     ? SceneFactory.getInstance().getEntityScene(net.entityType)
                     : SceneFactory.getInstance().getDefaultEntityScene();
                 if (mc.scene == null) continue; // type non mappé
-                if(net!=null &&net.entityType.getType().equals(EntityType.Type.Building)){// ton angle en radians
+                if(net!=null && bp != null && net.entityType.getType().equals(EntityType.Type.Building)){// ton angle en radians
                     mc.scene.modelInstance.transform.rotate(Vector3.Y, bp.direction.getAngleRadians() * MathUtils.radiansToDegrees);
                     mc.scene.modelInstance.calculateTransforms();
                 }

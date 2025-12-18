@@ -17,6 +17,7 @@ import io.github.shared.data.component.MoveComponent;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
+import io.github.shared.data.component.ProjectileComponent;
 import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.component.RangedAttackComponent;
 import io.github.shared.data.component.TargetComponent;
@@ -60,6 +61,7 @@ public class RangedAttackSystem extends IteratingSystem {
     private ComponentMapper<MoveComponent> mMove;
     private ComponentMapper<OnCreationComponent> mOnCreation;
     private ComponentMapper<VelocityComponent> mVel;
+    private ComponentMapper<ProjectileComponent> mProjectile;
 
     // Server handle to reach SnapshotTracker for aggregated updates
     private final ServerGame server;
@@ -114,7 +116,7 @@ public class RangedAttackSystem extends IteratingSystem {
                     if (Utility.isRangedDistanceValid(pos, tPos, ranged.range, server.getMap())) {
                         candidateNetId = tgt.targetNetId;
                         inRange = true;
-                    } else if (move == null || (!move.force && !move.targetRelated)) {
+                    } else if ((move == null || (!move.force && !move.targetRelated)) && (mProjectile.get(e) == null && bPos.get(e) == null)) {
                         HashMap<String, Object> fields = new HashMap<>();
                         fields.put("targetRelated", true);
                         fields.put("destinationX", -1);

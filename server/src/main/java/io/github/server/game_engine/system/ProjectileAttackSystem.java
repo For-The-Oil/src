@@ -12,6 +12,7 @@ import java.util.HashMap;
 import io.github.server.data.ServerGame;
 import io.github.shared.data.component.BuildingMapPositionComponent;
 import io.github.shared.data.component.MoveComponent;
+import io.github.shared.data.component.ProjectileComponent;
 import io.github.shared.data.component.VelocityComponent;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.component.FreezeComponent;
@@ -59,6 +60,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
     private ComponentMapper<MoveComponent> mMove;
     private ComponentMapper<OnCreationComponent> mOnCreation;
     private ComponentMapper<VelocityComponent> mVel;
+    private ComponentMapper<ProjectileComponent> mProjectile;
 
     // Server reference to integrate projectile creation with your instruction system
     private final ServerGame server;
@@ -119,7 +121,7 @@ public class ProjectileAttackSystem extends IteratingSystem {
                     if (dist2 <= range2) {
                         candidateNetId = tgt.targetNetId;
                         inRange = true;
-                    } else if (move == null || (!move.force && !move.targetRelated)) {
+                    } else if ((move == null || (!move.force && !move.targetRelated)) && (mProjectile.get(e) == null && bPos.get(e) == null)) {
                         HashMap<String, Object> fields = new HashMap<>();
                         fields.put("targetRelated", true);
                         fields.put("destinationX", -1);
