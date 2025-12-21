@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 import io.github.android.activity.GameActivity;
 import io.github.android.gui.GameRenderer;
 import io.github.android.utils.CameraGestureController;
+import io.github.shared.data.enums_types.EntityType;
 
 public class LibGdxFragment extends AndroidFragmentApplication {
 

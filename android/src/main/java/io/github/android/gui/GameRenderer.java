@@ -14,10 +14,18 @@ import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.IntAttribute;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
+import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
+import com.badlogic.gdx.math.collision.Ray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +34,15 @@ import java.util.Queue;
 import io.github.core.data.component.ModelComponent;
 import io.github.core.game_engine.CameraController;
 import io.github.core.game_engine.factory.InstanceFactoryScene;
+import io.github.core.game_engine.factory.SceneFactory;
 import io.github.core.game_engine.system.GraphicsSyncSystem;
 import io.github.shared.config.BaseGameConfig;
 import io.github.core.data.ClientGame;
 import io.github.shared.data.component.LifeComponent;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.ShapeType;
+import io.github.shared.data.gameobject.Shape;
+import io.github.shared.shared_engine.Utility;
 
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.scene.Scene;
@@ -57,6 +70,13 @@ public class GameRenderer implements ApplicationListener {
 
     private Runnable onCameraReady;
     private Runnable onLibGdxReady;
+    private Scene buildingPinnedScene;
+    private final Plane groundPlane = new Plane(new Vector3(0,1,0), 0f);
+    private final Vector3 buildingPinnedPos = new Vector3();
+    private Shape pinShape;
+    private ShapeType pinShapeType;
+    private final float DY_PIN = 20f;
+
 
     // HUD
     private SpriteBatch hudBatch;
@@ -112,7 +132,7 @@ public class GameRenderer implements ApplicationListener {
         sharedSceneQueue = ClientGame.getInstance().getSceneQueue();
 
         mapScenes.clear();
-        mapScenes.addAll(InstanceFactoryScene.getShapeScenes(ClientGame.getInstance().getMap(), new ArrayList<>()));
+        mapScenes.addAll(InstanceFactoryScene.getShapeScenes(ClientGame.getInstance().getMap()));
         for (Scene s : mapScenes) if (s != null) sceneManager.addScene(s);
 
         if (onLibGdxReady != null) onLibGdxReady.run();
@@ -147,12 +167,36 @@ public class GameRenderer implements ApplicationListener {
 
         CameraController.get().applyToCamera(camera);
 
+        float dx = -1;
+        float dz = -1;
+        if(buildingPinnedScene != null && buildingPinnedScene.modelInstance != null && pinShape != null){
+            float cx = Gdx.graphics.getWidth() * 0.5f;
+            float cy = Gdx.graphics.getHeight() * 0.5f;
+            Ray ray = camera.getPickRay(cx, cy);
+
+            boolean hit = Intersector.intersectRayPlane(ray, groundPlane, buildingPinnedPos);
+            if(!hit){
+                float dirY = ray.direction.y;
+                if(Math.abs(dirY) > 1e-6f){
+                    float t = -ray.origin.y / dirY;
+                    buildingPinnedPos.set(ray.origin).mulAdd(ray.direction, t);
+                }
+            }
+            buildingPinnedPos.y = DY_PIN;
+            buildingPinnedPos.x = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.x))- (Utility.cellToWorld(pinShape.getWidth())/2);
+            buildingPinnedPos.z = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.z))- (Utility.cellToWorld(pinShape.getHeight())/2);
+            dx = buildingPinnedPos.x;
+            dz = buildingPinnedPos.z;
+            Matrix4 t = new Matrix4().setTranslation(buildingPinnedPos);
+            buildingPinnedScene.modelInstance.transform.set(t);
+            buildingPinnedScene.modelInstance.calculateTransforms();
+        }
+
+
         if (ClientGame.getInstance().isMapDirty()) {
             for (Scene s : mapScenes) if (s != null) sceneManager.removeScene(s);
             mapScenes.clear();
-            mapScenes.addAll(InstanceFactoryScene.getShapeScenes(
-                ClientGame.getInstance().getMap(), new ArrayList<>())
-            );
+            mapScenes.addAll(InstanceFactoryScene.getShapeScenes(ClientGame.getInstance().getMap()));
             for (Scene s : mapScenes) if (s != null) sceneManager.addScene(s);
             ClientGame.getInstance().setMapDirty(false);
         }
@@ -160,6 +204,8 @@ public class GameRenderer implements ApplicationListener {
         if (!sharedSceneQueue.isEmpty()) {
             for (Scene s : entityScenes) if (s != null) sceneManager.removeScene(s);
             entityScenes.clear();
+            entityScenes.add(buildingPinnedScene);
+            entityScenes.addAll(InstanceFactoryScene.pinShapeScenes(pinShape,dx,DY_PIN,dz,pinShapeType,ClientGame.getInstance().getMap()));
             entityScenes.addAll(sharedSceneQueue);
             sharedSceneQueue.clear();
             for (Scene s : entityScenes) if (s != null) sceneManager.addScene(s);
@@ -278,6 +324,30 @@ public class GameRenderer implements ApplicationListener {
         camera.viewportWidth = w;
         camera.viewportHeight = h;
         camera.update();
+    }
+
+    public void pinBuildingToScreenCenter(EntityType entityType){
+        if(entityType == null || !entityType.getType().equals(EntityType.Type.Building)) return;
+        buildingPinnedScene = SceneFactory.getInstance().getEntityScene(entityType);
+        for (Material mat : buildingPinnedScene.modelInstance.materials) {
+            mat.clear();
+
+            // Couleur (émissif) pour rester lisible, l’alpha est géré par le blending
+            mat.set(ColorAttribute.createEmissive(Color.WHITE));
+
+            mat.set(new BlendingAttribute(true, Math.max(0f, Math.min(1f, 0.5f))));
+
+            // Rendre les deux côtés (évite la disparition sur faces horizontales)
+            mat.set(new IntAttribute(IntAttribute.CullFace, GL20.GL_NONE));
+        }
+        pinShapeType = entityType.getShapeType();
+        pinShape = pinShapeType.getShape();
+    }
+
+    public void unpinBuilding(){
+        buildingPinnedScene = null;
+        pinShapeType = null;
+        pinShape = null;
     }
 
     @Override public void pause() { }
