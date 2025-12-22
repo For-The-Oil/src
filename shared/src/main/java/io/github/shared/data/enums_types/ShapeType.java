@@ -48,9 +48,19 @@ public enum ShapeType {
         {new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
         }), new ArrayList<>()),
 
+    Statue(new Shape(new Cell[][]{
+        {new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER)},
+        {new Cell(WATER),new Cell(ROAD),new Cell(ROAD),new Cell(WATER)},
+        {new Cell(WATER),new Cell(ROAD),new Cell(ROAD),new Cell(WATER)},
+        {new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER)}
+    }), new ArrayList<>()),
+
     Base( new Shape(new Cell[][]{
-        {new Cell(WATER),new Cell(WATER), new Cell(GRASS)},
-        {new Cell(WATER),new Cell(WATER), new Cell(VOID)}
+        {new Cell(ROAD),new Cell(VOID), new Cell(VOID), new Cell(VOID), new Cell(ROAD)},
+        {new Cell(VOID),new Cell(ROAD), new Cell(ROAD), new Cell(ROAD), new Cell(VOID)},
+        {new Cell(VOID),new Cell(ROAD), new Cell(ROAD), new Cell(ROAD), new Cell(VOID)},
+        {new Cell(VOID),new Cell(ROAD), new Cell(ROAD), new Cell(ROAD), new Cell(VOID)},
+        {new Cell(ROAD),new Cell(VOID), new Cell(VOID), new Cell(VOID), new Cell(ROAD)}
     }), new ArrayList<>(Collections.singleton(GRASS))),
     Barrack(new Shape(new Cell[][]{
         {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},

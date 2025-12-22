@@ -23,18 +23,38 @@ public class ClientNetwork {
         this.unlockedCards = new ArrayList<>();
     }
 
-    public ClientNetwork(UUID uuid, String username, HashMap<String, Deck> decks, ArrayList<EntityType> unlockedCards, String token, Connection connection) {
-        this.token = token;
+    public ClientNetwork(UUID uuid, String username, HashMap<String, Deck> decks, ArrayList<EntityType> unlockedCards, Deck currentDeck, String token, Connection connection) {
         this.uuid = uuid;
         this.username = username;
         this.decks = decks != null ? decks : new HashMap<>();
+        this.unlockedCards = unlockedCards != null ? unlockedCards : new ArrayList<>();
+        this.token = token;
         this.connection = connection;
         this.lastActivityTimestamp = System.currentTimeMillis();
-        this.unlockedCards = unlockedCards != null ? unlockedCards : new ArrayList<>();
+
+        // Détermination du deck courant
+        if (currentDeck != null && this.decks.containsValue(currentDeck)) {
+            this.current = currentDeck;
+        } else if (!this.decks.isEmpty()) {
+            // Prendre le premier deck disponible
+            this.current = this.decks.values().iterator().next();
+        } else {
+            this.current = null;
+        }
     }
 
-    public ClientNetwork(UUID uuid, String name, HashMap<String, Deck> decks, ArrayList<EntityType> unlockedCards, String token) {
-        this(uuid, name, decks, unlockedCards, token, null);
+
+
+    public ClientNetwork(UUID uuid, String username, HashMap<String, Deck> decks, ArrayList<EntityType> unlockedCards, Deck currentDeck, String token) {
+        this(uuid, username, decks, unlockedCards, currentDeck, token, null);
+    }
+
+    public ClientNetwork(UUID uuid, String username, HashMap<String, Deck> decks, ArrayList<EntityType> unlockedCards, String token, Connection connection) {
+        this(uuid, username, decks, unlockedCards, null, token, connection);
+    }
+
+    public ClientNetwork(UUID uuid, String username, HashMap<String, Deck> decks, ArrayList<EntityType> unlockedCards, String token) {
+        this(uuid, username, decks, unlockedCards, null, token, null);
     }
 
     // === Getters & Setters ===

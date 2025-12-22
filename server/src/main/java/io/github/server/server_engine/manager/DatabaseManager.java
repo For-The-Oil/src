@@ -40,6 +40,7 @@ public final class DatabaseManager {
     private static final String COL_BATTLE_ID = "battle_id";
     private static final String COL_WINS = "wins";
     private static final String COL_LOSSES = "losses";
+    private static final String CURRENT_DECK = "current_deck";
 
     // -------------------------
     // Singleton / JDBI / Mapper
@@ -324,7 +325,7 @@ public final class DatabaseManager {
     public UserData getUserDataByUUID(UUID uuid) {
         return jdbi.withHandle(handle -> {
             // Récupération du username, decks et unlocked_cards
-            String sql = "SELECT u." + COL_USERNAME + ", c." + COL_DECKS + ", c." + COL_UNLOCKED_CARDS +
+            String sql = "SELECT u." + COL_USERNAME + ", c." + COL_DECKS + ", c." + COL_UNLOCKED_CARDS + ", c." + CURRENT_DECK +
                 " FROM " + TABLE_USERS + " u " +
                 "LEFT JOIN " + TABLE_USER_COLLECTIONS + " c ON u." + COL_ID + " = c." + COL_USER_ID +
                 " WHERE u." + COL_ID + " = :uuid";
@@ -335,12 +336,13 @@ public final class DatabaseManager {
                     String username = rs.getString(COL_USERNAME);
                     String decksJson = rs.getString(COL_DECKS);
                     String unlockedCardsJson = rs.getString(COL_UNLOCKED_CARDS);
+                    String currentDeckName = rs.getString(CURRENT_DECK);
 
                     // Conversion JSON -> objets
                     HashMap<String, Deck> decks = JsonUtils.parseDecksJson(decksJson);
                     ArrayList<EntityType> unlockedCards = JsonUtils.parseUnlockedCardsJson(unlockedCardsJson);
 
-                    return new UserData(uuid, username, decks, unlockedCards);
+                    return new UserData(uuid, username, decks, unlockedCards, currentDeckName);
                 })
                 .findOne()
                 .orElse(null);
@@ -353,7 +355,7 @@ public final class DatabaseManager {
     // ==========================
     public UserData getUserDataByEmail(String email) {
         return jdbi.withHandle(handle -> {
-            String sql = "SELECT u." + COL_ID + ", u." + COL_USERNAME + ", c." + COL_DECKS + ", c." + COL_UNLOCKED_CARDS +
+            String sql = "SELECT u." + COL_ID + ", u." + COL_USERNAME + ", c." + COL_DECKS + ", c." + COL_UNLOCKED_CARDS + ", c." + CURRENT_DECK +
                 " FROM " + TABLE_USERS + " u " +
                 "LEFT JOIN " + TABLE_USER_COLLECTIONS + " c ON u." + COL_ID + " = c." + COL_USER_ID +
                 " WHERE u." + COL_EMAIL + " = :email";
@@ -365,11 +367,12 @@ public final class DatabaseManager {
                     String username = rs.getString(COL_USERNAME);
                     String decksJson = rs.getString(COL_DECKS);
                     String unlockedCardsJson = rs.getString(COL_UNLOCKED_CARDS);
+                    String currentDeckName = rs.getString(CURRENT_DECK);
 
                     HashMap<String, Deck> decks = JsonUtils.parseDecksJson(decksJson);
                     ArrayList<EntityType> unlockedCards = JsonUtils.parseUnlockedCardsJson(unlockedCardsJson);
 
-                    return new UserData(uuid, username, decks, unlockedCards);
+                    return new UserData(uuid, username, decks, unlockedCards, currentDeckName);
                 })
                 .findOne()
                 .orElse(null);

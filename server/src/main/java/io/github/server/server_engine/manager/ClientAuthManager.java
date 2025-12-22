@@ -16,6 +16,7 @@ import io.github.server.exception.UserEmailAlreadyExist;
 import io.github.server.exception.IncorrectField;
 import io.github.shared.data.enums_types.AuthModeType;
 import io.github.shared.data.enums_types.KryoMessageType;
+import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.network.ClientNetwork;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.AuthRequest;
@@ -348,6 +349,12 @@ public final class ClientAuthManager {
             System.out.println("Removed previous connection for user: " + existingClient.getUsername());
         }
 
+        Deck currentDeck = null;
+        String currentDeckName = userData.getCurrentDeck();
+        if (currentDeckName != null && userData.getDecks().containsKey(currentDeckName)) {
+            currentDeck = userData.getDecks().get(currentDeckName);
+        }
+
         String sessionToken = UUID.randomUUID().toString();
 
         ClientNetwork client = new ClientNetwork(
@@ -355,9 +362,11 @@ public final class ClientAuthManager {
             userData.getUsername(),
             userData.getDecks(),
             userData.getUnlockedCards(),
+            currentDeck,
             sessionToken,
             connection
         );
+
 
         serverNetwork.getAuthClientNetworkList().add(client);
         return client;

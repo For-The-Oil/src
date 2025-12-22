@@ -9,7 +9,7 @@ public enum EntityType {
         Type.Building,
         null,
         DeckCardCategory.Industrial,
-        ShapeType.Base,
+        ShapeType.Statue,
         new ArrayList<>(),
         2000f,
         2,

@@ -12,14 +12,16 @@ import io.github.shared.data.gameobject.Deck;
 public class UserData {
     private UUID uuid;
     private String username;
+    private String currentDeck;
     private HashMap<String, Deck> decks;
     private ArrayList<EntityType> unlockedCards;
 
-    public UserData(UUID uuid, String username, HashMap<String, Deck> decks, ArrayList<EntityType> unlockedCards) {
+    public UserData(UUID uuid, String username, HashMap<String, Deck> decks, ArrayList<EntityType> unlockedCards, String currentDeck) {
         this.uuid = uuid;
         this.username = username;
         this.decks = decks;
         this.unlockedCards = unlockedCards;
+        this.currentDeck=currentDeck;
     }
 
     public UUID getUuid() { return uuid; }
@@ -28,6 +30,10 @@ public class UserData {
 
     public ArrayList<EntityType> getUnlockedCards() {
         return unlockedCards;
+    }
+
+    public String getCurrentDeck(){
+        return currentDeck;
     }
 }
 
