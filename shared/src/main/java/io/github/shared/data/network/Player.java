@@ -12,7 +12,6 @@ import java.util.UUID;
  */
 public class Player extends ClientNetwork {
     private HashMap<ResourcesType, Integer> resources;
-    private Deck gameDeck;
 
     public Player() {
         super();
@@ -21,7 +20,6 @@ public class Player extends ClientNetwork {
 
     public Player(UUID uuid, String name, HashMap<String, Deck> fullDeck, Deck deck, String token, Connection connection) {
         super(uuid, name, fullDeck, null, token, connection);
-        this.gameDeck = deck;
         this.resources = new HashMap<>();
     }
 
@@ -35,13 +33,11 @@ public class Player extends ClientNetwork {
             cn.getToken(),
             cn.getConnection()
         );
-        this.gameDeck = cn.getCurrentDeck();
+        this.setCurrent(cn.getCurrentDeck());
         this.resources = new HashMap<>();
     }
 
     public HashMap<ResourcesType, Integer> getResources() { return resources; }
     public void setResources(HashMap<ResourcesType, Integer> resources) { this.resources = resources; }
 
-    public Deck getGameDeck() { return gameDeck; }
-    public void setGameDeck(Deck gameDeck) { this.gameDeck = gameDeck; }
 }

@@ -175,7 +175,7 @@ public final class DeckManager {
     public void selectDeck(ClientNetwork client, DeckRequest request) {
         if (!canSelectDeck(client, request)) return;
 
-        String deckName = request.getKeys().getOrDefault("deck_name", null);
+        String deckName = request.getKeys().getOrDefault("current_deck", null);
         if (deckName == null || !client.getDecks().containsKey(deckName)) {
             System.out.println("Deck does not exist.");
             return;
@@ -207,7 +207,7 @@ public final class DeckManager {
         String currentDeckName = null;
         if (client.getCurrentDeck() != null) {
             for (Map.Entry<String, Deck> entry : client.getDecks().entrySet()) {
-                if (entry.getValue() == client.getCurrentDeck()) {
+                if (entry.getValue().equals(client.getCurrentDeck())) {
                     currentDeckName = entry.getKey();
                     break;
                 }

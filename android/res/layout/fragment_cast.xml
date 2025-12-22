@@ -18,19 +18,11 @@
 
         <!-- Boutons -->
         <ImageButton
-            android:id="@+id/btnBuildBuilding"
+            android:id="@+id/btnAttackUnits"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="@drawable/round_blue_button"
-            android:src="@drawable/hammer"
-            android:scaleType="centerInside"/>
-
-        <ImageButton
-            android:id="@+id/btnRotateBuilding"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/round_blue_button"
-            android:src="@drawable/rotate"
+            android:src="@drawable/focus"
             android:scaleType="centerInside"/>
 
         <ImageButton
@@ -59,46 +51,29 @@
             android:padding="8dp">
 
             <!-- Section 1 -->
+            <!-- ================== WEAPONS STOCK ================== -->
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Industry Buildings"
+                android:text="Weapons in Stock"
                 android:textColor="#FFF"
                 android:textSize="18sp"
                 android:layout_gravity="center_horizontal"
                 android:paddingBottom="8dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerSection1"
+                android:id="@+id/recyclerWeaponsStock"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:overScrollMode="never"
-                android:clipToPadding="false"/>
+                android:nestedScrollingEnabled="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#555"
-                android:layout_marginVertical="12dp"/>
-
-            <!-- Section 3 -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Building List"
-                android:textColor="#FFF"
-                android:textSize="18sp"
-                android:layout_gravity="center_horizontal"
-                android:paddingBottom="8dp"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerSection4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:overScrollMode="never"
-                android:clipToPadding="false"/>
 
         </LinearLayout>
+
     </androidx.core.widget.NestedScrollView>
 
 </FrameLayout>

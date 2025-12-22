@@ -7,18 +7,20 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import io.github.fortheoil.R;
+import io.github.shared.data.enums_types.DeckCardCategory;
 
-public class DefenseFragment extends Fragment {
-    @Nullable
+public class DefenseFragment extends BaseDeckFragment {
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
-        // Ici tu peux mettre un layout spécifique pour afficher les unités
-        return inflater.inflate(R.layout.fragment_buildings, container, false);
+        return inflater.inflate(io.github.fortheoil.R.layout.fragment_defense, container, false);
+    }
+    @Override
+    protected DeckCardCategory getCategory() {
+        return DeckCardCategory.Defense;
     }
 }
