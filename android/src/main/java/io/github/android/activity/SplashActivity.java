@@ -254,21 +254,28 @@ public class SplashActivity extends BaseActivity {
 
     private void initPath(){
 
-        HashMap<Object, String> map = new HashMap<>();
-        HashMap<Object, String> map2 = new HashMap<>();
+        HashMap<Object, String> texture_map = new HashMap<>();
+        HashMap<Object, String> models_map = new HashMap<>();
 
         //ground
-        map.put(CellType.ROAD, "textures/concrete.png");
-        map.put(CellType.GRASS, "textures/grass.png");
-        map.put(CellType.WATER, "textures/water.png");
+        texture_map.put(CellType.ROAD, "textures/concrete.png");
+        texture_map.put(CellType.GRASS, "textures/grass.png");
+        texture_map.put(CellType.WATER, "textures/water.png");
 
         //units
-        map2.put(EntityType.TANK, "models/default_tank.glb");
-        map2.put(EntityType.BIKE, "models/default_bike.glb");
-        map2.put(EntityType.JEEP, "models/default_jeep.glb");
+        models_map.put(EntityType.TANK, "models/default_tank.glb");
+        models_map.put(EntityType.BIKE, "models/default_bike.glb");
+        models_map.put(EntityType.JEEP, "models/default_jeep.glb");
+        models_map.put(EntityType.BASE, "models/base.glb");
+        models_map.put(EntityType.FACTORY, "models/factory.glb");
+        models_map.put(EntityType.GARAGE, "models/garage.glb");
+        models_map.put(EntityType.test, "models/test.glb");
+        models_map.put(EntityType.BARRACK, "models/barrack.glb");
+        models_map.put(EntityType.MINE, "models/mine.glb");
+        models_map.put(EntityType.DERRICK, "models/derrick.glb");
 
-        ModelFactory.initINSTANCE(map);
-        SceneFactory.initINSTANCE(map2);
+        ModelFactory.initINSTANCE(texture_map);
+        SceneFactory.initINSTANCE(models_map);
 
     }
 
