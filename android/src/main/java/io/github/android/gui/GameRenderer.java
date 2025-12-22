@@ -39,10 +39,12 @@ import io.github.core.game_engine.system.GraphicsSyncSystem;
 import io.github.shared.config.BaseGameConfig;
 import io.github.core.data.ClientGame;
 import io.github.shared.data.component.LifeComponent;
+import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.ShapeType;
 import io.github.shared.data.gameobject.Shape;
 import io.github.shared.shared_engine.Utility;
+import io.github.shared.shared_engine.manager.ShapeManager;
 
 import net.mgsx.gltf.scene3d.lights.DirectionalLightEx;
 import net.mgsx.gltf.scene3d.scene.Scene;
@@ -341,8 +343,21 @@ public class GameRenderer implements ApplicationListener {
             mat.set(new IntAttribute(IntAttribute.CullFace, GL20.GL_NONE));
         }
         pinShapeType = entityType.getShapeType();
-        pinShape = pinShapeType.getShape();
+        pinShape = new Shape(pinShapeType.getShape());
     }
+
+    public void RotatePinBuilding(Direction direction) {
+        pinShape = ShapeManager.rotateShape(pinShapeType.getShape(), direction);
+
+        Vector3 pos = new Vector3();
+        buildingPinnedScene.modelInstance.transform.getTranslation(pos);
+
+        float degrees = direction.getAngleRadians() * MathUtils.radiansToDegrees;
+        buildingPinnedScene.modelInstance.transform
+            .setToRotation(Vector3.Y, degrees)
+            .setTranslation(pos);
+    }
+
 
     public void unpinBuilding(){
         buildingPinnedScene = null;

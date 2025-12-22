@@ -39,7 +39,9 @@ import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.component.RangedAttackComponent;
 import io.github.shared.data.component.RessourceComponent;
 import io.github.shared.data.component.VelocityComponent;
+import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.shared_engine.Utility;
 
 import net.mgsx.gltf.scene3d.scene.Scene;
 
@@ -182,7 +184,11 @@ public class GraphicsSyncSystem extends BaseSystem {
                     ? SceneFactory.getInstance().getEntityScene(net.entityType)
                     : SceneFactory.getInstance().getDefaultEntityScene();
                 if (mc.scene == null) continue; // type non mappé
-                if(net!=null && bp != null && net.entityType.getType().equals(EntityType.Type.Building)){// ton angle en radians
+                if(net!=null && bp != null && pos != null && net.entityType.getType().equals(EntityType.Type.Building)){// ton angle en radians
+                    mc.scene.modelInstance.transform.translate(
+                        pos.x + (Utility.cellToWorld(net.entityType.getShapeType().getShape().getWidth())/2),
+                        pos.z,
+                        pos.y + (Utility.cellToWorld(net.entityType.getShapeType().getShape().getHeight())/2));
                     mc.scene.modelInstance.transform.rotate(Vector3.Y, bp.direction.getAngleRadians() * MathUtils.radiansToDegrees);
                     mc.scene.modelInstance.calculateTransforms();
                 }
@@ -192,11 +198,13 @@ public class GraphicsSyncSystem extends BaseSystem {
 
             // Transform (X/Z/Y comme dans ton code historique)
             if (pos != null) {
-                Matrix4 t = new Matrix4().idt()
-                    .translate(pos.x, pos.z, pos.y)
-                    .rotate(Vector3.Y, pos.horizontalRotation* MathUtils.radiansToDegrees)
-                    .rotate(Vector3.X, pos.verticalRotation* MathUtils.radiansToDegrees);
-                s.modelInstance.transform.set(t);
+                if(net==null || !net.entityType.getType().equals(EntityType.Type.Building)) {
+                    Matrix4 t = new Matrix4().idt()
+                        .translate(pos.x, pos.z, pos.y)
+                        .rotate(Vector3.Y, pos.horizontalRotation * MathUtils.radiansToDegrees)
+                        .rotate(Vector3.X, pos.verticalRotation * MathUtils.radiansToDegrees);
+                    s.modelInstance.transform.set(t);
+                }
             }
 
             // Animations glTF

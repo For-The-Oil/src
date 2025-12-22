@@ -90,29 +90,6 @@ public final class SyncManager {
 
     public static void sendInstructions(Queue<Instruction> networkQueue, ArrayList<Player> playersList){
         if(networkQueue==null || playersList==null) return;
-//        System.out.println("------------------------------------------------");
-//        System.out.println("networkQueue "+networkQueue);
-//        for(Instruction instruction : networkQueue){
-//            if(instruction instanceof UpdateEntityInstruction){
-//                System.out.println();
-//                UpdateEntityInstruction updateEntityInstruction = (UpdateEntityInstruction) instruction;
-//                System.out.println("UpdateEntityInstruction :"+updateEntityInstruction);
-//                System.out.println("EntitySnapshot "+updateEntityInstruction.getToUpdate());
-//                for(EntitySnapshot entitySnapshot : updateEntityInstruction.getToUpdate()){
-//                    System.out.println();
-//                    System.out.println("EntityType : "+entitySnapshot.getEntityType());
-//                    for(ComponentSnapshot componentSnapshot : entitySnapshot.getComponentSnapshot()){
-//                        System.out.println();
-//                        System.out.println("ComponentType : "+componentSnapshot.getType());
-//                        for(String key :componentSnapshot.getFields().keySet()) {
-//                            System.out.println(key+" : "+componentSnapshot.getFields().get(key));
-//                        }
-//                    }
-//                }
-//                System.out.println();
-//            }
-//        }
-//        System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++");
         for (Player player: playersList) {
             if(player.getConnection().isConnected()) {
                 executor.execute(() -> {
