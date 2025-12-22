@@ -38,7 +38,7 @@ public class InstanceFactoryScene {
         return out;
     }
 
-    public static ArrayList<Scene> pinShapeScenes(Shape shape, float X, float Y, float Z, ShapeType type,Shape map){
+    public static ArrayList<Scene> pinShapeScenes(Shape shape, float X, float Y, float Z, ShapeType type, Shape map){
         ArrayList<Scene> out = new ArrayList<>();
         if (shape == null || shape.getWidth() == 0 || shape.getHeight() == 0 || X < 0 || Y < 0 || Z < 0) return out;
         final int w = shape.getWidth(), h = shape.getHeight();

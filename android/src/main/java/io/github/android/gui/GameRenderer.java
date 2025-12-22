@@ -350,6 +350,10 @@ public class GameRenderer implements ApplicationListener {
         pinShape = null;
     }
 
+    public Boolean isPinnedBuilding(){
+        return pinShape!=null;
+    }
+
     @Override public void pause() { }
     @Override public void resume() { }
 

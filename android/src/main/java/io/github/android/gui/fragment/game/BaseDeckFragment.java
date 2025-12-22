@@ -13,11 +13,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.flexbox.FlexboxLayout;
+
 import java.util.List;
 
+import io.github.android.activity.GameActivity;
+import io.github.android.gui.adapter.BuildingAdapter;
 import io.github.android.utils.UiUtils;
 import io.github.core.client_engine.manager.SessionManager;
 import io.github.core.data.ClientGame;
@@ -34,11 +39,48 @@ public abstract class BaseDeckFragment extends Fragment {
     protected BuildingAdapter adapter;
     protected abstract DeckCardCategory getCategory();
     protected static final String TAG = "BaseDeckFragment";
+    private static final int COLUMN = 3;
+    FlexboxLayout topButtonBar;
+    EntityType selectedBuilding;
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        topButtonBar = view.findViewById(R.id.topButtonBar);
+        topButtonBar.setVisibility(View.GONE); // caché par défaut
+
+        ImageButton btnBuild = view.findViewById(R.id.btnBuildBuilding);
+        ImageButton btnRotate = view.findViewById(R.id.btnRotateBuilding);
+        ImageButton btnCancel = view.findViewById(R.id.btnCancel);
+
+        GameActivity cont = (GameActivity) view.getContext();
+        LibGdxFragment frag = cont.getLibGdxFragment();
+
+        btnCancel.setOnClickListener(v -> {
+            topButtonBar.setVisibility(View.GONE);
+            selectedBuilding = null;
+            frag.getRenderer().unpinBuilding();
+        });
+
+        btnRotate.setOnClickListener(v -> {
+            //if (selectedBuilding != null) rotateBuilding(selectedBuilding);
+        });
+
+        btnBuild.setOnClickListener(v -> {
+//            if (selectedBuilding != null) {
+//                buildBuilding(selectedBuilding);
+//                topButtonBar.setVisibility(View.GONE);
+//                selectedBuilding = null;
+//            }
+        });
+
         recycler = view.findViewById(R.id.recyclerSection1);
         recycler.setLayoutManager(new LinearLayoutManager(getContext()));
+        recycler.setLayoutManager(new GridLayoutManager(getContext(), COLUMN));
+
+        //On affiche le menu top si on a déjà un building de sélectionné
+        if(frag.getRenderer().isPinnedBuilding()){
+            topButtonBar.setVisibility(View.VISIBLE);
+        }
 
         loadCards();
     }
@@ -65,54 +107,6 @@ public abstract class BaseDeckFragment extends Fragment {
 
         adapter = new BuildingAdapter(cards);
         recycler.setAdapter(adapter);
-    }
-
-    // ------------------ Adapter générique ------------------ //
-    protected static class BuildingAdapter extends RecyclerView.Adapter<BuildingAdapter.BuildingViewHolder> {
-        private final List<EntityType> cards;
-
-        BuildingAdapter(List<EntityType> cards) { this.cards = cards; }
-
-        @NonNull
-        @Override
-        public BuildingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            // Layout simple avec un ImageButton
-            ImageButton itemButton = new ImageButton(parent.getContext());
-            RecyclerView.LayoutParams lp = new RecyclerView.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                150 // hauteur fixe, tu peux ajuster
-            );
-            lp.setMargins(8, 8, 8, 8);
-            itemButton.setLayoutParams(lp);
-            itemButton.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-            itemButton.setBackgroundColor(Color.TRANSPARENT); // pas de background
-            return new BuildingViewHolder(itemButton);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull BuildingViewHolder holder, int position) {
-            EntityType card = cards.get(position);
-            int drawableId = UiUtils.mapEntityTypeToDrawable(card);
-            holder.imageButton.setImageResource(drawableId);
-
-            // Optionnel : click listener pour action sur la carte
-            holder.imageButton.setOnClickListener(v -> {
-                Log.d(TAG, "Carte cliquée : " + card.name());
-                // TODO: actions éventuelles
-            });
-        }
-
-        @Override
-        public int getItemCount() { return cards.size(); }
-
-        static class BuildingViewHolder extends RecyclerView.ViewHolder {
-            ImageButton imageButton;
-
-            BuildingViewHolder(@NonNull View itemView) {
-                super(itemView);
-                imageButton = (ImageButton) itemView;
-            }
-        }
     }
 
 }

@@ -258,4 +258,9 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
         //TODO : Update the value in the UI
     }
 
+
+    public LibGdxFragment getLibGdxFragment(){
+        return libGdxFragment;
+    }
+
 }
