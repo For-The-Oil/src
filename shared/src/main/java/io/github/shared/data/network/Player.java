@@ -40,4 +40,19 @@ public class Player extends ClientNetwork {
     public HashMap<ResourcesType, Integer> getResources() { return resources; }
     public void setResources(HashMap<ResourcesType, Integer> resources) { this.resources = resources; }
 
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Player{");
+        sb.append("username='").append(getUsername()).append('\'');
+        sb.append(", uuid=").append(getUuid());
+        sb.append(", decks=").append(getDecks().keySet());
+        sb.append(", currentDeck=").append(getCurrentDeck() != null ? getCurrentDeck() : "null");
+        sb.append(", unlockedCards=").append(getUnlockedCards());
+        sb.append(", resources=").append(resources);
+        sb.append('}');
+        return sb.toString();
+    }
+
 }

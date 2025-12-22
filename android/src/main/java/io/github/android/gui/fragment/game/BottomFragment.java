@@ -213,4 +213,8 @@ public class BottomFragment extends Fragment {
         isMenuOpen = false;
     }
 
+    public void updateUI(){
+        //TODO: ADD THE UPDATES
+    }
+
 }

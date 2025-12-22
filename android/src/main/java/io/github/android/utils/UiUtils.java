@@ -38,6 +38,8 @@ public final class UiUtils {
         field.setSelection(field.getText().length());
     }
 
+
+
     // -----------------------------
     // Affiche un message dans un TextView et le rend visible
     // -----------------------------

@@ -48,6 +48,7 @@ import io.github.shared.data.enums_types.ResourcesType;
 import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.instructions.EventsInstruction;
+import io.github.shared.data.network.Player;
 import io.github.shared.data.requests.SynchronizeRequest;
 
 /**
@@ -57,10 +58,13 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
     private View loadingContainer;
     private FrameLayout libgdxContainer;
-    private LoadingFragment loadingFragment;
-    private LibGdxFragment libGdxFragment;
+    public LoadingFragment loadingFragment;
+    public LibGdxFragment libGdxFragment;
     private ClientLauncher clientLauncher;
     private ClientManager clientManager = ClientManager.getInstance();
+    public BottomFragment bottomFragment;
+
+    public LinearLayout resourcesBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +74,7 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
         clientManager.setCurrentContext(this);
         libgdxContainer = findViewById(R.id.libgdxContainer);
         loadingContainer = findViewById(R.id.loadingContainer);
+        resourcesBar = findViewById(R.id.resourcesBar);
 
         showLoadingContainer();
         setupLoadingFragment();
@@ -112,7 +117,12 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
 
     private void stepCreateLibGdx() {
         libGdxFragment = new LibGdxFragment(this);
-        libGdxFragment.setOnLibGdxReady(() -> runOnUiThread(this::stepOpenGLReady));
+        libGdxFragment.setOnLibGdxReady(() -> {
+            runOnUiThread( () -> {
+                stepOpenGLReady();
+                updateUI(this);
+            });
+        });
         getSupportFragmentManager().beginTransaction()
             .replace(R.id.libgdxContainer, libGdxFragment)
             .commit();
@@ -242,7 +252,7 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
     }
 
     private void initBottomFragment() {
-        BottomFragment bottomFragment = new BottomFragment();
+        bottomFragment = new BottomFragment();
         getSupportFragmentManager().beginTransaction()
             .replace(R.id.bottomFragmentContainer, bottomFragment)
             .commit();
@@ -254,13 +264,41 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
     }
 
 
-    public static void updateUI(){
-        //TODO : Update the value in the UI
+    public static void updateUI(GameActivity activity){
+        if (activity != null) {
+            activity.updateResourcesUI();
+            activity.bottomFragment.updateUI();
+        }
     }
+
+
+    public void updateResourcesUI() {
+        resourcesBar.removeAllViews();
+
+        Player player = ClientGame.getInstance().getPlayersList().stream()
+            .filter(p -> p.getUuid().equals(SessionManager.getInstance().getUuidClient()))
+            .findFirst()
+            .orElse(null);
+
+        if (player == null) return;
+
+        for (Map.Entry<ResourcesType, Integer> entry : player.getResources().entrySet()) {
+            TextView tv = new TextView(this);
+
+            tv.setText(entry.getKey().name() + ": " + entry.getValue());
+            tv.setTextColor(Color.WHITE);
+            tv.setTextSize(16f);
+
+            resourcesBar.addView(tv);
+        }
+    }
+
 
 
     public LibGdxFragment getLibGdxFragment(){
         return libGdxFragment;
     }
+
+
 
 }

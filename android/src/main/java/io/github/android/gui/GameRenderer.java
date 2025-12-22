@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import io.github.android.activity.GameActivity;
 import io.github.core.data.component.ModelComponent;
 import io.github.core.game_engine.CameraController;
 import io.github.core.game_engine.factory.InstanceFactoryScene;
@@ -58,6 +59,8 @@ import net.mgsx.gltf.scene3d.attributes.PBRTextureAttribute;
 import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 
 public class GameRenderer implements ApplicationListener {
+
+    GameActivity activity;
 
     private SceneManager sceneManager;
     private PerspectiveCamera camera;
@@ -93,6 +96,19 @@ public class GameRenderer implements ApplicationListener {
     private static final float BASE_HP_PER_SQUARE = 50f;   // HP for Square
     private static final float HEIGHT_OFFSET      = 0.2f;  // Décalage au-dessus de l’unité
     private static final Color SQUARE_COLOR = new Color(0f,1f,0f,1f);
+
+
+
+    // Actualisation de l'UI
+    private float resourceUpdateTimer = 0f;
+    private static final float UI_REFRESH_TIME = 0.5f;
+
+
+    //Sauvegarde en mémoire de la GameActivity
+    public GameRenderer(GameActivity gameActivity){
+        activity = activity;
+    }
+
 
 
     @Override
@@ -223,6 +239,23 @@ public class GameRenderer implements ApplicationListener {
         sceneManager.render();
 
         drawHealthBarsSC2(gfx);
+
+
+
+        // Update timer
+        resourceUpdateTimer += delta;
+        if (resourceUpdateTimer >= UI_REFRESH_TIME) {
+            resourceUpdateTimer = 0f;
+
+            // Mettre à jour la UI sur le thread Android
+            if (activity != null) {
+                activity.runOnUiThread(() -> {
+                    GameActivity.updateUI(activity);
+                });
+            }
+        }
+
+
     }
 
 

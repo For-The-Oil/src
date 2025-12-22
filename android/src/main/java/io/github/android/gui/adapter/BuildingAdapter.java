@@ -1,5 +1,6 @@
 package io.github.android.gui.adapter;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,9 +9,13 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
+import java.util.Map;
+
 import io.github.android.utils.UiUtils;
 import io.github.fortheoil.R;
 import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.data.enums_types.ResourcesType;
+import io.github.shared.data.network.Player;
 
 public class BuildingAdapter extends RecyclerView.Adapter<BuildingAdapter.BuildingViewHolder> {
 
@@ -20,10 +25,16 @@ public class BuildingAdapter extends RecyclerView.Adapter<BuildingAdapter.Buildi
 
     private final List<EntityType> cards;
     private final OnBuildingClick callback;
+    private final Player currentPlayer;
 
-    public BuildingAdapter(List<EntityType> cards, OnBuildingClick callback) {
+    //Variable de DEBUG, servant à activer ou désactiver la nécéssité de dépenser des crédits
+    public static final boolean MUST_PAY = false;
+
+
+    public BuildingAdapter(List<EntityType> cards, Player currentPlayer, OnBuildingClick callback) {
         this.cards = cards;
         this.callback = callback;
+        this.currentPlayer = currentPlayer;
     }
 
     @NonNull
@@ -40,8 +51,35 @@ public class BuildingAdapter extends RecyclerView.Adapter<BuildingAdapter.Buildi
 
         holder.img.setImageResource(UiUtils.mapEntityTypeToDrawable(card));
 
+        // Affichage du coût
+        if (card.getCost() != null && !card.getCost().isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            boolean affordable = true;
+
+            for (Map.Entry<ResourcesType, Integer> entry : card.getCost().entrySet()) {
+                sb.append(entry.getKey().name()).append(": ").append(entry.getValue()).append(" ");
+                int playerRes = currentPlayer.getResources().getOrDefault(entry.getKey(), 0);
+                if (playerRes < entry.getValue()) affordable = false;
+            }
+
+            holder.cost.setText(sb.toString().trim());
+
+            // Griser si pas assez de ressources et désactiver le clic
+            if (!affordable && MUST_PAY) {
+                holder.img.setColorFilter(Color.GRAY, android.graphics.PorterDuff.Mode.MULTIPLY);
+                holder.img.setEnabled(false);
+            } else {
+                holder.img.clearColorFilter();
+                holder.img.setEnabled(true);
+            }
+        } else {
+            holder.cost.setText("");
+            holder.img.clearColorFilter();
+            holder.img.setEnabled(true);
+        }
+
         holder.img.setOnClickListener(v -> {
-            if (callback != null) {
+            if (callback != null && holder.img.isEnabled()) {
                 callback.onClick(card);
             }
         });
@@ -63,3 +101,4 @@ public class BuildingAdapter extends RecyclerView.Adapter<BuildingAdapter.Buildi
         }
     }
 }
+

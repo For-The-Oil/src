@@ -4,18 +4,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.android.flexbox.FlexboxLayout;
-
 import java.util.List;
-
 import io.github.android.activity.GameActivity;
 import io.github.android.gui.adapter.BuildingAdapter;
 import io.github.core.client_engine.manager.SessionManager;
@@ -101,14 +97,30 @@ public abstract class BaseDeckFragment extends Fragment {
 
         List<EntityType> cards = deck.getCardsByCategory(deck, getCategory());
         Log.d(TAG, "Nombre de cartes " + getCategory() + " : " + cards.size());
+        Log.d(TAG, "Joueur actuel : "+ current);
 
-        adapter = new BuildingAdapter(cards, this::onBuildingSelected);
+        // Passer le joueur courant à l'adapter
+        adapter = new BuildingAdapter(cards, current, this::onBuildingSelected);
         recycler.setAdapter(adapter);
     }
 
 
 
+
     private void build(View view){
+
+        //TODO : Ajouter la logique d'envoi et construction
+
+        //if( isBuildable(selectedBuilding, direction) ) {
+        // CreateRequest request = RequestFactory.buildCreateRequest(selectedBuilding, direction, ... );
+        // Kryo.getManager.sendRequest(request);
+           cancel(view);
+           //Dépenser les ressources cotés client
+        // }
+        //else {
+        //  Informer l'utilisateur qu'il y a eu un bug
+         //}
+
 
     }
 
@@ -125,6 +137,7 @@ public abstract class BaseDeckFragment extends Fragment {
 
     private void onBuildingSelected(EntityType entity) {
         selectedBuilding = entity;
+        direction = Direction.NORTH;
         topButtonBar.setVisibility(View.VISIBLE);
         frag.getRenderer().pinBuildingToScreenCenter(entity);
         Log.d(TAG, "Building sélectionné : " + entity.name());

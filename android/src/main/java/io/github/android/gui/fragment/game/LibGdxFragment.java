@@ -43,7 +43,7 @@ public class LibGdxFragment extends AndroidFragmentApplication {
 
         // On recrée toujours le renderer.
         // Si tu réutilises une instance Java d'un renderer qui contient des Textures d'un ancien contexte GL, ça crash.
-        renderer = new GameRenderer();
+        renderer = new GameRenderer(gameActivity);
         renderer.setOnCameraReady(this::setupCameraGestures);
 
         if (pendingReadyCallback != null) renderer.setOnLibGdxReady(pendingReadyCallback);
