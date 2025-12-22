@@ -49,8 +49,8 @@ public enum ShapeType {
         }), new ArrayList<>()),
 
     Base( new Shape(new Cell[][]{
-        {new Cell(WATER),new Cell(WATER)},
-        {new Cell(WATER),new Cell(WATER)}
+        {new Cell(WATER),new Cell(WATER), new Cell(GRASS)},
+        {new Cell(WATER),new Cell(WATER), new Cell(VOID)}
     }), new ArrayList<>(Collections.singleton(GRASS))),
     Barrack(new Shape(new Cell[][]{
         {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},

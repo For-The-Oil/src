@@ -1,14 +1,9 @@
 package io.github.android.gui.fragment.game;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,11 +18,11 @@ import java.util.List;
 
 import io.github.android.activity.GameActivity;
 import io.github.android.gui.adapter.BuildingAdapter;
-import io.github.android.utils.UiUtils;
 import io.github.core.client_engine.manager.SessionManager;
 import io.github.core.data.ClientGame;
 import io.github.fortheoil.R;
 import io.github.shared.data.enums_types.DeckCardCategory;
+import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.gameobject.Deck;
 import io.github.shared.data.network.Player;
@@ -40,8 +35,11 @@ public abstract class BaseDeckFragment extends Fragment {
     protected abstract DeckCardCategory getCategory();
     protected static final String TAG = "BaseDeckFragment";
     private static final int COLUMN = 3;
-    FlexboxLayout topButtonBar;
-    EntityType selectedBuilding;
+    private FlexboxLayout topButtonBar;
+    private EntityType selectedBuilding;
+    private Direction direction = Direction.NORTH;
+    LibGdxFragment frag;
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -53,25 +51,11 @@ public abstract class BaseDeckFragment extends Fragment {
         ImageButton btnCancel = view.findViewById(R.id.btnCancel);
 
         GameActivity cont = (GameActivity) view.getContext();
-        LibGdxFragment frag = cont.getLibGdxFragment();
+        frag = cont.getLibGdxFragment();
 
-        btnCancel.setOnClickListener(v -> {
-            topButtonBar.setVisibility(View.GONE);
-            selectedBuilding = null;
-            frag.getRenderer().unpinBuilding();
-        });
-
-        btnRotate.setOnClickListener(v -> {
-            //if (selectedBuilding != null) rotateBuilding(selectedBuilding);
-        });
-
-        btnBuild.setOnClickListener(v -> {
-//            if (selectedBuilding != null) {
-//                buildBuilding(selectedBuilding);
-//                topButtonBar.setVisibility(View.GONE);
-//                selectedBuilding = null;
-//            }
-        });
+        btnCancel.setOnClickListener(this::cancel);
+        btnRotate.setOnClickListener(this::rotate);
+        btnBuild.setOnClickListener(this::build);
 
         recycler = view.findViewById(R.id.recyclerSection1);
         recycler.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -84,6 +68,19 @@ public abstract class BaseDeckFragment extends Fragment {
 
         loadCards();
     }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (frag != null && frag.getRenderer() != null) {
+            frag.getRenderer().unpinBuilding();
+        }
+        selectedBuilding = null;
+        direction = Direction.NORTH;
+    }
+
+
 
     private void loadCards() {
         Player current = Utility.findPlayerByUuid(
@@ -105,8 +102,33 @@ public abstract class BaseDeckFragment extends Fragment {
         List<EntityType> cards = deck.getCardsByCategory(deck, getCategory());
         Log.d(TAG, "Nombre de cartes " + getCategory() + " : " + cards.size());
 
-        adapter = new BuildingAdapter(cards);
+        adapter = new BuildingAdapter(cards, this::onBuildingSelected);
         recycler.setAdapter(adapter);
     }
+
+
+
+    private void build(View view){
+
+    }
+
+    private void rotate(View view){
+        direction = direction.rotateClockwise();
+        frag.getRenderer().RotatePinBuilding(direction);
+    }
+
+    private void cancel(View view){
+        topButtonBar.setVisibility(View.GONE);
+        selectedBuilding = null;
+        frag.getRenderer().unpinBuilding();
+    }
+
+    private void onBuildingSelected(EntityType entity) {
+        selectedBuilding = entity;
+        topButtonBar.setVisibility(View.VISIBLE);
+        frag.getRenderer().pinBuildingToScreenCenter(entity);
+        Log.d(TAG, "Building sélectionné : " + entity.name());
+    }
+
 
 }

@@ -185,10 +185,10 @@ public class GameRenderer implements ApplicationListener {
                 }
             }
             buildingPinnedPos.y = DY_PIN;
-            buildingPinnedPos.x = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.x))- (Utility.cellToWorld(pinShape.getWidth())/2);
-            buildingPinnedPos.z = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.z))- (Utility.cellToWorld(pinShape.getHeight())/2);
-            dx = buildingPinnedPos.x;
-            dz = buildingPinnedPos.z;
+            dx = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.x))- (Utility.cellToWorld(pinShape.getWidth())/2);
+            dz = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.z))- (Utility.cellToWorld(pinShape.getHeight())/2);
+            buildingPinnedPos.x = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.x));
+            buildingPinnedPos.z = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.z));
             Matrix4 t = new Matrix4().setTranslation(buildingPinnedPos);
             buildingPinnedScene.modelInstance.transform.set(t);
             buildingPinnedScene.modelInstance.calculateTransforms();
