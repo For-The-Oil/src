@@ -4,6 +4,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
 import io.github.server.data.ServerGame;
+import io.github.server.data.network.ServerNetwork;
 import io.github.server.game_engine.GameLauncher;
 import io.github.server.server_engine.manager.SyncManager;
 import io.github.server.server_engine.utils.PlayerChecker;
@@ -46,7 +47,7 @@ public class GameListener extends Listener {
             kryo.getObj() instanceof DestroyRequest ||
             kryo.getObj() instanceof MoveGroupRequest ||
             kryo.getObj() instanceof SummonRequest){
-            handleGameRequest((Request) kryo.getObj());
+            handleGameRequest((Request) kryo.getObj(),connection);
         }
 
     }
@@ -57,10 +58,14 @@ public class GameListener extends Listener {
         SyncManager.getInstance().handleSyncRequest(connection, synchronizeRequest);
     }
 
-    private void handleGameRequest(Request request){
-        GameLauncher gameLauncher = PlayerChecker.getGameLauncherOfClient(request.getPlayer());
-        System.out.println("GameRequest Received !");
-        gameLauncher.addQueueRequest(request);
+    private void handleGameRequest(Request request,Connection connection){
+        ClientNetwork client = ServerNetwork.getInstance().getClientByConnection(connection);
+        request.setPlayer(client.getUuid());
+        GameLauncher gameLauncher = PlayerChecker.getGameLauncherOfClient(client.getUuid());
+        if(gameLauncher != null) {
+            System.out.println("GameRequest Received !");
+            gameLauncher.addQueueRequest(request);
+        }
     }
 
 

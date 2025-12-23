@@ -144,10 +144,10 @@ public abstract class BaseDeckFragment extends Fragment {
 
         Vector2 v = frag.getRenderer().getPinnedShapePos(selectedBuilding.getShapeType().getShape(), direction);
 
-        if (ShapeManager.canOverlayShape(
+        if (!ShapeManager.canOverlayShape(
             ClientGame.getInstance().getMap(), selectedBuilding.getShapeType().getShape(),
-            0, 0,
             Utility.worldToCell(v.x), Utility.worldToCell(v.y),
+            0, 0,
             selectedBuilding.getShapeType().getShape().getWidth(), selectedBuilding.getShapeType().getShape().getHeight(),
             selectedBuilding.getShapeType().getCanBePlacedOn())
             ){
@@ -157,12 +157,9 @@ public abstract class BaseDeckFragment extends Fragment {
             return;
         }
 
-
-
         new Thread(() -> {
-
             KryoMessage message = KryoMessagePackager.packBuildRequest(
-                RequestFactory.createBuildRequest(selectedBuilding, netFrom, Utility.worldToCell(v.x), Utility.worldToCell(v.y), direction),
+                RequestFactory.createBuildRequest(selectedBuilding, netFrom, v.x, v.y, direction),
                 SessionManager.getInstance().getToken()
             );
 

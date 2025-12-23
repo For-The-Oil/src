@@ -41,9 +41,7 @@ public enum EntityType {
         0f,
         5f,
         20,
-        new HashMap<ResourcesType, Integer>() {{
-
-        }},
+        new HashMap<ResourcesType, Integer>(),
         null
     ),
     BARRACK(

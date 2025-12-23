@@ -93,7 +93,8 @@ public class Utility {
 
 
     public static boolean canSubtractResources(HashMap<ResourcesType, Integer> base, HashMap<ResourcesType, Integer> toSubtract) {
-        if (base == null || toSubtract == null) return false;
+        if (base == null) return false;
+        if (toSubtract == null) return true;
 
         for (Map.Entry<ResourcesType, Integer> e : toSubtract.entrySet()) {
             ResourcesType type = e.getKey();

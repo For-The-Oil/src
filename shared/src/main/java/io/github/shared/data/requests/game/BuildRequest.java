@@ -7,14 +7,14 @@ import io.github.shared.data.requests.Request;
 public class BuildRequest extends Request {
     private EntityType type;
     private int from;
-    private int posX;
-    private int posY;
+    private float posX;
+    private float posY;
     private Direction direction;
 
     public BuildRequest(){
         super();
     }
-    public BuildRequest(EntityType type, int from, int posX, int posY, Direction direction){
+    public BuildRequest(EntityType type, int from, float posX, float posY, Direction direction){
         super();
         this.type = type;
         this.from = from;
@@ -35,7 +35,7 @@ public class BuildRequest extends Request {
         return posX;
     }
 
-    public void setPosX(int posX) {
+    public void setPosX(float posX) {
         this.posX = posX;
     }
 
@@ -43,7 +43,7 @@ public class BuildRequest extends Request {
         return posY;
     }
 
-    public void setPosY(int posY) {
+    public void setPosY(float posY) {
         this.posY = posY;
     }
 

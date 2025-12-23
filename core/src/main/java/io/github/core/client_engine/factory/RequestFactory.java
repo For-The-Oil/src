@@ -75,7 +75,7 @@ public class RequestFactory {
         return request;
     }
 
-    public static BuildRequest createBuildRequest(EntityType type, int netFrom, int posX, int posY, Direction direction){
+    public static BuildRequest createBuildRequest(EntityType type, int netFrom, float posX, float posY, Direction direction){
         return new BuildRequest(type, netFrom, posX, posY, direction);
     }
 
