@@ -75,14 +75,27 @@ public class GraphicsSyncSystem extends BaseSystem {
     protected void processSystem() {
         // no-op
     }
+    public int getFrom(EntityType entityType) {
+        EntityType type = entityType.getFrom();
+        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class)).getEntities();
+        for (int i = 0; i < entities.size(); i++) {
+            int e = entities.get(i);
+            NetComponent net  = mNet.get(e);
+            if (net.entityType == type) {
+                return net.netId;
+            }
+        }
+        return -1;
+    }
+
 
     public int getEntity(Scene scene) {
         if(scene == null)return -1;
-        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all()).getEntities();
+        IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(ModelComponent.class)).getEntities();
         for (int i = 0; i < entities.size(); i++) {
             int e = entities.get(i);
             ModelComponent mc = mm.get(e);
-            if (mc != null && mc.scene == scene) {
+            if (mc.scene == scene) {
                 return e;
             }
         }
@@ -138,7 +151,7 @@ public class GraphicsSyncSystem extends BaseSystem {
             NetComponent net  = mNet.get(e);
             ProprietyComponent meP = mProp.get(e);
             if(meP.player != SessionManager.getInstance().getUuidClient())continue;
-            if(net != null && net.entityType.getType().equals(EntityType.Type.Unit))arrayList.add(e);
+            if(net.entityType.getType().equals(EntityType.Type.Unit))arrayList.add(e);
         }
         return arrayList;
     }
