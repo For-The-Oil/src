@@ -47,13 +47,18 @@ public class InstanceFactoryScene {
                 Cell c = shape.getCells(x, y);
                 CellType t = (c == null) ? CellType.VOID : c.getCellType();
                 if (t == CellType.VOID) continue; // pas de null
+
+                int cx = Utility.worldToCell(Utility.cellToWorld(x)+X);
+                int cy = Utility.worldToCell(Utility.cellToWorld(y)+Z);
+                if(map.getWidth()-1 < cx || map.getHeight()-1 < cy)return new ArrayList<>();
+
                 Scene s = SceneFactory.getInstance().getCellScene(t);
                 s.modelInstance.transform.setToTranslation(Utility.cellToWorld(x)+X, 0f+Y, Utility.cellToWorld(y)+Z);
                 for (Material mat : s.modelInstance.materials) {
                     mat.clear();
 
                     // Couleur (émissif) pour rester lisible, l’alpha est géré par le blending
-                    if(type.getCanBePlacedOn().contains(map.getCells(Utility.worldToCell(Utility.cellToWorld(x)+X),Utility.worldToCell(Utility.cellToWorld(y)+Z)).getCellType()))mat.set(ColorAttribute.createEmissive(Color.WHITE));
+                    if(type.getCanBePlacedOn().contains(map.getCells(cx,cy).getCellType()))mat.set(ColorAttribute.createEmissive(Color.WHITE));
                     else mat.set(ColorAttribute.createEmissive(Color.RED));
 
                     mat.set(new BlendingAttribute(true, Math.max(0f, Math.min(1f, 0.7f))));

@@ -49,7 +49,7 @@ public enum ShapeType {
         }), new ArrayList<>()),
 
     Statue(new Shape(new Cell[][]{
-        {new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER)},
+        {new Cell(VOID),new Cell(WATER),new Cell(WATER),new Cell(GRASS)},
         {new Cell(WATER),new Cell(ROAD),new Cell(ROAD),new Cell(WATER)},
         {new Cell(WATER),new Cell(ROAD),new Cell(ROAD),new Cell(WATER)},
         {new Cell(WATER),new Cell(WATER),new Cell(WATER),new Cell(WATER)}

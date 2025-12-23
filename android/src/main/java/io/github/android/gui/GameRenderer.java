@@ -80,6 +80,7 @@ public class GameRenderer implements ApplicationListener {
     private final Vector3 buildingPinnedPos = new Vector3();
     private Shape pinShape;
     private ShapeType pinShapeType;
+    private Direction pinDirection;
     private final float DY_PIN = 20f;
 
 
@@ -201,11 +202,18 @@ public class GameRenderer implements ApplicationListener {
                 }
             }
             buildingPinnedPos.y = DY_PIN;
-            dx = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.x))- (Utility.cellToWorld(pinShape.getWidth())/2);
-            dz = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.z))- (Utility.cellToWorld(pinShape.getHeight())/2);
-            buildingPinnedPos.x = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.x));
-            buildingPinnedPos.z = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.z));
-            Matrix4 t = new Matrix4().setTranslation(buildingPinnedPos);
+            int width = pinShape.getWidth();
+            int height = pinShape.getHeight();
+            float degrees = (-pinDirection.getAngleRadians()-(float)Math.PI/2) * MathUtils.radiansToDegrees;
+            if(pinDirection.equals(Direction.EAST)||pinDirection.equals(Direction.WEST)){
+                height = pinShape.getWidth();
+                width = pinShape.getHeight();
+            }
+            dx = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.x))- (Utility.cellToWorld(width/2));
+            dz = Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.z))- (Utility.cellToWorld(height/2));
+            buildingPinnedPos.x = dx + (Utility.cellToWorld(pinShape.getWidth())/2);
+            buildingPinnedPos.z = dz + (Utility.cellToWorld(pinShape.getHeight())/2);
+            Matrix4 t = new Matrix4().setToRotation(Vector3.Y, degrees).setTranslation(buildingPinnedPos);
             buildingPinnedScene.modelInstance.transform.set(t);
             buildingPinnedScene.modelInstance.calculateTransforms();
         }
@@ -223,7 +231,7 @@ public class GameRenderer implements ApplicationListener {
             for (Scene s : entityScenes) if (s != null) sceneManager.removeScene(s);
             entityScenes.clear();
             entityScenes.add(buildingPinnedScene);
-            entityScenes.addAll(InstanceFactoryScene.pinShapeScenes(pinShape,dx,DY_PIN,dz,pinShapeType,ClientGame.getInstance().getMap()));
+            entityScenes.addAll(InstanceFactoryScene.pinShapeScenes(pinShape,dx,DY_PIN-2,dz,pinShapeType,ClientGame.getInstance().getMap()));
             entityScenes.addAll(sharedSceneQueue);
             sharedSceneQueue.clear();
             for (Scene s : entityScenes) if (s != null) sceneManager.addScene(s);
@@ -363,6 +371,7 @@ public class GameRenderer implements ApplicationListener {
 
     public void pinBuildingToScreenCenter(EntityType entityType){
         if(entityType == null || !entityType.getType().equals(EntityType.Type.Building)) return;
+        pinDirection = Direction.NORTH;
         buildingPinnedScene = SceneFactory.getInstance().getEntityScene(entityType);
         for (Material mat : buildingPinnedScene.modelInstance.materials) {
             mat.clear();
@@ -380,15 +389,8 @@ public class GameRenderer implements ApplicationListener {
     }
 
     public void RotatePinBuilding(Direction direction) {
+        pinDirection = direction;
         pinShape = ShapeManager.rotateShape(pinShapeType.getShape(), direction);
-
-        Vector3 pos = new Vector3();
-        buildingPinnedScene.modelInstance.transform.getTranslation(pos);
-
-        float degrees = direction.getAngleRadians() * MathUtils.radiansToDegrees;
-        buildingPinnedScene.modelInstance.transform
-            .setToRotation(Vector3.Y, degrees)
-            .setTranslation(pos);
     }
 
 
