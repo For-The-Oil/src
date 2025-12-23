@@ -7,8 +7,8 @@ import io.github.shared.data.requests.Request;
 public class BuildRequest extends Request {
     private EntityType type;
     private int from;
-    private float posX;
-    private float posY;
+    private int posX;
+    private int posY;
     private Direction direction;
 
     public BuildRequest(){
