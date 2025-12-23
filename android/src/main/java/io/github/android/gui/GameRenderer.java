@@ -402,35 +402,33 @@ public class GameRenderer implements ApplicationListener {
     }
 
 
-    public Vector2 getPinnedShapePos() throws IllegalArgumentException{
-        if(buildingPinnedScene != null && buildingPinnedScene.modelInstance != null && pinShape != null){
-            float cx = Gdx.graphics.getWidth() * 0.5f;
-            float cy = Gdx.graphics.getHeight() * 0.5f;
-            Ray ray = camera.getPickRay(cx, cy);
+    public Vector2 getPinnedShapePos(Shape shape,Direction direction) throws IllegalArgumentException{
+        float cx = Gdx.graphics.getWidth() * 0.5f;
+        float cy = Gdx.graphics.getHeight() * 0.5f;
+        Ray ray = camera.getPickRay(cx, cy);
+        Vector3 PinnedPos = new Vector3();
 
-            boolean hit = Intersector.intersectRayPlane(ray, groundPlane, buildingPinnedPos);
-            if(!hit){
-                float dirY = ray.direction.y;
-                if(Math.abs(dirY) > 1e-6f){
-                    float t = -ray.origin.y / dirY;
-                    buildingPinnedPos.set(ray.origin).mulAdd(ray.direction, t);
-                }
+        boolean hit = Intersector.intersectRayPlane(ray, groundPlane, PinnedPos);
+        if(!hit){
+            float dirY = ray.direction.y;
+            if(Math.abs(dirY) > 1e-6f){
+                float t = -ray.origin.y / dirY;
+                PinnedPos.set(ray.origin).mulAdd(ray.direction, t);
             }
-            buildingPinnedPos.y = DY_PIN;
-            int width = pinShape.getWidth();
-            int height = pinShape.getHeight();
-            float degrees = (-pinDirection.getAngleRadians()-(float)Math.PI/2) * MathUtils.radiansToDegrees;
-            if(pinDirection.equals(Direction.EAST)||pinDirection.equals(Direction.WEST)){
-                height = pinShape.getWidth();
-                width = pinShape.getHeight();
-            }
-
-            return new Vector2(
-                Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.x))- (Utility.cellToWorld(width/2)),
-                Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.z))- (Utility.cellToWorld(height/2))
-            );
         }
-        throw new IllegalArgumentException("buildingPinnedScene != null && buildingPinnedScene.modelInstance != null && pinShape != null");
+        PinnedPos.y = DY_PIN;
+        int width = shape.getWidth();
+        int height = shape.getHeight();
+        float degrees = (-direction.getAngleRadians()-(float)Math.PI/2) * MathUtils.radiansToDegrees;
+        if(direction.equals(Direction.EAST)||direction.equals(Direction.WEST)){
+            height = shape.getWidth();
+            width = shape.getHeight();
+        }
+
+        return new Vector2(
+            Utility.cellToWorld(Utility.worldToCell(PinnedPos.x))- (Utility.cellToWorld(width/2)),
+            Utility.cellToWorld(Utility.worldToCell(PinnedPos.z))- (Utility.cellToWorld(height/2))
+        );
     }
 
 

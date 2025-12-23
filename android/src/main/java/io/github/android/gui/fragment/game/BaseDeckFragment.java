@@ -140,8 +140,7 @@ public abstract class BaseDeckFragment extends Fragment {
         }
 
         new Thread(() -> {
-            Vector2 v = frag.getRenderer().getPinnedShapePos();
-
+            Vector2 v = frag.getRenderer().getPinnedShapePos(selectedBuilding.getShapeType().getShape(),direction);
             KryoMessage message = KryoMessagePackager.packBuildRequest(
                 RequestFactory.createBuildRequest(selectedBuilding, netFrom, Utility.worldToCell(v.x), Utility.worldToCell(v.y), direction),
                 SessionManager.getInstance().getToken()
