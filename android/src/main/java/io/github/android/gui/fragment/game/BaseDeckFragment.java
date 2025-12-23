@@ -1,6 +1,8 @@
 package io.github.android.gui.fragment.game;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
@@ -147,9 +149,14 @@ public abstract class BaseDeckFragment extends Fragment {
             );
 
             ClientManager.getInstance().getKryoManager().send(message);
+
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+                cancel(view);
+            });
+
         }).start();
 
-        cancel(view);
     }
 
     private void rotate(View view){
