@@ -77,6 +77,7 @@ public class GraphicsSyncSystem extends BaseSystem {
     }
     public int getFrom(EntityType entityType) {
         EntityType type = entityType.getFrom();
+        if(type == null)return -1;
         IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class)).getEntities();
         for (int i = 0; i < entities.size(); i++) {
             int e = entities.get(i);
