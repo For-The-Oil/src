@@ -11,6 +11,7 @@ import io.github.core.config.ServerDefaultConfig;
 import io.github.android.listeners.ClientListener;
 import io.github.android.manager.ClientManager;
 import io.github.core.client_engine.manager.SessionManager;
+import io.github.shared.data.enums_types.ResourcesType;
 
 public final class OtherUtils {
 
@@ -46,4 +47,34 @@ public final class OtherUtils {
         String auto = saved.getOrDefault("auto_login", "false");
         return "true".equalsIgnoreCase(auto);
     }
+
+
+    /**
+     * Fonction servant à calculer si un batiment peut être construit par un joueur.
+     * @param playerResources
+     * @param cost
+     * @return
+     */
+    public static boolean canAfford(Map<ResourcesType, Integer> playerResources, Map<ResourcesType, Integer> cost) {
+        if (cost == null || cost.isEmpty()) {
+            return true;
+        }
+
+        if (playerResources == null) {
+            return false;
+        }
+
+        for (Map.Entry<ResourcesType, Integer> entry : cost.entrySet()) {
+            int required = entry.getValue();
+            int owned = playerResources.getOrDefault(entry.getKey(), 0);
+
+            if (owned < required) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
 }

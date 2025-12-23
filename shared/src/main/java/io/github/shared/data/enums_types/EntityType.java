@@ -42,8 +42,7 @@ public enum EntityType {
         5f,
         20,
         new HashMap<ResourcesType, Integer>() {{
-            put(ResourcesType.Oil, 100);
-            put(ResourcesType.Steel, 500);
+
         }},
         null
     ),

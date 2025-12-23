@@ -5,6 +5,7 @@ import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.AuthRequest;
 import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
+import io.github.shared.data.requests.game.BuildRequest;
 
 /**
  * <h1>KryoMessagePackager</h1>
@@ -39,6 +40,11 @@ public class KryoMessagePackager {
     public static KryoMessage packDeckRequest(DeckRequest request, String token) {
         if (request == null) return null;
         return new KryoMessage(KryoMessageType.DECK, token, request);
+    }
+
+    public static KryoMessage packBuildRequest(BuildRequest request, String token){
+        if (request == null) return null;
+        return new KryoMessage(KryoMessageType.GAME_REQUEST, token, request);
     }
 
 

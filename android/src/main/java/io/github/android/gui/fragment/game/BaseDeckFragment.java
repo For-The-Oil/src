@@ -4,23 +4,33 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.badlogic.gdx.math.Vector2;
 import com.google.android.flexbox.FlexboxLayout;
 import java.util.List;
 import io.github.android.activity.GameActivity;
 import io.github.android.gui.adapter.BuildingAdapter;
+import io.github.android.manager.ClientManager;
+import io.github.android.utils.OtherUtils;
+import io.github.core.client_engine.factory.KryoMessagePackager;
+import io.github.core.client_engine.factory.RequestFactory;
 import io.github.core.client_engine.manager.SessionManager;
 import io.github.core.data.ClientGame;
+import io.github.core.game_engine.system.GraphicsSyncSystem;
 import io.github.fortheoil.R;
 import io.github.shared.data.enums_types.DeckCardCategory;
 import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.gameobject.Deck;
+import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.network.Player;
 import io.github.shared.shared_engine.Utility;
 
@@ -107,21 +117,40 @@ public abstract class BaseDeckFragment extends Fragment {
 
 
 
-    private void build(View view){
+    private void build(View view) {
 
-        //TODO : Ajouter la logique d'envoi et construction
+        Player current = Utility.findPlayerByUuid(
+            ClientGame.getInstance().getPlayersList(),
+            SessionManager.getInstance().getUuidClient()
+        );
 
-        //if( isBuildable(selectedBuilding, direction) ) {
-        // CreateRequest request = RequestFactory.buildCreateRequest(selectedBuilding, direction, ... );
-        // Kryo.getManager.sendRequest(request);
-           cancel(view);
-           //Dépenser les ressources cotés client
-        // }
-        //else {
-        //  Informer l'utilisateur qu'il y a eu un bug
-         //}
+        GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
+        int netFrom = gfx.getFrom(selectedBuilding);
 
+        if (selectedBuilding.getFrom() != null && netFrom < 0) {
+            cancel(view);
+            Toast.makeText(requireActivity(), "Erreur, technologie indisponible", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        if (!OtherUtils.canAfford(current.getResources(), selectedBuilding.getCost())) {
+            cancel(view);
+            Toast.makeText(requireActivity(), "Erreur, ressources insuffisantes", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new Thread(() -> {
+            Vector2 v = frag.getRenderer().getPinnedShapePos();
+
+            KryoMessage message = KryoMessagePackager.packBuildRequest(
+                RequestFactory.createBuildRequest(selectedBuilding, netFrom, Utility.worldToCell(v.x), Utility.worldToCell(v.y), direction),
+                SessionManager.getInstance().getToken()
+            );
+
+            ClientManager.getInstance().getKryoManager().send(message);
+        }).start();
+
+        cancel(view);
     }
 
     private void rotate(View view){

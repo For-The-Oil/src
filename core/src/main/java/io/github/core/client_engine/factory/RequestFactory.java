@@ -3,12 +3,15 @@ package io.github.core.client_engine.factory;
 import java.util.HashMap;
 
 import io.github.shared.data.enums_types.AuthModeType;
+import io.github.shared.data.enums_types.Direction;
+import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.GameModeType;
 import io.github.shared.data.enums_types.MatchModeType;
 import io.github.shared.data.requests.AuthRequest;
 import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
 import io.github.shared.data.enums_types.DeckRequestType;
+import io.github.shared.data.requests.game.BuildRequest;
 
 
 /**
@@ -70,6 +73,10 @@ public class RequestFactory {
         request.setMode(mode);
         request.setKeys(keys);
         return request;
+    }
+
+    public static BuildRequest createBuildRequest(EntityType type, int netFrom, int posX, int posY, Direction direction){
+        return new BuildRequest(type, netFrom, posX, posY, direction);
     }
 
 

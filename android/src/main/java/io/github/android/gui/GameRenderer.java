@@ -23,6 +23,7 @@ import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Plane;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
@@ -399,6 +400,39 @@ public class GameRenderer implements ApplicationListener {
         pinShapeType = null;
         pinShape = null;
     }
+
+
+    public Vector2 getPinnedShapePos() throws IllegalArgumentException{
+        if(buildingPinnedScene != null && buildingPinnedScene.modelInstance != null && pinShape != null){
+            float cx = Gdx.graphics.getWidth() * 0.5f;
+            float cy = Gdx.graphics.getHeight() * 0.5f;
+            Ray ray = camera.getPickRay(cx, cy);
+
+            boolean hit = Intersector.intersectRayPlane(ray, groundPlane, buildingPinnedPos);
+            if(!hit){
+                float dirY = ray.direction.y;
+                if(Math.abs(dirY) > 1e-6f){
+                    float t = -ray.origin.y / dirY;
+                    buildingPinnedPos.set(ray.origin).mulAdd(ray.direction, t);
+                }
+            }
+            buildingPinnedPos.y = DY_PIN;
+            int width = pinShape.getWidth();
+            int height = pinShape.getHeight();
+            float degrees = (-pinDirection.getAngleRadians()-(float)Math.PI/2) * MathUtils.radiansToDegrees;
+            if(pinDirection.equals(Direction.EAST)||pinDirection.equals(Direction.WEST)){
+                height = pinShape.getWidth();
+                width = pinShape.getHeight();
+            }
+
+            return new Vector2(
+                Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.x))- (Utility.cellToWorld(width/2)),
+                Utility.cellToWorld(Utility.worldToCell(buildingPinnedPos.z))- (Utility.cellToWorld(height/2))
+            );
+        }
+        throw new IllegalArgumentException("buildingPinnedScene != null && buildingPinnedScene.modelInstance != null && pinShape != null");
+    }
+
 
     public Boolean isPinnedBuilding(){
         return pinShape!=null;
