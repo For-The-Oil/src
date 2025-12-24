@@ -2,6 +2,10 @@ package io.github.core.client_engine.utils;
 
 import java.util.regex.Pattern;
 
+/**
+ * <h1>Form Checker</h1>
+ * <p>A utility class that help with checking if a given email, password, username... is valid.</p>
+ */
 public final class FormChecker {
 
 

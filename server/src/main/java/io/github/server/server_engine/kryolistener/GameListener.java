@@ -29,7 +29,9 @@ public class GameListener extends Listener {
     @Override
     public void disconnected(Connection connection) {
         System.out.println("[GameListener] Client disconnected from game channel: " + connection.getRemoteAddressTCP());
-        // Tu pourrais ici gérer le fait qu’un joueur quitte sa partie brutalement
+
+        // TODO : Gerer ici la déconnexion en partie des joueurs
+
     }
 
     @Override

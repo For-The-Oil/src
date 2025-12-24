@@ -14,7 +14,7 @@ public class InfoActivity extends BaseActivity {
         this.clientManager = ClientManager.getInstance();
         this.clientManager.setCurrentContext(this);
     }
-    
+
     private void disconnect(){
         finish();
     }

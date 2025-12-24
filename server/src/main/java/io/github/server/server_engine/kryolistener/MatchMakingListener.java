@@ -23,6 +23,13 @@ public class MatchMakingListener extends Listener {
             }
         }
     }
+
+    @Override
+    public void disconnected(Connection connection) {
+        //TODO : En cas de déconnexion retirer le joueur du matchmaking
+    }
+
+
     private void handleMatchMaking(Connection connection, MatchMakingRequest req, String token) {
 
 //        if(PlayerChecker.isValidToken(connection, token)==null){
