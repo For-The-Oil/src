@@ -246,6 +246,16 @@ public class HomeActivity extends BaseActivity {
 
 
 
+    public void infoActivity(View view){
+        RedirectUtils.simpleRedirect(this, InfoActivity.class, null);
+    }
+
+    public void settingsActivity(View view){
+        RedirectUtils.simpleRedirect(this, SettingsActivity.class, null);
+    }
+
+
+
     // -------------------------
     // Listeners utils
     // -------------------------

@@ -40,6 +40,7 @@
             app:iconTint="@android:color/white"
             app:iconSize="40dp"
             app:iconPadding="0dp"
+            android:onClick="infoActivity"
             app:iconGravity="textStart"/>
 
         <com.google.android.material.button.MaterialButton
@@ -70,6 +71,7 @@
             app:iconTint="@android:color/white"
             app:iconSize="40dp"
             app:iconPadding="0dp"
+            android:onClick="settingsActivity"
             app:iconGravity="textStart"/>
 
         <com.google.android.material.button.MaterialButton
