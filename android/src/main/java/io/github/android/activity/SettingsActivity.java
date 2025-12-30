@@ -24,4 +24,18 @@ public class SettingsActivity extends BaseActivity{
     }
 
 
+    public void setLang(View view){
+
+    }
+
+    public void setMusic(){
+
+    }
+
+    public void setVfx(){
+        
+    }
+
+
+
 }
