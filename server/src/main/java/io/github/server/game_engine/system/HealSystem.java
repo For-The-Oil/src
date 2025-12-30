@@ -5,22 +5,14 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 
-import java.util.HashMap;
 
 import io.github.server.data.ServerGame;
 import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.OnCreationComponent;
-import io.github.shared.data.component.ProprietyComponent;
-import io.github.shared.data.component.RessourceComponent;
-import io.github.shared.data.enums_types.EntityType;
-import io.github.shared.data.enums_types.ResourcesType;
 import io.github.shared.data.gameobject.DamageEntry;
-import io.github.shared.data.instructions.ResourcesInstruction;
-import io.github.shared.data.network.Player;
 import io.github.shared.data.snapshot.ComponentSnapshot;
-import io.github.shared.shared_engine.Utility;
 
 @Wire
 public class HealSystem extends IteratingSystem {

@@ -12,12 +12,14 @@ public class LifeComponent extends PooledComponent {
     public float maxHealth;
     public int armor;
     public float passiveHeal;
+    public int LastHitNetId;
 
      @Override
     public void reset() {
         health = maxHealth = 0f;
         armor = 0;
         passiveHeal = 0f;
+         LastHitNetId = -1;
     }
 
     public void set(float health, float maxHealth, int armor, float passiveHeal) {
@@ -25,6 +27,7 @@ public class LifeComponent extends PooledComponent {
         this.maxHealth = maxHealth;
         this.armor = armor;
         this.passiveHeal = passiveHeal;
+        LastHitNetId = -1;
     }
 
     public boolean isAlive() {
@@ -35,8 +38,9 @@ public class LifeComponent extends PooledComponent {
         health = Math.min(health + amount, maxHealth);
     }
 
-    public void takeDamage(float amount) {
+    public void takeDamage(float amount,int netId) {
         health = Math.max(health - amount, 0f);
+        LastHitNetId = netId;
     }
 }
 

@@ -5,12 +5,16 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 
+import java.util.HashMap;
+
 import io.github.shared.data.component.LifeComponent;
-import io.github.shared.data.component.DamageComponent;
 import io.github.shared.data.component.NetComponent;
-import io.github.shared.data.gameobject.DamageEntry;
-import io.github.shared.config.BaseGameConfig;
+import io.github.shared.data.component.ProprietyComponent;
+import io.github.shared.data.enums_types.ResourcesType;
 import io.github.server.data.ServerGame;
+import io.github.shared.data.instructions.ResourcesInstruction;
+import io.github.shared.shared_engine.Utility;
+import io.github.shared.shared_engine.manager.EcsManager;
 
 /**
  * Processes entities with LifeComponent and deferred destroy instruction when the entity is no longer alive.
@@ -26,6 +30,8 @@ public class DamageServerSystem extends IteratingSystem {
     // Injected by Artemis (no manual constructor init required)
     private ComponentMapper<LifeComponent> mLife;
     private ComponentMapper<NetComponent> mNet;
+
+    private ComponentMapper<ProprietyComponent> mProp;
 
     /**
      * @param server ServerGame instance to add destroy instructions.
@@ -47,6 +53,26 @@ public class DamageServerSystem extends IteratingSystem {
         if (!life.isAlive()) {
             NetComponent net = mNet.get(entityId);
             if (net != null && net.isValid()) {
+                if(life.LastHitNetId >= 0) {
+                    HashMap<ResourcesType, Integer> payload = new HashMap<>();
+                    for (ResourcesType resourcesType : net.entityType.getCost().keySet()) {
+                        payload.put(resourcesType, net.entityType.getCost().get(resourcesType) / 2);
+                    }
+                    int eHit = EcsManager.getIdByNetId(world,life.LastHitNetId,mNet);
+                    if (eHit > 0) {
+                        ProprietyComponent prop = mProp.get(eHit);
+                        if (!payload.isEmpty() && prop != null && prop.player != null) {
+                            HashMap<ResourcesType, Integer> playerR = Utility.findPlayerByUuid(server.getPlayersList(), prop.player).getResources();
+                            for (ResourcesType resourcesType : playerR.keySet()) {
+                                payload.put(resourcesType, playerR.get(resourcesType) + payload.getOrDefault(resourcesType, 0));
+                            }
+                            // Emit one ResourcesInstruction
+                            long timestamp = System.currentTimeMillis();
+                            ResourcesInstruction instruction = new ResourcesInstruction(timestamp, payload, prop.player);
+                            server.addQueueInstruction(instruction);
+                        }
+                    }
+                }
                 server.addDestroyInstruction(net.netId);
             }
         }

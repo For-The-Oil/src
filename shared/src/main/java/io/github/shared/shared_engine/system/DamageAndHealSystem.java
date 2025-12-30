@@ -2,6 +2,7 @@ package io.github.shared.shared_engine.system;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
+import com.artemis.World;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 
@@ -44,16 +45,15 @@ public class DamageAndHealSystem extends IteratingSystem {
 
         float totalDamage = 0f;
         for (DamageEntry entry : dmg.entries) {
-            if(entry.damage < 0){
-                totalDamage += entry.damage;
-            }
-            else {
-                int armorResidual = Math.max(life.armor - Math.round(entry.armorPenetration), 0);
-                totalDamage += (float) (entry.damage * Math.pow(BaseGameConfig.ARMOR_COEF, armorResidual));
-            }
+            if(life.isAlive()) {
+                if (entry.damage < 0) {
+                    life.heal(-entry.damage);
+                } else {
+                    int armorResidual = Math.max(life.armor - Math.round(entry.armorPenetration), 0);
+                    life.takeDamage((float)(entry.damage * Math.pow(BaseGameConfig.ARMOR_COEF, armorResidual)),entry.sourceEntityId );
+                }
+            }else dmg.clear();
         }
-        if(totalDamage < 0)life.heal(-totalDamage);
-        else life.takeDamage(totalDamage);
         dmg.clear();
     }
 }
