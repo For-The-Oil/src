@@ -70,11 +70,6 @@ public abstract class BaseDeckFragment extends Fragment {
         recycler.setLayoutManager(new LinearLayoutManager(getContext()));
         recycler.setLayoutManager(new GridLayoutManager(getContext(), COLUMN));
 
-        //On affiche le menu top si on a déjà un building de sélectionné
-        if(frag.getRenderer().isPinnedBuilding()){
-            topButtonBar.setVisibility(View.VISIBLE);
-        }
-
         loadCards();
     }
 
