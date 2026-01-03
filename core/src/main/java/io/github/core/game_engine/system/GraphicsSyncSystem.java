@@ -5,6 +5,7 @@ import com.artemis.Aspect;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.utils.IntBag;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -161,7 +162,7 @@ public class GraphicsSyncSystem extends BaseSystem {
         int e = getEntity(scene);
         if(e!=-1){
             NetComponent net  = mNet.get(e);
-            if(net!=null&&net.netId>0){
+            if(net!=null&&net.netId>=0){
             return net.netId;
             }
         }
@@ -203,7 +204,7 @@ public class GraphicsSyncSystem extends BaseSystem {
                         pos.x + (Utility.cellToWorld(net.entityType.getShapeType().getShape().getWidth())/2),
                         pos.z,
                         pos.y + (Utility.cellToWorld(net.entityType.getShapeType().getShape().getHeight())/2));
-                    mc.scene.modelInstance.transform.rotate(Vector3.Y, bp.direction.getAngleRadians() * MathUtils.radiansToDegrees);
+                    mc.scene.modelInstance.transform.rotate(Vector3.Y, (-bp.direction.getAngleRadians()-(float)Math.PI/2) * MathUtils.radiansToDegrees);
                     mc.scene.modelInstance.calculateTransforms();
                 }
             }
