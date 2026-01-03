@@ -103,6 +103,13 @@ public class GraphicsSyncSystem extends BaseSystem {
         }
         return -1;
     }
+
+    //TODO : simplifier la logique des fonctions get, en utilisant l'EnumType DeckCardCategory
+
+    /**
+     * Renvoit la liste des batiments de type industry appartenant au joueur
+     * @return ArrayList<Integer>
+     */
     public ArrayList<Integer> getEntityBuildingIndustry() {
         ArrayList<Integer> arrayList = new ArrayList<>();
         IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class,BuildingMapPositionComponent.class,RessourceComponent.class)).getEntities();
@@ -115,6 +122,10 @@ public class GraphicsSyncSystem extends BaseSystem {
         return arrayList;
     }
 
+    /**
+     * Renvoit la liste des entités de type militaire appartenant au joueur
+     * @return ArrayList<Integer>
+     */
     public ArrayList<Integer> getEntityBuildingMilitary() {
         ArrayList<Integer> arrayList = new ArrayList<>();
         IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class, BuildingMapPositionComponent.class)).getEntities();
@@ -133,6 +144,10 @@ public class GraphicsSyncSystem extends BaseSystem {
         return arrayList;
     }
 
+    /**
+     *
+     * @return ArrayList<Integer>
+     */
     public ArrayList<Integer> getEntityBuildingDefense() {
         ArrayList<Integer> arrayList = new ArrayList<>();
         IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class, BuildingMapPositionComponent.class)).getEntities();
@@ -145,6 +160,10 @@ public class GraphicsSyncSystem extends BaseSystem {
         return arrayList;
     }
 
+    /**
+     *
+     * @return ArrayList<Integer>
+     */
     public ArrayList<Integer> getEntityUnit() {
         ArrayList<Integer> arrayList = new ArrayList<>();
         IntBag entities = world.getAspectSubscriptionManager().get(Aspect.all(NetComponent.class)).getEntities();
@@ -162,8 +181,8 @@ public class GraphicsSyncSystem extends BaseSystem {
         int e = getEntity(scene);
         if(e!=-1){
             NetComponent net  = mNet.get(e);
-            if(net!=null&&net.netId>=0){
-            return net.netId;
+            if(net!=null && net.netId>=0){
+                return net.netId;
             }
         }
         return -1;

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.FrameLayout;
 
@@ -173,7 +172,7 @@ public class BottomFragment extends Fragment {
         isMenuOpen = true;
     }
 
-    private void closeMenuFragment() {
+    public void closeMenuFragment() {
         FrameLayout container = root.findViewById(R.id.bottomMenuContainer);
 
         ImageButton btnMenu1 = root.findViewById(R.id.btnMenuUnits);
@@ -216,7 +215,7 @@ public class BottomFragment extends Fragment {
 
     // Dans BottomFragment.java
     public void showFragmentSelectBuilding(int netID) {
-        Fragment fragment = new SelectedBuildingFragment(); //netID
+        Fragment fragment = new SelectedEntityFragment(netID); //netID
         currentFragment = fragment;
 
         resetButtonHighlights();

@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.collision.Ray;
 
 import net.mgsx.gltf.scene3d.scene.Scene;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.github.android.activity.GameActivity;
@@ -22,6 +23,8 @@ import io.github.android.gui.fragment.game.LibGdxFragment;
 import io.github.core.data.ClientGame;
 import io.github.core.game_engine.CameraController;
 import io.github.core.game_engine.system.GraphicsSyncSystem;
+import io.github.shared.shared_engine.Utility;
+import io.github.shared.shared_engine.manager.EcsManager;
 
 /**
  * Camera gestures anchored on the 2D map plane (e.g., y=0).
@@ -156,21 +159,39 @@ public class CameraGestureController extends InputAdapter {
     }
 
     private void onSimpleClick(int screenX, int screenY) {
-        // 1. Récupérer les scènes intersectées
-        List<Scene> intersectedScenes = gameRenderer.pickAllScenes(screenX, screenY);
+        Log.d("GameClick", "Click détecté en Écran: X=" + screenX + " Y=" + screenY);
 
-        if (!intersectedScenes.isEmpty()) {
-            for (Scene scene : intersectedScenes) {
-                GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
-                int netid = gfx.getEntityNetID(scene);
-                Log.d("CLIQUE CLIQUE FTO", "Clique détécté pour : "+netid +" " + scene);
+        // 1. Récupérer toutes les scènes touchées
+        List<Scene> allIntersected = gameRenderer.pickAllScenes(screenX, screenY);
+        GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
 
+        // 2. Filtrer pour ne garder que celles qui ont un NetID valide (!= -1)
+        List<Integer> validNetIds = new ArrayList<>();
+        for (Scene scene : allIntersected) {
+            int netid = gfx.getEntityNetID(scene);
+            if (netid != -1) {
+                validNetIds.add(netid);
             }
-        } else {
-            //TODO : Fermer le menu en cas de clique en dehors
-            // Logique si clic à côté (fermer le menu ou désélectionner)
-            // GameActivity activity = gameRenderer.getActivity();
-            // activity.deselectAll();
+        }
+
+        // 3. Agir sur le premier résultat valide (le plus proche)
+        if (!validNetIds.isEmpty()) {
+            int targetNetId = validNetIds.get(0); // Le premier car pickAllScenes trie par distance
+            Log.i("GameClick", "Entité valide trouvée : NetID=" + targetNetId);
+
+            GameActivity activity = gameRenderer.getActivity();
+            if (activity != null) {
+                activity.selectBuildingUI(targetNetId);
+            }
+        }
+        else {
+            // 4. Si la liste est vide après filtrage (clic sur décor ou vide)
+            Log.d("GameClick", "Aucune entité interactive touchée (uniquement décor ou sol)");
+
+            GameActivity activity = gameRenderer.getActivity();
+            if (activity != null) {
+                activity.runOnUiThread(() -> activity.deselectAll());
+            }
         }
     }
 

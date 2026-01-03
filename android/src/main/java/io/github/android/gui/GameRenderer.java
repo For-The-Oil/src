@@ -110,7 +110,7 @@ public class GameRenderer implements ApplicationListener {
 
     //Sauvegarde en mémoire de la GameActivity
     public GameRenderer(GameActivity gameActivity){
-        activity = activity;
+        this.activity = gameActivity;
     }
 
 

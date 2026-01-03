@@ -307,6 +307,14 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
         });
     }
 
+    public void deselectAll(){
+        runOnUiThread(() -> {
+            if (bottomFragment != null) {
+                bottomFragment.closeMenuFragment();
+            }
+        });
+    }
+
 
 
 }
