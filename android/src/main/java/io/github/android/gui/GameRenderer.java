@@ -29,6 +29,8 @@ import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Queue;
 
@@ -61,7 +63,7 @@ import net.mgsx.gltf.scene3d.utils.IBLBuilder;
 
 public class GameRenderer implements ApplicationListener {
 
-    GameActivity activity;
+    private GameActivity activity;
 
     private SceneManager sceneManager;
     private PerspectiveCamera camera;
@@ -462,4 +464,69 @@ public class GameRenderer implements ApplicationListener {
     public void setOnLibGdxReady(Runnable r) {
         onLibGdxReady = r;
     }
+
+
+
+    private static class Pair<K, V> {
+        public K key;
+        public V value;
+        public Pair(K key, V value) {
+            this.key = key;
+            this.value = value;
+        }
+    }
+
+    /**
+     * Detects all scenes intersected by a ray from screen coordinates (x, y).
+     * @return A list of Scenes sorted by distance (closest first).
+     */
+    public List<Scene> pickAllScenes(int screenX, int screenY) {
+        Ray ray = camera.getPickRay(screenX, screenY);
+        List<Scene> result = new ArrayList<>();
+        List<Pair<Scene, Float>> hits = new ArrayList<>();
+
+        // Helper BoundingBox
+        BoundingBox bbox = new BoundingBox();
+        Vector3 center = new Vector3();
+
+        for (Scene scene : getAllScenes()) {
+            if (scene == null || scene.modelInstance == null) continue;
+
+            // 1. Calculate the BoundingBox of the model
+            scene.modelInstance.calculateBoundingBox(bbox);
+
+            // 2. Transform the BoundingBox to world coordinates
+            bbox.mul(scene.modelInstance.transform);
+
+            // 3. Check intersection
+            if (Intersector.intersectRayBounds(ray, bbox, null)) {
+                // Calculate squared distance to the center of the object for sorting
+                bbox.getCenter(center);
+                float dist2 = ray.origin.dst2(center);
+                hits.add(new Pair<>(scene, dist2));
+            }
+        }
+
+        // 4. Sort by distance (closest first)
+        Collections.sort(hits, new Comparator<Pair<Scene, Float>>() {
+            @Override
+            public int compare(Pair<Scene, Float> o1, Pair<Scene, Float> o2) {
+                return Float.compare(o1.value, o2.value);
+            }
+        });
+
+        // 5. Extract Scenes
+        for (Pair<Scene, Float> p : hits) {
+            result.add(p.key);
+        }
+
+        return result;
+    }
+
+
+    public GameActivity getActivity() {
+        return activity;
+    }
+
+
 }

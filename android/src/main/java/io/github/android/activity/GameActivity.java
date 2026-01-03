@@ -299,6 +299,14 @@ public class GameActivity extends BaseActivity implements AndroidFragmentApplica
         return libGdxFragment;
     }
 
+    public void selectBuildingUI(int entityId) {
+        runOnUiThread(() -> {
+            if (bottomFragment != null) {
+                bottomFragment.showFragmentSelectBuilding(entityId);
+            }
+        });
+    }
+
 
 
 }

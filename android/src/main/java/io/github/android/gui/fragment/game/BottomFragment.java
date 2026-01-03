@@ -213,8 +213,33 @@ public class BottomFragment extends Fragment {
         isMenuOpen = false;
     }
 
+
+    // Dans BottomFragment.java
+    public void showFragmentSelectBuilding(int netID) {
+        Fragment fragment = new SelectedBuildingFragment(); //netID
+        currentFragment = fragment;
+
+        resetButtonHighlights();
+        activeButton = null;
+
+        if (isMenuOpen) {
+            replaceMenuFragment(fragment);
+        } else {
+            openMenuFragment(fragment);
+        }
+    }
+
+
+
+
+
+
+
     public void updateUI(){
         //TODO: ADD THE UPDATES
     }
+
+
+
 
 }

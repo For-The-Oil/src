@@ -52,14 +52,19 @@ public class LibGdxFragment extends AndroidFragmentApplication {
     }
 
     private void setupCameraGestures() {
+        // Vérification de sécurité
         if (renderer == null || renderer.getCamera() == null) return;
 
         Plane mapPlane = new Plane(new Vector3(0, 1, 0), 0f);
+
+        // MODIFICATION ICI : On passe 'renderer' au lieu de 'renderer.getCamera()'
+        // Cela correspond à la modification faite dans l'étape précédente.
         CameraGestureController gestures = new CameraGestureController(
-            renderer.getCamera(),
-            new Vector3(1500f, 0f, 800f),
-            mapPlane
+            renderer,                     // <--- On passe l'instance du GameRenderer
+            new Vector3(1500f, 0f, 800f), // Cible initiale
+            mapPlane                      // Plan du sol
         );
+
         Gdx.input.setInputProcessor(gestures);
     }
 

@@ -67,32 +67,6 @@
             android:layout_height="wrap_content"
             android:padding="8dp">
 
-            <!-- Section 1 -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Selected Units"
-                android:textColor="#FFF"
-                android:textSize="18sp"
-                android:layout_gravity="center_horizontal"
-                android:paddingBottom="8dp"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerSection1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:overScrollMode="never"
-                android:clipToPadding="false"/>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#555"
-                android:layout_marginVertical="12dp"/>
-
-            <!-- Section 2 -->
-            <!-- ================== QUICK UNITS PRODUCTION ================== -->
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -127,30 +101,29 @@
                     android:nestedScrollingEnabled="false"/>
             </LinearLayout>
 
-            <!-- BOÎTE B : unités en cours de production -->
-            <LinearLayout
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#555"
+                android:layout_marginVertical="12dp"/>
+
+            <!-- Section 2 -->
+            <!-- Section 1 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Selected Units"
+                android:textColor="#FFF"
+                android:textSize="18sp"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="8dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerSection1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="#2A2A2A"
-                android:padding="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="In production"
-                    android:textColor="#CCCCCC"
-                    android:textSize="14sp"
-                    android:paddingBottom="6dp"/>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recyclerUnitsInProduction"
-                    android:layout_width="match_parent"
-                    android:layout_height="96dp"
-                    android:orientation="horizontal"
-                    android:overScrollMode="never"/>
-            </LinearLayout>
-
+                android:overScrollMode="never"
+                android:clipToPadding="false"/>
 
             <View
                 android:layout_width="match_parent"

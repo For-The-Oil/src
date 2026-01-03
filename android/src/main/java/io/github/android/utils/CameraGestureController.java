@@ -1,6 +1,8 @@
 
 package io.github.android.utils;
 
+import android.util.Log;
+
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Intersector;
@@ -9,7 +11,17 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 
+import net.mgsx.gltf.scene3d.scene.Scene;
+
+import java.util.List;
+
+import io.github.android.activity.GameActivity;
+import io.github.android.gui.GameRenderer;
+import io.github.android.gui.fragment.game.BottomFragment;
+import io.github.android.gui.fragment.game.LibGdxFragment;
+import io.github.core.data.ClientGame;
 import io.github.core.game_engine.CameraController;
+import io.github.core.game_engine.system.GraphicsSyncSystem;
 
 /**
  * Camera gestures anchored on the 2D map plane (e.g., y=0).
@@ -41,6 +53,7 @@ import io.github.core.game_engine.CameraController;
  */
 public class CameraGestureController extends InputAdapter {
 
+    private final GameRenderer gameRenderer;
     private final Camera camera;
     private final Vector3 target;
     private final Plane mapPlane;
@@ -65,15 +78,21 @@ public class CameraGestureController extends InputAdapter {
     private final float MIN_HEIGHT = 600f;   // min camera Y above ground
     private final float MAX_HEIGHT = 5000f;  // max camera Y above ground
 
+    // Variable pour mesurer le déplacement
+    private final float CLICK_THRESHOLD = 10f; // seuil de déplacement pour considérer un "clic"
+    private Vector2 touchDownPos = new Vector2();
+    private boolean movedTooMuch = false;
+
     /**
      * Constructs the plane-anchored gesture controller.
      *
-     * @param cam      libGDX camera (perspective or orthographic)
+     * @param gameRenderer
      * @param target   initial world look point (updated on gestures)
      * @param mapPlane map/ground plane (e.g., y=0)
      */
-    public CameraGestureController(Camera cam, Vector3 target, Plane mapPlane) {
-        this.camera = cam;
+    public CameraGestureController(GameRenderer gameRenderer, Vector3 target, Plane mapPlane) {
+        this.gameRenderer = gameRenderer;
+        this.camera = gameRenderer.getCamera();
         this.target = target.cpy();
         this.mapPlane = mapPlane;
     }
@@ -94,6 +113,9 @@ public class CameraGestureController extends InputAdapter {
             pointer1 = pointer;
             prev1.set(x, y);
 
+            // Enregistre la position au moment du touchDown
+            touchDownPos.set(x, y);
+
             // Anchor on ground projection (whatever you touched)
             hasAnchorGround = screenToGround(x, y, anchorGround);
 
@@ -107,18 +129,51 @@ public class CameraGestureController extends InputAdapter {
         return true;
     }
 
+
     @Override
     public boolean touchUp(int x, int y, int pointer, int button) {
+
+        if (pointer == pointer1 && pointer2 == -1) {
+
+            float dist = touchDownPos.dst(x, y);
+
+            if (!movedTooMuch && dist <= CLICK_THRESHOLD) {
+                onSimpleClick(x, y);
+            }
+        }
+
         if (pointer == pointer1) pointer1 = -1;
         else if (pointer == pointer2) pointer2 = -1;
 
         if (pointer1 == -1 && pointer2 == -1) {
             hasAnchorGround = false;
+            movedTooMuch = false;
             cc.setInputLock(false);
-            cc.setLookTarget(target); // sync look point for external controller
+            cc.setLookTarget(target);
         }
+
         return true;
     }
+
+    private void onSimpleClick(int screenX, int screenY) {
+        // 1. Récupérer les scènes intersectées
+        List<Scene> intersectedScenes = gameRenderer.pickAllScenes(screenX, screenY);
+
+        if (!intersectedScenes.isEmpty()) {
+            for (Scene scene : intersectedScenes) {
+                GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
+                int netid = gfx.getEntityNetID(scene);
+                Log.d("CLIQUE CLIQUE FTO", "Clique détécté pour : "+netid +" " + scene);
+
+            }
+        } else {
+            //TODO : Fermer le menu en cas de clique en dehors
+            // Logique si clic à côté (fermer le menu ou désélectionner)
+            // GameActivity activity = gameRenderer.getActivity();
+            // activity.deselectAll();
+        }
+    }
+
 
     @Override
     public boolean touchDragged(int x, int y, int pointer) {
@@ -126,6 +181,13 @@ public class CameraGestureController extends InputAdapter {
 
         // ------------------ One finger: PAN on ground projection ------------------
         if (pointer1 != -1 && pointer2 == -1) {
+
+            float dist = touchDownPos.dst(x, y);
+            if (dist > CLICK_THRESHOLD) {
+                movedTooMuch = true;
+            }
+
+
             Vector2 curr = (pointer == pointer1) ? new Vector2(x, y) : prev1.cpy();
             Vector3 groundNow = new Vector3();
 
