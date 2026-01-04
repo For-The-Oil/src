@@ -23,4 +23,8 @@ public class DefenseFragment extends BaseDeckFragment {
     protected DeckCardCategory getCategory() {
         return DeckCardCategory.Defense;
     }
+
+
+
+
 }

@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.badlogic.gdx.math.Vector2;
 import com.google.android.flexbox.FlexboxLayout;
+
+import java.util.ArrayList;
 import java.util.List;
 import io.github.android.activity.GameActivity;
 import io.github.android.gui.adapter.BuildingAdapter;
@@ -48,16 +50,21 @@ public abstract class BaseDeckFragment extends Fragment {
     private EntityType selectedBuilding;
     private Direction direction = Direction.NORTH;
     LibGdxFragment frag;
+    protected ImageButton btnDelete;
+    protected ImageButton btnBuild;
+    protected ImageButton btnRotate;
+    protected int targetedEntityNetId = -1;
 
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         topButtonBar = view.findViewById(R.id.topButtonBar);
-        topButtonBar.setVisibility(View.GONE); // caché par défaut
+        topButtonBar.setVisibility(View.GONE);
 
-        ImageButton btnBuild = view.findViewById(R.id.btnBuildBuilding);
-        ImageButton btnRotate = view.findViewById(R.id.btnRotateBuilding);
+        btnBuild = view.findViewById(R.id.btnBuildBuilding);
+        btnRotate = view.findViewById(R.id.btnRotateBuilding);
         ImageButton btnCancel = view.findViewById(R.id.btnCancel);
+        btnDelete = view.findViewById(R.id.btnDeleteUnits);
 
         GameActivity cont = (GameActivity) view.getContext();
         frag = cont.getLibGdxFragment();
@@ -66,12 +73,56 @@ public abstract class BaseDeckFragment extends Fragment {
         btnRotate.setOnClickListener(this::rotate);
         btnBuild.setOnClickListener(this::build);
 
+        // Action de suppression
+        if (btnDelete != null) {
+            btnDelete.setOnClickListener(v -> deleteTargetedEntity());
+            btnDelete.setVisibility(View.GONE);
+        }
+
         recycler = view.findViewById(R.id.recyclerSection1);
-        recycler.setLayoutManager(new LinearLayoutManager(getContext()));
         recycler.setLayoutManager(new GridLayoutManager(getContext(), COLUMN));
 
         loadCards();
     }
+
+    /**
+     * Appelé par l'enfant quand on sélectionne un bâtiment existant dans la liste
+     */
+    protected void onExistingBuildingSelected(int netId) {
+        this.targetedEntityNetId = netId;
+
+        // Mode "Gestion" : On montre le bouton Delete, on cache Build/Rotate
+        topButtonBar.setVisibility(View.VISIBLE);
+        if (btnDelete != null) btnDelete.setVisibility(View.VISIBLE);
+        btnBuild.setVisibility(View.GONE);
+        btnRotate.setVisibility(View.GONE);
+
+        // On peut aussi centrer la caméra sur le bâtiment via LibGdx
+        // frag.getRenderer().focusOnEntity(netId);
+    }
+
+    private void deleteTargetedEntity() {
+        if (targetedEntityNetId == -1) return;
+
+        new Thread(() -> {
+            ArrayList<Integer> entitiesToDestroy = new ArrayList<>();
+            entitiesToDestroy.add(targetedEntityNetId);
+            KryoMessage message = KryoMessagePackager.packDestroyRequest(
+                RequestFactory.createdDestroyRequest(entitiesToDestroy),
+                SessionManager.getInstance().getToken()
+            );
+
+            ClientManager.getInstance().getKryoManager().send(message);
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+                cancel(null);
+                refreshExistingList();
+            });
+        }).start();
+    }
+
+    // Méthode vide à surcharger dans les fragments enfants
+    protected void refreshExistingList() {}
 
 
     @Override
@@ -83,7 +134,6 @@ public abstract class BaseDeckFragment extends Fragment {
         selectedBuilding = null;
         direction = Direction.NORTH;
     }
-
 
 
     private void loadCards() {
@@ -174,10 +224,17 @@ public abstract class BaseDeckFragment extends Fragment {
         frag.getRenderer().RotatePinBuilding(direction);
     }
 
-    private void cancel(View view){
+    protected void cancel(View view){
         topButtonBar.setVisibility(View.GONE);
+        if (btnDelete != null) btnDelete.setVisibility(View.GONE);
+        btnBuild.setVisibility(View.VISIBLE);
+        btnRotate.setVisibility(View.VISIBLE);
+
+        targetedEntityNetId = -1;
         selectedBuilding = null;
-        frag.getRenderer().unpinBuilding();
+        if (frag != null && frag.getRenderer() != null) {
+            frag.getRenderer().unpinBuilding();
+        }
     }
 
     private void onBuildingSelected(EntityType entity) {
