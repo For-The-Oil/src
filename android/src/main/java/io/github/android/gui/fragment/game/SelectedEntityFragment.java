@@ -46,13 +46,9 @@ public class SelectedEntityFragment extends Fragment {
     }
 
     private void setupUI(View root, World world, int eId) {
-        // 2. Initialiser les Mappers pour extraire les données
         ComponentMapper<LifeComponent> mLife = world.getMapper(LifeComponent.class);
 
 
-
-
-        setupRecyclerViews(root);
     }
 
 
