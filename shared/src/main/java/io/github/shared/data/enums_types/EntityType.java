@@ -42,7 +42,10 @@ public enum EntityType {
         5f,
         20,
         new HashMap<ResourcesType, Integer>(),
-        null
+        new HashMap<ResourcesType, Integer>() {{
+            put(ResourcesType.Steel, 10);
+            put(ResourcesType.Oil, 10);
+        }}
     ),
     BARRACK(
         Type.Building,

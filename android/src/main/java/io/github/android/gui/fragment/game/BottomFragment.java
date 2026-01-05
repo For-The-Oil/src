@@ -7,22 +7,46 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.artemis.ComponentMapper;
+import com.artemis.World;
+
+import io.github.core.client_engine.manager.SessionManager;
+import io.github.core.data.ClientGame;
 import io.github.fortheoil.R;
+import io.github.shared.data.component.NetComponent;
+import io.github.shared.data.enums_types.EntityType;
+import io.github.shared.shared_engine.manager.EcsManager;
 
 public class BottomFragment extends Fragment {
+
+    // --- Interface pour que les sous-fragments reçoivent l'ID ---
+    public interface SelectionAware {
+        /**
+         * Appelé quand le menu est ouvert via la sélection d'un bâtiment
+         * @param netId L'ID réseau de l'entité, ou -1 si ouverture manuelle
+         */
+        void onEntitySelected(int netId);
+    }
 
     private View root;
     private boolean isMenuOpen = false;
     private int menuMaxHeight;
     private Fragment currentFragment;
     private ImageButton activeButton = null;
+
+    // Déclaration des fragments au niveau classe
+    private Fragment unitsFragment, industryFragment, workforceFragment, defenseFragment, castFragment, mapFragment;
+
+    // Déclaration des boutons au niveau classe
+    private ImageButton btnUnits, btnIndustry, btnWorkforce, btnDefense, btnCast, btnMap;
+    private ImageButton[] allMenuButtons;
 
     @Nullable
     @Override
@@ -31,129 +55,168 @@ public class BottomFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
 
         root = inflater.inflate(R.layout.game_bottom, container, false);
-
         menuMaxHeight = (int) (getResources().getDisplayMetrics().heightPixels * 0.4);
 
-        // Créer tous les fragments du menu
-        Fragment unitsFragment = new UnitsFragment();
-        Fragment industryFragment = new IndustryFragment();
-        Fragment workforceFragment = new WorkforceFragment();
-        Fragment defenseFragment = new DefenseFragment();
-        Fragment castFragment = new CastFragment();
-        Fragment mapFragment = new MapFragment();
-
-        // Lier les boutons aux fragments
-        setupMenuButton(root.findViewById(R.id.btnMenuUnits), unitsFragment);
-        setupMenuButton(root.findViewById(R.id.btnMenuIndustry), industryFragment);
-        setupMenuButton(root.findViewById(R.id.btnMenuWorkforce), workforceFragment);
-        setupMenuButton(root.findViewById(R.id.btnMenuDefense), defenseFragment);
-        setupMenuButton(root.findViewById(R.id.btnMenuCast), castFragment);
-        setupMenuButton(root.findViewById(R.id.btnMenuMap), mapFragment);
+        initFragments();
+        initButtons();
 
         return root;
+    }
+
+    private void initFragments() {
+        unitsFragment = new UnitsFragment();
+        industryFragment = new IndustryFragment();
+        workforceFragment = new WorkforceFragment();
+        defenseFragment = new DefenseFragment();
+        castFragment = new CastFragment();
+        mapFragment = new MapFragment();
+    }
+
+    private void initButtons() {
+        btnUnits = root.findViewById(R.id.btnMenuUnits);
+        btnIndustry = root.findViewById(R.id.btnMenuIndustry);
+        btnWorkforce = root.findViewById(R.id.btnMenuWorkforce);
+        btnDefense = root.findViewById(R.id.btnMenuDefense);
+        btnCast = root.findViewById(R.id.btnMenuCast);
+        btnMap = root.findViewById(R.id.btnMenuMap);
+
+        allMenuButtons = new ImageButton[]{btnUnits, btnIndustry, btnWorkforce, btnDefense, btnCast, btnMap};
+
+        // Configuration des clics manuels (ID = -1 par défaut)
+        setupMenuButton(btnUnits, unitsFragment);
+        setupMenuButton(btnIndustry, industryFragment);
+        setupMenuButton(btnWorkforce, workforceFragment);
+        setupMenuButton(btnDefense, defenseFragment);
+        setupMenuButton(btnCast, castFragment);
+        setupMenuButton(btnMap, mapFragment);
     }
 
     private void setupMenuButton(ImageButton button, Fragment menuFragment) {
         button.setOnClickListener(v -> {
             if (currentFragment == menuFragment) {
                 // Même bouton → fermer le menu
-                currentFragment = null;
-                closeMenuFragment();
-
-                // Réinitialiser le bouton actif
-                if (activeButton != null) {
-                    activeButton.setAlpha(1f); // état normal
-                    activeButton = null;
-                }
+                closeCurrentMenu();
             } else {
-                // Nouveau bouton → changer fragment
-                currentFragment = menuFragment;
-
-                // Mettre à jour le bouton actif
-                if (activeButton != null) {
-                    activeButton.setAlpha(1f); // bouton précédent normal
-                }
-                activeButton = button;
-                activeButton.setAlpha(0.6f); // bouton actif plus foncé
-
-                if (isMenuOpen) {
-                    // Menu déjà ouvert → juste remplacer fragment
-                    replaceMenuFragment(menuFragment);
-                } else {
-                    // Menu fermé → ouvrir avec animation
-                    openMenuFragment(menuFragment);
-                }
+                // Nouveau bouton → ouvrir menu (ID -1 car clic manuel)
+                openSpecificMenu(menuFragment, button, -1);
             }
         });
     }
 
+    /**
+     * Méthode centrale pour ouvrir un menu
+     * @param fragment Le fragment à afficher
+     * @param button Le bouton à mettre en surbrillance (peut être null)
+     * @param entityNetId L'ID de l'entité sélectionnée (-1 si aucune)
+     */
+    private void openSpecificMenu(Fragment fragment, @Nullable ImageButton button, int entityNetId) {
+        currentFragment = fragment;
 
+        // 1. Gestion des boutons (visuel)
+        if (activeButton != null) {
+            activeButton.setAlpha(1f); // Reset l'ancien
+        }
+        activeButton = button;
+        if (activeButton != null) {
+            activeButton.setAlpha(0.6f); // Highlight le nouveau
+        }
+
+        // 2. Transmettre l'entité au fragment si possible
+        if (fragment instanceof SelectionAware) {
+            ((SelectionAware) fragment).onEntitySelected(entityNetId);
+        } else if (entityNetId != -1) {
+            // Fallback : Si le fragment n'implémente pas l'interface mais qu'on a un ID,
+            // on peut tenter de passer un Bundle si le fragment n'est pas encore ajouté.
+            Bundle args = new Bundle();
+            args.putInt("selectedNetId", entityNetId);
+            if (!fragment.isAdded()) {
+                fragment.setArguments(args);
+            }
+        }
+
+        // 3. Gestion de l'affichage (Animation ou Remplacement)
+        if (isMenuOpen) {
+            replaceMenuFragment(fragment);
+        } else {
+            openMenuFragment(fragment);
+        }
+    }
+
+    // --- Logique métier pour la sélection d'entité ---
+
+    public void showFragmentSelectBuilding(int netID) {
+        World world = ClientGame.getInstance().getWorld();
+
+        // Sécurité : si l'entité n'existe plus
+        if (world == null) return;
+
+        // --- CAS 1 : L'entité ne nous appartient pas ---
+        if (EcsManager.findEntityByNetIdAndPlayer(world, netID, SessionManager.getInstance().getUuidClient()) == null) {
+            // Fragment d'info générique (ennemi ou allié)
+            Fragment infoFragment = new SelectedEntityFragment(netID);
+
+            // On ouvre ce fragment sans associer de bouton de menu principal
+            openSpecificMenu(infoFragment, null, netID);
+        }
+        // --- CAS 2 : L'entité nous appartient ---
+        else {
+            ComponentMapper<NetComponent> mapper = world.getMapper(NetComponent.class);
+            int entityID = EcsManager.getIdByNetId(world, netID, mapper);
+
+            if (entityID == -1) return;
+
+            EntityType entityType = mapper.get(entityID).entityType;
+
+            // Switch intelligent pour ouvrir le bon onglet du menu
+            switch (entityType.getCategory()) {
+
+                case Defense:
+                    // Tourelles, murs -> Menu Défense
+                    openSpecificMenu(defenseFragment, btnDefense, netID);
+                    break;
+
+                case Military:
+                    // Casernes, usines de chars -> Menu Unités
+                    openSpecificMenu(workforceFragment, btnWorkforce, netID);
+                    break;
+
+                case Industrial:
+                    // Mines, extracteurs -> Menu Industrie
+                    openSpecificMenu(industryFragment, btnIndustry, netID);
+                    break;
+
+                case Other:
+                    // Maisons, civil -> Menu Workforce
+
+                    break;
+
+                default:
+                    // Par défaut, infos génériques
+                    openSpecificMenu(unitsFragment, btnUnits, netID);
+                    break;
+            }
+        }
+    }
+
+    // --- Méthodes d'animation et de gestion de fragments ---
 
     private void replaceMenuFragment(Fragment menuFragment) {
-        FrameLayout container = root.findViewById(R.id.bottomMenuContainer);
         getChildFragmentManager()
             .beginTransaction()
             .replace(R.id.bottomMenuContainer, menuFragment)
             .commit();
     }
-
-
-    private void highlightButton(ImageButton activeButton) {
-        // Remet tous les boutons à l'état normal
-        ImageButton[] buttons = {
-            root.findViewById(R.id.btnMenuUnits),
-            root.findViewById(R.id.btnMenuIndustry),
-            root.findViewById(R.id.btnMenuWorkforce),
-            root.findViewById(R.id.btnMenuDefense),
-            root.findViewById(R.id.btnMenuCast),
-            root.findViewById(R.id.btnMenuMap)
-        };
-
-        for (ImageButton b : buttons) {
-            b.setAlpha(1f); // normal
-        }
-
-        // Bouton actif plus foncé
-        activeButton.setAlpha(0.6f);
-    }
-
-    private void resetButtonHighlights() {
-        ImageButton[] buttons = {
-            root.findViewById(R.id.btnMenuUnits),
-            root.findViewById(R.id.btnMenuIndustry),
-            root.findViewById(R.id.btnMenuWorkforce),
-            root.findViewById(R.id.btnMenuDefense),
-            root.findViewById(R.id.btnMenuCast),
-            root.findViewById(R.id.btnMenuMap)
-        };
-        for (ImageButton b : buttons) {
-            b.setAlpha(1f);
-        }
-    }
-
-
-
 
     private void openMenuFragment(Fragment menuFragment) {
         FrameLayout container = root.findViewById(R.id.bottomMenuContainer);
         container.setVisibility(View.VISIBLE);
 
-        // Remplacer le fragment
         getChildFragmentManager()
             .beginTransaction()
             .replace(R.id.bottomMenuContainer, menuFragment)
             .commit();
 
-        ImageButton btnMenu1 = root.findViewById(R.id.btnMenuUnits);
-        ImageButton btnMenu2 = root.findViewById(R.id.btnMenuIndustry);
-        ImageButton btnMenu3 = root.findViewById(R.id.btnMenuWorkforce);
-        ImageButton btnMenu4 = root.findViewById(R.id.btnMenuDefense);
-        ImageButton btnMenu5 = root.findViewById(R.id.btnMenuCast);
-        ImageButton btnMenu6 = root.findViewById(R.id.btnMenuMap);
-
-        ImageButton[] buttons = {btnMenu1, btnMenu2, btnMenu3, btnMenu4, btnMenu5, btnMenu6};
-
-        // Animation de hauteur + déplacement des boutons
+        // Animation d'ouverture
         ValueAnimator animator = ValueAnimator.ofInt(0, menuMaxHeight);
         animator.addUpdateListener(animation -> {
             int value = (int) animation.getAnimatedValue();
@@ -161,9 +224,8 @@ public class BottomFragment extends Fragment {
             params.height = value;
             container.setLayoutParams(params);
 
-            // Déplacer les boutons vers le haut
-            for (ImageButton b : buttons) {
-                b.setTranslationY(-value); // déplace vers le haut de "value" pixels
+            for (ImageButton b : allMenuButtons) {
+                b.setTranslationY(-value);
             }
         });
         animator.setDuration(250);
@@ -172,18 +234,19 @@ public class BottomFragment extends Fragment {
         isMenuOpen = true;
     }
 
+    private void closeCurrentMenu() {
+        currentFragment = null;
+        closeMenuFragment();
+        if (activeButton != null) {
+            activeButton.setAlpha(1f);
+            activeButton = null;
+        }
+    }
+
     public void closeMenuFragment() {
         FrameLayout container = root.findViewById(R.id.bottomMenuContainer);
 
-        ImageButton btnMenu1 = root.findViewById(R.id.btnMenuUnits);
-        ImageButton btnMenu2 = root.findViewById(R.id.btnMenuIndustry);
-        ImageButton btnMenu3 = root.findViewById(R.id.btnMenuWorkforce);
-        ImageButton btnMenu4 = root.findViewById(R.id.btnMenuDefense);
-        ImageButton btnMenu5 = root.findViewById(R.id.btnMenuCast);
-        ImageButton btnMenu6 = root.findViewById(R.id.btnMenuMap);
-
-        ImageButton[] buttons = {btnMenu1, btnMenu2, btnMenu3, btnMenu4, btnMenu5, btnMenu6};
-
+        // Animation de fermeture
         ValueAnimator animator = ValueAnimator.ofInt(container.getHeight(), 0);
         animator.addUpdateListener(animation -> {
             int value = (int) animation.getAnimatedValue();
@@ -191,8 +254,7 @@ public class BottomFragment extends Fragment {
             params.height = value;
             container.setLayoutParams(params);
 
-            // Déplacer les boutons vers le bas
-            for (ImageButton b : buttons) {
+            for (ImageButton b : allMenuButtons) {
                 b.setTranslationY(-value);
             }
         });
@@ -210,35 +272,20 @@ public class BottomFragment extends Fragment {
         animator.start();
 
         isMenuOpen = false;
+        resetButtonHighlights();
     }
 
-
-    // Dans BottomFragment.java
-    public void showFragmentSelectBuilding(int netID) {
-        Fragment fragment = new SelectedEntityFragment(netID); //netID
-        currentFragment = fragment;
-
-        resetButtonHighlights();
-        activeButton = null;
-
-        if (isMenuOpen) {
-            replaceMenuFragment(fragment);
-        } else {
-            openMenuFragment(fragment);
+    private void resetButtonHighlights() {
+        for (ImageButton b : allMenuButtons) {
+            if(b != null) b.setAlpha(1f);
         }
     }
 
-
-
-
-
-
-
     public void updateUI(){
-        //TODO: ADD THE UPDATES
+        // TODO: Mettre à jour les fragments enfants si nécessaire
+        if (isMenuOpen && currentFragment != null) {
+            // Exemple : si le fragment actuel a une méthode update()
+            // if (currentFragment instanceof Updatable) ((Updatable)currentFragment).update();
+        }
     }
-
-
-
-
 }

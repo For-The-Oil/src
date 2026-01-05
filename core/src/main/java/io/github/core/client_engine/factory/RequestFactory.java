@@ -1,5 +1,6 @@
 package io.github.core.client_engine.factory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import io.github.shared.data.enums_types.AuthModeType;
@@ -12,6 +13,7 @@ import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
 import io.github.shared.data.enums_types.DeckRequestType;
 import io.github.shared.data.requests.game.BuildRequest;
+import io.github.shared.data.requests.game.DestroyRequest;
 
 
 /**
@@ -77,6 +79,12 @@ public class RequestFactory {
 
     public static BuildRequest createBuildRequest(EntityType type, int netFrom, float posX, float posY, Direction direction){
         return new BuildRequest(type, netFrom, posX, posY, direction);
+    }
+
+    public static DestroyRequest createdDestroyRequest(ArrayList<Integer> toKill){
+        DestroyRequest request = new DestroyRequest();
+        request.setToKill(toKill);
+        return request;
     }
 
 
