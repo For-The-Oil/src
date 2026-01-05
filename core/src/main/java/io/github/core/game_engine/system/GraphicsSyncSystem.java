@@ -116,8 +116,7 @@ public class GraphicsSyncSystem extends BaseSystem {
         for (int i = 0; i < entities.size(); i++) {
             int e = entities.get(i);
             ProprietyComponent meP = mProp.get(e);
-            if(meP.player != SessionManager.getInstance().getUuidClient())continue;
-            arrayList.add(e);
+            if(meP.player.equals(SessionManager.getInstance().getUuidClient()))arrayList.add(e);
         }
         return arrayList;
     }
@@ -133,7 +132,7 @@ public class GraphicsSyncSystem extends BaseSystem {
             int e = entities.get(i);
             NetComponent net  = mNet.get(e);
             ProprietyComponent meP = mProp.get(e);
-            if(meP.player != SessionManager.getInstance().getUuidClient())continue;
+            if(!meP.player.equals(SessionManager.getInstance().getUuidClient()))continue;
             for (EntityType entityType : EntityType.values()){
                 if(entityType.getFrom().equals(net.entityType)){
                     arrayList.add(e);
@@ -154,8 +153,9 @@ public class GraphicsSyncSystem extends BaseSystem {
         for (int i = 0; i < entities.size(); i++) {
             int e = entities.get(i);
             ProprietyComponent meP = mProp.get(e);
-            if(meP.player != SessionManager.getInstance().getUuidClient())continue;
-            if(mMelee.get(e) != null || mRanged.get(e) != null || mProjAttack.get(e) != null)arrayList.add(e);
+            if(meP.player.equals(SessionManager.getInstance().getUuidClient())&&
+                (mMelee.get(e) != null || mRanged.get(e) != null || mProjAttack.get(e) != null))
+                arrayList.add(e);
         }
         return arrayList;
     }
@@ -171,8 +171,8 @@ public class GraphicsSyncSystem extends BaseSystem {
             int e = entities.get(i);
             NetComponent net  = mNet.get(e);
             ProprietyComponent meP = mProp.get(e);
-            if(meP.player != SessionManager.getInstance().getUuidClient())continue;
-            if(net.entityType.getType().equals(EntityType.Type.Unit))arrayList.add(e);
+            if(meP.player.equals(SessionManager.getInstance().getUuidClient())&&
+                net.entityType.getType().equals(EntityType.Type.Unit))arrayList.add(e);
         }
         return arrayList;
     }
