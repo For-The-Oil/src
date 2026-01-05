@@ -1,6 +1,7 @@
 package io.github.android.gui.fragment.game;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import io.github.android.gui.adapter.ExistingBuildingAdapter;
 import io.github.core.data.ClientGame;
@@ -45,14 +47,11 @@ public class IndustryFragment extends BaseDeckFragment {
     private void refreshExistingBuildings() {
         GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
         if (gfx != null) {
-            ArrayList<Integer> existingIds = gfx.getEntityBuildingIndustry();
-
-            // On crée l'adapter avec la liste d'IDs
-            ExistingBuildingAdapter adapter = new ExistingBuildingAdapter(existingIds, id -> {
-                // Cette méthode vient de BaseDeckFragment !
+            ArrayList<Integer> myndustrialBuildings = gfx.getEntityBuildingIndustry();
+            Log.d("INDUSTRY FRAGMENT","Test nb elems = "+myndustrialBuildings.size());
+            ExistingBuildingAdapter adapter = new ExistingBuildingAdapter(myndustrialBuildings, id -> {
                 onExistingBuildingSelected(id);
             });
-
             recyclerExisting.setAdapter(adapter);
         }
     }

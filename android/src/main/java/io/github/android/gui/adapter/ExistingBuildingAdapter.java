@@ -1,5 +1,6 @@
 package io.github.android.gui.adapter;
 
+import android.util.Log; // Import ajouté
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import io.github.shared.data.component.NetComponent;
 
 public class ExistingBuildingAdapter extends RecyclerView.Adapter<ExistingBuildingAdapter.ViewHolder> {
 
+    private static final String TAG = "ExistingBuildingAdapter"; // Tag pour le Logcat
     private final List<Integer> entityIds;
     private final OnEntitySelectedListener listener;
     private final World world;
@@ -33,11 +35,13 @@ public class ExistingBuildingAdapter extends RecyclerView.Adapter<ExistingBuildi
         this.entityIds = entityIds;
         this.listener = listener;
         this.world = ClientGame.getInstance().getWorld();
+        Log.d(TAG, "Adapter initialisé avec " + entityIds.size() + " entités.");
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        Log.d(TAG, "onCreateViewHolder: Création d'une nouvelle ligne (View)");
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_existing_building, parent, false);
         return new ViewHolder(v);
     }
@@ -45,6 +49,7 @@ public class ExistingBuildingAdapter extends RecyclerView.Adapter<ExistingBuildi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         int eId = entityIds.get(position);
+        Log.d(TAG, "onBindViewHolder: Liaison de la position " + position + " (Entity ID: " + eId + ")");
 
         ComponentMapper<NetComponent> mNet = world.getMapper(NetComponent.class);
         ComponentMapper<LifeComponent> mLife = world.getMapper(LifeComponent.class);
@@ -53,15 +58,22 @@ public class ExistingBuildingAdapter extends RecyclerView.Adapter<ExistingBuildi
             NetComponent net = mNet.get(eId);
             holder.tvName.setText(net.entityType.name());
             holder.tvId.setText("#" + net.netId);
+            Log.d(TAG, " -> NetComponent trouvé: " + net.entityType.name() + " (NetID: " + net.netId + ")");
+        } else {
+            Log.w(TAG, " -> ATTENTION: L'entité " + eId + " n'a pas de NetComponent !");
         }
 
         if (mLife.has(eId)) {
             LifeComponent life = mLife.get(eId);
             holder.pbHealth.setMax((int) life.maxHealth);
             holder.pbHealth.setProgress((int) life.health);
+            Log.d(TAG, " -> LifeComponent: " + life.health + "/" + life.maxHealth);
         }
 
-        holder.itemView.setOnClickListener(v -> listener.onSelected(eId));
+        holder.itemView.setOnClickListener(v -> {
+            Log.d(TAG, "Clic sur l'entité ID: " + eId);
+            listener.onSelected(eId);
+        });
     }
 
     @Override
