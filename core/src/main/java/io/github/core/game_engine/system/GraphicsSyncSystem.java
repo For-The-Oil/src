@@ -134,7 +134,7 @@ public class GraphicsSyncSystem extends BaseSystem {
             ProprietyComponent meP = mProp.get(e);
             if(!meP.player.equals(SessionManager.getInstance().getUuidClient()))continue;
             for (EntityType entityType : EntityType.values()){
-                if(entityType.getFrom().equals(net.entityType)){
+                if(entityType.getFrom() == net.entityType){
                     arrayList.add(e);
                     break;
                 }
@@ -172,7 +172,7 @@ public class GraphicsSyncSystem extends BaseSystem {
             NetComponent net  = mNet.get(e);
             ProprietyComponent meP = mProp.get(e);
             if(meP.player.equals(SessionManager.getInstance().getUuidClient())&&
-                net.entityType.getType().equals(EntityType.Type.Unit))arrayList.add(e);
+                net.entityType.getType() == EntityType.Type.Unit)arrayList.add(e);
         }
         return arrayList;
     }
@@ -209,7 +209,7 @@ public class GraphicsSyncSystem extends BaseSystem {
             FreezeComponent fc = mFreeze.get(e);
             OnCreationComponent occ = mOnCreation.get(e);
 
-            if(occ != null && net!=null && !net.entityType.getType().equals(EntityType.Type.Building))continue;
+            if(occ != null && net!=null && !(net.entityType.getType() == EntityType.Type.Building))continue;
 
             // Création de la Scene (.glb)
             if (mc == null) {
@@ -218,7 +218,7 @@ public class GraphicsSyncSystem extends BaseSystem {
                     ? SceneFactory.getInstance().getEntityScene(net.entityType)
                     : SceneFactory.getInstance().getDefaultEntityScene();
                 if (mc.scene == null) continue; // type non mappé
-                if(net!=null && bp != null && pos != null && net.entityType.getType().equals(EntityType.Type.Building)){// ton angle en radians
+                if(net!=null && bp != null && pos != null && (net.entityType.getType() == EntityType.Type.Building)){// ton angle en radians
                     mc.scene.modelInstance.transform.translate(
                         pos.x + (Utility.cellToWorld(net.entityType.getShapeType().getShape().getWidth())/2),
                         pos.z,
@@ -232,7 +232,7 @@ public class GraphicsSyncSystem extends BaseSystem {
 
             // Transform (X/Z/Y comme dans ton code historique)
             if (pos != null) {
-                if(net==null || !net.entityType.getType().equals(EntityType.Type.Building)) {
+                if(net==null || !(net.entityType.getType() == EntityType.Type.Building)) {
                     Matrix4 t = new Matrix4().idt()
                         .translate(pos.x, pos.z, pos.y)
                         .rotate(Vector3.Y, pos.horizontalRotation * MathUtils.radiansToDegrees)
@@ -289,7 +289,7 @@ public class GraphicsSyncSystem extends BaseSystem {
     }
 
     // --- Utilitaires ---
-    private static Scene createBlueOutlineScene(Scene base, float scale, float alpha, Color color) {
+    private static synchronized Scene createBlueOutlineScene(Scene base, float scale, float alpha, Color color) {
         if (base == null || base.modelInstance == null) return null;
 
         // Clone + transform identique
