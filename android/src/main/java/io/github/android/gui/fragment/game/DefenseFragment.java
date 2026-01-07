@@ -31,85 +31,62 @@ import io.github.shared.data.enums_types.DeckCardCategory;
  * </ul>
  */
 public class DefenseFragment extends BaseDeckFragment {
-
-    /** Tag d'identification pour les journaux de débogage (Logcat). */
     private static final String TAG = "DEFENSE_FRAGMENT";
-
-    /** Liste visuelle (RecyclerView) affichant les bâtiments de défense existants. */
     private RecyclerView recyclerExisting;
 
-    /**
-     * Initialise la vue du fragment à partir du layout XML spécialisé pour la défense.
-     */
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_defense, container, false);
     }
 
-    /**
-     * Configure les composants UI après la création de la vue.
-     * <p>
-     * Initialise le {@link RecyclerView} pour les bâtiments existants et déclenche
-     * le premier chargement des données.
-     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        // Initialisation de la logique de base (Deck, Boutons d'action)
         super.onViewCreated(view, savedInstanceState);
-
-        // Liaison avec le composant graphique de la liste des bâtiments existants
         recyclerExisting = view.findViewById(R.id.recyclerSection4);
-
         if (recyclerExisting != null) {
             recyclerExisting.setLayoutManager(new LinearLayoutManager(getContext()));
             refreshExistingBuildings();
         }
     }
 
-    /**
-     * Synchronise la liste des bâtiments de défense avec l'état actuel du moteur de jeu.
-     * <p>
-     * Utilise le {@link GraphicsSyncSystem} pour filtrer les entités de type défense.
-     * En cas de succès, met à jour l'{@link ExistingBuildingAdapter}.
-     */
     private void refreshExistingBuildings() {
         GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
-        if (gfx != null) {
-            // Extraction des IDs réseau des entités défensives
-            ArrayList<Integer> buildings = gfx.getEntityBuildingDefense();
+        if (gfx == null) return;
 
-            Log.d(TAG, "Refresh - Nb bâtiments défense trouvés = " + (buildings != null ? buildings.size() : 0));
+        ArrayList<Integer> buildings = gfx.getEntityBuildingDefense();
 
-            if (buildings != null) {
-                // Création de l'adaptateur avec redirection vers la logique de sélection parente
-                ExistingBuildingAdapter adapter = new ExistingBuildingAdapter(buildings, id -> {
-                    Log.d(TAG, "Entité sélectionnée (Defense): " + id);
-                    onExistingBuildingSelected(id);
-                });
-                recyclerExisting.setAdapter(adapter);
-            }
-        } else {
-            Log.e(TAG, "GraphicsSyncSystem introuvable !");
+        existingAdapter = new ExistingBuildingAdapter(buildings, id -> {
+            int netId = gfx.getNetIdFromEntity(id);
+            if (netId != -1) onEntitySelected(netId);
+        });
+
+        recyclerExisting.setAdapter(existingAdapter);
+
+        int netIdToSelect = (targetedEntityNetId != -1) ? targetedEntityNetId : pendingSelectedNetId;
+        if (netIdToSelect != -1) {
+            existingAdapter.setSelectedNetId(netIdToSelect);
+            onExistingBuildingSelected(netIdToSelect);
+            int pos = existingAdapter.getPositionOfNetId(netIdToSelect);
+            if (pos != -1) recyclerExisting.scrollToPosition(pos);
         }
     }
 
-    /**
-     * Définit la catégorie de cartes à charger pour ce fragment.
-     * @return {@link DeckCardCategory#Defense}
-     */
     @Override
-    protected DeckCardCategory getCategory() {
-        return DeckCardCategory.Defense;
+    public void updateDynamicUI() {
+        GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
+        if (gfx == null || existingAdapter == null) return;
+
+        // On utilise la méthode défense spécifique
+        existingAdapter.setEntityIds(gfx.getEntityBuildingDefense());
     }
 
-    /**
-     * Rafraîchit la liste des bâtiments de défense.
-     * Cette méthode est appelée par la classe mère lors d'un changement d'état (ex: destruction).
-     */
-    @Override
-    protected void refreshExistingList() {
-        refreshExistingBuildings();
+    protected RecyclerView getExistingRecycler() {
+        return recyclerExisting;
     }
+
+    @Override
+    protected DeckCardCategory getCategory() { return DeckCardCategory.Defense; }
+
+    @Override
+    protected void refreshExistingList() { refreshExistingBuildings(); }
 }

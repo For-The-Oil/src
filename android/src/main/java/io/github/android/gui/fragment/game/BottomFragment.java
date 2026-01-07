@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 
 import com.artemis.ComponentMapper;
 import com.artemis.World;
+import com.badlogic.gdx.Gdx;
 
 import io.github.core.client_engine.manager.SessionManager;
 import io.github.core.data.ClientGame;
@@ -353,10 +354,13 @@ public class BottomFragment extends Fragment {
     /**
      * Permet la mise à jour périodique de l'UI des fragments enfants si nécessaire.
      */
-    public void updateUI(){
-        if (isMenuOpen && currentFragment != null) {
-            // Logique de rafraîchissement à implémenter si besoin
+    public void updateUI() {
+        // On vérifie que le menu est ouvert ET que le fragment est bien un BaseDeckFragment
+        if (isMenuOpen && currentFragment instanceof BaseDeckFragment) {
             ((BaseDeckFragment) currentFragment).updateDynamicUI();
+        } else {
+            // Optionnel : Logique pour MapFragment ou autre fragment si nécessaire
+            Gdx.app.log("UPDATE UI", "Fragment actuel n'est pas un BaseDeckFragment, skip update.");
         }
     }
 }
