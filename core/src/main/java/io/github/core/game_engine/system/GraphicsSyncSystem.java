@@ -42,7 +42,6 @@ import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.component.RangedAttackComponent;
 import io.github.shared.data.component.RessourceComponent;
 import io.github.shared.data.component.VelocityComponent;
-import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.shared_engine.Utility;
 
