@@ -127,7 +127,6 @@ public class ProductionResourcesSystem extends IteratingSystem {
             for (ResourcesType resourcesType : pr.keySet()) {
                 payload.put(resourcesType, pr.get(resourcesType));
             }
-            PlayerNextResources.get(prop.player).setRessources(payload);
         }
         else {
             for (ResourcesType resourcesType : payload.keySet()) {
@@ -136,11 +135,11 @@ public class ProductionResourcesSystem extends IteratingSystem {
             for (ResourcesType resourcesType : playerR.keySet()) {
                 payload.put(resourcesType, playerR.get(resourcesType));
             }
-            // Emit one ResourcesInstruction for this production tick
-            long timestamp = System.currentTimeMillis();
-            ResourcesInstruction instruction = new ResourcesInstruction(timestamp, payload, prop.player);
-            PlayerNextResources.put(prop.player,instruction);
         }
+        // Emit one ResourcesInstruction for this production tick
+        long timestamp = System.currentTimeMillis();
+        ResourcesInstruction instruction = new ResourcesInstruction(timestamp, payload, prop.player);
+        PlayerNextResources.put(prop.player,instruction);
     }
 
     /**
