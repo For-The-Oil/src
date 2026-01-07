@@ -123,8 +123,12 @@ public abstract class BaseDeckFragment extends Fragment implements BottomFragmen
         btnBuild.setOnClickListener(this::build);
 
         if (btnDelete != null) {
-            btnDelete.setOnClickListener(v -> deleteTargetedEntity());
+            btnDelete.setOnClickListener(v -> {
+                deleteTargetedEntity();
+                cancel(v);
+            });
             btnDelete.setVisibility(View.GONE);
+            //btnDelete.setVisibility(View.GONE);
         }
 
         recycler = view.findViewById(R.id.recyclerSection1);
@@ -161,11 +165,18 @@ public abstract class BaseDeckFragment extends Fragment implements BottomFragmen
      * @param netId L'entité cible.
      */
     private void applyExistingSelection(int netId) {
-        topButtonBar.setVisibility(View.VISIBLE);
+        // 1. On cache d'abord les boutons de construction
+        resetButtonVisibility();
 
+        // 2. On affiche la barre et le bouton de suppression uniquement
+        topButtonBar.setVisibility(View.VISIBLE);
         if (btnDelete != null) btnDelete.setVisibility(View.VISIBLE);
-        if (btnBuild != null) btnBuild.setVisibility(View.GONE);
-        if (btnRotate != null) btnRotate.setVisibility(View.GONE);
+
+        // 3. On annule toute construction "fantôme" en cours
+        selectedBuilding = null;
+        if (frag != null && frag.getRenderer() != null) {
+            frag.getRenderer().unpinBuilding();
+        }
     }
 
     /**
@@ -175,6 +186,7 @@ public abstract class BaseDeckFragment extends Fragment implements BottomFragmen
     private void deleteTargetedEntity() {
         if (targetedEntityNetId == -1) return;
 
+        btnDelete.setEnabled(false);
         new Thread(() -> {
             ArrayList<Integer> entitiesToDestroy = new ArrayList<>();
             entitiesToDestroy.add(targetedEntityNetId);
@@ -187,7 +199,8 @@ public abstract class BaseDeckFragment extends Fragment implements BottomFragmen
 
             // Retour sur le thread principal pour nettoyer l'UI
             new Handler(Looper.getMainLooper()).post(() -> {
-                cancel(null);
+                btnDelete.setEnabled(true);
+                cancel(null); // Ferme le menu après suppression
                 refreshExistingList();
             });
         }).start();
@@ -296,18 +309,17 @@ public abstract class BaseDeckFragment extends Fragment implements BottomFragmen
     /**
      * Annule l'action en cours, réinitialise l'UI et retire les prévisualisations.
      */
-    protected void cancel(View view){
+    protected void cancel(View view) {
         topButtonBar.setVisibility(View.GONE);
-
-        if (btnDelete != null) btnDelete.setVisibility(View.GONE);
-        btnBuild.setVisibility(View.VISIBLE);
-        btnRotate.setVisibility(View.VISIBLE);
+        resetButtonVisibility();
 
         targetedEntityNetId = -1;
         selectedBuilding = null;
+
         if (frag != null && frag.getRenderer() != null) {
             frag.getRenderer().unpinBuilding();
         }
+
         if (existingAdapter != null) {
             existingAdapter.setSelectedNetId(-1);
         }
@@ -320,10 +332,29 @@ public abstract class BaseDeckFragment extends Fragment implements BottomFragmen
     private void onBuildingSelected(EntityType entity) {
         selectedBuilding = entity;
         direction = Direction.NORTH;
+
+        // 1. On cache TOUT d'abord pour éviter les résidus du mode sélection
+        resetButtonVisibility();
+
+        // 2. On affiche la barre et les boutons de construction uniquement
         topButtonBar.setVisibility(View.VISIBLE);
-        // Attache visuellement le bâtiment au centre de l'écran (LibGDX)
+        if (btnBuild != null) btnBuild.setVisibility(View.VISIBLE);
+        if (btnRotate != null) btnRotate.setVisibility(View.VISIBLE);
+
+        // 3. On s'assure que le mode sélection est annulé (nettoyage de la liste)
+        targetedEntityNetId = -1;
+        if (existingAdapter != null) {
+            existingAdapter.setSelectedNetId(-1);
+        }
+
         frag.getRenderer().pinBuildingToScreenCenter(entity);
-        Log.d(TAG, "Building sélectionné : " + entity.name());
+        Log.d(TAG, "Mode Construction activé pour : " + entity.name());
+    }
+
+    private void resetButtonVisibility() {
+        if (btnDelete != null) btnDelete.setVisibility(View.GONE);
+        if (btnBuild != null) btnBuild.setVisibility(View.GONE);
+        if (btnRotate != null) btnRotate.setVisibility(View.GONE);
     }
 
     @Override
