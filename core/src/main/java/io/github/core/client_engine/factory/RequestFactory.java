@@ -14,6 +14,7 @@ import io.github.shared.data.requests.MatchMakingRequest;
 import io.github.shared.data.enums_types.DeckRequestType;
 import io.github.shared.data.requests.game.BuildRequest;
 import io.github.shared.data.requests.game.DestroyRequest;
+import io.github.shared.data.requests.game.SummonRequest;
 
 
 /**
@@ -87,7 +88,17 @@ public class RequestFactory {
         return request;
     }
 
-
+    /**
+     * Creates a SummonRequest to produce units from a building.
+     *
+     * @param type       The EntityType of the unit to produce
+     * @param netFrom    The network ID of the building producing the unit
+     * @param quantities Number of units to produce
+     * @return SummonRequest ready to be packed and sent
+     */
+    public static SummonRequest createSummonRequest(EntityType type, int netFrom, int quantities) {
+        return new SummonRequest(type, netFrom, quantities);
+    }
 
 
 

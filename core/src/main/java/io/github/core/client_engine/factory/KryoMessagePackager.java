@@ -7,6 +7,7 @@ import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
 import io.github.shared.data.requests.game.BuildRequest;
 import io.github.shared.data.requests.game.DestroyRequest;
+import io.github.shared.data.requests.game.SummonRequest;
 
 /**
  * <h1>KryoMessagePackager</h1>
@@ -50,6 +51,18 @@ public class KryoMessagePackager {
 
     public static KryoMessage packDestroyRequest(DestroyRequest request, String token){
         if(request ==null) return null;
+        return new KryoMessage(KryoMessageType.GAME_REQUEST, token, request);
+    }
+
+    /**
+     * Wraps a SummonRequest into a KryoMessage for unit production.
+     *
+     * @param request the SummonRequest to wrap
+     * @param token   the user session token
+     * @return KryoMessage ready to be sent
+     */
+    public static KryoMessage packSummonRequest(SummonRequest request, String token) {
+        if (request == null) return null;
         return new KryoMessage(KryoMessageType.GAME_REQUEST, token, request);
     }
 

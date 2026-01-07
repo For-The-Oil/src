@@ -4,6 +4,7 @@ package io.github.core.game_engine.system;
 import com.artemis.Aspect;
 import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
+import com.artemis.World;
 import com.artemis.utils.IntBag;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Queue;
 
 import io.github.core.client_engine.manager.SessionManager;
+import io.github.core.data.ClientGame;
 import io.github.core.data.component.ModelComponent;
 import io.github.core.game_engine.factory.SceneFactory;
 import io.github.shared.data.component.BuildingMapPositionComponent;
@@ -370,5 +372,14 @@ public class GraphicsSyncSystem extends BaseSystem {
         }
 
         s.modelInstance.calculateTransforms();
+    }
+
+    public int getNetIdFromEntity(int entityId) {
+        World world = ClientGame.getInstance().getWorld();
+        ComponentMapper<NetComponent> mNet = world.getMapper(NetComponent.class);
+        if (mNet.has(entityId)) {
+            return mNet.get(entityId).netId;
+        }
+        return -1;
     }
 }

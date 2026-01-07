@@ -56,11 +56,11 @@ public enum ShapeType {
     }), new ArrayList<>()),
 
     Base( new Shape(new Cell[][]{
-        {new Cell(ROAD),new Cell(VOID), new Cell(VOID), new Cell(VOID), new Cell(ROAD)},
-        {new Cell(VOID),new Cell(ROAD), new Cell(ROAD), new Cell(ROAD), new Cell(VOID)},
-        {new Cell(VOID),new Cell(ROAD), new Cell(ROAD), new Cell(ROAD), new Cell(VOID)},
-        {new Cell(VOID),new Cell(ROAD), new Cell(ROAD), new Cell(ROAD), new Cell(VOID)},
-        {new Cell(ROAD),new Cell(VOID), new Cell(VOID), new Cell(VOID), new Cell(ROAD)}
+        {new Cell(CONCRETE),new Cell(VOID), new Cell(VOID), new Cell(VOID), new Cell(CONCRETE)},
+        {new Cell(VOID),new Cell(CONCRETE), new Cell(CONCRETE), new Cell(CONCRETE), new Cell(VOID)},
+        {new Cell(VOID),new Cell(CONCRETE), new Cell(CONCRETE), new Cell(CONCRETE), new Cell(VOID)},
+        {new Cell(VOID),new Cell(CONCRETE), new Cell(CONCRETE), new Cell(CONCRETE), new Cell(VOID)},
+        {new Cell(CONCRETE),new Cell(VOID), new Cell(VOID), new Cell(VOID), new Cell(CONCRETE)}
     }), new ArrayList<>(Collections.singleton(GRASS))),
     Barrack(new Shape(new Cell[][]{
         {new Cell(VOID),new Cell(VOID),new Cell(VOID),new Cell(VOID)},
