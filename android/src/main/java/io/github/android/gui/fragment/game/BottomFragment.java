@@ -223,7 +223,6 @@ public class BottomFragment extends Fragment {
         World world = ClientGame.getInstance().getWorld();
         if (world == null) return;
 
-        // Vérification appartenance
         if (EcsManager.findEntityByNetIdAndPlayer(world, netID, SessionManager.getInstance().getUuidClient()) == null) {
             Fragment infoFragment = new SelectedEntityFragment(netID);
             openSpecificMenu(infoFragment, null, netID);
@@ -234,7 +233,13 @@ public class BottomFragment extends Fragment {
 
             EntityType entityType = mapper.get(entityID).entityType;
 
-            // Routage intelligent vers le bon fragment
+            // Si c'est une unité, on ouvre le fragment des unités
+            if (entityType.getType() == EntityType.Type.Unit) {
+                openSpecificMenu(unitsFragment, btnUnits, netID);
+                return;
+            }
+
+            // 2. Si c'est un bâtiment, on suit la logique des catégories de Deck
             switch (entityType.getCategory()) {
                 case Defense:
                     openSpecificMenu(defenseFragment, btnDefense, netID);
@@ -245,10 +250,8 @@ public class BottomFragment extends Fragment {
                 case Industrial:
                     openSpecificMenu(industryFragment, btnIndustry, netID);
                     break;
-                case Other:
-                    // Logique pour les bâtiments "Other" (non implémentée)
-                    break;
                 default:
+                    // Fallback de sécurité
                     openSpecificMenu(unitsFragment, btnUnits, netID);
                     break;
             }

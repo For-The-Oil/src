@@ -112,7 +112,7 @@ public abstract class BaseDeckFragment extends Fragment implements BottomFragmen
         btnBuild = view.findViewById(R.id.btnBuildBuilding);
         btnRotate = view.findViewById(R.id.btnRotateBuilding);
         ImageButton btnCancel = view.findViewById(R.id.btnCancel);
-        btnDelete = view.findViewById(R.id.btnDeleteUnits);
+        btnDelete = view.findViewById(R.id.btnDelete);
 
         // Récupération du contexte de jeu pour accéder à LibGDX
         GameActivity cont = (GameActivity) view.getContext();
@@ -125,7 +125,6 @@ public abstract class BaseDeckFragment extends Fragment implements BottomFragmen
         if (btnDelete != null) {
             btnDelete.setOnClickListener(v -> {
                 deleteTargetedEntity();
-                cancel(v);
             });
             btnDelete.setVisibility(View.GONE);
             //btnDelete.setVisibility(View.GONE);
@@ -184,25 +183,48 @@ public abstract class BaseDeckFragment extends Fragment implements BottomFragmen
      * L'opération s'exécute dans un thread séparé pour ne pas bloquer l'UI.
      */
     private void deleteTargetedEntity() {
-        if (targetedEntityNetId == -1) return;
+        if (targetedEntityNetId == -1) {
+            Log.w(TAG, "Suppression annulée : targetedEntityNetId est à -1");
+            return;
+        }
 
+        Log.d(TAG, "1. Début de la suppression pour le NetID: " + targetedEntityNetId);
         btnDelete.setEnabled(false);
+
         new Thread(() -> {
-            ArrayList<Integer> entitiesToDestroy = new ArrayList<>();
-            entitiesToDestroy.add(targetedEntityNetId);
-            KryoMessage message = KryoMessagePackager.packDestroyRequest(
-                RequestFactory.createdDestroyRequest(entitiesToDestroy),
-                SessionManager.getInstance().getToken()
-            );
+            try {
+                ArrayList<Integer> entitiesToDestroy = new ArrayList<>();
+                entitiesToDestroy.add(targetedEntityNetId);
 
-            ClientManager.getInstance().getKryoManager().send(message);
+                Log.d(TAG, "2. Préparation du paquet Kryo pour " + entitiesToDestroy.size() + " entité(s)");
 
-            // Retour sur le thread principal pour nettoyer l'UI
-            new Handler(Looper.getMainLooper()).post(() -> {
-                btnDelete.setEnabled(true);
-                cancel(null); // Ferme le menu après suppression
-                refreshExistingList();
-            });
+                KryoMessage message = KryoMessagePackager.packDestroyRequest(
+                    RequestFactory.createdDestroyRequest(entitiesToDestroy),
+                    SessionManager.getInstance().getToken()
+                );
+
+                Log.d(TAG, "3. Envoi de la requête au serveur...");
+                ClientManager.getInstance().getKryoManager().send(message);
+                Log.d(TAG, "4. Requête envoyée avec succès au socket.");
+
+                // Retour sur le thread principal pour nettoyer l'UI
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Log.d(TAG, "5. Retour sur le thread UI - Nettoyage de l'interface");
+                    btnDelete.setEnabled(true);
+
+                    // On garde une trace de l'ID supprimé avant de reset
+                    int deletedId = targetedEntityNetId;
+
+                    cancel(null); // Ferme le menu et reset targetedEntityNetId à -1
+                    refreshExistingList();
+
+                    Log.i(TAG, "6. Suppression terminée localement pour l'entité: " + deletedId);
+                });
+
+            } catch (Exception e) {
+                Log.e(TAG, "ERREUR lors de la suppression: " + e.getMessage(), e);
+                new Handler(Looper.getMainLooper()).post(() -> btnDelete.setEnabled(true));
+            }
         }).start();
     }
 
