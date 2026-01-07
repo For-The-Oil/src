@@ -5,8 +5,10 @@ import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.requests.AuthRequest;
 import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
+import io.github.shared.data.requests.game.AttackGroupRequest;
 import io.github.shared.data.requests.game.BuildRequest;
 import io.github.shared.data.requests.game.DestroyRequest;
+import io.github.shared.data.requests.game.MoveGroupRequest;
 import io.github.shared.data.requests.game.SummonRequest;
 
 /**
@@ -62,6 +64,16 @@ public class KryoMessagePackager {
      * @return KryoMessage ready to be sent
      */
     public static KryoMessage packSummonRequest(SummonRequest request, String token) {
+        if (request == null) return null;
+        return new KryoMessage(KryoMessageType.GAME_REQUEST, token, request);
+    }
+
+    public static KryoMessage packMoveGroupRequest(MoveGroupRequest request, String token) {
+        if (request == null) return null;
+        return new KryoMessage(KryoMessageType.GAME_REQUEST, token, request);
+    }
+
+    public static KryoMessage packAttackGroupRequest(AttackGroupRequest request, String token) {
         if (request == null) return null;
         return new KryoMessage(KryoMessageType.GAME_REQUEST, token, request);
     }

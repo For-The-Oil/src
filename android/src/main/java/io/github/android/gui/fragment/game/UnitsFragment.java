@@ -1,23 +1,40 @@
 package io.github.android.gui.fragment.game;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.artemis.ComponentMapper;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Plane;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
 import com.google.android.flexbox.FlexboxLayout;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import io.github.android.activity.GameActivity;
+import io.github.android.gui.GameRenderer;
+import io.github.android.gui.adapter.ExistingEntityAdapter;
 import io.github.android.gui.adapter.QuickProductionAdapter;
 import io.github.android.manager.ClientManager;
+import io.github.android.utils.CameraGestureController;
 import io.github.core.client_engine.factory.KryoMessagePackager;
 import io.github.core.client_engine.factory.RequestFactory;
 import io.github.core.client_engine.manager.SessionManager;
@@ -28,11 +45,11 @@ import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.network.KryoMessage;
 import io.github.shared.data.network.Player;
+import io.github.shared.data.requests.game.AttackGroupRequest;
+import io.github.shared.data.requests.game.MoveGroupRequest;
 import io.github.shared.shared_engine.Utility;
 
 public class UnitsFragment extends Fragment implements BottomFragment.SelectionAware {
-
-    private static final String TAG = "UnitsFragment";
 
     private RecyclerView recyclerAvailable;
     private QuickProductionAdapter quickAdapter;
@@ -41,7 +58,12 @@ public class UnitsFragment extends Fragment implements BottomFragment.SelectionA
     private ImageButton btnDelete, btnMove, btnAttack;
 
     private final List<EntityType> producibleUnits = new ArrayList<>();
-    private int targetedEntityNetId = -1;
+
+    // Listes pour le système de sélection
+    private ExistingEntityAdapter unitsListAdapter;
+    private ExistingEntityAdapter selectedUnitsAdapter;
+    private final List<Integer> unitsListIds = new ArrayList<>();
+    private final List<Integer> selectedUnitsIds = new ArrayList<>();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -50,39 +72,189 @@ public class UnitsFragment extends Fragment implements BottomFragment.SelectionA
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        // 1. Initialisation des vues
         topButtonBar = view.findViewById(R.id.topButtonBar);
         btnDelete = view.findViewById(R.id.btnDeleteUnits);
         btnMove = view.findViewById(R.id.btnMoveUnits);
         btnAttack = view.findViewById(R.id.btnAttackUnits);
         ImageButton btnCancel = view.findViewById(R.id.btnCancel);
 
-        // 2. Listeners
-        btnCancel.setOnClickListener(v -> hideActionMenu());
-        btnDelete.setOnClickListener(v -> deleteTargetedEntity());
+        btnCancel.setOnClickListener(v -> {
+            deselectAll();
+        });
 
-        // 3. État initial (caché par défaut)
+        btnDelete.setOnClickListener(v -> deleteSelectedEntities());
+
+        btnMove.setOnClickListener(v -> {
+            moveOrder();
+        });
+
+        btnAttack.setOnClickListener(v -> {
+            attackOrder();
+        });
+
         topButtonBar.setVisibility(View.GONE);
 
-        setupRecycler(view);
+        setupRecyclers(view);
         refreshAvailableProduction();
-
-        // 4. RÉTABLIR L'ÉTAT si on a déjà un ID sélectionné
-        if (targetedEntityNetId != -1) {
-            showActionMenu();
-        }
+        refreshExistingUnits();
     }
 
-    private void setupRecycler(View view) {
+    private void moveOrder() {
+        if (selectedUnitsIds.isEmpty()) return;
+
+        GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
+        if (gfx == null) return;
+
+        // 1. On prépare les NetIDs sur le thread UI (pas de soucis ici)
+        ArrayList<Integer> groupNetIds = new ArrayList<>();
+        for (int id : selectedUnitsIds) {
+            int netId = gfx.getNetIdFromEntity(id);
+            if (netId != -1) groupNetIds.add(netId);
+        }
+
+        GameActivity activity = (GameActivity) getActivity();
+        if (activity == null || activity.getLibGdxFragment() == null) return;
+
+        // 2. On "saute" sur le Thread LibGDX pour calculer les coordonnées
+        Gdx.app.postRunnable(() -> {
+            GameRenderer renderer = activity.getLibGdxFragment().getRenderer();
+            float cx = Gdx.graphics.getWidth() * 0.5f;
+            float cy = Gdx.graphics.getHeight() * 0.5f;
+            Ray ray = renderer.getCamera().getPickRay(cx, cy);
+
+            Vector3 pinnedPos = new Vector3();
+            boolean hit = Intersector.intersectRayPlane(ray, new Plane(new Vector3(0,1,0), 0f), pinnedPos);
+
+            // Fallback si le ray ne touche pas le plan (caméra trop horizontale)
+            if(!hit){
+                float t = -ray.origin.y / ray.direction.y;
+                pinnedPos.set(ray.origin).mulAdd(ray.direction, t);
+            }
+
+            // --- CORRECTION : Alignement sur la grille ---
+            // On transforme le World (933.6) en Cell (ex: 9) puis on revient en World propre (900.0)
+            float alignedX = Utility.cellToWorld(Utility.worldToCell(pinnedPos.x));
+            float alignedZ = Utility.cellToWorld(Utility.worldToCell(pinnedPos.z));
+
+            Log.d("GameOrder", "World X: " + pinnedPos.x + " | Aligned: " + alignedX);
+            Log.d("GameOrder", "World Z: " + pinnedPos.z + " | Aligned: " + alignedZ);
+
+            new Thread(() -> {
+                // On envoie les coordonnées ALIGNÉES
+                MoveGroupRequest moveReq = RequestFactory.createMoveGroupRequest(
+                    groupNetIds,
+                    alignedX,
+                    alignedZ,
+                    false
+                );
+
+                KryoMessage message = KryoMessagePackager.packMoveGroupRequest(moveReq, SessionManager.getInstance().getToken());
+                ClientManager.getInstance().getKryoManager().send(message);
+
+            }).start();
+        });
+    }
+
+    private void attackOrder() {
+        if (selectedUnitsIds.isEmpty()) return;
+
+        GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
+        if (gfx == null) return;
+
+        ArrayList<Integer> groupNetIds = new ArrayList<>();
+        for (int id : selectedUnitsIds) {
+            int netId = gfx.getNetIdFromEntity(id);
+            if (netId != -1) groupNetIds.add(netId);
+        }
+
+        // Note : Pour une attaque, il faudrait normalement cliquer sur un ennemi.
+        // En attendant, on envoie un ID de cible générique ou le dernier attaquant.
+        int dummyTargetId = -1;
+
+        new Thread(() -> {
+            AttackGroupRequest attackReq = RequestFactory.createAttackGroupRequest(groupNetIds, dummyTargetId);
+            KryoMessage message = KryoMessagePackager.packAttackGroupRequest(attackReq, SessionManager.getInstance().getToken());
+            ClientManager.getInstance().getKryoManager().send(message);
+
+            new Handler(Looper.getMainLooper()).post(() ->
+                Toast.makeText(getContext(), "Ordre d'attaque envoyé", Toast.LENGTH_SHORT).show());
+        }).start();
+    }
+
+    private void setupRecyclers(View view) {
+        // 1. Production
         recyclerAvailable = view.findViewById(R.id.recyclerAvailableUnits);
         recyclerAvailable.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-
         Player me = Utility.findPlayerByUuid(ClientGame.getInstance().getPlayersList(), SessionManager.getInstance().getUuidClient());
         quickAdapter = new QuickProductionAdapter(producibleUnits, me, this::sendProductionRequest);
         recyclerAvailable.setAdapter(quickAdapter);
+
+        // 2. Unités sélectionnées (Section 1)
+        RecyclerView recyclerSelected = view.findViewById(R.id.recyclerSection1);
+        recyclerSelected.setLayoutManager(new GridLayoutManager(getContext(), 4)); // <--- ICI
+        selectedUnitsAdapter = new ExistingEntityAdapter(selectedUnitsIds, this::onUnitDeselected);
+        recyclerSelected.setAdapter(selectedUnitsAdapter);
+
+        // 3. Toutes les unités (Grille de 4)
+        RecyclerView recyclerTotal = view.findViewById(R.id.recyclerSection4);
+        recyclerTotal.setLayoutManager(new GridLayoutManager(getContext(), 4)); // <--- ICI
+        unitsListAdapter = new ExistingEntityAdapter(unitsListIds, this::onUnitSelectedFromList);
+        recyclerTotal.setAdapter(unitsListAdapter);
     }
 
-    // --- Logique de Production ---
+    // --- Logique de Sélection ---
+
+    private void onUnitSelectedFromList(int entityId) {
+        if (!selectedUnitsIds.contains(entityId)) {
+            selectedUnitsIds.add(entityId);
+            unitsListIds.remove(Integer.valueOf(entityId));
+            syncUI();
+        }
+    }
+
+    private void onUnitDeselected(int entityId) {
+        selectedUnitsIds.remove(Integer.valueOf(entityId));
+        // On refresh pour qu'elle revienne dans la liste globale
+        refreshExistingUnits();
+    }
+
+    private void deselectAll() {
+        if (selectedUnitsIds.isEmpty()) return;
+        // On remet tout dans la liste globale
+        unitsListIds.addAll(selectedUnitsIds);
+        // On vide la sélection
+        selectedUnitsIds.clear();
+        syncUI();
+        refreshExistingUnits();
+    }
+
+    private void syncUI() {
+        selectedUnitsAdapter.notifyDataSetChanged();
+        unitsListAdapter.notifyDataSetChanged();
+        topButtonBar.setVisibility(selectedUnitsIds.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    // --- Rafraîchissement des données ---
+
+    private void refreshExistingUnits() {
+        GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
+        if (gfx == null) return;
+
+        ArrayList<Integer> allUnits = gfx.getEntityUnit();
+
+        // Nettoyage de la liste globale (on ne garde que ce qui n'est pas sélectionné)
+        unitsListIds.clear();
+        for (Integer id : allUnits) {
+            if (!selectedUnitsIds.contains(id)) {
+                unitsListIds.add(id);
+            }
+        }
+
+        // Sécurité : retirer les unités sélectionnées qui seraient mortes
+        selectedUnitsIds.removeIf(id -> !allUnits.contains(id));
+
+        syncUI();
+    }
 
     private void refreshAvailableProduction() {
         GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
@@ -113,6 +285,36 @@ public class UnitsFragment extends Fragment implements BottomFragment.SelectionA
         }
     }
 
+    // --- Actions Réseau ---
+
+    private void deleteSelectedEntities() {
+        if (selectedUnitsIds.isEmpty()) return;
+
+        GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
+        if (gfx == null) return;
+
+        btnDelete.setEnabled(false);
+        ArrayList<Integer> netIds = new ArrayList<>();
+        for (int id : selectedUnitsIds) {
+            int netId = gfx.getNetIdFromEntity(id);
+            if (netId != -1) netIds.add(netId);
+        }
+
+        new Thread(() -> {
+            KryoMessage msg = KryoMessagePackager.packDestroyRequest(
+                RequestFactory.createdDestroyRequest(netIds),
+                SessionManager.getInstance().getToken()
+            );
+            ClientManager.getInstance().getKryoManager().send(msg);
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+                btnDelete.setEnabled(true);
+                selectedUnitsIds.clear();
+                refreshExistingUnits();
+            });
+        }).start();
+    }
+
     private void sendProductionRequest(EntityType unitType) {
         GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
         int netFrom = (gfx != null) ? gfx.getFrom(unitType) : -1;
@@ -133,52 +335,57 @@ public class UnitsFragment extends Fragment implements BottomFragment.SelectionA
         }).start();
     }
 
-    // --- Actions sur l'entité ciblée (NetID) ---
-
-    private void deleteTargetedEntity() {
-        if (targetedEntityNetId == -1) return;
-
-        btnDelete.setEnabled(false);
-        new Thread(() -> {
-            ArrayList<Integer> toKill = new ArrayList<>();
-            toKill.add(targetedEntityNetId);
-            KryoMessage msg = KryoMessagePackager.packDestroyRequest(
-                RequestFactory.createdDestroyRequest(toKill),
-                SessionManager.getInstance().getToken()
-            );
-            ClientManager.getInstance().getKryoManager().send(msg);
-
-            new Handler(Looper.getMainLooper()).post(() -> {
-                btnDelete.setEnabled(true);
-                hideActionMenu();
-                // Note: Le rafraîchissement de la liste des unités existantes
-                // sera géré par l'autre adapter/fragment.
-            });
-        }).start();
-    }
-
     @Override
     public void onEntitySelected(int netId) {
-        this.targetedEntityNetId = netId;
-        if (topButtonBar == null) return;
-        showActionMenu();
-    }
-
-    private void showActionMenu() {
-        if (topButtonBar != null) {
-            topButtonBar.setVisibility(View.VISIBLE);
-            btnDelete.setVisibility(View.VISIBLE);
-            btnMove.setVisibility(View.VISIBLE);
-            btnAttack.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hideActionMenu() {
-        topButtonBar.setVisibility(View.GONE);
-        targetedEntityNetId = -1;
+        GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
+        if (gfx == null) return;
+        int entityId = gfx.getEntityFromNetId(netId);
+        if (entityId != -1) onUnitSelectedFromList(entityId);
     }
 
     public void updateDynamicUI() {
         refreshAvailableProduction();
+        refreshExistingUnits();
     }
+
+
+    /**
+     * Met à jour l'intégralité de l'interface du fragment :
+     * 1. Unités produisibles (selon les bâtiments possédés)
+     * 2. Unités présentes sur la map (liste globale)
+     * 3. État de la sélection (nettoyage si des unités sont mortes)
+     */
+    public void updateUI() {
+        // 1. Rafraîchir la production
+        refreshAvailableProduction();
+
+        // 2. Récupérer les unités vivantes sur la map
+        GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
+        if (gfx == null) return;
+
+        ArrayList<Integer> allUnitsOnMap = gfx.getEntityUnit();
+
+        // 3. Nettoyer la sélection (si une unité sélectionnée est morte, on l'enlève)
+        selectedUnitsIds.removeIf(id -> !allUnitsOnMap.contains(id));
+
+        // 4. Mettre à jour la liste globale (uniquement ce qui n'est pas sélectionné et qui est vivant)
+        unitsListIds.clear();
+        for (Integer id : allUnitsOnMap) {
+            if (!selectedUnitsIds.contains(id)) {
+                unitsListIds.add(id);
+            }
+        }
+
+        // 5. Notifier les adapters sur le thread UI
+        new Handler(Looper.getMainLooper()).post(() -> {
+            if (quickAdapter != null) quickAdapter.notifyDataSetChanged();
+            if (unitsListAdapter != null) unitsListAdapter.notifyDataSetChanged();
+            if (selectedUnitsAdapter != null) selectedUnitsAdapter.notifyDataSetChanged();
+
+            // Cacher la barre d'action si plus rien n'est sélectionné
+            topButtonBar.setVisibility(selectedUnitsIds.isEmpty() ? View.GONE : View.VISIBLE);
+        });
+    }
+
+
 }

@@ -96,4 +96,25 @@ public class LibGdxFragment extends AndroidFragmentApplication {
         if (renderer != null)
             renderer.setOnLibGdxReady(r);
     }
+
+    public Vector3 getWorldCenterCoordinates() {
+        if (renderer == null || renderer.getCamera() == null) return new Vector3(0, 0, 0);
+
+        // 1. Définir le centre de l'écran
+        int centerX = Gdx.graphics.getWidth() / 2;
+        int centerY = Gdx.graphics.getHeight() / 2;
+
+        // 2. Créer le rayon et le plan de collision (Y = 0)
+        com.badlogic.gdx.math.collision.Ray ray = renderer.getCamera().getPickRay(centerX, centerY);
+        Plane mapPlane = new Plane(new Vector3(0, 1, 0), 0f);
+        Vector3 intersection = new Vector3();
+
+        // 3. Calculer l'intersection
+        if (com.badlogic.gdx.math.Intersector.intersectRayPlane(ray, mapPlane, intersection)) {
+            return intersection; // Contient X, Y=0, Z
+        }
+
+        return new Vector3(0, 0, 0);
+    }
+
 }

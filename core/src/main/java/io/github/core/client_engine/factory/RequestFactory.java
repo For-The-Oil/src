@@ -12,8 +12,10 @@ import io.github.shared.data.requests.AuthRequest;
 import io.github.shared.data.requests.DeckRequest;
 import io.github.shared.data.requests.MatchMakingRequest;
 import io.github.shared.data.enums_types.DeckRequestType;
+import io.github.shared.data.requests.game.AttackGroupRequest;
 import io.github.shared.data.requests.game.BuildRequest;
 import io.github.shared.data.requests.game.DestroyRequest;
+import io.github.shared.data.requests.game.MoveGroupRequest;
 import io.github.shared.data.requests.game.SummonRequest;
 
 
@@ -98,6 +100,17 @@ public class RequestFactory {
      */
     public static SummonRequest createSummonRequest(EntityType type, int netFrom, int quantities) {
         return new SummonRequest(type, netFrom, quantities);
+    }
+
+    public static MoveGroupRequest createMoveGroupRequest(ArrayList<Integer> group, float x, float y, boolean force) {
+        return new MoveGroupRequest(group, x, y, force);
+    }
+
+    public static AttackGroupRequest createAttackGroupRequest(ArrayList<Integer> group, int targetNetId) {
+        AttackGroupRequest request = new AttackGroupRequest();
+        request.setGroup(group);
+        request.setTargetNetId(targetNetId);
+        return request;
     }
 
 

@@ -76,8 +76,8 @@ public enum EntityType {
         6f,
         25,
         new HashMap<ResourcesType, Integer>() {{
-            put(ResourcesType.Oil, 200);
-            put(ResourcesType.Steel, 700);
+            put(ResourcesType.Oil, 0);
+            put(ResourcesType.Steel, 0);
         }},
         null
     ),
@@ -93,8 +93,8 @@ public enum EntityType {
         5f,
         18,
         new HashMap<ResourcesType, Integer>() {{
-            put(ResourcesType.Oil, 120);
-            put(ResourcesType.Steel, 400);
+            put(ResourcesType.Oil, 0);
+            put(ResourcesType.Steel, 0);
         }},
         null
     ),
@@ -159,8 +159,8 @@ public enum EntityType {
         3f, //float freezeTime,
         5f, //float createTime,
         new HashMap<ResourcesType, Integer>() {{
-            put(ResourcesType.Oil, 20);
-            put(ResourcesType.Steel, 40);
+            put(ResourcesType.Oil, 0);
+            put(ResourcesType.Steel, 0);
         }} //HashMap<ResourcesType, Integer> cost
     ),
 
@@ -175,8 +175,8 @@ public enum EntityType {
             1f, //float freezeTime,
             5f, //float createTime,
             new HashMap<ResourcesType, Integer>() {{
-        put(ResourcesType.Oil, 10);
-        put(ResourcesType.Steel, 20);
+        put(ResourcesType.Oil, 0);
+        put(ResourcesType.Steel, 0);
     }} //HashMap<ResourcesType, Integer> cost
     ),
 
@@ -191,8 +191,8 @@ public enum EntityType {
             5f, //float freezeTime,
             5f, //float createTime,
             new HashMap<ResourcesType, Integer>() {{
-        put(ResourcesType.Oil, 100);
-        put(ResourcesType.Steel, 300);
+        put(ResourcesType.Oil, 0);
+        put(ResourcesType.Steel, 0);
     }} //HashMap<ResourcesType, Integer> cost
     );
 

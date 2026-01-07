@@ -382,4 +382,22 @@ public class GraphicsSyncSystem extends BaseSystem {
         }
         return -1;
     }
+
+
+    public int getEntityFromNetId(int netId) {
+        if (netId == -1) return -1;
+        IntBag entities = world.getAspectSubscriptionManager()
+            .get(Aspect.all(NetComponent.class))
+            .getEntities();
+
+        for (int i = 0; i < entities.size(); i++) {
+            int e = entities.get(i);
+            NetComponent net = mNet.get(e);
+            if (net != null && net.netId == netId) {
+                return e;
+            }
+        }
+        return -1;
+    }
+
 }
