@@ -375,32 +375,24 @@ public class UnitsFragment extends Fragment implements BottomFragment.SelectionA
         if (entityId != -1) onUnitSelectedFromList(entityId);
     }
 
-    public void updateDynamicUI() {
-        refreshAvailableProduction();
-        refreshExistingUnits();
-    }
-
-
     /**
-     * Met à jour l'intégralité de l'interface du fragment :
-     * 1. Unités produisibles (selon les bâtiments possédés)
-     * 2. Unités présentes sur la map (liste globale)
-     * 3. État de la sélection (nettoyage si des unités sont mortes)
+     * Met à jour l'intégralité du fragment (Production + Unités + Sélection).
+     * Appelée par l'activité lors de la réception de snapshots ou de changements d'état.
      */
     public void updateUI() {
-        // 1. Rafraîchir la production
-        refreshAvailableProduction();
-
-        // 2. Récupérer les unités vivantes sur la map
         GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
         if (gfx == null) return;
 
+        // 1. Rafraîchir les unités produisibles (Bâtiments possédés)
+        updateProducibleUnitsList(gfx);
+
+        // 2. Rafraîchir les unités vivantes sur la map
         ArrayList<Integer> allUnitsOnMap = gfx.getEntityUnit();
 
-        // 3. Nettoyer la sélection (si une unité sélectionnée est morte, on l'enlève)
+        // 3. Sécurité : Nettoyer la sélection (retirer les unités mortes)
         selectedUnitsIds.removeIf(id -> !allUnitsOnMap.contains(id));
 
-        // 4. Mettre à jour la liste globale (uniquement ce qui n'est pas sélectionné et qui est vivant)
+        // 4. Mettre à jour la liste globale (vivantes ET non sélectionnées)
         unitsListIds.clear();
         for (Integer id : allUnitsOnMap) {
             if (!selectedUnitsIds.contains(id)) {
@@ -408,14 +400,50 @@ public class UnitsFragment extends Fragment implements BottomFragment.SelectionA
             }
         }
 
-        // 5. Notifier les adapters sur le thread UI
+        // 5. Appliquer les changements visuels sur le thread UI
+        triggerVisualRefresh();
+    }
+
+    /**
+     * Calcule la liste des unités produisibles selon les bâtiments actuels.
+     */
+    private void updateProducibleUnitsList(GraphicsSyncSystem gfx) {
+        List<Integer> owned = new ArrayList<>();
+        owned.addAll(gfx.getEntityBuildingIndustry());
+        owned.addAll(gfx.getEntityBuildingMilitary());
+
+        ComponentMapper<NetComponent> mNet = ClientGame.getInstance().getWorld().getMapper(NetComponent.class);
+        List<EntityType> ownedTypes = new ArrayList<>();
+        for (int id : owned) {
+            if (mNet.has(id)) ownedTypes.add(mNet.get(id).entityType);
+        }
+
+        List<EntityType> newList = new ArrayList<>();
+        for (EntityType et : EntityType.values()) {
+            if (et.getType() == EntityType.Type.Unit && ownedTypes.contains(et.getFrom())) {
+                newList.add(et);
+            }
+        }
+
+        // On ne met à jour la liste que si elle a changé pour éviter des lags de l'adapter
+        if (!newList.equals(producibleUnits)) {
+            producibleUnits.clear();
+            producibleUnits.addAll(newList);
+        }
+    }
+
+    /**
+     * Notifie tous les adapters et gère la visibilité des menus sur le Main Thread.
+     */
+    private void triggerVisualRefresh() {
         new Handler(Looper.getMainLooper()).post(() -> {
             if (quickAdapter != null) quickAdapter.notifyDataSetChanged();
             if (unitsListAdapter != null) unitsListAdapter.notifyDataSetChanged();
             if (selectedUnitsAdapter != null) selectedUnitsAdapter.notifyDataSetChanged();
 
-            // Cacher la barre d'action si plus rien n'est sélectionné
-            topButtonBar.setVisibility(selectedUnitsIds.isEmpty() ? View.GONE : View.VISIBLE);
+            if (topButtonBar != null) {
+                topButtonBar.setVisibility(selectedUnitsIds.isEmpty() ? View.GONE : View.VISIBLE);
+            }
         });
     }
 

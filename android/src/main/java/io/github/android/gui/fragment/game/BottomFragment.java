@@ -361,9 +361,12 @@ public class BottomFragment extends Fragment {
         // On vérifie que le menu est ouvert ET que le fragment est bien un BaseDeckFragment
         if (isMenuOpen && currentFragment instanceof BaseDeckFragment) {
             ((BaseDeckFragment) currentFragment).updateDynamicUI();
+        }
+        else if (isMenuOpen && currentFragment instanceof UnitsFragment){
+            ((UnitsFragment) currentFragment).updateUI();
         } else {
             // Optionnel : Logique pour MapFragment ou autre fragment si nécessaire
-            Gdx.app.log("UPDATE UI", "Fragment actuel n'est pas un BaseDeckFragment, skip update.");
+            //Gdx.app.log("UPDATE UI", "Fragment actuel n'est pas un BaseDeckFragment, skip update.");
         }
     }
 }
