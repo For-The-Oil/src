@@ -7,7 +7,7 @@ public enum CellType {
     GRASS(1f,1f,0f,new HashMap<>(),false),
     ROAD(1f,1f,0f,new HashMap<>(),false),
     WATER(0f,0f,1f,new HashMap<>(),false),
-    CONCRETE(0f,1f,0f, new HashMap<>(), true);
+    CONCRETE(0f,0f,0f, new HashMap<>(), true);
     private final float walkable;
     private final float flyable;
     private final float swimmable;
