@@ -161,24 +161,56 @@ public class UnitsFragment extends Fragment implements BottomFragment.SelectionA
         GraphicsSyncSystem gfx = ClientGame.getInstance().getWorld().getSystem(GraphicsSyncSystem.class);
         if (gfx == null) return;
 
+        // 1. Préparer les NetIDs des attaquants
         ArrayList<Integer> groupNetIds = new ArrayList<>();
         for (int id : selectedUnitsIds) {
             int netId = gfx.getNetIdFromEntity(id);
             if (netId != -1) groupNetIds.add(netId);
         }
 
-        // Note : Pour une attaque, il faudrait normalement cliquer sur un ennemi.
-        // En attendant, on envoie un ID de cible générique ou le dernier attaquant.
-        int dummyTargetId = -1;
+        GameActivity activity = (GameActivity) getActivity();
+        if (activity == null || activity.getLibGdxFragment() == null) return;
 
-        new Thread(() -> {
-            AttackGroupRequest attackReq = RequestFactory.createAttackGroupRequest(groupNetIds, dummyTargetId);
-            KryoMessage message = KryoMessagePackager.packAttackGroupRequest(attackReq, SessionManager.getInstance().getToken());
-            ClientManager.getInstance().getKryoManager().send(message);
+        // 2. Sauter sur le thread LibGDX pour "picker" l'entité au centre
+        Gdx.app.postRunnable(() -> {
+            GameRenderer renderer = activity.getLibGdxFragment().getRenderer();
 
-            new Handler(Looper.getMainLooper()).post(() ->
-                Toast.makeText(getContext(), "Ordre d'attaque envoyé", Toast.LENGTH_SHORT).show());
-        }).start();
+            // Coordonnées du centre de l'écran
+            int cx = Gdx.graphics.getWidth() / 2;
+            int cy = Gdx.graphics.getHeight() / 2;
+
+            // On utilise ta méthode pickAllScenes que tu as déjà dans GameRenderer
+            List<net.mgsx.gltf.scene3d.scene.Scene> hitScenes = renderer.pickAllScenes(cx, cy);
+
+            int targetNetId = -1;
+
+            // On cherche la première scène qui appartient à une entité avec un NetID
+            for (net.mgsx.gltf.scene3d.scene.Scene scene : hitScenes) {
+                int netId = gfx.getEntityNetID(scene);
+                if (netId != -1) {
+                    // Optionnel : vérifier ici si c'est un ennemi (si tu as un TeamComponent)
+                    targetNetId = netId;
+                    break; // On a trouvé notre cible la plus proche au centre
+                }
+            }
+
+            final int finalTargetId = targetNetId;
+
+            // 3. Envoyer la requête (sur un thread réseau)
+            new Thread(() -> {
+                AttackGroupRequest attackReq = RequestFactory.createAttackGroupRequest(groupNetIds, finalTargetId);
+                KryoMessage message = KryoMessagePackager.packAttackGroupRequest(attackReq, SessionManager.getInstance().getToken());
+                ClientManager.getInstance().getKryoManager().send(message);
+
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    if (finalTargetId != -1) {
+                        Toast.makeText(getContext(), "Attaque de la cible " + finalTargetId, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getContext(), "Aucune cible au centre de l'écran", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }).start();
+        });
     }
 
     private void setupRecyclers(View view) {
