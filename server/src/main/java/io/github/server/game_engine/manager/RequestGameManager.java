@@ -12,6 +12,7 @@ import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.NetComponent;
 import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
+import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.ResourcesType;
@@ -66,18 +67,23 @@ public class RequestGameManager {
         if (entityTarget == null)return null;
         PositionComponent posTarget = game.getWorld().getMapper(PositionComponent.class).get(entityTarget);
         LifeComponent lifeTarget = game.getWorld().getMapper(LifeComponent.class).get(entityTarget);
+        NetComponent netAttack = game.getWorld().getMapper(NetComponent.class).get(entityTarget);
+        ProprietyComponent proComponent = game.getWorld().getMapper(ProprietyComponent.class).get(entityTarget);
         if (posTarget == null || lifeTarget == null) return null;
 
         for (int netId : attackGroupRequest.getGroup()){
             Entity entityAttack = EcsManager.findEntityByNetIdAndPlayer(game.getWorld(), netId, attackGroupRequest.getPlayer());
             if (entityAttack == null) continue;
-            NetComponent netAttack = game.getWorld().getMapper(NetComponent.class).get(entityAttack);
+            NetComponent netAttack2 = game.getWorld().getMapper(NetComponent.class).get(entityAttack);
+            ProprietyComponent proComponent2 = game.getWorld().getMapper(ProprietyComponent.class).get(entityAttack);
+            if(proComponent2 == null)continue;
+            if(proComponent!=null && proComponent.player.equals(proComponent2.player))continue;
 
             HashMap<String,Object> fields = new HashMap<>();
-            fields.put("targetId",netId);
+            fields.put("targetId",netAttack.netId);
             fields.put("nextTargetId",-1);
             fields.put("force",true);
-            updateEntityAttack.getToUpdate().add(new EntitySnapshot(netId,netAttack.entityType, new ArrayList<>(Collections.singleton(new ComponentSnapshot("TargetComponent", fields)))));
+            updateEntityAttack.getToUpdate().add(new EntitySnapshot(netId,netAttack2.entityType, new ArrayList<>(Collections.singleton(new ComponentSnapshot("TargetComponent", fields)))));
         }
 
         if(!updateEntityAttack.getToUpdate().isEmpty()){
@@ -100,7 +106,6 @@ public class RequestGameManager {
             fields.put("targetRelated",false);
             fields.put("destinationX",moveGroupRequest.getPosX());
             fields.put("destinationY",moveGroupRequest.getPosY());
-            fields.put("nextX1",-1);fields.put("nextY1",-1);fields.put("nextX2",-1);fields.put("nextY2",-1);
             fields.put("force",moveGroupRequest.isForce());
             updateEntityMove.getToUpdate().add(new EntitySnapshot(netId, netMove.entityType, new ArrayList<>(Collections.singleton(new ComponentSnapshot("MoveComponent", fields)))));
         }

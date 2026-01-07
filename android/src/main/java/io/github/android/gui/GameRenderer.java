@@ -421,7 +421,6 @@ public class GameRenderer implements ApplicationListener {
         PinnedPos.y = DY_PIN;
         int width = shape.getWidth();
         int height = shape.getHeight();
-        float degrees = (-direction.getAngleRadians()-(float)Math.PI/2) * MathUtils.radiansToDegrees;
         if(direction.equals(Direction.EAST)||direction.equals(Direction.WEST)){
             height = shape.getWidth();
             width = shape.getHeight();
