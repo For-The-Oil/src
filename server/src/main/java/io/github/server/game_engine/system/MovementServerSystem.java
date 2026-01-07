@@ -41,7 +41,7 @@ import io.github.shared.shared_engine.manager.EcsManager;
 public class MovementServerSystem extends IteratingSystem {
 
     /** Tolerance for considering an entity as having reached its destination. */
-    private static final float EPSILON = 0.25f;
+    private static final float EPSILON = 10f;
 
     private final ServerGame server;
     private final MapHeuristic heuristic = new MapHeuristic();
