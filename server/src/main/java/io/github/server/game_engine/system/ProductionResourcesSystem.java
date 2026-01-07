@@ -113,7 +113,7 @@ public class ProductionResourcesSystem extends IteratingSystem {
         RessourceComponent res = mRes.get(e);
         if (res == null) return;
 
-        HashMap<ResourcesType, Integer> payload = res.getAll();
+        HashMap<ResourcesType, Integer> payload = new HashMap<>(res.getAll());
         if (payload == null || payload.isEmpty()) return;
         HashMap<ResourcesType, Integer> playerR = Utility.findPlayerByUuid(game.getPlayersList(),prop.player).getResources();
         for(ResourcesType resourcesType : playerR.keySet()){
