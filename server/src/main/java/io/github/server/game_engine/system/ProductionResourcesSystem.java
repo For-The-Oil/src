@@ -6,6 +6,7 @@ import com.artemis.annotations.Wire;
 import com.artemis.systems.IteratingSystem;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import io.github.server.data.ServerGame;
 import io.github.shared.data.component.FreezeComponent;
@@ -15,6 +16,7 @@ import io.github.shared.data.component.ProprietyComponent;
 import io.github.shared.data.component.RessourceComponent;
 import io.github.shared.data.enums_types.EntityType;
 import io.github.shared.data.enums_types.ResourcesType;
+import io.github.shared.data.instructions.Instruction;
 import io.github.shared.data.instructions.ResourcesInstruction;
 import io.github.shared.data.network.Player;
 import io.github.shared.shared_engine.Utility;
@@ -61,6 +63,7 @@ public class ProductionResourcesSystem extends IteratingSystem {
 
     /** Elapsed time since the last production pass. */
     private float accumulator = 0f;
+    private HashMap<UUID, ResourcesInstruction> PlayerNextResources = new HashMap<>();
 
     /**
      * Creates a production system bound to a ServerGame.
@@ -114,15 +117,30 @@ public class ProductionResourcesSystem extends IteratingSystem {
         if (res == null) return;
 
         HashMap<ResourcesType, Integer> payload = new HashMap<>(res.getAll());
-        if (payload == null || payload.isEmpty()) return;
+        if (payload.isEmpty()) return;
         HashMap<ResourcesType, Integer> playerR = Utility.findPlayerByUuid(game.getPlayersList(),prop.player).getResources();
-        for(ResourcesType resourcesType : playerR.keySet()){
-            payload.put(resourcesType,playerR.get(resourcesType)+payload.getOrDefault(resourcesType,0));
+        if(PlayerNextResources.containsKey(prop.player)) {
+            HashMap<ResourcesType, Integer> pr = PlayerNextResources.get(prop.player).getRessources();
+            for (ResourcesType resourcesType : payload.keySet()) {
+                payload.put(resourcesType,payload.get(resourcesType));
+            }
+            for (ResourcesType resourcesType : pr.keySet()) {
+                payload.put(resourcesType, pr.get(resourcesType));
+            }
+            PlayerNextResources.get(prop.player).setRessources(payload);
         }
-        // Emit one ResourcesInstruction for this production tick
-        long timestamp = System.currentTimeMillis();
-        ResourcesInstruction instruction = new ResourcesInstruction(timestamp, payload, prop.player);
-        game.addQueueInstruction(instruction);
+        else {
+            for (ResourcesType resourcesType : payload.keySet()) {
+                payload.put(resourcesType,payload.get(resourcesType));
+            }
+            for (ResourcesType resourcesType : playerR.keySet()) {
+                payload.put(resourcesType, playerR.get(resourcesType));
+            }
+            // Emit one ResourcesInstruction for this production tick
+            long timestamp = System.currentTimeMillis();
+            ResourcesInstruction instruction = new ResourcesInstruction(timestamp, payload, prop.player);
+            PlayerNextResources.put(prop.player,instruction);
+        }
     }
 
     /**
@@ -133,6 +151,10 @@ public class ProductionResourcesSystem extends IteratingSystem {
     protected void end() {
         if (accumulator >= PERIOD_SEC) {
             accumulator = 0f;
+            for(Instruction instruction : PlayerNextResources.values()) {
+                game.addQueueInstruction(instruction);
+            }
+            PlayerNextResources.clear();
         }
     }
 }
