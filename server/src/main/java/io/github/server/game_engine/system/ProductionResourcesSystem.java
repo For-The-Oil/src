@@ -121,25 +121,20 @@ public class ProductionResourcesSystem extends IteratingSystem {
         HashMap<ResourcesType, Integer> playerR = Utility.findPlayerByUuid(game.getPlayersList(),prop.player).getResources();
         if(PlayerNextResources.containsKey(prop.player)) {
             HashMap<ResourcesType, Integer> pr = PlayerNextResources.get(prop.player).getRessources();
-            for (ResourcesType resourcesType : payload.keySet()) {
-                payload.put(resourcesType,payload.get(resourcesType));
-            }
             for (ResourcesType resourcesType : pr.keySet()) {
-                payload.put(resourcesType, pr.get(resourcesType));
+                payload.put(resourcesType, pr.get(resourcesType)+payload.getOrDefault(resourcesType,0));
             }
+            PlayerNextResources.get(prop.player).setRessources(payload);
         }
         else {
-            for (ResourcesType resourcesType : payload.keySet()) {
-                payload.put(resourcesType,payload.get(resourcesType));
-            }
             for (ResourcesType resourcesType : playerR.keySet()) {
-                payload.put(resourcesType, playerR.get(resourcesType));
+                payload.put(resourcesType, playerR.get(resourcesType)+payload.getOrDefault(resourcesType,0));
             }
+            // Emit one ResourcesInstruction for this production tick
+            long timestamp = System.currentTimeMillis();
+            ResourcesInstruction instruction = new ResourcesInstruction(timestamp, payload, prop.player);
+            PlayerNextResources.put(prop.player,instruction);
         }
-        // Emit one ResourcesInstruction for this production tick
-        long timestamp = System.currentTimeMillis();
-        ResourcesInstruction instruction = new ResourcesInstruction(timestamp, payload, prop.player);
-        PlayerNextResources.put(prop.player,instruction);
     }
 
     /**

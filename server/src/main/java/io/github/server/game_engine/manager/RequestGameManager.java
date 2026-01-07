@@ -7,8 +7,10 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import io.github.shared.data.IGame;
+import io.github.shared.data.component.FreezeComponent;
 import io.github.shared.data.component.LifeComponent;
 import io.github.shared.data.component.NetComponent;
+import io.github.shared.data.component.OnCreationComponent;
 import io.github.shared.data.component.PositionComponent;
 import io.github.shared.data.enums_types.Direction;
 import io.github.shared.data.enums_types.EntityType;
@@ -117,9 +119,14 @@ public class RequestGameManager {
         Direction direction = buildRequest.getDirection();
 
         if(!ShapeManager.canOverlayShape(game.getMap(), ShapeManager.rotateShape(shape, direction), Utility.worldToCell(buildRequest.getPosX()), Utility.worldToCell(buildRequest.getPosY()), 0, 0, shape.getWidth(), shape.getHeight(),entityTypeBuild.getShapeType().getCanBePlacedOn())
-            || !Utility.canSubtractResources(entityTypeBuild.getCost(), entityTypeBuild.getCost())
-            || (entityTypeBuild.getFrom()!=null
-            && EcsManager.findEntityByNetIdPlayerAndEntityType(game.getWorld(), buildRequest.getFrom(), buildRequest.getPlayer(), entityTypeBuild.getFrom()) == null)) return null;
+            || !Utility.canSubtractResources(entityTypeBuild.getCost(), entityTypeBuild.getCost())) return null;
+        if(entityTypeBuild.getFrom()!=null){
+            Entity entityBuildFrom = EcsManager.findEntityByNetIdPlayerAndEntityType(game.getWorld(), buildRequest.getFrom(), buildRequest.getPlayer(), entityTypeBuild.getFrom());
+            PositionComponent posSummon = game.getWorld().getMapper(PositionComponent.class).get(entityBuildFrom);
+            OnCreationComponent onCreation = game.getWorld().getMapper(OnCreationComponent.class).get(entityBuildFrom);
+            FreezeComponent freeze = game.getWorld().getMapper(FreezeComponent.class).get(entityBuildFrom);
+            if (posSummon == null||onCreation!=null||freeze!=null) return null;
+        }
 
         buildInstruction.add(entityTypeBuild,direction, Utility.getNetId(), buildRequest.getFrom(), buildRequest.getPosX(), buildRequest.getPosY(), buildRequest.getPlayer());
 
@@ -136,8 +143,11 @@ public class RequestGameManager {
 
         if(!Utility.canSubtractResources(entityTypeCast.getCost(), entityTypeCast.getCost())) return null;
         Entity entityCastFrom = EcsManager.findEntityByNetIdPlayerAndEntityType(game.getWorld(), castRequest.getFrom(), castRequest.getPlayer(), entityTypeCast.getFrom());
-        if (entityCastFrom == null
-            || game.getWorld().getMapper(PositionComponent.class).get(entityCastFrom) == null) return null;
+        OnCreationComponent onCreation = game.getWorld().getMapper(OnCreationComponent.class).get(entityCastFrom);
+        FreezeComponent freeze = game.getWorld().getMapper(FreezeComponent.class).get(entityCastFrom);
+        if (entityCastFrom == null||onCreation!=null||freeze!=null
+            || game.getWorld().getMapper(PositionComponent.class).get(entityCastFrom) == null
+        ) return null;
 
         castInstruction.add(entityTypeCast,null, Utility.getNetId(), castRequest.getFrom(), castRequest.getTargetX(), castRequest.getTargetY(), castRequest.getPlayer());
 
@@ -160,7 +170,9 @@ public class RequestGameManager {
             Entity entitySummonFrom = EcsManager.findEntityByNetIdPlayerAndEntityType(game.getWorld(), summonRequest.getFrom(), summonRequest.getPlayer(), entityTypeSummon.getFrom());
             if (entitySummonFrom == null) continue;
             PositionComponent posSummon = game.getWorld().getMapper(PositionComponent.class).get(entitySummonFrom);
-            if (posSummon == null) return null;
+            OnCreationComponent onCreation = game.getWorld().getMapper(OnCreationComponent.class).get(entitySummonFrom);
+            FreezeComponent freeze = game.getWorld().getMapper(FreezeComponent.class).get(entitySummonFrom);
+            if (posSummon == null||onCreation!=null||freeze!=null) return null;
 
             createInstructionSummon.add(entityTypeSummon,null, Utility.getNetId(), summonRequest.getFrom(), posSummon.x, posSummon.y, summonRequest.getPlayer());
         }
